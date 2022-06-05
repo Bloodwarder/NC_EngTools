@@ -96,7 +96,7 @@ namespace NC_EngTools
     }
     public static class LayerChanger
     {
-        public static int maxsimple { get; set; } = 15;
+        public static int maxsimple { get; set; } = 5;
 
         public static void UpdateActiveLP(Document doc, Database db, Transaction transaction)
         {
@@ -194,7 +194,6 @@ namespace NC_EngTools
                             {
                                 LinetypeTableRecord lttr = (LinetypeTableRecord)tm.GetObject(elem, OpenMode.ForRead);
                                 if (lttr.Name.ToUpper()==lp.LTName.ToUpper()) { lttrId = lttr.Id; break; }
-                                
                             }
                             LayerTableRecord ltrec = new LayerTableRecord
                             {
@@ -226,7 +225,6 @@ namespace NC_EngTools
                         transaction.Dispose();
                     }
                 }
-
             }
         }
     }
