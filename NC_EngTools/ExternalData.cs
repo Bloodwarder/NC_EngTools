@@ -9,7 +9,7 @@
     public class PropsReloader
     {
         //здесь необходимо задать относительный путь и взять его из файла конфигурации. сделаю, как разберусь
-        const string path = "C:/Users/ekono/source/repos/NC_EngTools/NC_EngTools/xlLayerData/";
+        const string path = "./LayersData/"; //"C:/Users/ekono/source/repos/NC_EngTools/NC_EngTools/xlLayerData/";
         //const string path = "/LayerData/";
         //ConfigurationManager.AppSettings.Get("layerpropsxlsxpath");
         const string xlname = "Layer_Props.xlsm";
@@ -18,31 +18,36 @@
         public void ReloadProps()
         {
             XmlSerializableDictionary<string, LayerProps> dct = ExtractPropsExcel();
-            xmlSerializeProps(dct);
+            XmlSerializeProps(dct);
             LayerProperties.Dictionary = dct;
         }
 
         private XmlSerializableDictionary<string, LayerProps> ExtractPropsExcel()
         {
-            Application xlapp = new Application();
-            xlapp.DisplayAlerts = false;
+            Application xlapp = new Application
+            {
+                DisplayAlerts = false
+            };
             FileInfo fi = new FileInfo(path+xlname);
             if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
-            Workbook xlwb = xlapp.Workbooks.Open(path+xlname, ReadOnly: true, IgnoreReadOnlyRecommended: true);
-            Range rng = xlwb.Worksheets[1].Cells[1, 1].CurrentRegion;
+
+            Workbook xlwb = xlapp.Workbooks.Open(fi.FullName, ReadOnly: true, IgnoreReadOnlyRecommended: true);
             XmlSerializableDictionary<string, LayerProps> dct = new XmlSerializableDictionary<string, LayerProps>();
             try
             {
+                Range rng = xlwb.Worksheets[1].Cells[1, 1].CurrentRegion;
                 for (int i = 1; i < rng.Rows.Count+1; i++)
                 {
-                    LayerProps lp = new LayerProps();
-                    lp.ConstWidth = rng.Cells[i, 2].Value;
-                    lp.LTScale = rng.Cells[i, 3].Value;
-                    lp.Red = (byte)rng.Cells[i, 4].Value;
-                    lp.Green = (byte)rng.Cells[i, 5].Value;
-                    lp.Blue = (byte)rng.Cells[i, 6].Value;
-                    lp.LTName = rng.Cells[i, 7].Text;
-                    lp.LineWeight = (int)rng.Cells[i, 8].Value;
+                    LayerProps lp = new LayerProps
+                    {
+                        ConstWidth = rng.Cells[i, 2].Value,
+                        LTScale = rng.Cells[i, 3].Value,
+                        Red = (byte)rng.Cells[i, 4].Value,
+                        Green = (byte)rng.Cells[i, 5].Value,
+                        Blue = (byte)rng.Cells[i, 6].Value,
+                        LTName = rng.Cells[i, 7].Text,
+                        LineWeight = (int)rng.Cells[i, 8].Value
+                    };
                     string str = rng.Cells[i, 1].Text;
                     dct.Add(str, lp);
                 }
@@ -55,7 +60,7 @@
             return dct;
         }
         
-        private void xmlSerializeProps(XmlSerializableDictionary<string,LayerProps> dictionary)
+        private void XmlSerializeProps(XmlSerializableDictionary<string,LayerProps> dictionary)
         {
             XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<string,LayerProps>));
             using (FileStream fs = new FileStream(path+xmlname, FileMode.Create))
@@ -64,7 +69,7 @@
             }
         }
 
-        public static Dictionary<string, LayerProps> xmlDeserializeProps()
+        public static Dictionary<string, LayerProps> XmlDeserializeProps()
         {
             FileInfo fi = new FileInfo(path+xmlname);
             if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
@@ -80,7 +85,7 @@
     {
         public static Dictionary<string, LayerProps> Dictionary { get; set; }
 
-        static LayerProperties() { Dictionary = PropsReloader.xmlDeserializeProps(); }
+        static LayerProperties() { Dictionary = PropsReloader.XmlDeserializeProps(); }
     }
 
     public static class LayerAlteringDictionary

@@ -74,7 +74,7 @@
     <None Include="LayersData\Layer_Props.xlsm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="LayersData\СТАНДАРТ1.lin">
+    <None Include="LayersData\STANDARD1.lin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

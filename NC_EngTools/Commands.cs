@@ -11,6 +11,7 @@ namespace NC_EngTools
     using Platform = HostMgd;
     using PlatformDb = Teigha;
     using System.Collections.Generic;
+    using System.IO;
 
     using Dictionaries;
 
@@ -187,7 +188,8 @@ namespace NC_EngTools
                             LinetypeTable ltt = (LinetypeTable)tm.GetObject(db.LinetypeTableId, OpenMode.ForWrite, false);
                             if (!ltt.Has(lp.LTName))
                             {
-                                db.LoadLineTypeFile(lp.LTName, @"C:\Users\ekono\source\repos\NC_EngTools\NC_EngTools\StandartFiles\СТАНДАРТ1.lin");
+                                FileInfo fi = new FileInfo(@".\LayersData\STANDARD1.lin");
+                                db.LoadLineTypeFile(lp.LTName, fi.FullName);
                             }
                             ObjectId lttrId = SymbolUtilityServices.GetLinetypeContinuousId(db);
                             foreach (ObjectId elem in ltt)

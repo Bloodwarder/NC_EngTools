@@ -70,7 +70,7 @@ namespace LayerProcessing
             OutputLayerName = InputLayerName;
         }
 
-        private string trimmedname
+        private string TrimmedName
         {
             get
             {
@@ -94,7 +94,7 @@ namespace LayerProcessing
         }
         public string TrueName
         {
-            get { return string.Join("_", new string[2] { trimmedname, st_txt[bldstatus] }); }
+            get { return string.Join("_", new string[2] { TrimmedName, st_txt[bldstatus] }); }
         }
 
         public void StatusSwitch(Status newstatus)
@@ -198,9 +198,9 @@ namespace LayerProcessing
 
     public class CurLayerParser : LayerParser
     {
-        public CurLayerParser(Database db) : base(clayername(db)) { Db = db; ActiveLayerParsers.Add(this); }
+        public CurLayerParser(Database db) : base(Clayername(db)) { Db = db; ActiveLayerParsers.Add(this); }
 
-        private static string clayername(Database db)
+        private static string Clayername(Database db)
         {
             LayerTableRecord ltr = (LayerTableRecord)db.TransactionManager.GetObject(db.Clayer, OpenMode.ForRead);
             return ltr.Name;
@@ -255,9 +255,8 @@ namespace LayerProcessing
                 foreach (Entity ent in ObjList)
                 {
                     ent.Layer = OutputLayerName;
-                    if (ent is Polyline)
+                    if (ent is Polyline pl)
                     {
-                        Polyline pl = (Polyline)ent;
                         pl.LinetypeScale=lp.LTScale;
                         pl.ConstantWidth = lp.ConstWidth;
                     }
