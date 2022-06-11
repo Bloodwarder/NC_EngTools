@@ -24,6 +24,7 @@
             XmlSerializeProps(dct);
             XmlSerializeAlteringDictionary(dct2);
             LayerProperties.Dictionary = dct;
+            LayerAlteringDictionary.Dictionary = dct2;
         }
 
         private XmlSerializableDictionary<string, LayerProps> ExtractPropsExcel()
@@ -77,6 +78,7 @@
             XmlSerializableDictionary<string, string> dct = new XmlSerializableDictionary<string, string>();
             try
             {
+
                 Range rng = xlwb.Worksheets[2].Cells[1, 1].CurrentRegion;
                 for (int i = 1; i < rng.Rows.Count+1; i++)
                 {
@@ -137,13 +139,35 @@
     public static class LayerProperties
     {
         public static Dictionary<string, LayerProps> Dictionary { get; set; }
-        static LayerProperties() { Dictionary = PropsReloader.XmlDeserializeProps(); }
+        static LayerProperties() 
+        {
+            try
+            {
+                Dictionary = PropsReloader.XmlDeserializeProps();
+            }
+            catch(FileNotFoundException)
+            {
+                PropsReloader pr = new PropsReloader();
+                pr.ReloadDictionaries();
+            }
+        }
     }
 
     public static class LayerAlteringDictionary
     {
         public static Dictionary<string, string> Dictionary { get; set; }
-        static LayerAlteringDictionary() { Dictionary = PropsReloader.XmlDeserializeAlteringDictionary(); }
+        static LayerAlteringDictionary() 
+        {
+            try
+            {
+                Dictionary = PropsReloader.XmlDeserializeAlteringDictionary();
+            }
+            catch(FileNotFoundException)
+            {
+                PropsReloader pr = new PropsReloader();
+                pr.ReloadDictionaries();
+            }
+        }
     }
 
     public struct LayerProps

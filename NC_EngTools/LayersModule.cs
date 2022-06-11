@@ -95,10 +95,9 @@ namespace LayerProcessing
 
         public void StatusSwitch(Status newstatus)
         {
-            string rgxpattern = @"(_"+string.Join("|_", st_txt)+")(\b_|$)";
-            Regex rgx = new Regex(rgxpattern);
             bldstatus=(int)newstatus;
-            OutputLayerName = rgx.Replace(OutputLayerName, "_"+st_txt[(int)newstatus]);
+
+
             //disabling reconstruction marker for existing objects layers
             if (recstatus & !(bldstatus==2||bldstatus==3||bldstatus==5))
             {
@@ -107,10 +106,12 @@ namespace LayerProcessing
             //disabling external project tag for current project and existing layers
             if (extpr & !(bldstatus==3||bldstatus==4||bldstatus==5))
             {
-                rgx = new Regex(@"_\[(\w*)\]");
+                Regex rgx = new Regex(@"_\[(\w*)\]");
                 OutputLayerName = rgx.Replace(OutputLayerName, "");
                 extprojectname = ""; extpr = false;
             }
+            Regex rgx1 = new Regex(@"(_"+string.Join("|_", st_txt)+")(\b_|$)"); 
+            OutputLayerName = rgx1.Replace(OutputLayerName, "_"+st_txt[(int)newstatus]);
             return;
         }
 
@@ -167,7 +168,11 @@ namespace LayerProcessing
 
         public void Alter()
         {
-            throw new NotImplementedException();
+            bool success = LayerAlteringDictionary.Dictionary.TryGetValue(MainName, out string str);
+            if (!success) { return; }
+            Regex rgx = new Regex(MainName);
+            OutputLayerName = rgx.Replace(OutputLayerName, str);
+            MainName = str;
         }
 
         public abstract void Push();
