@@ -3,7 +3,7 @@
 namespace NC_EngTools
 {
     using LayerProcessing;
-    using LayerPropsExtraction;
+    using ExternalData;
     using HostMgd.ApplicationServices;
     using HostMgd.EditorInput;
     using Teigha.DatabaseServices;
@@ -92,7 +92,33 @@ namespace NC_EngTools
                     ActiveLayerParsers.Flush();
                 }
             }
-                
+        }
+
+        [CommandMethod("АЛЬТЕРНАТИВНЫЙ", CommandFlags.UsePickSet)]
+        public void LayerAlter()
+        {
+            Document doc = Application.DocumentManager.MdiActiveDocument;
+            Database db = HostApplicationServices.WorkingDatabase;
+            PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
+
+            Editor ed = doc.Editor;
+
+
+            using (Transaction myT = tm.StartTransaction())
+            {
+                try
+                {
+                    LayerChanger.UpdateActiveLP(doc, db, myT); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
+                    ActiveLayerParsers.Alter();
+                    ActiveLayerParsers.Push();
+                    myT.Commit();
+                }
+                finally
+                {
+                    myT.Dispose();
+                    ActiveLayerParsers.Flush();
+                }
+            }
         }
     }
     public static class LayerChanger

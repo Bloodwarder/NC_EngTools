@@ -1,12 +1,13 @@
 ﻿using System.Linq;
 
+
 namespace LayerProcessing
 {
     using System;
     using System.Text.RegularExpressions;
     using System.Collections.Generic;
     using Teigha.DatabaseServices;
-    using LayerPropsExtraction;
+    using ExternalData;
     using NC_EngTools;
     public abstract class LayerParser
     {
@@ -14,6 +15,12 @@ namespace LayerProcessing
         private static readonly string[] st_txt = new string[6] { "сущ", "дем", "пр", "неутв", "ндем", "нреорг" };
         public string InputLayerName { get; private set; }
         public string OutputLayerName { get; private set; }
+        public string MainName { get; set; }
+        public string TrueName
+        //string for props compare (type of network and it's status)
+        {
+            get { return string.Join("_", new string[2] { MainName, st_txt[bldstatus] }); }
+        }
 
         private bool recstatus = false;
         private bool extpr = false;
@@ -28,18 +35,34 @@ namespace LayerProcessing
                 throw new WrongLayerException($"Слой {layername} не обрабатывается программой");
                 //обработать при передаче слоёв
             }
-
+            int mainnamestart;
+            int mainnameend;
             string[] decomp = InputLayerName.Split('_');
             //searching for external project name enclosed in [] and storing it
             if (decomp[1].StartsWith("["))
             {
+                mainnamestart = 2;
                 extpr = true;
                 Regex rgx = new Regex(@"\[(\w*)\]");
                 string mtch1 = rgx.Match(InputLayerName).ToString().Replace("[", "").Replace("]", "");
                 extprojectname = mtch1;
             }
+            else
+            {
+                mainnamestart = 1;
+            }
             //searching for reconstruction status marker "_пер"
-            if (decomp[decomp.Length-1]=="пер") { recstatus=true; }
+            if (decomp[decomp.Length-1]=="пер") 
+            { 
+                recstatus=true;
+                mainnameend = decomp.Length-3;
+            }
+            else
+            {
+                mainnameend = decomp.Length-2;
+            }
+            //assigning main name containing main type information (type of network, presented by layer)
+            MainName = string.Join("_",decomp.Skip(mainnamestart).Take(mainnameend-mainnamestart+1));
             //searching for status in last or last-1 position depending of recstatus
             string str = recstatus ? decomp[decomp.Length-2] : decomp[decomp.Length-1];
             bool stfound = false;
@@ -68,33 +91,6 @@ namespace LayerProcessing
                 engtype=decomp[1];
             }
             OutputLayerName = InputLayerName;
-        }
-
-        private string TrimmedName
-        {
-            get
-            {
-                string s = OutputLayerName;
-                Regex rgx = new Regex(@"(_"+string.Join("|_", st_txt)+")(\b_|$)");
-                s = rgx.Replace(s, "");
-                rgx = new Regex(StandartPrefix+"_");
-                s = rgx.Replace(s, "");
-                if (extpr)
-                {
-                    rgx = new Regex(@"\[(\w*)\]_");
-                    s = rgx.Replace(s, "");
-                }
-                if (recstatus)
-                {
-                    rgx = new Regex("_пер");
-                    s = rgx.Replace(s, "");
-                }
-                return s;
-            }
-        }
-        public string TrueName
-        {
-            get { return string.Join("_", new string[2] { TrimmedName, st_txt[bldstatus] }); }
         }
 
         public void StatusSwitch(Status newstatus)

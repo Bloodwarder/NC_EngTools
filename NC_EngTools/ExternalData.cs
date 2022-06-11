@@ -1,4 +1,4 @@
-﻿namespace LayerPropsExtraction
+﻿namespace ExternalData
 {
     using System.Collections.Generic;
     using Microsoft.Office.Interop.Excel;
@@ -13,12 +13,16 @@
         //const string path = "/LayerData/";
         //ConfigurationManager.AppSettings.Get("layerpropsxlsxpath");
         const string xlname = "Layer_Props.xlsm";
-        const string xmlname = "Layer_Props.xml";
+        const string xmlpropsname = "Layer_Props.xml";
+        const string xmlaltername = "Layer_Alter.xml";
+
         [CommandMethod("RELOADPROPS")]
-        public void ReloadProps()
+        public void ReloadDictionaries()
         {
             XmlSerializableDictionary<string, LayerProps> dct = ExtractPropsExcel();
+            XmlSerializableDictionary<string, string> dct2 = ExtractAlterExcel();
             XmlSerializeProps(dct);
+            XmlSerializeAlteringDictionary(dct2);
             LayerProperties.Dictionary = dct;
         }
 
@@ -59,11 +63,39 @@
             }
             return dct;
         }
-        
+
+        private XmlSerializableDictionary<string, string> ExtractAlterExcel()
+        {
+            Application xlapp = new Application
+            {
+                DisplayAlerts = false
+            };
+            FileInfo fi = new FileInfo(path+xlname);
+            if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
+
+            Workbook xlwb = xlapp.Workbooks.Open(fi.FullName, ReadOnly: true, IgnoreReadOnlyRecommended: true);
+            XmlSerializableDictionary<string, string> dct = new XmlSerializableDictionary<string, string>();
+            try
+            {
+                Range rng = xlwb.Worksheets[2].Cells[1, 1].CurrentRegion;
+                for (int i = 1; i < rng.Rows.Count+1; i++)
+                {
+                    string strkey = rng.Cells[i, 1].Text;
+                    string strval = rng.Cells[i, 2].Text;
+                    dct.Add(strkey, strval);
+                }
+            }
+            finally
+            {
+                xlwb.Close(SaveChanges: false);
+                xlapp.Quit();
+            }
+            return dct;
+        }
         private void XmlSerializeProps(XmlSerializableDictionary<string,LayerProps> dictionary)
         {
             XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<string,LayerProps>));
-            using (FileStream fs = new FileStream(path+xmlname, FileMode.Create))
+            using (FileStream fs = new FileStream(path+xmlpropsname, FileMode.Create))
             {
                 xs.Serialize(fs, dictionary);
             }
@@ -71,26 +103,47 @@
 
         public static Dictionary<string, LayerProps> XmlDeserializeProps()
         {
-            FileInfo fi = new FileInfo(path+xmlname);
+            FileInfo fi = new FileInfo(path+xmlpropsname);
             if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
             XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<string, LayerProps>));
-            using (FileStream fs = new FileStream(path+xmlname, FileMode.Open))
+            using (FileStream fs = new FileStream(path+xmlpropsname, FileMode.Open))
             {
                 XmlSerializableDictionary<string, LayerProps> dct = xs.Deserialize(fs) as XmlSerializableDictionary<string, LayerProps>;
                 return dct; 
+            }
+        }
+
+        private void XmlSerializeAlteringDictionary(XmlSerializableDictionary<string,string> dictionary)
+        {
+            XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<string, string>));
+            using (FileStream fs = new FileStream(path+xmlaltername, FileMode.Create))
+            {
+                xs.Serialize(fs, dictionary);
+            }
+        }
+
+        public static Dictionary<string, string> XmlDeserializeAlteringDictionary()
+        {
+            FileInfo fi = new FileInfo(path+xmlaltername);
+            if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
+            XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<string, string>));
+            using (FileStream fs = new FileStream(path+xmlaltername, FileMode.Open))
+            {
+                XmlSerializableDictionary<string, string> dct = xs.Deserialize(fs) as XmlSerializableDictionary<string, string>;
+                return dct;
             }
         }
     }
     public static class LayerProperties
     {
         public static Dictionary<string, LayerProps> Dictionary { get; set; }
-
         static LayerProperties() { Dictionary = PropsReloader.XmlDeserializeProps(); }
     }
 
     public static class LayerAlteringDictionary
     {
-
+        public static Dictionary<string, string> Dictionary { get; set; }
+        static LayerAlteringDictionary() { Dictionary = PropsReloader.XmlDeserializeAlteringDictionary(); }
     }
 
     public struct LayerProps

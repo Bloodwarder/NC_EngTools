@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using LayerPropsExtraction;
+using ExternalData;
 using System;
 
 namespace LPropsTest
