@@ -58,7 +58,7 @@ namespace NC_EngTools
             }
         }
 
-        [CommandMethod("СТАТУСИЗМ", CommandFlags.UsePickSet)]
+        [CommandMethod("ИЗМСТАТУС", CommandFlags.UsePickSet)]
         public void LayerSC()
         {
             Document doc = Application.DocumentManager.MdiActiveDocument;
@@ -185,7 +185,7 @@ namespace NC_EngTools
         {
             Document doc = Application.DocumentManager.MdiActiveDocument;
             Editor ed = doc.Editor;
-            PromptStringOptions pso = new PromptStringOptions("Введите новый префикс обрабатываемых слоёв")
+            PromptStringOptions pso = new PromptStringOptions($"Введите новый префикс обрабатываемых слоёв <{LayerParser.StandartPrefix}>")
             {
                 AllowSpaces = false
             };

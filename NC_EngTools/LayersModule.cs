@@ -159,7 +159,7 @@ namespace LayerProcessing
             else //assigning name
             {
                 extprojectname = newprojname;
-                Regex rgx = new Regex(@".._.._");
+                Regex rgx = new Regex(@"$(\w*)_.._");
                 string repl = StandartPrefix+"_["+newprojname+"]_"+engtype+"_";
                 OutputLayerName=rgx.Replace(OutputLayerName, repl);
                 extpr = true;
