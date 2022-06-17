@@ -16,7 +16,7 @@ namespace NC_EngTools
     public class NCLayersCommands
     {
         public static string PrevStatus = "Сущ";
-        [CommandMethod("TTOGGLE")]
+        [CommandMethod("КАЛЬКА")]
         public void TToggle()
         {
             Database db = HostApplicationServices.WorkingDatabase;
@@ -84,6 +84,10 @@ namespace NC_EngTools
                     ActiveLayerParsers.Push();
                     myT.Commit();
                 }
+                catch (WrongLayerException)
+                {
+                    doc.Editor.WriteMessage("Текущий слой не принадлежит к списку обрабатываемых слоёв");
+                }
                 finally
                 {
                     myT.Dispose();
@@ -108,6 +112,10 @@ namespace NC_EngTools
                     ActiveLayerParsers.Push();
                     myT.Commit();
                 }
+                catch (WrongLayerException)
+                {
+                    doc.Editor.WriteMessage("Текущий слой не принадлежит к списку обрабатываемых слоёв");
+                }
                 finally
                 {
                     myT.Dispose();
@@ -131,6 +139,10 @@ namespace NC_EngTools
                     ActiveLayerParsers.ReconstrSwitch();
                     ActiveLayerParsers.Push();
                     myT.Commit();
+                }
+                catch (WrongLayerException)
+                {
+                    doc.Editor.WriteMessage("Текущий слой не принадлежит к списку обрабатываемых слоёв");
                 }
                 finally
                 {
@@ -189,7 +201,7 @@ namespace NC_EngTools
             {
                 AllowSpaces = false
             };
-            string newprefix = ed.GetString(pso).ToString();
+            string newprefix = ed.GetString(pso).StringResult;
             if (!string.IsNullOrEmpty(newprefix))
             {
                 LayerParser.StandartPrefix = newprefix;
