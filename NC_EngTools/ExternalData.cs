@@ -9,12 +9,18 @@
     public class PropsReloader
     {
         //здесь необходимо задать относительный путь и взять его из файла конфигурации. сделаю, как разберусь
-        const string path = "./LayersData/"; //"C:/Users/ekono/source/repos/NC_EngTools/NC_EngTools/xlLayerData/";
         //const string path = "/LayerData/";
         //ConfigurationManager.AppSettings.Get("layerpropsxlsxpath");
         const string xlname = "Layer_Props.xlsm";
         const string xmlpropsname = "Layer_Props.xml";
         const string xmlaltername = "Layer_Alter.xml";
+        public static string Path;
+        static PropsReloader()
+        {
+            FileInfo fi = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            Path = fi.DirectoryName + "\\LayersData\\";
+        }
+
 
         [CommandMethod("RELOADPROPS")]
         public void ReloadDictionaries()
@@ -33,7 +39,7 @@
             {
                 DisplayAlerts = false
             };
-            FileInfo fi = new FileInfo(path+xlname);
+            FileInfo fi = new FileInfo(Path+xlname);
             if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
 
             Workbook xlwb = xlapp.Workbooks.Open(fi.FullName, ReadOnly: true, IgnoreReadOnlyRecommended: true);
@@ -71,7 +77,7 @@
             {
                 DisplayAlerts = false
             };
-            FileInfo fi = new FileInfo(path+xlname);
+            FileInfo fi = new FileInfo(Path+xlname);
             if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
 
             Workbook xlwb = xlapp.Workbooks.Open(fi.FullName, ReadOnly: true, IgnoreReadOnlyRecommended: true);
@@ -97,7 +103,7 @@
         private void XmlSerializeProps(XmlSerializableDictionary<string,LayerProps> dictionary)
         {
             XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<string,LayerProps>));
-            using (FileStream fs = new FileStream(path+xmlpropsname, FileMode.Create))
+            using (FileStream fs = new FileStream(Path+xmlpropsname, FileMode.Create))
             {
                 xs.Serialize(fs, dictionary);
             }
@@ -105,20 +111,21 @@
 
         public static Dictionary<string, LayerProps> XmlDeserializeProps()
         {
-            FileInfo fi = new FileInfo(path+xmlpropsname);
+            FileInfo fi = new FileInfo(Path+xmlpropsname);
             if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
+            
             XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<string, LayerProps>));
-            using (FileStream fs = new FileStream(path+xmlpropsname, FileMode.Open))
+            using (FileStream fs = new FileStream(Path+xmlpropsname, FileMode.Open))
             {
                 XmlSerializableDictionary<string, LayerProps> dct = xs.Deserialize(fs) as XmlSerializableDictionary<string, LayerProps>;
-                return dct; 
+                return dct;
             }
         }
 
         private void XmlSerializeAlteringDictionary(XmlSerializableDictionary<string,string> dictionary)
         {
             XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<string, string>));
-            using (FileStream fs = new FileStream(path+xmlaltername, FileMode.Create))
+            using (FileStream fs = new FileStream(Path+xmlaltername, FileMode.Create))
             {
                 xs.Serialize(fs, dictionary);
             }
@@ -126,26 +133,26 @@
 
         public static Dictionary<string, string> XmlDeserializeAlteringDictionary()
         {
-            FileInfo fi = new FileInfo(path+xmlaltername);
+            FileInfo fi = new FileInfo(Path+xmlaltername);
             if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
             XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<string, string>));
-            using (FileStream fs = new FileStream(path+xmlaltername, FileMode.Open))
+            using (FileStream fs = new FileStream(Path+xmlaltername, FileMode.Open))
             {
                 XmlSerializableDictionary<string, string> dct = xs.Deserialize(fs) as XmlSerializableDictionary<string, string>;
                 return dct;
             }
         }
     }
-    public static class LayerProperties
+    public class LayerProperties
     {
-        public static Dictionary<string, LayerProps> Dictionary { get; set; }
-        static LayerProperties() 
+        public static Dictionary<string, LayerProps> Dictionary{ get; set; }
+        static LayerProperties()
         {
             try
             {
                 Dictionary = PropsReloader.XmlDeserializeProps();
             }
-            catch(FileNotFoundException)
+            catch (FileNotFoundException)
             {
                 PropsReloader pr = new PropsReloader();
                 pr.ReloadDictionaries();

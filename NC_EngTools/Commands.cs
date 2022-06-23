@@ -64,7 +64,6 @@ namespace NC_EngTools
             Document doc = Application.DocumentManager.MdiActiveDocument;
             Database db = HostApplicationServices.WorkingDatabase;
             PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
-
             Editor ed = doc.Editor;
             PromptKeywordOptions pko = new PromptKeywordOptions($"Укажите статус объекта <{PrevStatus}> [Сущ/Демонтаж/Проект/Неутв/Неутв_демонтаж/Неутв_реорганизация]", "Сущ Демонтаж Проект Неутв Неутв_демонтаж Неутв_реорганизация")
             {
@@ -87,6 +86,10 @@ namespace NC_EngTools
                 catch (WrongLayerException)
                 {
                     doc.Editor.WriteMessage("Текущий слой не принадлежит к списку обрабатываемых слоёв");
+                }
+                catch (System.Exception ex)
+                {
+                    doc.Editor.WriteMessage(ex.Message + " " + ex.StackTrace);
                 }
                 finally
                 {
@@ -130,7 +133,6 @@ namespace NC_EngTools
             Document doc = Application.DocumentManager.MdiActiveDocument;
             Database db = HostApplicationServices.WorkingDatabase;
             PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
-
             using (Transaction myT = tm.StartTransaction())
             {
                 try
@@ -302,17 +304,25 @@ namespace NC_EngTools
                             bool success = LayerProperties.Dictionary.TryGetValue(laypars.TrueName, out LayerProps lp);
                             if (!success) { throw new NoPropertiesException("Нет стандартов для слоя"); }
                             LinetypeTable ltt = (LinetypeTable)tm.GetObject(db.LinetypeTableId, OpenMode.ForWrite, false);
+                            bool ltgetsucess = true;
                             if (!ltt.Has(lp.LTName))
                             {
-                                FileInfo fi = new FileInfo(@".\LayersData\STANDARD1.lin");
-                                db.LoadLineTypeFile(lp.LTName, fi.FullName);
+                                FileInfo fi = new FileInfo(PropsReloader.Path+"\\STANDARD1.lin"); //ПЕРЕДЕЛАТЬ С НОРМАЛЬНОЙ ССЛЫКОЙ, а PropsReloader.Path снова сделать приватным
+                                try
+                                { db.LoadLineTypeFile(lp.LTName, fi.FullName); }
+                                catch
+                                { ltgetsucess = false;}
                             }
                             ObjectId lttrId = SymbolUtilityServices.GetLinetypeContinuousId(db);
-                            foreach (ObjectId elem in ltt)
+                            if (ltgetsucess)
                             {
-                                LinetypeTableRecord lttr = (LinetypeTableRecord)tm.GetObject(elem, OpenMode.ForRead);
-                                if (lttr.Name.ToUpper()==lp.LTName.ToUpper()) { lttrId = lttr.Id; break; }
+                                foreach (ObjectId elem in ltt)
+                                {
+                                    LinetypeTableRecord lttr = (LinetypeTableRecord)tm.GetObject(elem, OpenMode.ForRead);
+                                    if (lttr.Name.ToUpper()==lp.LTName.ToUpper()) { lttrId = lttr.Id; break; }
+                                }
                             }
+                            //Добавить сообщение о том, что тип линии не найден
                             LayerTableRecord ltrec = new LayerTableRecord
                             {
                                 Name = layername,
@@ -332,11 +342,6 @@ namespace NC_EngTools
                     catch (NoPropertiesException)
                     {
                         throw new NoPropertiesException("Проверка слоя не удалась");
-                    }
-
-                    catch (System.Exception ex)
-                    {
-                        throw new System.Exception(ex.Message);
                     }
                     finally
                     {

@@ -77,17 +77,22 @@
     <Compile Include="SerailizableDictionary.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="LayersData\Layer_Props.xlsm">
+    <Content Include="LayersData\Layer_Props.xlsm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="LayersData\STANDARD1.lin">
+    </Content>
+    <Content Include="LayersData\STANDARD1.lin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="LayersData\Layer_Props.xml">
+    <Content Include="LayersData\Layer_Props.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LayersData\Layer_Alter.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
