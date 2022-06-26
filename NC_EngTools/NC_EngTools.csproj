@@ -73,6 +73,7 @@
     <Compile Include="Dictionaries.cs" />
     <Compile Include="LayersModule.cs" />
     <Compile Include="Commands.cs" />
+    <None Include="OldCode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerailizableDictionary.cs" />
   </ItemGroup>

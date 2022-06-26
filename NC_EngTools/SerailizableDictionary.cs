@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 
 [XmlRoot("Dictionary")]
-internal class XmlSerializableDictionary<TKey, TValue>
+public class XmlSerializableDictionary<TKey, TValue>
 : Dictionary<TKey, TValue>, IXmlSerializable
 {
     public System.Xml.Schema.XmlSchema GetSchema()

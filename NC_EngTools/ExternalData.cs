@@ -143,9 +143,9 @@
             }
         }
     }
-    internal class LayerProperties
+    public class LayerProperties
     {
-        internal static Dictionary<string, LayerProps> Dictionary{ get; set; }
+        public static Dictionary<string, LayerProps> Dictionary{ get; set; }
         static LayerProperties()
         {
             try
@@ -177,7 +177,7 @@
         }
     }
 
-    internal struct LayerProps
+    public struct LayerProps
     {
         public double ConstWidth;
         public double LTScale;

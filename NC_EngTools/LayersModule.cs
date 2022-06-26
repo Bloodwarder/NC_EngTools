@@ -11,23 +11,46 @@ namespace LayerProcessing
     using NC_EngTools;
     public abstract class LayerParser
     {
-        internal protected static string StandartPrefix { get; set; } = "ИС"; // ConfigurationManager.AppSettings.Get("defaultlayerprefix");
-        private static readonly string[] st_txt = new string[6] { "сущ", "дем", "пр", "неутв", "ндем", "нреорг" };
-        internal protected string InputLayerName { get; private set; }
-        internal protected string OutputLayerName { get; private set; }
-        internal protected string MainName { get; set; }
-        internal protected string TrueName
+        public string InputLayerName { get; private set; }
+        public static string StandartPrefix { get; set; } = "ИС"; // ConfigurationManager.AppSettings.Get("defaultlayerprefix");
+        public string ExtProjectName { get; private set; }
+        public string EngType { get; private set; }
+        public string GeomType { get; private set; }
+        public string MainName { get; private set; }
+        public string BuildStatus { get { return st_txt[bldstatus]; } }
+        public string OutputLayerName 
+        { get
+            {
+                List<string> recomp = new List<string>();
+                recomp.Add(StandartPrefix);
+                if (extpr) { recomp.Add("["+ExtProjectName+"]"); }
+                recomp.Add(MainName);
+                recomp.Add(BuildStatus);
+                if (recstatus) { recomp.Add("пер"); }
+                return string.Join("_", recomp.ToArray());
+            }
+        }
+
+        
+        public string TrueName
         //string for props compare (type of network and it's status)
         {
-            get { return string.Join("_", new string[2] { MainName, st_txt[bldstatus] }); }
+            get 
+            {
+                //Regex rgx = new Regex($"_{GeomType}_");
+                //string mainwgeom = string.Join("_", decomp.Skip(mainnamestart).Take(mainnameend-mainnamestart+1));
+                //MainName = rgx.Replace(mainwgeom, "");
+                return string.Join("_", new string[2] { MainName, st_txt[bldstatus] }); 
+            }
         }
+        private static readonly string[] st_txt = new string[6] { "сущ", "дем", "пр", "неутв", "ндем", "нреорг" };
 
         private bool recstatus = false;
         private bool extpr = false;
-        private string engtype;
-        private string extprojectname;
+        private bool geomassigned = false;
         private int bldstatus;
-        internal protected LayerParser(string layername)
+
+        public LayerParser(string layername)
         {
             InputLayerName = layername;
             if (!layername.StartsWith(StandartPrefix))
@@ -35,69 +58,54 @@ namespace LayerProcessing
                 throw new WrongLayerException($"Слой {layername} не обрабатывается программой");
                 //обработать при передаче слоёв
             }
-            int mainnamestart;
-            int mainnameend;
             string[] decomp = InputLayerName.Split('_');
-            //searching for external project name enclosed in [] and storing it
+            int mainnamestart=2;
+            int mainnameend;
+            int counter = 1;
             if (decomp[1].StartsWith("["))
             {
-                mainnamestart = 2;
-                extpr = true;
-                Regex rgx = new Regex(@"\[(\w*)\]");
-                string mtch1 = rgx.Match(InputLayerName).ToString().Replace("[", "").Replace("]", "");
-                extprojectname = mtch1;
+                var extarray = decomp.Skip(counter).TakeWhile(d => d.EndsWith("]")).ToArray();
+                counter =+ extarray.Length + 1;
+                mainnamestart=counter;
+                ExtProjectName = string.Join("_", extarray).Replace("[","").Replace("]","");
             }
-            else
+            if (decomp[counter].Length == 2)
             {
-                mainnamestart = 1;
+                EngType = decomp[counter];
+                counter++;
             }
-            //searching for reconstruction status marker "_пер"
-            if (decomp[decomp.Length-1]=="пер") 
-            { 
-                recstatus=true;
+            if (decomp[counter].Length == 1)
+            {
+                GeomType = decomp[counter];
+                geomassigned = true;
+                counter++;
+            }
+            if (decomp[decomp.Length-1]=="пер")
+            {
+                recstatus = true;
                 mainnameend = decomp.Length-3;
             }
             else
             {
                 mainnameend = decomp.Length-2;
             }
-            //assigning main name containing main type information (type of network, presented by layer)
-            MainName = string.Join("_",decomp.Skip(mainnamestart).Take(mainnameend-mainnamestart+1));
-            //searching for status in last or last-1 position depending of recstatus
             string str = recstatus ? decomp[decomp.Length-2] : decomp[decomp.Length-1];
             bool stfound = false;
-            for (int i = 0; i<st_txt.Length; i++) { if (st_txt[i]==str) { bldstatus=i; stfound = true; break; } } //searching and assigning status index (IMPROVE CODE LATER)
+            for (int i = 0; i<st_txt.Length; i++) //searching and assigning status index (IMPROVE CODE LATER)
+            { 
+                if (st_txt[i]==str) 
+                {
+                    bldstatus=i; stfound = true; break; 
+                } 
+            } 
             if (!stfound) { throw new WrongLayerException($"В слое {layername} не найден статус"); }
-            //searching for network type in second position or behind the external project name
-            if (extpr)
-            {
-                int typeidx = 2;
 
-                for (int i = 1; i<decomp.Length; i++)
-                {
-                    if (decomp[i].EndsWith("]")) { typeidx=i+1; break; }
-                }
-                try
-                {
-                    engtype=decomp[typeidx];
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    throw new WrongLayerException($"Ошибочное имя слоя {layername}. Символ ] в последнем блоке имени слоя");
-                }
-            }
-            else
-            {
-                engtype=decomp[1];
-            }
-            OutputLayerName = InputLayerName;
+            MainName = string.Join("_", decomp.Skip(mainnamestart).Take(mainnameend-mainnamestart+1));
         }
 
-        internal protected void StatusSwitch(Status newstatus)
+        public void StatusSwitch(Status newstatus)
         {
             bldstatus=(int)newstatus;
-
-
             //disabling reconstruction marker for existing objects layers
             if (recstatus & !(bldstatus==2||bldstatus==3||bldstatus==5))
             {
@@ -106,78 +114,61 @@ namespace LayerProcessing
             //disabling external project tag for current project and existing layers
             if (extpr & !(bldstatus==3||bldstatus==4||bldstatus==5))
             {
-                Regex rgx = new Regex(@"_\[(\w*)\]");
-                OutputLayerName = rgx.Replace(OutputLayerName, "");
-                extprojectname = ""; extpr = false;
+                ExtProjectName = ""; 
+                extpr = false;
             }
-            Regex rgx1 = new Regex(@"(_"+string.Join("|_", st_txt)+")(\b_|$)"); 
-            OutputLayerName = rgx1.Replace(OutputLayerName, "_"+st_txt[(int)newstatus]);
             return;
         }
 
-        internal protected void ReconstrSwitch()
+        public void ReconstrSwitch()
         {
             if (bldstatus==2||bldstatus==3||bldstatus==5) //filter only planned layers
             {
                 if (recstatus)
                 {
-                    Regex rgx = new Regex("_пер$");
-                    OutputLayerName = rgx.Replace(OutputLayerName, "");
                     recstatus=false;
                     return;
                 }
                 else
                 {
-                    OutputLayerName += "_пер";
                     recstatus=true;
                     return;
                 }
             }
         }
 
-        internal protected void ExtProjNameAssign(string newprojname)
+        public void ExtProjNameAssign(string newprojname)
         {
-            if (newprojname==extprojectname||!(bldstatus==3||bldstatus==4||bldstatus==5)) { return; } //stop when entry=current value or current project layer processed (non NS)
+            if (newprojname==ExtProjectName||!(bldstatus==3||bldstatus==4||bldstatus==5)) { return; } //stop when entry=current value or current project layer processed (non NS)
             if (extpr)
             {
                 if (newprojname!="") //replacing name
                 {
-                    extprojectname= newprojname;
-                    Regex rgx = new Regex(@"\[(\w*)\]");
-                    string repl = "["+newprojname+"]";
-                    OutputLayerName = rgx.Replace(OutputLayerName, repl);
+                    ExtProjectName= newprojname;
                 }
                 else //erasing name
                 {
-                    Regex rgx = new Regex(@"_\[(\w*)\]_");
-                    string repl = "_";
-                    OutputLayerName = rgx.Replace(OutputLayerName, repl);
-                    extprojectname = "";
+                    ExtProjectName = "";
                     extpr = false;
                 }
             }
             else //assigning name
             {
-                extprojectname = newprojname;
-                Regex rgx = new Regex(@"$(\w*)_.._");
-                string repl = StandartPrefix+"_["+newprojname+"]_"+engtype+"_";
-                OutputLayerName=rgx.Replace(OutputLayerName, repl);
+                ExtProjectName = newprojname;
                 extpr = true;
             }
         }
 
-        internal protected void Alter()
+        public void Alter()
         {
             bool success = LayerAlteringDictionary.Dictionary.TryGetValue(MainName, out string str);
             if (!success) { return; }
-            Regex rgx = new Regex(MainName);
-            OutputLayerName = rgx.Replace(OutputLayerName, str);
             MainName = str;
         }
 
-        internal protected abstract void Push();
+        public abstract void Push();
 
-        internal protected enum Status
+        public enum Status
         {
             Existing = 0,
             Deconstructing = 1,
@@ -191,7 +182,7 @@ namespace LayerProcessing
     public class SimpleLayerParser : LayerParser
     {
         public SimpleLayerParser(string layername) : base(layername) { }
-        internal protected override void Push()
+        public override void Push()
         {
             //Console.WriteLine(OutputLayerName);
         }
@@ -208,7 +199,7 @@ namespace LayerProcessing
         }
         private Database Db;
 
-        internal protected override void Push()
+        public override void Push()
         {
             LayerChecker.Check(OutputLayerName);
             LayerTable lt = (LayerTable) Db.TransactionManager.GetObject(Db.LayerTableId, OpenMode.ForRead);
@@ -245,7 +236,7 @@ namespace LayerProcessing
 
         internal List<Entity> ObjList = new List<Entity>();
         internal Transaction Transaction { get; private set; }
-        internal protected override void Push()
+        public override void Push()
         {
             try
             {
