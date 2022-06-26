@@ -326,6 +326,11 @@ namespace NC_EngTools
                                     if (lttr.Name.ToUpper()==lp.LTName.ToUpper()) { lttrId = lttr.Id; break; }
                                 }
                             }
+                            else
+                            {
+                                string str = $"Не найден тип линий для слоя {layername}";
+                                Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage(str);
+                            }
                             //Добавить сообщение о том, что тип линии не найден
                             LayerTableRecord ltrec = new LayerTableRecord
                             {
