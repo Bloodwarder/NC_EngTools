@@ -11,12 +11,12 @@ namespace LayerProcessing
     using NC_EngTools;
     public abstract class LayerParser
     {
-        public static string StandartPrefix { get; set; } = "ИС"; // ConfigurationManager.AppSettings.Get("defaultlayerprefix");
+        internal protected static string StandartPrefix { get; set; } = "ИС"; // ConfigurationManager.AppSettings.Get("defaultlayerprefix");
         private static readonly string[] st_txt = new string[6] { "сущ", "дем", "пр", "неутв", "ндем", "нреорг" };
-        public string InputLayerName { get; private set; }
-        public string OutputLayerName { get; private set; }
-        public string MainName { get; set; }
-        public string TrueName
+        internal protected string InputLayerName { get; private set; }
+        internal protected string OutputLayerName { get; private set; }
+        internal protected string MainName { get; set; }
+        internal protected string TrueName
         //string for props compare (type of network and it's status)
         {
             get { return string.Join("_", new string[2] { MainName, st_txt[bldstatus] }); }
@@ -27,7 +27,7 @@ namespace LayerProcessing
         private string engtype;
         private string extprojectname;
         private int bldstatus;
-        public LayerParser(string layername)
+        internal protected LayerParser(string layername)
         {
             InputLayerName = layername;
             if (!layername.StartsWith(StandartPrefix))
@@ -93,7 +93,7 @@ namespace LayerProcessing
             OutputLayerName = InputLayerName;
         }
 
-        public void StatusSwitch(Status newstatus)
+        internal protected void StatusSwitch(Status newstatus)
         {
             bldstatus=(int)newstatus;
 
@@ -115,7 +115,7 @@ namespace LayerProcessing
             return;
         }
 
-        public void ReconstrSwitch()
+        internal protected void ReconstrSwitch()
         {
             if (bldstatus==2||bldstatus==3||bldstatus==5) //filter only planned layers
             {
@@ -135,7 +135,7 @@ namespace LayerProcessing
             }
         }
 
-        public void ExtProjNameAssign(string newprojname)
+        internal protected void ExtProjNameAssign(string newprojname)
         {
             if (newprojname==extprojectname||!(bldstatus==3||bldstatus==4||bldstatus==5)) { return; } //stop when entry=current value or current project layer processed (non NS)
             if (extpr)
@@ -166,7 +166,7 @@ namespace LayerProcessing
             }
         }
 
-        public void Alter()
+        internal protected void Alter()
         {
             bool success = LayerAlteringDictionary.Dictionary.TryGetValue(MainName, out string str);
             if (!success) { return; }
@@ -175,9 +175,9 @@ namespace LayerProcessing
             MainName = str;
         }
 
-        public abstract void Push();
+        internal protected abstract void Push();
 
-        public enum Status
+        internal protected enum Status
         {
             Existing = 0,
             Deconstructing = 1,
@@ -191,15 +191,15 @@ namespace LayerProcessing
     public class SimpleLayerParser : LayerParser
     {
         public SimpleLayerParser(string layername) : base(layername) { }
-        public override void Push()
+        internal protected override void Push()
         {
             //Console.WriteLine(OutputLayerName);
         }
     }
 
-    public class CurLayerParser : LayerParser
+    internal class CurLayerParser : LayerParser
     {
-        public CurLayerParser(Database db) : base(Clayername(db)) { Db = db; ActiveLayerParsers.Add(this); }
+        internal CurLayerParser(Database db) : base(Clayername(db)) { Db = db; ActiveLayerParsers.Add(this); }
 
         private static string Clayername(Database db)
         {
@@ -207,8 +207,8 @@ namespace LayerProcessing
             return ltr.Name;
         }
         private Database Db;
-        
-        public override void Push()
+
+        internal protected override void Push()
         {
             LayerChecker.Check(OutputLayerName);
             LayerTable lt = (LayerTable) Db.TransactionManager.GetObject(Db.LayerTableId, OpenMode.ForRead);
@@ -227,25 +227,25 @@ namespace LayerProcessing
             if (!lfound) { throw new Exception(); }
         }
     }
-    public class EntityLayerParser : LayerParser
+    internal class EntityLayerParser : LayerParser
     {
-        public EntityLayerParser(string layername) : base(layername) { ActiveLayerParsers.Add(this); }
-        public EntityLayerParser(string layername, Transaction transaction) : base(layername)
+        internal EntityLayerParser(string layername) : base(layername) { ActiveLayerParsers.Add(this); }
+        internal EntityLayerParser(string layername, Transaction transaction) : base(layername)
         {
             Transaction = transaction;
             ActiveLayerParsers.Add(this);
         }
-        public EntityLayerParser(Entity ent) : base(ent.Layer) { ObjList.Add(ent); ActiveLayerParsers.Add(this); }
-        public EntityLayerParser(Entity ent, Transaction transaction) : base(ent.Layer) 
+        internal EntityLayerParser(Entity ent) : base(ent.Layer) { ObjList.Add(ent); ActiveLayerParsers.Add(this); }
+        internal EntityLayerParser(Entity ent, Transaction transaction) : base(ent.Layer) 
         { 
             ObjList.Add(ent);
             Transaction = transaction;
             ActiveLayerParsers.Add(this);
         }
-        
-        public List<Entity> ObjList = new List<Entity>();
-        public Transaction Transaction { get; private set; }
-        public override void Push()
+
+        internal List<Entity> ObjList = new List<Entity>();
+        internal Transaction Transaction { get; private set; }
+        internal protected override void Push()
         {
             try
             {
@@ -271,43 +271,43 @@ namespace LayerProcessing
         }
     }
 
-    public static class ActiveLayerParsers
+    internal static class ActiveLayerParsers
     {
         private static List<LayerParser> List { get; set; } = new List<LayerParser>();
-        public static void StatusSwitch(LayerParser.Status status)
+        internal static void StatusSwitch(LayerParser.Status status)
         {
             foreach (LayerParser lp in List) { lp.StatusSwitch(status); };
         }
-        public static void Alter()
+        internal static void Alter()
         {
             foreach (LayerParser lp in List) { lp.Alter(); }
         }
-        public static void ReconstrSwitch()
+        internal static void ReconstrSwitch()
         {
             foreach (LayerParser lp in List) { lp.ReconstrSwitch(); }
         }
-        public static void ExtProjNameAssign(string extprojname)
+        internal static void ExtProjNameAssign(string extprojname)
         {
             foreach (LayerParser lp in List) { lp.ExtProjNameAssign(extprojname); }
         }
-        public static void Add(LayerParser lp)
+        internal static void Add(LayerParser lp)
         {
             List.Add(lp);
         }
-        public static void Push()
+        internal static void Push()
         {
             foreach (LayerParser lp in List) { lp.Push(); }
         }
-        public static void Flush()
+        internal static void Flush()
         {
             List.Clear();
         }
     }
-    public class WrongLayerException : System.Exception
+    internal class WrongLayerException : System.Exception
     {
         public WrongLayerException(string message) : base(message) { }
     }
-    public class NoPropertiesException : System.Exception
+    internal class NoPropertiesException : System.Exception
     {
         public NoPropertiesException(string message) : base(message) { }
     }

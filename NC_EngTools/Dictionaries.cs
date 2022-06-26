@@ -5,7 +5,7 @@ namespace Dictionaries
     using System.Collections.Generic;
     static class StatusTextDictionary
     {
-        public static Dictionary<string, int> StTxtDictionary { get; private set; }
+        internal static Dictionary<string, int> StTxtDictionary { get; private set; }
         static StatusTextDictionary()
         {
             StTxtDictionary = new Dictionary<string, int>

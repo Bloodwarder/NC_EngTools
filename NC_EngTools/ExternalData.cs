@@ -109,7 +109,7 @@
             }
         }
 
-        public static Dictionary<string, LayerProps> XmlDeserializeProps()
+        internal static Dictionary<string, LayerProps> XmlDeserializeProps()
         {
             FileInfo fi = new FileInfo(Path+xmlpropsname);
             if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
@@ -131,7 +131,7 @@
             }
         }
 
-        public static Dictionary<string, string> XmlDeserializeAlteringDictionary()
+        internal static Dictionary<string, string> XmlDeserializeAlteringDictionary()
         {
             FileInfo fi = new FileInfo(Path+xmlaltername);
             if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
@@ -143,9 +143,9 @@
             }
         }
     }
-    public class LayerProperties
+    internal class LayerProperties
     {
-        public static Dictionary<string, LayerProps> Dictionary{ get; set; }
+        internal static Dictionary<string, LayerProps> Dictionary{ get; set; }
         static LayerProperties()
         {
             try
@@ -160,7 +160,7 @@
         }
     }
 
-    public static class LayerAlteringDictionary
+    internal class LayerAlteringDictionary
     {
         public static Dictionary<string, string> Dictionary { get; set; }
         static LayerAlteringDictionary() 
@@ -177,7 +177,7 @@
         }
     }
 
-    public struct LayerProps
+    internal struct LayerProps
     {
         public double ConstWidth;
         public double LTScale;

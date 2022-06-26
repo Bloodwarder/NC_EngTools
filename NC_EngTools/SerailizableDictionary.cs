@@ -1,13 +1,11 @@
 ﻿// код взят с ropox.ru
 
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Xml.Serialization;
 
 [XmlRoot("Dictionary")]
-public class XmlSerializableDictionary<TKey, TValue>
+internal class XmlSerializableDictionary<TKey, TValue>
 : Dictionary<TKey, TValue>, IXmlSerializable
 {
     public System.Xml.Schema.XmlSchema GetSchema()

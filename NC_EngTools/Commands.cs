@@ -1,15 +1,19 @@
-﻿using System.Linq;
+﻿//System
+using System.Linq;
+using System.Collections.Generic;
+using System.IO;
+//Modules
 using LayerProcessing;
 using ExternalData;
+using Dictionaries;
+//nanoCAD
 using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
 using Teigha.DatabaseServices;
 using Teigha.Runtime;
 using Platform = HostMgd;
 using PlatformDb = Teigha;
-using System.Collections.Generic;
-using System.IO;
-using Dictionaries;
+
 
 namespace NC_EngTools
 {
@@ -213,11 +217,11 @@ namespace NC_EngTools
 
     }
 
-    public static class LayerChanger
+    static class LayerChanger
         {
-            public static int MaxSimple { get; set; } = 5;
+            internal static int MaxSimple { get; set; } = 5;
 
-            public static void UpdateActiveLP(Document doc, Database db, Transaction transaction)
+            internal static void UpdateActiveLP(Document doc, Database db, Transaction transaction)
             {
                 PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
                 PromptSelectionResult sr = doc.Editor.SelectImplied();
@@ -284,9 +288,9 @@ namespace NC_EngTools
             }
         }
     
-    public static class LayerChecker
+    static class LayerChecker
     {
-        public static void Check(string layername)
+        internal static void Check(string layername)
         {
             {
                 Database db = HostApplicationServices.WorkingDatabase;
