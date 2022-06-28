@@ -82,9 +82,10 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP(doc, db, myT); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
+                    LayerChanger.UpdateActiveLP(doc, db, myT, out SelectionSet ss); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
                     ActiveLayerParsers.StatusSwitch((LayerParser.Status)val);
                     ActiveLayerParsers.Push();
+                    if (ss != null) { ed.SetImpliedSelection(ss); }
                     myT.Commit();
                 }
                 catch (WrongLayerException)
@@ -114,9 +115,10 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP(doc, db, myT); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
+                    LayerChanger.UpdateActiveLP(doc, db, myT,out SelectionSet ss); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
                     ActiveLayerParsers.Alter();
                     ActiveLayerParsers.Push();
+                    if (ss != null) { doc.Editor.SetImpliedSelection(ss); }
                     myT.Commit();
                 }
                 catch (WrongLayerException)
@@ -141,9 +143,10 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP(doc, db, myT); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
+                    LayerChanger.UpdateActiveLP(doc, db, myT, out SelectionSet ss); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
                     ActiveLayerParsers.ReconstrSwitch();
                     ActiveLayerParsers.Push();
+                    if (ss != null) { doc.Editor.SetImpliedSelection(ss); }
                     myT.Commit();
                 }
                 catch (WrongLayerException)
@@ -243,8 +246,30 @@ namespace NC_EngTools
                     new CurLayerParser(db);
                 }
             }
+        internal static void UpdateActiveLP(Document doc, Database db, Transaction transaction, out SelectionSet ss)
+        {
+            PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
+            PromptSelectionResult sr = doc.Editor.SelectImplied();
 
-            private static void ChangerSimple(PlatformDb.DatabaseServices.TransactionManager tm, Transaction myT, SelectionSet ss)
+            if (sr.Status == PromptStatus.OK)
+            {
+                ss = sr.Value;
+                if (ss.Count<MaxSimple)
+                {
+                    ChangerSimple(tm, transaction, ss);
+                }
+                else
+                {
+                    ChangerBig(tm, transaction, ss);
+                }
+            }
+            else
+            {
+                ss = null;
+                new CurLayerParser(db);
+            }
+        }
+        private static void ChangerSimple(PlatformDb.DatabaseServices.TransactionManager tm, Transaction myT, SelectionSet ss)
             {
                 foreach (Entity ent in from ObjectId elem in ss.GetObjectIds()
                                        let ent = (Entity)tm.GetObject(elem, OpenMode.ForWrite)
