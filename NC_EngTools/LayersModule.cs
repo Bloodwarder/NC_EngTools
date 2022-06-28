@@ -148,7 +148,10 @@ namespace LayerProcessing
 
         public void ExtProjNameAssign(string newprojname)
         {
-            if (newprojname==ExtProjectName||!(bldstatus==3||bldstatus==4||bldstatus==5)) { return; } //stop when entry=current value or current project layer processed (non NS)
+            if (bldstatus==3||bldstatus==4||bldstatus==5)
+            {
+                bldstatus = 3; 
+            } //assigning NSPlanned status when current project layer processed (non NS)
             if (extpr)
             {
                 if (newprojname!="") //replacing name

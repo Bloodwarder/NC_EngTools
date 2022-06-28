@@ -78,23 +78,23 @@ namespace NC_EngTools
             PromptResult res = ed.GetKeywords(pko);
             if (res.Status == PromptStatus.OK) { PrevStatus = res.StringResult; }
             StatusTextDictionary.StTxtDictionary.TryGetValue(res.StringResult, out int val);
+            SelectionSet ss = null;
             using (Transaction myT = tm.StartTransaction())
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP(doc, db, myT, out SelectionSet ss); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
+                    LayerChanger.UpdateActiveLP(doc, db, myT, out ss); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
                     ActiveLayerParsers.StatusSwitch((LayerParser.Status)val);
                     ActiveLayerParsers.Push();
-                    if (ss != null) { ed.SetImpliedSelection(ss); }
                     myT.Commit();
                 }
                 catch (WrongLayerException)
                 {
-                    doc.Editor.WriteMessage("Текущий слой не принадлежит к списку обрабатываемых слоёв");
+                    ed.WriteMessage("Текущий слой не принадлежит к списку обрабатываемых слоёв");
                 }
                 catch (System.Exception ex)
                 {
-                    doc.Editor.WriteMessage(ex.Message + " " + ex.StackTrace);
+                    ed.WriteMessage(ex.Message + " " + ex.StackTrace);
                 }
                 finally
                 {
@@ -102,9 +102,10 @@ namespace NC_EngTools
                     ActiveLayerParsers.Flush();
                 }
             }
+            //if (ss != null) { ed.SetImpliedSelection(ss); } НЕ РАБОТАЕТ. ВЫЯСНИТЬ ПОЧЕМУ.
         }
 
-        [CommandMethod("АЛЬТЕРНАТИВНЫЙ", CommandFlags.UsePickSet)]
+            [CommandMethod("АЛЬТЕРНАТИВНЫЙ", CommandFlags.UsePickSet)]
         public void LayerAlter()
         {
             Document doc = Application.DocumentManager.MdiActiveDocument;
@@ -161,45 +162,41 @@ namespace NC_EngTools
             }
         }
 
-        //[CommandMethod("ИМЯНЕУТВ", CommandFlags.UsePickSet)] //КОМАНДА РОНЯЕТ НАНОКАД НА ЗАПУСКЕ ПРОГРАММЫ! ВЫЯСНИТЬ ПРИЧИНУ!
-        //public void ExtNameAssign()
-        //{
-        //    Document doc = Application.DocumentManager.MdiActiveDocument;
-        //    Database db = HostApplicationServices.WorkingDatabase;
-        //    PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
+        [CommandMethod("ВНЕШПРОЕКТ", CommandFlags.UsePickSet)]
+        public void ExtAssign()
+        {
+            Document doc = Application.DocumentManager.MdiActiveDocument;
+            Database db = HostApplicationServices.WorkingDatabase;
+            PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
 
-        //    Editor ed = doc.Editor;
-        //    PromptStringOptions pso = new PromptStringOptions("Введите имя проекта, согласно которому отображён выбранный объект")
-        //    {
-        //        AllowSpaces = false
-        //    };
-        //    PromptResult pr = ed.GetString(pso);
-        //    string extprname;
-        //    if (pr.Status == PromptStatus.OK)
-        //    {
-        //        extprname = pr.ToString();
-        //    }
-        //    else
-        //    {
-        //        return;
-        //    }
+            Editor ed = doc.Editor;
+            PromptResult pr = ed.GetString("Введите имя проекта, согласно которому отображён выбранный объект");
+            string extprname;
+            if (pr.Status == PromptStatus.OK)
+            {
+                extprname = pr.StringResult;
+            }
+            else
+            {
+                return;
+            }
 
-        //    using (Transaction myT = tm.StartTransaction())
-        //    {
-        //        try
-        //        {
-        //            LayerChanger.UpdateActiveLP(doc, db, myT);
-        //            ActiveLayerParsers.ExtProjNameAssign(extprname);
-        //            ActiveLayerParsers.Push();
-        //            myT.Commit();
-        //        }
-        //        finally
-        //        {
-        //            myT.Dispose();
-        //            ActiveLayerParsers.Flush();
-        //        }
-        //    }
-        //}
+            using (Transaction myT = tm.StartTransaction())
+            {
+                try
+                {
+                    LayerChanger.UpdateActiveLP(doc, db, myT);
+                    ActiveLayerParsers.ExtProjNameAssign(extprname);
+                    ActiveLayerParsers.Push();
+                    myT.Commit();
+                }
+                finally
+                {
+                    myT.Dispose();
+                    ActiveLayerParsers.Flush();
+                }
+            }
+        }
 
         [CommandMethod("ПРЕФИКС", CommandFlags.UsePickSet)]
         public void ChangePrefix()
