@@ -59,15 +59,24 @@ namespace LayerProcessing
                 //обработать при передаче слоёв
             }
             string[] decomp = InputLayerName.Split('_');
-            int mainnamestart=2;
+            int mainnamestart=1;
             int mainnameend;
             int counter = 1;
             if (decomp[1].StartsWith("["))
             {
-                var extarray = decomp.Skip(counter).TakeWhile(d => d.EndsWith("]")).ToArray();
-                counter =+ extarray.Length + 1;
+                List<string> list = new List<string>();
+                list.Add(decomp[1]);
+                for (int i = counter+1; i < decomp[1].Length; i++)
+                {
+                    if (!decomp[i-1].EndsWith("]"))
+                    { list.Add(decomp[i]); }
+                    else
+                    { break; }
+                }
+                ExtProjectName =string.Join("_", list.ToArray()).Replace("[", "").Replace("]", "");
+                extpr = true;
+                counter =+ list.Count + 1;
                 mainnamestart=counter;
-                ExtProjectName = string.Join("_", extarray).Replace("[","").Replace("]","");
             }
             if (decomp[counter].Length == 2)
             {
@@ -109,7 +118,7 @@ namespace LayerProcessing
             //disabling reconstruction marker for existing objects layers
             if (recstatus & !(bldstatus==2||bldstatus==3||bldstatus==5))
             {
-                ReconstrSwitch();
+                recstatus=false;
             }
             //disabling external project tag for current project and existing layers
             if (extpr & !(bldstatus==3||bldstatus==4||bldstatus==5))
