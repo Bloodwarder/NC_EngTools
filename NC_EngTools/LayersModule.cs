@@ -148,7 +148,7 @@ namespace LayerProcessing
 
         public void ExtProjNameAssign(string newprojname)
         {
-            if (bldstatus==3||bldstatus==4||bldstatus==5)
+            if (newprojname!=""&(bldstatus==3||bldstatus==4||bldstatus==5))
             {
                 bldstatus = 3; 
             } //assigning NSPlanned status when current project layer processed (non NS)

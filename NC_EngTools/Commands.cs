@@ -62,7 +62,7 @@ namespace NC_EngTools
             }
         }
 
-        [CommandMethod("ИЗМСТАТУС", CommandFlags.UsePickSet)]
+        [CommandMethod("ИЗМСТАТУС", CommandFlags.Redraw)]
         public void LayerSC()
         {
             Document doc = Application.DocumentManager.MdiActiveDocument;
@@ -83,7 +83,7 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP(doc, db, myT, out ss); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
+                    LayerChanger.UpdateActiveLP(doc, db, myT); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
                     ActiveLayerParsers.StatusSwitch((LayerParser.Status)val);
                     ActiveLayerParsers.Push();
                     myT.Commit();
@@ -102,10 +102,14 @@ namespace NC_EngTools
                     ActiveLayerParsers.Flush();
                 }
             }
-            //if (ss != null) { ed.SetImpliedSelection(ss); } НЕ РАБОТАЕТ. ВЫЯСНИТЬ ПОЧЕМУ.
+            
+            //if (ss != null) 
+            //{
+            //    ed.SetImpliedSelection(ss); 
+            //} //НЕ РАБОТАЕТ. ВЫЯСНИТЬ ПОЧЕМУ.
         }
 
-            [CommandMethod("АЛЬТЕРНАТИВНЫЙ", CommandFlags.UsePickSet)]
+        [CommandMethod("АЛЬТЕРНАТИВНЫЙ", CommandFlags.Redraw)]
         public void LayerAlter()
         {
             Document doc = Application.DocumentManager.MdiActiveDocument;
@@ -116,10 +120,9 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP(doc, db, myT,out SelectionSet ss); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
+                    LayerChanger.UpdateActiveLP(doc, db, myT); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
                     ActiveLayerParsers.Alter();
                     ActiveLayerParsers.Push();
-                    if (ss != null) { doc.Editor.SetImpliedSelection(ss); }
                     myT.Commit();
                 }
                 catch (WrongLayerException)
@@ -134,7 +137,7 @@ namespace NC_EngTools
             }
         }
 
-        [CommandMethod("ПЕРЕУСТРОЙСТВО", CommandFlags.UsePickSet)]
+        [CommandMethod("ПЕРЕУСТРОЙСТВО", CommandFlags.Redraw)]
         public void LayerReconstr()
         {
             Document doc = Application.DocumentManager.MdiActiveDocument;
@@ -144,10 +147,9 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP(doc, db, myT, out SelectionSet ss); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
+                    LayerChanger.UpdateActiveLP(doc, db, myT); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
                     ActiveLayerParsers.ReconstrSwitch();
                     ActiveLayerParsers.Push();
-                    if (ss != null) { doc.Editor.SetImpliedSelection(ss); }
                     myT.Commit();
                 }
                 catch (WrongLayerException)
@@ -162,7 +164,7 @@ namespace NC_EngTools
             }
         }
 
-        [CommandMethod("ВНЕШПРОЕКТ", CommandFlags.UsePickSet)]
+        [CommandMethod("ВНЕШПРОЕКТ", CommandFlags.Redraw)]
         public void ExtAssign()
         {
             Document doc = Application.DocumentManager.MdiActiveDocument;
@@ -198,7 +200,7 @@ namespace NC_EngTools
             }
         }
 
-        [CommandMethod("ПРЕФИКС", CommandFlags.UsePickSet)]
+        [CommandMethod("ПРЕФИКС")]
         public void ChangePrefix()
         {
             Document doc = Application.DocumentManager.MdiActiveDocument;
@@ -243,46 +245,46 @@ namespace NC_EngTools
                     new CurLayerParser(db);
                 }
             }
-        internal static void UpdateActiveLP(Document doc, Database db, Transaction transaction, out SelectionSet ss)
-        {
-            PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
-            PromptSelectionResult sr = doc.Editor.SelectImplied();
-
-            if (sr.Status == PromptStatus.OK)
+            internal static void UpdateActiveLP(Document doc, Database db, Transaction transaction, out SelectionSet ss)
             {
-                ss = sr.Value;
-                if (ss.Count<MaxSimple)
+                PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
+                PromptSelectionResult sr = doc.Editor.SelectImplied();
+
+                if (sr.Status == PromptStatus.OK)
                 {
-                    ChangerSimple(tm, transaction, ss);
+                    ss = sr.Value;
+                    if (ss.Count<MaxSimple)
+                    {
+                        ChangerSimple(tm, transaction, ss);
+                    }
+                    else
+                    {
+                        ChangerBig(tm, transaction, ss);
+                    }
                 }
                 else
                 {
-                    ChangerBig(tm, transaction, ss);
+                    ss = null;
+                    new CurLayerParser(db);
                 }
             }
-            else
-            {
-                ss = null;
-                new CurLayerParser(db);
-            }
-        }
-        private static void ChangerSimple(PlatformDb.DatabaseServices.TransactionManager tm, Transaction myT, SelectionSet ss)
-            {
-                foreach (Entity ent in from ObjectId elem in ss.GetObjectIds()
-                                       let ent = (Entity)tm.GetObject(elem, OpenMode.ForWrite)
-                                       select ent)
+            private static void ChangerSimple(PlatformDb.DatabaseServices.TransactionManager tm, Transaction myT, SelectionSet ss)
                 {
-                    try
+                    foreach (Entity ent in from ObjectId elem in ss.GetObjectIds()
+                                           let ent = (Entity)tm.GetObject(elem, OpenMode.ForWrite)
+                                           select ent)
                     {
-                        EntityLayerParser entlp = new EntityLayerParser(ent, myT);
-                    }
-                    catch (WrongLayerException)
-                    {
-                        continue;
-                    }
+                        try
+                        {
+                            EntityLayerParser entlp = new EntityLayerParser(ent, myT);
+                        }
+                        catch (WrongLayerException)
+                        {
+                            continue;
+                        }
 
+                    }
                 }
-            }
 
             private static void ChangerBig(PlatformDb.DatabaseServices.TransactionManager tm, Transaction myT, SelectionSet ss)
             {
