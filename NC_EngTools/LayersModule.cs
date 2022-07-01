@@ -202,29 +202,32 @@ namespace LayerProcessing
 
     internal class CurLayerParser : LayerParser
     {
-        internal CurLayerParser(Database db) : base(Clayername(db)) { Db = db; ActiveLayerParsers.Add(this); }
+        internal CurLayerParser() : base(Clayername()) { ActiveLayerParsers.Add(this); }
 
-        private static string Clayername(Database db)
+        private static string Clayername()
         {
+            Workstation.Define(out Database db);
             LayerTableRecord ltr = (LayerTableRecord)db.TransactionManager.GetObject(db.Clayer, OpenMode.ForRead);
             return ltr.Name;
         }
-        private Database Db;
 
         public override void Push()
         {
+            Workstation.Define(out TransactionManager tm);
+            Workstation.Define(out Database db);
+
             LayerChecker.Check(OutputLayerName);
-            LayerTable lt = (LayerTable) Db.TransactionManager.GetObject(Db.LayerTableId, OpenMode.ForRead);
+            LayerTable lt = (LayerTable) tm.GetObject(db.LayerTableId, OpenMode.ForRead);
             var elem = from ObjectId layer in lt
-                            let ltr = (LayerTableRecord)Db.TransactionManager.GetObject(layer, OpenMode.ForRead)
+                            let ltr = (LayerTableRecord)tm.GetObject(layer, OpenMode.ForRead)
                             where ltr.Name == OutputLayerName
                             select layer;
-            Db.Clayer = elem.FirstOrDefault();
+            db.Clayer = elem.FirstOrDefault();
             bool success = LayerProperties.Dictionary.TryGetValue(TrueName, out LayerProps lp);
             if(success)
             {
-                Db.Celtscale = lp.LTScale;
-                Db.Plinewid = lp.ConstWidth;
+                db.Celtscale = lp.LTScale;
+                db.Plinewid = lp.ConstWidth;
             }
         }
     }
