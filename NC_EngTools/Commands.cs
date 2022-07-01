@@ -82,7 +82,7 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP(doc, db, myT); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
+                    LayerChanger.UpdateActiveLP(doc, db);
                     ActiveLayerParsers.StatusSwitch((LayerParser.Status)val);
                     ActiveLayerParsers.Push();
                     myT.Commit();
@@ -114,7 +114,7 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP(doc, db, myT); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
+                    LayerChanger.UpdateActiveLP(doc, db);
                     ActiveLayerParsers.Alter();
                     ActiveLayerParsers.Push();
                     myT.Commit();
@@ -141,7 +141,7 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP(doc, db, myT); //незачем передавать транзацкцию. если внутри что-то не так, её и так очистит ИСПРАВИТЬ!
+                    LayerChanger.UpdateActiveLP(doc, db);
                     ActiveLayerParsers.ReconstrSwitch();
                     ActiveLayerParsers.Push();
                     myT.Commit();
@@ -181,7 +181,7 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP(doc, db, myT);
+                    LayerChanger.UpdateActiveLP(doc, db);
                     ActiveLayerParsers.ExtProjNameAssign(extprname);
                     ActiveLayerParsers.Push();
                     myT.Commit();
@@ -192,6 +192,34 @@ namespace NC_EngTools
                     ActiveLayerParsers.Flush();
                 }
             }
+        }
+
+        [CommandMethod("СЗС", CommandFlags.Redraw)]
+        public void StandartLayerValues()
+        {
+            Document doc = Application.DocumentManager.MdiActiveDocument;
+            Database db = HostApplicationServices.WorkingDatabase;
+            PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
+
+            using (Transaction myT = tm.StartTransaction())
+            {
+                try
+                {
+                    LayerChanger.UpdateActiveLP(doc, db);
+                    ActiveLayerParsers.Push();
+                    myT.Commit();
+                }
+                catch (WrongLayerException)
+                {
+                    doc.Editor.WriteMessage("Текущий слой не принадлежит к списку обрабатываемых слоёв");
+                }
+                finally
+                {
+                    myT.Dispose();
+                    ActiveLayerParsers.Flush();
+                }
+            }
+
         }
 
         [CommandMethod("ПРЕФИКС")]
@@ -217,7 +245,7 @@ namespace NC_EngTools
         {
             internal static int MaxSimple { get; set; } = 5;
 
-            internal static void UpdateActiveLP(Document doc, Database db, Transaction transaction)
+            internal static void UpdateActiveLP(Document doc, Database db)
             {
                 PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
                 PromptSelectionResult sr = doc.Editor.SelectImplied();
@@ -227,11 +255,11 @@ namespace NC_EngTools
                     SelectionSet ss = sr.Value;
                     if (ss.Count<MaxSimple)
                     {
-                        ChangerSimple(tm, transaction, ss);
+                        ChangerSimple(tm, ss);
                     }
                     else
                     {
-                        ChangerBig(tm, transaction, ss);
+                        ChangerBig(tm, ss);
                     }
                 }
                 else
@@ -239,30 +267,8 @@ namespace NC_EngTools
                     new CurLayerParser(db);
                 }
             }
-            internal static void UpdateActiveLP(Document doc, Database db, Transaction transaction, out SelectionSet ss)
-            {
-                PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
-                PromptSelectionResult sr = doc.Editor.SelectImplied();
 
-                if (sr.Status == PromptStatus.OK)
-                {
-                    ss = sr.Value;
-                    if (ss.Count<MaxSimple)
-                    {
-                        ChangerSimple(tm, transaction, ss);
-                    }
-                    else
-                    {
-                        ChangerBig(tm, transaction, ss);
-                    }
-                }
-                else
-                {
-                    ss = null;
-                    new CurLayerParser(db);
-                }
-            }
-            private static void ChangerSimple(PlatformDb.DatabaseServices.TransactionManager tm, Transaction myT, SelectionSet ss)
+            private static void ChangerSimple(PlatformDb.DatabaseServices.TransactionManager tm, SelectionSet ss)
                 {
                     foreach (Entity ent in from ObjectId elem in ss.GetObjectIds()
                                            let ent = (Entity)tm.GetObject(elem, OpenMode.ForWrite)
@@ -270,17 +276,16 @@ namespace NC_EngTools
                     {
                         try
                         {
-                            EntityLayerParser entlp = new EntityLayerParser(ent, myT);
+                            EntityLayerParser entlp = new EntityLayerParser(ent);
                         }
                         catch (WrongLayerException)
                         {
                             continue;
                         }
-
                     }
                 }
 
-            private static void ChangerBig(PlatformDb.DatabaseServices.TransactionManager tm, Transaction myT, SelectionSet ss)
+            private static void ChangerBig(PlatformDb.DatabaseServices.TransactionManager tm, SelectionSet ss)
             {
                 Dictionary<string, EntityLayerParser> dct = new Dictionary<string, EntityLayerParser>();
                 foreach (var ent in from ObjectId elem in ss.GetObjectIds()
@@ -295,7 +300,7 @@ namespace NC_EngTools
                     {
                         try
                         {
-                            dct.Add(ent.Layer, new EntityLayerParser(ent, myT));
+                            dct.Add(ent.Layer, new EntityLayerParser(ent));
                         }
                         catch (WrongLayerException)
                         {
@@ -343,21 +348,12 @@ namespace NC_EngTools
                                          where lttr.Name.ToUpper()==lp.LTName.ToUpper()
                                          select lttr;
                                 lttrId = elem.FirstOrDefault().Id;
-
-
-
-                                //foreach (ObjectId elem in ltt)
-                                //{
-                                //    LinetypeTableRecord lttr = (LinetypeTableRecord)tm.GetObject(elem, OpenMode.ForRead);
-                                //    if (lttr.Name.ToUpper()==lp.LTName.ToUpper()) { lttrId = lttr.Id; break; }
-                                //}
                             }
                             else
                             {
                                 string str = $"Не найден тип линий для слоя {layername}";
                                 Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage(str);
                             }
-                            //Добавить сообщение о том, что тип линии не найден
                             LayerTableRecord ltrec = new LayerTableRecord
                             {
                                 Name = layername,

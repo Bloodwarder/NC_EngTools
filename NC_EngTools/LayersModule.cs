@@ -230,22 +230,16 @@ namespace LayerProcessing
     }
     internal class EntityLayerParser : LayerParser
     {
-        internal EntityLayerParser(string layername) : base(layername) { ActiveLayerParsers.Add(this); }
-        internal EntityLayerParser(string layername, Transaction transaction) : base(layername)
+        internal EntityLayerParser(string layername) : base(layername) 
         {
-            Transaction = transaction;
             ActiveLayerParsers.Add(this);
         }
-        internal EntityLayerParser(Entity ent) : base(ent.Layer) { ObjList.Add(ent); ActiveLayerParsers.Add(this); }
-        internal EntityLayerParser(Entity ent, Transaction transaction) : base(ent.Layer) 
-        { 
-            ObjList.Add(ent);
-            Transaction = transaction;
-            ActiveLayerParsers.Add(this);
+        internal EntityLayerParser(Entity ent) : base(ent.Layer) 
+        {
+            ObjList.Add(ent); ActiveLayerParsers.Add(this);
         }
 
         internal List<Entity> ObjList = new List<Entity>();
-        internal Transaction Transaction { get; private set; }
         public override void Push()
         {
             try
@@ -263,7 +257,6 @@ namespace LayerProcessing
                         pl.ConstantWidth = lp.ConstWidth;
                     }
                 }
-                //transaction is committed outside this class
             }
             catch(NoPropertiesException)
             {
