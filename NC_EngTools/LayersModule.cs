@@ -215,19 +215,17 @@ namespace LayerProcessing
         {
             LayerChecker.Check(OutputLayerName);
             LayerTable lt = (LayerTable) Db.TransactionManager.GetObject(Db.LayerTableId, OpenMode.ForRead);
-            bool lfound = false;
-            foreach (var (elem, ltr) in from ObjectId elem in lt
-                                        let ltr = (LayerTableRecord)Db.TransactionManager.GetObject(elem, OpenMode.ForRead)
-                                        select (elem, ltr))
+            var elem = from ObjectId layer in lt
+                            let ltr = (LayerTableRecord)Db.TransactionManager.GetObject(layer, OpenMode.ForRead)
+                            where ltr.Name == OutputLayerName
+                            select layer;
+            Db.Clayer = elem.FirstOrDefault();
+            bool success = LayerProperties.Dictionary.TryGetValue(TrueName, out LayerProps lp);
+            if(success)
             {
-                if (ltr.Name==OutputLayerName)
-                {
-                    Db.Clayer = elem;
-                    lfound = true;
-                    break;
-                }
+                Db.Celtscale = lp.LTScale;
+                Db.Plinewid = lp.ConstWidth;
             }
-            if (!lfound) { throw new Exception(); }
         }
     }
     internal class EntityLayerParser : LayerParser

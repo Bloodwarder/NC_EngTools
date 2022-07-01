@@ -78,7 +78,6 @@ namespace NC_EngTools
             PromptResult res = ed.GetKeywords(pko);
             if (res.Status == PromptStatus.OK) { PrevStatus = res.StringResult; }
             StatusTextDictionary.StTxtDictionary.TryGetValue(res.StringResult, out int val);
-            SelectionSet ss = null;
             using (Transaction myT = tm.StartTransaction())
             {
                 try
@@ -102,11 +101,6 @@ namespace NC_EngTools
                     ActiveLayerParsers.Flush();
                 }
             }
-            
-            //if (ss != null) 
-            //{
-            //    ed.SetImpliedSelection(ss); 
-            //} //НЕ РАБОТАЕТ. ВЫЯСНИТЬ ПОЧЕМУ.
         }
 
         [CommandMethod("АЛЬТЕРНАТИВНЫЙ", CommandFlags.Redraw)]
@@ -344,11 +338,19 @@ namespace NC_EngTools
                             ObjectId lttrId = SymbolUtilityServices.GetLinetypeContinuousId(db);
                             if (ltgetsucess)
                             {
-                                foreach (ObjectId elem in ltt)
-                                {
-                                    LinetypeTableRecord lttr = (LinetypeTableRecord)tm.GetObject(elem, OpenMode.ForRead);
-                                    if (lttr.Name.ToUpper()==lp.LTName.ToUpper()) { lttrId = lttr.Id; break; }
-                                }
+                                var elem = from ObjectId layer in ltt
+                                         let lttr = (LinetypeTableRecord)tm.GetObject(layer, OpenMode.ForRead)
+                                         where lttr.Name.ToUpper()==lp.LTName.ToUpper()
+                                         select lttr;
+                                lttrId = elem.FirstOrDefault().Id;
+
+
+
+                                //foreach (ObjectId elem in ltt)
+                                //{
+                                //    LinetypeTableRecord lttr = (LinetypeTableRecord)tm.GetObject(elem, OpenMode.ForRead);
+                                //    if (lttr.Name.ToUpper()==lp.LTName.ToUpper()) { lttrId = lttr.Id; break; }
+                                //}
                             }
                             else
                             {
