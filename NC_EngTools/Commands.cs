@@ -229,6 +229,43 @@ namespace NC_EngTools
 
         }
 
+        [CommandMethod("ВИЗРАЗДЕЛ")]
+        public void Visualizer()
+        {
+            Workstation.Define(out Document doc, out Database db, out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
+            using (Transaction myT = tm.StartTransaction())
+            {
+                LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForRead, false);
+                var layers = from ObjectId elem in lt
+                             let ltr = (LayerTableRecord)tm.GetObject(elem, OpenMode.ForWrite, false)
+                             where ltr.Name.StartsWith(LayerParser.StandartPrefix)
+                             select ltr;
+                foreach (LayerTableRecord ltr in layers)
+                {
+                    try
+                    {
+                        new RecordLayerParser(ltr);
+                    }
+                    catch (WrongLayerException)
+                    {
+                        continue;
+                    }
+                }
+                var layerchapters = StoredLayerParsers.List.Select(l => l.EngType).Distinct().OrderBy(l => l);
+                layerchapters.ToArray().Append("Сброс"); // не работает
+                PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел ["+string.Join("/", layerchapters)+"]", string.Join(" ", layerchapters))
+                {
+                    AppendKeywordsToMessage = true,
+                    AllowNone = false,
+                    AllowArbitraryInput = false
+                };
+                PromptResult res = ed.GetKeywords(pko);
+                if (res.Status != PromptStatus.OK) { return; }
+                StoredLayerParsers.Highlight(res.StringResult);
+                myT.Commit();
+            }
+        }
+
     }
 
     static class LayerChanger

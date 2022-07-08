@@ -7,6 +7,7 @@ namespace LayerProcessing
     using System.Text.RegularExpressions;
     using System.Collections.Generic;
     using Teigha.DatabaseServices;
+    using HostMgd.ApplicationServices;
     using ExternalData;
     using NC_EngTools;
     public abstract class LayerParser
@@ -45,10 +46,10 @@ namespace LayerProcessing
         }
         private static readonly string[] st_txt = new string[6] { "сущ", "дем", "пр", "неутв", "ндем", "нреорг" };
 
-        private bool recstatus = false;
-        private bool extpr = false;
-        private bool geomassigned = false;
-        private int bldstatus;
+        protected bool recstatus = false;
+        protected bool extpr = false;
+        protected bool geomassigned = false;
+        protected int bldstatus;
 
         public LayerParser(string layername)
         {
@@ -213,7 +214,7 @@ namespace LayerProcessing
 
         public override void Push()
         {
-            Workstation.Define(out TransactionManager tm);
+            Workstation.Define(out Teigha.DatabaseServices.TransactionManager tm);
             Workstation.Define(out Database db);
 
             LayerChecker.Check(OutputLayerName);
@@ -268,6 +269,50 @@ namespace LayerProcessing
         }
     }
 
+    internal class RecordLayerParser:LayerParser
+    {
+        const byte redproj = 0; const byte greenproj = 255; const byte blueproj = 255;
+        const byte redns = 0; const byte greenns = 153; const byte bluens = 153;
+        internal LayerTableRecord BoundLayer;
+        internal bool StoredEnabledState;
+        internal Teigha.Colors.Color StoredColor;
+        internal RecordLayerParser(LayerTableRecord ltr) : base(ltr.Name)
+        {
+            BoundLayer = ltr;
+            StoredEnabledState = ltr.IsOff;
+            StoredColor = ltr.Color;
+            StoredLayerParsers.Add(this);
+        }
+        public void Highlight(string engtype)
+        {
+            if (base.EngType == engtype)
+            {
+                BoundLayer.IsOff = false;
+                if (base.recstatus)
+                {
+                    if (base.bldstatus == (int)Status.Planned)
+                    {
+                        BoundLayer.Color = Teigha.Colors.Color.FromRgb(redproj, greenproj, blueproj);
+                    }
+                    else if (base.bldstatus == (int)Status.NSPlanned)
+                    {
+                        BoundLayer.Color = Teigha.Colors.Color.FromRgb(redns, greenns, bluens);
+                    }
+                }
+            }
+            else
+            {
+                BoundLayer.IsOff = true;
+            }
+               
+        }
+        public override void Push()
+        {
+            BoundLayer.IsOff = StoredEnabledState;
+            BoundLayer.Color = StoredColor;
+        }
+    }
+
     internal static class ActiveLayerParsers
     {
         private static List<LayerParser> List { get; set; } = new List<LayerParser>();
@@ -294,6 +339,30 @@ namespace LayerProcessing
         internal static void Push()
         {
             foreach (LayerParser lp in List) { lp.Push(); }
+        }
+        internal static void Flush()
+        {
+            List.Clear();
+        }
+    }
+    internal static class StoredLayerParsers
+    {
+        internal static List<RecordLayerParser> List { get; private set; } = new List<RecordLayerParser>();
+        internal static void Add(RecordLayerParser lp)
+        {
+            if (!List.Any(l => l.InputLayerName ==lp.InputLayerName))
+            {
+                List.Add(lp);
+            }
+            
+        }
+        internal static void Reset()
+        {
+            foreach (RecordLayerParser lp in List) { lp.Push(); }
+        }
+        internal static void Highlight(string engtype)
+        {
+            foreach (RecordLayerParser lp in List) { lp.Highlight(engtype); }
         }
         internal static void Flush()
         {
