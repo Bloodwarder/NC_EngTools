@@ -19,8 +19,9 @@ namespace LayerProcessing
         public string GeomType { get; private set; }
         public string MainName { get; private set; }
         public string BuildStatus { get { return st_txt[bldstatus]; } }
-        public string OutputLayerName 
-        { get
+        public string OutputLayerName
+        {
+            get
             {
                 List<string> recomp = new List<string>();
                 recomp.Add(StandartPrefix);
@@ -32,16 +33,16 @@ namespace LayerProcessing
             }
         }
 
-        
+
         public string TrueName
         //string for props compare (type of network and it's status)
         {
-            get 
+            get
             {
                 //Regex rgx = new Regex($"_{GeomType}_");
                 //string mainwgeom = string.Join("_", decomp.Skip(mainnamestart).Take(mainnameend-mainnamestart+1));
                 //MainName = rgx.Replace(mainwgeom, "");
-                return string.Join("_", new string[2] { MainName, st_txt[bldstatus] }); 
+                return string.Join("_", new string[2] { MainName, st_txt[bldstatus] });
             }
         }
         private static readonly string[] st_txt = new string[6] { "сущ", "дем", "пр", "неутв", "ндем", "нреорг" };
@@ -60,7 +61,7 @@ namespace LayerProcessing
                 //обработать при передаче слоёв
             }
             string[] decomp = InputLayerName.Split('_');
-            int mainnamestart=1;
+            int mainnamestart = 1;
             int mainnameend;
             int counter = 1;
             if (decomp[1].StartsWith("["))
@@ -76,7 +77,7 @@ namespace LayerProcessing
                 }
                 ExtProjectName =string.Join("_", list.ToArray()).Replace("[", "").Replace("]", "");
                 extpr = true;
-                counter =+ list.Count + 1;
+                counter =+list.Count + 1;
                 mainnamestart=counter;
             }
             if (decomp[counter].Length == 2)
@@ -102,12 +103,12 @@ namespace LayerProcessing
             string str = recstatus ? decomp[decomp.Length-2] : decomp[decomp.Length-1];
             bool stfound = false;
             for (int i = 0; i<st_txt.Length; i++) //searching and assigning status index (IMPROVE CODE LATER)
-            { 
-                if (st_txt[i]==str) 
+            {
+                if (st_txt[i]==str)
                 {
-                    bldstatus=i; stfound = true; break; 
-                } 
-            } 
+                    bldstatus=i; stfound = true; break;
+                }
+            }
             if (!stfound) { throw new WrongLayerException($"В слое {layername} не найден статус"); }
 
             MainName = string.Join("_", decomp.Skip(mainnamestart).Take(mainnameend-mainnamestart+1));
@@ -124,7 +125,7 @@ namespace LayerProcessing
             //disabling external project tag for current project and existing layers
             if (extpr & !(bldstatus==3||bldstatus==4||bldstatus==5))
             {
-                ExtProjectName = ""; 
+                ExtProjectName = "";
                 extpr = false;
             }
             return;
@@ -151,7 +152,7 @@ namespace LayerProcessing
         {
             if (newprojname!=""&(bldstatus==3||bldstatus==4||bldstatus==5))
             {
-                bldstatus = 3; 
+                bldstatus = 3;
             } //assigning NSPlanned status when current project layer processed (non NS)
             if (extpr)
             {
@@ -218,14 +219,14 @@ namespace LayerProcessing
             Workstation.Define(out Database db);
 
             LayerChecker.Check(OutputLayerName);
-            LayerTable lt = (LayerTable) tm.GetObject(db.LayerTableId, OpenMode.ForRead);
+            LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForRead);
             var elem = from ObjectId layer in lt
-                            let ltr = (LayerTableRecord)tm.GetObject(layer, OpenMode.ForRead)
-                            where ltr.Name == OutputLayerName
-                            select layer;
+                       let ltr = (LayerTableRecord)tm.GetObject(layer, OpenMode.ForRead)
+                       where ltr.Name == OutputLayerName
+                       select layer;
             db.Clayer = elem.FirstOrDefault();
             bool success = LayerProperties.Dictionary.TryGetValue(TrueName, out LayerProps lp);
-            if(success)
+            if (success)
             {
                 db.Celtscale = lp.LTScale;
                 db.Plinewid = lp.ConstWidth;
@@ -234,11 +235,11 @@ namespace LayerProcessing
     }
     internal class EntityLayerParser : LayerParser
     {
-        internal EntityLayerParser(string layername) : base(layername) 
+        internal EntityLayerParser(string layername) : base(layername)
         {
             ActiveLayerParsers.Add(this);
         }
-        internal EntityLayerParser(Entity ent) : base(ent.Layer) 
+        internal EntityLayerParser(Entity ent) : base(ent.Layer)
         {
             ObjList.Add(ent); ActiveLayerParsers.Add(this);
         }
@@ -251,7 +252,7 @@ namespace LayerProcessing
                 LayerChecker.Check(OutputLayerName);
                 bool success = LayerProperties.Dictionary.TryGetValue(TrueName, out LayerProps lp);
                 if (!success)
-                { lp = new LayerProps() { ConstWidth = 0.4, LineWeight = -3, LTScale=0.8, Red=0, Green=0, Blue=0, LTName = "Continious"}; }
+                { lp = new LayerProps() { ConstWidth = 0.4, LineWeight = -3, LTScale=0.8, Red=0, Green=0, Blue=0, LTName = "Continious" }; }
                 foreach (Entity ent in ObjList)
                 {
                     ent.Layer = OutputLayerName;
@@ -262,14 +263,14 @@ namespace LayerProcessing
                     }
                 }
             }
-            catch(NoPropertiesException)
+            catch (NoPropertiesException)
             {
                 return;
             }
         }
     }
 
-    internal class RecordLayerParser:LayerParser
+    internal class RecordLayerParser : LayerParser
     {
         const byte redproj = 0; const byte greenproj = 255; const byte blueproj = 255;
         const byte redns = 0; const byte greenns = 153; const byte bluens = 153;
@@ -283,7 +284,17 @@ namespace LayerProcessing
             StoredColor = ltr.Color;
             StoredLayerParsers.Add(this);
         }
-        public void Highlight(string engtype)
+        public void Reset()
+        {
+            BoundLayer.IsOff = StoredEnabledState;
+            BoundLayer.Color = StoredColor;
+        }
+        public override void Push()
+        {
+            Reset();
+        }
+
+        public void Push(string engtype)
         {
             if (base.EngType == engtype)
             {
@@ -304,12 +315,6 @@ namespace LayerProcessing
             {
                 BoundLayer.IsOff = true;
             }
-               
-        }
-        public override void Push()
-        {
-            BoundLayer.IsOff = StoredEnabledState;
-            BoundLayer.Color = StoredColor;
         }
     }
 
@@ -347,22 +352,27 @@ namespace LayerProcessing
     }
     internal static class StoredLayerParsers
     {
+        private static bool eventassigned = false; //должно работать только для одного документа. переделать для многих
         internal static List<RecordLayerParser> List { get; private set; } = new List<RecordLayerParser>();
         internal static void Add(RecordLayerParser lp)
         {
-            if (!List.Any(l => l.InputLayerName ==lp.InputLayerName))
+            if (!List.Any(l => l.InputLayerName == lp.InputLayerName))
             {
                 List.Add(lp);
             }
-            
         }
         internal static void Reset()
         {
-            foreach (RecordLayerParser lp in List) { lp.Push(); }
+            foreach (RecordLayerParser lp in List) { lp.Reset(); }
         }
         internal static void Highlight(string engtype)
         {
-            foreach (RecordLayerParser lp in List) { lp.Highlight(engtype); }
+            if (!eventassigned)
+            {
+                Workstation.Define(out Document doc);
+
+            }
+            foreach (RecordLayerParser lp in List) { lp.Push(engtype); }
         }
         internal static void Flush()
         {

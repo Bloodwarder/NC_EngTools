@@ -186,7 +186,7 @@ namespace NC_EngTools
             }
         }
 
-        [CommandMethod("СЗС", CommandFlags.Redraw)]
+        [CommandMethod("СВС", CommandFlags.Redraw)]
         public void StandartLayerValues()
         {
             Workstation.Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
@@ -228,6 +228,10 @@ namespace NC_EngTools
             }
 
         }
+    }
+    public class ChapterVisualizer
+    {
+        internal static string ActiveChapterState { get; private set; } = null;
 
         [CommandMethod("ВИЗРАЗДЕЛ")]
         public void Visualizer()
@@ -238,7 +242,7 @@ namespace NC_EngTools
                 LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForRead, false);
                 var layers = from ObjectId elem in lt
                              let ltr = (LayerTableRecord)tm.GetObject(elem, OpenMode.ForWrite, false)
-                             where ltr.Name.StartsWith(LayerParser.StandartPrefix)
+                             where ltr.Name.StartsWith(LayerParser.StandartPrefix+"_")
                              select ltr;
                 foreach (LayerTableRecord ltr in layers)
                 {
@@ -252,8 +256,8 @@ namespace NC_EngTools
                     }
                 }
                 var layerchapters = StoredLayerParsers.List.Select(l => l.EngType).Distinct().OrderBy(l => l);
-                layerchapters.ToArray().Append("Сброс"); // не работает
-                PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел ["+string.Join("/", layerchapters)+"]", string.Join(" ", layerchapters))
+                var lcplus = layerchapters.Concat(new string[] {"Сброс"}); // не работает
+                PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел ["+string.Join("/", lcplus)+"]", string.Join(" ", lcplus))
                 {
                     AppendKeywordsToMessage = true,
                     AllowNone = false,
@@ -261,12 +265,24 @@ namespace NC_EngTools
                 };
                 PromptResult res = ed.GetKeywords(pko);
                 if (res.Status != PromptStatus.OK) { return; }
-                StoredLayerParsers.Highlight(res.StringResult);
+                if (res.StringResult == "Сброс")
+                {
+                    StoredLayerParsers.Reset();
+                    ActiveChapterState = null;
+                }
+                else
+                {
+                    ActiveChapterState = res.StringResult;
+                    StoredLayerParsers.Highlight(ActiveChapterState);
+                }
                 myT.Commit();
             }
         }
-
     }
+
+
+
+
 
     static class LayerChanger
     {
@@ -390,6 +406,13 @@ namespace NC_EngTools
                                 //Transparency = new PlatformDb.Colors.Transparency(PlatformDb.Colors.TransparencyMethod.ByAlpha)
                             };
                             lt.Add(ltrec);
+                            //Process new layer if isolated chapter visualization is active
+                            //НЕ РОДНОЕ МЕСТО. ПРИКРУЧЕНО. ЕСЛИ ВИЗУАЛИЗАТОР БАРАХЛИТ - ЧЕКЕР МОЖЕТ ТОЖЕ СЛОМАТЬСЯ
+                            if (ChapterVisualizer.ActiveChapterState!=null)
+                            {
+                                RecordLayerParser rlp = new RecordLayerParser(ltrec);
+                                rlp.Push(ChapterVisualizer.ActiveChapterState);
+                            }
                             transaction.Commit();
                         }
                         else
