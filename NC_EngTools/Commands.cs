@@ -231,7 +231,7 @@ namespace NC_EngTools
     }
     public class ChapterVisualizer
     {
-        internal static string ActiveChapterState { get; private set; } = null;
+        internal static string ActiveChapterState { get; set; } = null;
 
         [CommandMethod("ВИЗРАЗДЕЛ")]
         public void Visualizer()
@@ -256,7 +256,7 @@ namespace NC_EngTools
                     }
                 }
                 var layerchapters = StoredLayerParsers.List.Select(l => l.EngType).Distinct().OrderBy(l => l);
-                var lcplus = layerchapters.Concat(new string[] {"Сброс"}); // не работает
+                var lcplus = layerchapters.Concat(new string[] {"Сброс"});
                 PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел ["+string.Join("/", lcplus)+"]", string.Join(" ", lcplus))
                 {
                     AppendKeywordsToMessage = true,

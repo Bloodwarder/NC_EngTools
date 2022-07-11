@@ -363,14 +363,42 @@ namespace LayerProcessing
         }
         internal static void Reset()
         {
+            Workstation.Define(out Document doc);
             foreach (RecordLayerParser lp in List) { lp.Reset(); }
+            //doc.BeginDocumentClose -= Reset;
+            doc.CloseWillStart -= Reset;
+        }
+
+        internal static void Reset(object sender, EventArgs e)//(object sender, DocumentBeginCloseEventArgs e)
+        {
+            //e.Veto();
+            Workstation.Define(out Document doc);
+            Workstation.Define(out Teigha.DatabaseServices.TransactionManager tm);
+            
+            using (Transaction myT = tm.StartTransaction())
+            {
+                foreach (RecordLayerParser lp in List)
+                {
+                    //lp.BoundLayer.UpgradeOpen();
+                    LayerTableRecord ltr = (LayerTableRecord)tm.GetObject(lp.BoundLayer.Id, OpenMode.ForWrite);
+                    lp.Reset();
+                }
+                //doc.BeginDocumentClose -= Reset;
+                doc.CloseWillStart -= Reset;
+                ChapterVisualizer.ActiveChapterState = null;
+                Flush();
+                myT.Commit();
+            }
+           
         }
         internal static void Highlight(string engtype)
         {
             if (!eventassigned)
             {
                 Workstation.Define(out Document doc);
-
+                //doc.BeginDocumentClose += Reset;
+                doc.CloseWillStart += Reset;
+                eventassigned = true;
             }
             foreach (RecordLayerParser lp in List) { lp.Push(engtype); }
         }
