@@ -138,19 +138,23 @@ namespace LayerProcessing
                 if (recstatus)
                 {
                     recstatus=false;
-                    return;
                 }
                 else
                 {
                     recstatus=true;
-                    return;
                 }
             }
+            else
+            {
+                bldstatus = 2;
+                recstatus = true;
+            }
+            return ;
         }
 
         public void ExtProjNameAssign(string newprojname)
         {
-            if (newprojname!=""&(bldstatus==3||bldstatus==4||bldstatus==5))
+            if (newprojname!=""&!(bldstatus==3||bldstatus==4||bldstatus==5))
             {
                 bldstatus = 3;
             } //assigning NSPlanned status when current project layer processed (non NS)
@@ -158,7 +162,7 @@ namespace LayerProcessing
             {
                 if (newprojname!="") //replacing name
                 {
-                    ExtProjectName= newprojname;
+                    ExtProjectName = newprojname;
                 }
                 else //erasing name
                 {
