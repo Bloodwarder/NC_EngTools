@@ -300,6 +300,12 @@ namespace LayerProcessing
 
         public void Push(string engtype)
         {
+            if (engtype == null)
+            {
+                Reset();
+                return;
+            }    
+            
             if (base.EngType == engtype)
             {
                 BoundLayer.IsOff = false;

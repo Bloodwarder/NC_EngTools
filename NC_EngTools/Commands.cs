@@ -256,7 +256,7 @@ namespace NC_EngTools
                     }
                 }
                 var layerchapters = StoredLayerParsers.List.Select(l => l.EngType).Distinct().OrderBy(l => l);
-                var lcplus = layerchapters.Concat(new string[] {"Сброс"});
+                var lcplus = layerchapters.Concat(new string[] { "Сброс" });
                 PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел ["+string.Join("/", lcplus)+"]", string.Join(" ", lcplus))
                 {
                     AppendKeywordsToMessage = true,
@@ -268,15 +268,26 @@ namespace NC_EngTools
                 if (res.StringResult == "Сброс")
                 {
                     StoredLayerParsers.Reset();
+                    if (ActiveChapterState!=null)
+                    {
+                        LayerChecker.LayerAdded -= NewLayerHighlight;
+                    }
                     ActiveChapterState = null;
                 }
                 else
                 {
                     ActiveChapterState = res.StringResult;
                     StoredLayerParsers.Highlight(ActiveChapterState);
+                    LayerChecker.LayerAdded += NewLayerHighlight;
                 }
                 myT.Commit();
             }
+        }
+
+        public void NewLayerHighlight(object sender, System.EventArgs e)
+        {
+            RecordLayerParser rlp = new RecordLayerParser((LayerTableRecord)sender);
+            rlp.Push(ActiveChapterState);
         }
     }
 
@@ -356,80 +367,88 @@ namespace NC_EngTools
 
     static class LayerChecker
     {
+        //delegate void LayerAddedEventHandler(string layername);
+        internal static event System.EventHandler LayerAdded;
         internal static void Check(string layername)
         {
-            {
-                Database db = HostApplicationServices.WorkingDatabase;
-                PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
-                Transaction transaction = tm.StartTransaction();
 
-                using (transaction)
+            Database db = HostApplicationServices.WorkingDatabase;
+            PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
+            Transaction transaction = tm.StartTransaction();
+
+            using (transaction)
+            {
+                try
                 {
-                    try
+                    LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForWrite, false);
+                    if (!lt.Has(layername))
                     {
-                        LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForWrite, false);
-                        if (!lt.Has(layername))
+                        SimpleLayerParser laypars = new SimpleLayerParser(layername);
+                        bool success = LayerProperties.Dictionary.TryGetValue(laypars.TrueName, out LayerProps lp);
+                        if (!success) { throw new NoPropertiesException("Нет стандартов для слоя"); }
+                        LinetypeTable ltt = (LinetypeTable)tm.GetObject(db.LinetypeTableId, OpenMode.ForWrite, false);
+                        bool ltgetsucess = true;
+                        if (!ltt.Has(lp.LTName))
                         {
-                            SimpleLayerParser laypars = new SimpleLayerParser(layername);
-                            bool success = LayerProperties.Dictionary.TryGetValue(laypars.TrueName, out LayerProps lp);
-                            if (!success) { throw new NoPropertiesException("Нет стандартов для слоя"); }
-                            LinetypeTable ltt = (LinetypeTable)tm.GetObject(db.LinetypeTableId, OpenMode.ForWrite, false);
-                            bool ltgetsucess = true;
-                            if (!ltt.Has(lp.LTName))
-                            {
-                                FileInfo fi = new FileInfo(PropsReloader.Path+"\\STANDARD1.lin"); //ПЕРЕДЕЛАТЬ С НОРМАЛЬНОЙ ССЛЫКОЙ, а PropsReloader.Path снова сделать приватным
-                                try
-                                { db.LoadLineTypeFile(lp.LTName, fi.FullName); }
-                                catch
-                                { ltgetsucess = false; }
-                            }
-                            ObjectId lttrId = SymbolUtilityServices.GetLinetypeContinuousId(db);
-                            if (ltgetsucess)
-                            {
-                                var elem = from ObjectId layer in ltt
-                                           let lttr = (LinetypeTableRecord)tm.GetObject(layer, OpenMode.ForRead)
-                                           where lttr.Name.ToUpper()==lp.LTName.ToUpper()
-                                           select lttr;
-                                lttrId = elem.FirstOrDefault().Id;
-                            }
-                            else
-                            {
-                                string str = $"Не найден тип линий для слоя {layername}";
-                                Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage(str);
-                            }
-                            LayerTableRecord ltrec = new LayerTableRecord
-                            {
-                                Name = layername,
-                                Color = PlatformDb.Colors.Color.FromRgb(lp.Red, lp.Green, lp.Blue),
-                                LineWeight = (LineWeight)lp.LineWeight,
-                                LinetypeObjectId = lttrId
-                                //Transparency = new PlatformDb.Colors.Transparency(PlatformDb.Colors.TransparencyMethod.ByAlpha)
-                            };
-                            lt.Add(ltrec);
-                            //Process new layer if isolated chapter visualization is active
-                            //НЕ РОДНОЕ МЕСТО. ПРИКРУЧЕНО. ЕСЛИ ВИЗУАЛИЗАТОР БАРАХЛИТ - ЧЕКЕР МОЖЕТ ТОЖЕ СЛОМАТЬСЯ
-                            if (ChapterVisualizer.ActiveChapterState!=null)
-                            {
-                                RecordLayerParser rlp = new RecordLayerParser(ltrec);
-                                rlp.Push(ChapterVisualizer.ActiveChapterState);
-                            }
-                            transaction.Commit();
+                            FileInfo fi = new FileInfo(PropsReloader.Path+"\\STANDARD1.lin"); //ПЕРЕДЕЛАТЬ С НОРМАЛЬНОЙ ССЛЫКОЙ, а PropsReloader.Path снова сделать приватным
+                            try
+                            { db.LoadLineTypeFile(lp.LTName, fi.FullName); }
+                            catch
+                            { ltgetsucess = false; }
+                        }
+                        ObjectId lttrId = SymbolUtilityServices.GetLinetypeContinuousId(db);
+                        if (ltgetsucess)
+                        {
+                            var elem = from ObjectId layer in ltt
+                                       let lttr = (LinetypeTableRecord)tm.GetObject(layer, OpenMode.ForRead)
+                                       where lttr.Name.ToUpper()==lp.LTName.ToUpper()
+                                       select lttr;
+                            lttrId = elem.FirstOrDefault().Id;
                         }
                         else
                         {
-                            return;
+                            string str = $"Не найден тип линий для слоя {layername}";
+                            Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage(str);
                         }
+                        LayerTableRecord ltrec = new LayerTableRecord
+                        {
+                            Name = layername,
+                            Color = PlatformDb.Colors.Color.FromRgb(lp.Red, lp.Green, lp.Blue),
+                            LineWeight = (LineWeight)lp.LineWeight,
+                            LinetypeObjectId = lttrId
+                            //Transparency = new PlatformDb.Colors.Transparency(PlatformDb.Colors.TransparencyMethod.ByAlpha)
+                        };
+                        lt.Add(ltrec);
+                        tm.AddNewlyCreatedDBObject(ltrec, true);
+                        //Process new layer if isolated chapter visualization is active
+                        //НЕ РОДНОЕ МЕСТО. ПРИКРУЧЕНО. ЕСЛИ ВИЗУАЛИЗАТОР БАРАХЛИТ - ЧЕКЕР МОЖЕТ ТОЖЕ СЛОМАТЬСЯ
+                        //заменил на событие. удалить как протестирую
+                        //if (ChapterVisualizer.ActiveChapterState!=null)
+                        //{
+                        //    RecordLayerParser rlp = new RecordLayerParser(ltrec);
+                        //    rlp.Push(ChapterVisualizer.ActiveChapterState);
+                        //}
+
+                        System.EventArgs e = new System.EventArgs();
+                        LayerAdded.Invoke(ltrec, e);
+
+                        transaction.Commit();
                     }
-                    catch (NoPropertiesException)
+                    else
                     {
-                        throw new NoPropertiesException("Проверка слоя не удалась");
-                    }
-                    finally
-                    {
-                        transaction.Dispose();
+                        return;
                     }
                 }
+                catch (NoPropertiesException)
+                {
+                    throw new NoPropertiesException("Проверка слоя не удалась");
+                }
+                finally
+                {
+                    transaction.Dispose();
+                }
             }
+
         }
     }
 
