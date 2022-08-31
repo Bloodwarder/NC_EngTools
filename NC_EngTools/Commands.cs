@@ -42,21 +42,27 @@ namespace NC_EngTools
                             //Transparency = new PlatformDb.Colors.Transparency(PlatformDb.Colors.TransparencyMethod.ByAlpha)
                         };
                         lt.Add(ltrec);
-                        myT.Commit();
+                        myT.AddNewlyCreatedDBObject(ltrec, true);
                     }
                     else
                     {
-                        foreach (ObjectId elem in lt)
+                        LayerTableRecord ltrec = (from ObjectId elem in lt
+                                                  let ltr = (LayerTableRecord)tm.GetObject(elem, OpenMode.ForWrite, false)
+                                                  where ltr.Name == tgtlayer
+                                                  select ltr)
+                                                  .FirstOrDefault();
+                        if (ltrec.IsFrozen||ltrec.IsOff)
                         {
-                            LayerTableRecord ltrec = (LayerTableRecord)tm.GetObject(elem, OpenMode.ForWrite);
-                            if (ltrec.Name == tgtlayer)
-                            {
-                                ltrec.IsOff = !ltrec.IsOff;
-                                myT.Commit();
-                                break;
-                            }
+                            ltrec.IsOff = false;
+                            ltrec.IsFrozen = false;
                         }
+                        else
+                        {
+                            ltrec.IsOff = true;
+                        }
+
                     }
+                    myT.Commit();
                 }
                 finally { myT.Dispose(); }
             }
