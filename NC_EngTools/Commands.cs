@@ -292,8 +292,14 @@ namespace NC_EngTools
 
         public void NewLayerHighlight(object sender, System.EventArgs e)
         {
-            RecordLayerParser rlp = new RecordLayerParser((LayerTableRecord)sender);
-            rlp.Push(ActiveChapterState);
+            Workstation.Define(out Document doc, out Database db, out Teigha.DatabaseServices.TransactionManager tm);
+            using (Transaction myT =  tm.StartTransaction())
+            {
+                RecordLayerParser rlp = new RecordLayerParser((LayerTableRecord)sender);
+                rlp.Push(ActiveChapterState);
+                myT.Commit();
+            }
+
         }
     }
 
@@ -436,9 +442,12 @@ namespace NC_EngTools
                         //}
 
                         System.EventArgs e = new System.EventArgs();
-                        LayerAdded.Invoke(ltrec, e);
-
                         transaction.Commit();
+                        if (LayerAdded!=null)
+                        {
+                            LayerAdded(ltrec, e);
+                        }
+
                     }
                     else
                     {
