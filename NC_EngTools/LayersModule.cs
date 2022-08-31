@@ -375,13 +375,12 @@ namespace LayerProcessing
         {
             Workstation.Define(out Document doc);
             foreach (RecordLayerParser lp in List) { lp.Reset(); }
-            //doc.BeginDocumentClose -= Reset;
-            doc.CloseWillStart -= Reset;
+            doc.Database.BeginSave -= Reset;
+            eventassigned = false;
         }
 
-        internal static void Reset(object sender, EventArgs e)//(object sender, DocumentBeginCloseEventArgs e)
+        internal static void Reset(object sender, EventArgs e)
         {
-            //e.Veto();
             Workstation.Define(out Document doc);
             Workstation.Define(out Teigha.DatabaseServices.TransactionManager tm);
             
@@ -389,12 +388,12 @@ namespace LayerProcessing
             {
                 foreach (RecordLayerParser lp in List)
                 {
-                    //lp.BoundLayer.UpgradeOpen();
                     LayerTableRecord ltr = (LayerTableRecord)tm.GetObject(lp.BoundLayer.Id, OpenMode.ForWrite);
                     lp.Reset();
                 }
-                //doc.BeginDocumentClose -= Reset;
-                doc.CloseWillStart -= Reset;
+
+                doc.Database.BeginSave -= Reset;
+                eventassigned = false;
                 ChapterVisualizer.ActiveChapterState = null;
                 Flush();
                 myT.Commit();
@@ -406,8 +405,7 @@ namespace LayerProcessing
             if (!eventassigned)
             {
                 Workstation.Define(out Document doc);
-                //doc.BeginDocumentClose += Reset;
-                doc.CloseWillStart += Reset;
+                doc.Database.BeginSave += Reset;
                 eventassigned = true;
             }
             foreach (RecordLayerParser lp in List) { lp.Push(engtype); }
