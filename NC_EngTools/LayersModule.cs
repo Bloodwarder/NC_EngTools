@@ -286,7 +286,7 @@ namespace LayerProcessing
             BoundLayer = ltr;
             StoredEnabledState = ltr.IsOff;
             StoredColor = ltr.Color;
-            StoredLayerParsers.Add(this);
+            ChapterStoredRecordLayerParsers.Add(this);
         }
         public void Reset()
         {
@@ -360,7 +360,7 @@ namespace LayerProcessing
             List.Clear();
         }
     }
-    internal static class StoredLayerParsers
+    internal static class ChapterStoredRecordLayerParsers
     {
         private static bool eventassigned = false; //должно работать только для одного документа. переделать для многих
         internal static List<RecordLayerParser> List { get; private set; } = new List<RecordLayerParser>();

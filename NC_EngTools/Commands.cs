@@ -20,6 +20,7 @@ namespace NC_EngTools
     public class NCLayersCommands
     {
         public static string PrevStatus = "Сущ";
+        public static string PrevExtProject = "";
         [CommandMethod("КАЛЬКА")]
         public void TToggle()
         {
@@ -164,7 +165,7 @@ namespace NC_EngTools
         {
             Workstation.Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
 
-            PromptResult pr = ed.GetString("Введите имя проекта, согласно которому отображён выбранный объект");
+            PromptResult pr = ed.GetString($"Введите имя проекта, согласно которому отображён выбранный объект <{PrevExtProject}>");
             string extprname;
             if (pr.Status == PromptStatus.OK)
             {
@@ -174,7 +175,7 @@ namespace NC_EngTools
             {
                 return;
             }
-
+            PrevExtProject = extprname;
             using (Transaction myT = tm.StartTransaction())
             {
                 try
@@ -256,13 +257,14 @@ namespace NC_EngTools
                     {
                         new RecordLayerParser(ltr);
                     }
-                    catch (WrongLayerException)
+                    catch (WrongLayerException ex)
                     {
+                        ed.WriteMessage(ex.Message);
                         continue;
                     }
                 }
-                var layerchapters = StoredLayerParsers.List.Select(l => l.EngType).Distinct().OrderBy(l => l);
-                var lcplus = layerchapters.Concat(new string[] { "Сброс" });
+                var layerchapters = ChapterStoredRecordLayerParsers.List.Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
+                var lcplus = layerchapters.Append("Сброс");
                 PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел ["+string.Join("/", lcplus)+"]", string.Join(" ", lcplus))
                 {
                     AppendKeywordsToMessage = true,
@@ -273,7 +275,7 @@ namespace NC_EngTools
                 if (res.Status != PromptStatus.OK) { return; }
                 if (res.StringResult == "Сброс")
                 {
-                    StoredLayerParsers.Reset();
+                    ChapterStoredRecordLayerParsers.Reset();
                     if (ActiveChapterState!=null)
                     {
                         LayerChecker.LayerAdded -= NewLayerHighlight;
@@ -283,7 +285,7 @@ namespace NC_EngTools
                 else
                 {
                     ActiveChapterState = res.StringResult;
-                    StoredLayerParsers.Highlight(ActiveChapterState);
+                    ChapterStoredRecordLayerParsers.Highlight(ActiveChapterState);
                     LayerChecker.LayerAdded += NewLayerHighlight;
                 }
                 myT.Commit();
@@ -433,13 +435,6 @@ namespace NC_EngTools
                         lt.Add(ltrec);
                         tm.AddNewlyCreatedDBObject(ltrec, true);
                         //Process new layer if isolated chapter visualization is active
-                        //НЕ РОДНОЕ МЕСТО. ПРИКРУЧЕНО. ЕСЛИ ВИЗУАЛИЗАТОР БАРАХЛИТ - ЧЕКЕР МОЖЕТ ТОЖЕ СЛОМАТЬСЯ
-                        //заменил на событие. удалить как протестирую
-                        //if (ChapterVisualizer.ActiveChapterState!=null)
-                        //{
-                        //    RecordLayerParser rlp = new RecordLayerParser(ltrec);
-                        //    rlp.Push(ChapterVisualizer.ActiveChapterState);
-                        //}
 
                         System.EventArgs e = new System.EventArgs();
                         transaction.Commit();
