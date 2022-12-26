@@ -92,13 +92,13 @@ namespace NC_EngTools
                     ActiveLayerParsers.Push();
                     myT.Commit();
                 }
-                catch (WrongLayerException)
+                catch (WrongLayerException ex)
                 {
-                    ed.WriteMessage("Текущий слой не принадлежит к списку обрабатываемых слоёв");
+                    ed.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
                 }
                 catch (System.Exception ex)
                 {
-                    ed.WriteMessage(ex.Message + " " + ex.StackTrace);
+                    ed.WriteMessage(ex.Message);
                 }
                 finally
                 {
@@ -122,9 +122,9 @@ namespace NC_EngTools
                     ActiveLayerParsers.Push();
                     myT.Commit();
                 }
-                catch (WrongLayerException)
+                catch (WrongLayerException ex)
                 {
-                    ed.WriteMessage("Текущий слой не принадлежит к списку обрабатываемых слоёв");
+                    ed.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
                 }
                 finally
                 {
@@ -148,9 +148,9 @@ namespace NC_EngTools
                     ActiveLayerParsers.Push();
                     myT.Commit();
                 }
-                catch (WrongLayerException)
+                catch (WrongLayerException ex)
                 {
-                    ed.WriteMessage("Текущий слой не принадлежит к списку обрабатываемых слоёв");
+                    ed.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
                 }
                 finally
                 {
@@ -185,6 +185,10 @@ namespace NC_EngTools
                     ActiveLayerParsers.Push();
                     myT.Commit();
                 }
+                catch (WrongLayerException ex)
+                {
+                    ed.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                }
                 finally
                 {
                     myT.Dispose();
@@ -206,9 +210,9 @@ namespace NC_EngTools
                     ActiveLayerParsers.Push();
                     myT.Commit();
                 }
-                catch (WrongLayerException)
+                catch (WrongLayerException ex)
                 {
-                    ed.WriteMessage("Текущий слой не принадлежит к списку обрабатываемых слоёв");
+                    ed.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
                 }
                 finally
                 {
@@ -238,8 +242,18 @@ namespace NC_EngTools
     }
     public class ChapterVisualizer
     {
-        internal static string ActiveChapterState { get; set; } = null;
+        private static Dictionary<Document, string> activeChapterState = new Dictionary<Document, string>();
 
+        internal static Dictionary<Document, string> ActiveChapterState
+        {
+            get
+            {
+                Workstation.Define(out Document doc);
+                if (!activeChapterState.ContainsKey(doc))
+                { activeChapterState.Add(doc, null); }
+                return activeChapterState;
+            }
+        }
         [CommandMethod("ВИЗРАЗДЕЛ")]
         public void Visualizer()
         {
@@ -263,7 +277,7 @@ namespace NC_EngTools
                         continue;
                     }
                 }
-                var layerchapters = ChapterStoredRecordLayerParsers.List.Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
+                var layerchapters = ChapterStoredRecordLayerParsers.List[doc].Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
                 var lcplus = layerchapters.Append("Сброс");
                 PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел ["+string.Join("/", lcplus)+"]", string.Join(" ", lcplus))
                 {
@@ -279,13 +293,14 @@ namespace NC_EngTools
                     if (ActiveChapterState!=null)
                     {
                         LayerChecker.LayerAdded -= NewLayerHighlight;
+                        ActiveChapterState[doc] = null;
                     }
-                    ActiveChapterState = null;
+
                 }
                 else
                 {
-                    ActiveChapterState = res.StringResult;
-                    ChapterStoredRecordLayerParsers.Highlight(ActiveChapterState);
+                    ActiveChapterState[doc] = res.StringResult;
+                    ChapterStoredRecordLayerParsers.Highlight(ActiveChapterState[doc]);
                     LayerChecker.LayerAdded += NewLayerHighlight;
                 }
                 myT.Commit();
@@ -295,10 +310,10 @@ namespace NC_EngTools
         public void NewLayerHighlight(object sender, System.EventArgs e)
         {
             Workstation.Define(out Document doc, out Database db, out Teigha.DatabaseServices.TransactionManager tm);
-            using (Transaction myT =  tm.StartTransaction())
+            using (Transaction myT = tm.StartTransaction())
             {
                 RecordLayerParser rlp = new RecordLayerParser((LayerTableRecord)sender);
-                rlp.Push(ActiveChapterState);
+                rlp.Push(ActiveChapterState[doc]);
                 myT.Commit();
             }
 

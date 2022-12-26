@@ -149,18 +149,19 @@ namespace LayerProcessing
                 bldstatus = 2;
                 recstatus = true;
             }
-            return ;
+            return;
         }
 
         public void ExtProjNameAssign(string newprojname)
         {
-            if (newprojname!=""&!(bldstatus==3||bldstatus==4||bldstatus==5))
+            bool emptyname = newprojname == "";
+            if (!emptyname&!(bldstatus==3||bldstatus==4||bldstatus==5))
             {
                 bldstatus = 3;
             } //assigning NSPlanned status when current project layer processed (non NS)
             if (extpr)
             {
-                if (newprojname!="") //replacing name
+                if (!emptyname) //replacing name
                 {
                     ExtProjectName = newprojname;
                 }
@@ -170,7 +171,7 @@ namespace LayerProcessing
                     extpr = false;
                 }
             }
-            else //assigning name
+            else if (!emptyname) //assigning name
             {
                 ExtProjectName = newprojname;
                 extpr = true;
@@ -304,8 +305,8 @@ namespace LayerProcessing
             {
                 Reset();
                 return;
-            }    
-            
+            }
+
             if (base.EngType == engtype)
             {
                 BoundLayer.IsOff = false;
@@ -362,57 +363,64 @@ namespace LayerProcessing
     }
     internal static class ChapterStoredRecordLayerParsers
     {
-        private static bool eventassigned = false; //должно работать только для одного документа. переделать для многих
-        internal static List<RecordLayerParser> List { get; private set; } = new List<RecordLayerParser>();
+        private static Dictionary<Document, bool> eventassigned = new Dictionary<Document, bool>(); //должно работать только для одного документа. переделать для многих
+        internal static Dictionary<Document, List<RecordLayerParser>> List { get; } = new Dictionary<Document, List<RecordLayerParser>>();
         internal static void Add(RecordLayerParser lp)
         {
-            if (!List.Any(l => l.InputLayerName == lp.InputLayerName))
+            Workstation.Define(out Document doc);
+            if (!List.ContainsKey(doc))
             {
-                List.Add(lp);
+                List[doc] = new List<RecordLayerParser>();
+                eventassigned.Add(doc, false);
+            }
+            if (!List[doc].Any(l => l.InputLayerName == lp.InputLayerName))
+            {
+                List[doc].Add(lp);
             }
         }
         internal static void Reset()
         {
             Workstation.Define(out Document doc);
-            foreach (RecordLayerParser lp in List) { lp.Reset(); }
+            foreach (RecordLayerParser lp in List[doc]) { lp.Reset(); }
             doc.Database.BeginSave -= Reset;
-            eventassigned = false;
+            eventassigned[doc] = false;
         }
 
         internal static void Reset(object sender, EventArgs e)
         {
             Workstation.Define(out Document doc);
             Workstation.Define(out Teigha.DatabaseServices.TransactionManager tm);
-            
+
             using (Transaction myT = tm.StartTransaction())
             {
-                foreach (RecordLayerParser lp in List)
+                foreach (RecordLayerParser lp in List[doc])
                 {
                     LayerTableRecord ltr = (LayerTableRecord)tm.GetObject(lp.BoundLayer.Id, OpenMode.ForWrite);
                     lp.Reset();
                 }
 
                 doc.Database.BeginSave -= Reset;
-                eventassigned = false;
-                ChapterVisualizer.ActiveChapterState = null;
+                eventassigned[doc] = false;
+                ChapterVisualizer.ActiveChapterState[doc] = null;
                 Flush();
                 myT.Commit();
             }
-           
+
         }
         internal static void Highlight(string engtype)
         {
-            if (!eventassigned)
+            Workstation.Define(out Document doc);
+            if (!eventassigned[doc])
             {
-                Workstation.Define(out Document doc);
                 doc.Database.BeginSave += Reset;
-                eventassigned = true;
+                eventassigned[doc] = true;
             }
-            foreach (RecordLayerParser lp in List) { lp.Push(engtype); }
+            foreach (RecordLayerParser lp in List[doc]) { lp.Push(engtype); }
         }
         internal static void Flush()
         {
-            List.Clear();
+            Workstation.Define(out Document doc);
+            List[doc].Clear();
         }
     }
     internal class WrongLayerException : System.Exception
