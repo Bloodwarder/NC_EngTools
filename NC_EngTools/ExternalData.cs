@@ -35,7 +35,7 @@
             XmlSerializableDictionary<string, string> dct2 = ExtractAlterExcel();
             XmlSerializeProps(dct);
             XmlSerializeAlteringDictionary(dct2);
-            LayerProperties.Dictionary = dct;
+            LayerProperties.UpdateDictionary(dct);
             LayerAlteringDictionary.Dictionary = dct2;
         }
 
@@ -60,6 +60,7 @@
                     foreach (LayerTableRecord ltr in layers)
                     {
                         string checkedname = "";
+                        LayerProps lp = new LayerProps();
                         //Попытка распарсить имя слоя для поиска существующих сохранённых свойств
                         try
                         {
@@ -69,7 +70,17 @@
                         {
                             doc.Editor.WriteMessage(ex.Message);
                         }
-                        bool lpsuccess = LayerProperties.Dictionary.TryGetValue(checkedname, out LayerProps lp);
+                        bool lpsuccess = true;
+                        try
+                        {
+                            lp = LayerProperties.GetLayerProps(checkedname, false);
+                        }
+                        catch (NoPropertiesException)
+                        {
+                            lpsuccess = false;
+                        }
+
+                        //bool lpsuccess = LayerProperties._dictionary.TryGetValue(checkedname, out LayerProps lp);
                         workbook.Worksheets[1].Cells[i, 1].Value = checkedname != "" ? checkedname : ltr.Name;
                         if (lpsuccess)
                         {
@@ -206,18 +217,65 @@
     }
     public class LayerProperties
     {
-        public static Dictionary<string, LayerProps> Dictionary { get; set; }
+        private static Dictionary<string, LayerProps> s_dictionary { get; set; }
+        private static Dictionary<string, LayerProps> s_defaultLayerProps = new Dictionary<string, LayerProps>();
         static LayerProperties()
         {
             try
             {
-                Dictionary = PropsReloader.XmlDeserializeProps();
+                s_dictionary = PropsReloader.XmlDeserializeProps();
+                s_defaultLayerProps.Add("сущ", new LayerProps { ConstWidth = 0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3 });
+                s_defaultLayerProps.Add("дем", new LayerProps { ConstWidth = 0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3, Red = 107, Green = 107, Blue = 107 });
+                s_defaultLayerProps.Add("пр", new LayerProps { ConstWidth = 0.6, LTScale=0.8, LTName="Continuous", LineWeight=-3 });
+                s_defaultLayerProps.Add("неутв", new LayerProps { ConstWidth = 0.6, LTScale=0.8, LTName="Continuous", LineWeight=-3 });
+                s_defaultLayerProps.Add("ндем", new LayerProps { ConstWidth = 0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3, Red = 192, Green = 168, Blue = 110 });
+                s_defaultLayerProps.Add("нреорг", new LayerProps { ConstWidth = 0.6, LTScale=0.8, LTName="Continuous", LineWeight=-3, Red = 107, Green = 107, Blue = 107 });
             }
             catch (FileNotFoundException)
             {
                 PropsReloader pr = new PropsReloader();
                 pr.ReloadDictionaries();
             }
+        }
+
+        public static LayerProps GetLayerProps(string layername, bool enabledefaults = true)
+        {
+            SimpleLayerParser slp;
+            try
+            {
+                slp = new SimpleLayerParser(layername);
+            }
+            catch (WrongLayerException)
+            {
+                if (enabledefaults)
+                {
+                    return new LayerProps { ConstWidth=0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3 };
+                }
+                else
+                {
+                    throw new NoPropertiesException("Нет стандартов для слоя");
+                }
+            }
+            bool success = s_dictionary.TryGetValue(slp.TrueName, out LayerProps layerProps);
+            if (success)
+            {
+                return layerProps;
+            }
+            else
+            {
+                if (enabledefaults)
+                {
+                    return s_defaultLayerProps[slp.BuildStatus];
+                }
+                else
+                {
+                    throw new NoPropertiesException("Нет стандартов для слоя");
+                }
+            }
+        }
+        internal static void UpdateDictionary(Dictionary<string, LayerProps> layerPropertiesDictionary)
+        {
+            s_dictionary = layerPropertiesDictionary;
         }
     }
 

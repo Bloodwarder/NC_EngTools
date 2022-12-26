@@ -87,7 +87,7 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP();
+                    LayerChanger.UpdateActiveLayerParsers();
                     ActiveLayerParsers.StatusSwitch((LayerParser.Status)val);
                     ActiveLayerParsers.Push();
                     myT.Commit();
@@ -117,7 +117,7 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP();
+                    LayerChanger.UpdateActiveLayerParsers();
                     ActiveLayerParsers.Alter();
                     ActiveLayerParsers.Push();
                     myT.Commit();
@@ -143,7 +143,7 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP();
+                    LayerChanger.UpdateActiveLayerParsers();
                     ActiveLayerParsers.ReconstrSwitch();
                     ActiveLayerParsers.Push();
                     myT.Commit();
@@ -170,17 +170,18 @@ namespace NC_EngTools
             if (pr.Status == PromptStatus.OK)
             {
                 extprname = pr.StringResult;
+                PrevExtProject = extprname;
             }
             else
             {
                 return;
             }
-            PrevExtProject = extprname;
+            
             using (Transaction myT = tm.StartTransaction())
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP();
+                    LayerChanger.UpdateActiveLayerParsers();
                     ActiveLayerParsers.ExtProjNameAssign(extprname);
                     ActiveLayerParsers.Push();
                     myT.Commit();
@@ -206,7 +207,7 @@ namespace NC_EngTools
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLP();
+                    LayerChanger.UpdateActiveLayerParsers();
                     ActiveLayerParsers.Push();
                     myT.Commit();
                 }
@@ -277,7 +278,7 @@ namespace NC_EngTools
                         continue;
                     }
                 }
-                var layerchapters = ChapterStoredRecordLayerParsers.List[doc].Where(l=>l.EngType!=null).Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
+                var layerchapters = ChapterStoredRecordLayerParsers.List[doc].Where(l => l.EngType!=null).Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
                 List<string> lcplus = layerchapters.Append("Сброс").ToList();
                 PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел ["+string.Join("/", lcplus)+"]", string.Join(" ", lcplus))
                 {
@@ -328,7 +329,7 @@ namespace NC_EngTools
     {
         internal static int MaxSimple { get; set; } = 5;
 
-        internal static void UpdateActiveLP()
+        internal static void UpdateActiveLayerParsers()
         {
             Workstation.Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
             PromptSelectionResult sr = ed.SelectImplied();
@@ -412,9 +413,11 @@ namespace NC_EngTools
                     LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForWrite, false);
                     if (!lt.Has(layername))
                     {
-                        SimpleLayerParser laypars = new SimpleLayerParser(layername);
-                        bool success = LayerProperties.Dictionary.TryGetValue(laypars.TrueName, out LayerProps lp);
-                        if (!success) { throw new NoPropertiesException("Нет стандартов для слоя"); }
+                        LayerProps lp = LayerProperties.GetLayerProps(layername);
+                        
+                        //SimpleLayerParser laypars = new SimpleLayerParser(layername);
+                        //bool success = LayerProperties._dictionary.TryGetValue(laypars.TrueName, out LayerProps lp);
+                        //if (!success) { throw new NoPropertiesException("Нет стандартов для слоя"); }
                         LinetypeTable ltt = (LinetypeTable)tm.GetObject(db.LinetypeTableId, OpenMode.ForWrite, false);
                         bool ltgetsucess = true;
                         if (!ltt.Has(lp.LTName))

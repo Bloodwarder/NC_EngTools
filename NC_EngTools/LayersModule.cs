@@ -230,12 +230,9 @@ namespace LayerProcessing
                        where ltr.Name == OutputLayerName
                        select layer;
             db.Clayer = elem.FirstOrDefault();
-            bool success = LayerProperties.Dictionary.TryGetValue(TrueName, out LayerProps lp);
-            if (success)
-            {
-                db.Celtscale = lp.LTScale;
-                db.Plinewid = lp.ConstWidth;
-            }
+            LayerProps lp = LayerProperties.GetLayerProps(OutputLayerName);
+            db.Celtscale = lp.LTScale;
+            db.Plinewid = lp.ConstWidth;
         }
     }
     internal class EntityLayerParser : LayerParser
@@ -252,25 +249,16 @@ namespace LayerProcessing
         internal List<Entity> ObjList = new List<Entity>();
         public override void Push()
         {
-            try
+            LayerChecker.Check(OutputLayerName);
+            LayerProps lp = LayerProperties.GetLayerProps(OutputLayerName);
+            foreach (Entity ent in ObjList)
             {
-                LayerChecker.Check(OutputLayerName);
-                bool success = LayerProperties.Dictionary.TryGetValue(TrueName, out LayerProps lp);
-                if (!success)
-                { lp = new LayerProps() { ConstWidth = 0.4, LineWeight = -3, LTScale=0.8, Red=0, Green=0, Blue=0, LTName = "Continious" }; }
-                foreach (Entity ent in ObjList)
+                ent.Layer = OutputLayerName;
+                if (ent is Polyline pl)
                 {
-                    ent.Layer = OutputLayerName;
-                    if (ent is Polyline pl)
-                    {
-                        pl.LinetypeScale=lp.LTScale;
-                        pl.ConstantWidth = lp.ConstWidth;
-                    }
+                    pl.LinetypeScale=lp.LTScale;
+                    pl.ConstantWidth = lp.ConstWidth;
                 }
-            }
-            catch (NoPropertiesException)
-            {
-                return;
             }
         }
     }
