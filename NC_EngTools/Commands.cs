@@ -277,8 +277,8 @@ namespace NC_EngTools
                         continue;
                     }
                 }
-                var layerchapters = ChapterStoredRecordLayerParsers.List[doc].Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
-                var lcplus = layerchapters.Append("Сброс");
+                var layerchapters = ChapterStoredRecordLayerParsers.List[doc].Where(l=>l.EngType!=null).Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
+                List<string> lcplus = layerchapters.Append("Сброс").ToList();
                 PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел ["+string.Join("/", lcplus)+"]", string.Join(" ", lcplus))
                 {
                     AppendKeywordsToMessage = true,
