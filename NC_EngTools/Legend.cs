@@ -21,7 +21,7 @@ namespace Legend
             this[cell.Layer.MainName].AddCell(cell);
         }
 
-        internal void AddCell(IEnumerable<LegendGridCell> cells)
+        internal void AddCells(IEnumerable<LegendGridCell> cells)
         {
             foreach (var cell in cells)
                 AddCell(cell);
@@ -91,7 +91,7 @@ namespace Legend
             switch(_filter)
             {
                 case TableFilter.ExistingOnly:
-                    addGrid(c => c.Layer.BuildStatus == "сущ");
+                    addGrid(c => c.Layer.BuildStatusText == "сущ");
                     break;
 
                 case TableFilter.InternalOnly:
@@ -112,11 +112,11 @@ namespace Legend
             }
 
         }
-        LegendGrid addGrid(Func<LegendGridCell,bool> predicate)
+        void addGrid(Func<LegendGridCell,bool> predicate)
         {
             List<LegendGridCell> cells = Cells.Where(predicate).ToList();
             LegendGrid grid = new LegendGrid();
-            grid.AddCell(cells);
+            grid.AddCells(cells);
             Grids.Add(grid);
         }
     }

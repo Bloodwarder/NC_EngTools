@@ -323,7 +323,7 @@ namespace ExternalData
                 if (enabledefaults)
                 {
                     success=true;
-                    return s_defaultLayerProps[slp.BuildStatus];
+                    return s_defaultLayerProps[slp.BuildStatusText];
                 }
                 else
                 {
@@ -344,7 +344,7 @@ namespace ExternalData
                 if (enabledefaults)
                 {
                     success=true;
-                    return s_defaultLayerProps[layerparser.BuildStatus];
+                    return s_defaultLayerProps[layerparser.BuildStatusText];
                 }
                 else
                 {

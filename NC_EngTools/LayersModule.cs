@@ -17,7 +17,8 @@ namespace LayerProcessing
         public string EngType { get; private set; }
         public string GeomType { get; private set; }
         public string MainName { get; private set; }
-        public string BuildStatus { get { return st_txt[bldstatus]; } }
+        public Status BuildStatus { get; private set; }
+        public string BuildStatusText { get { return st_txt[(int)BuildStatus]; } }
         public string OutputLayerName
         {
             get
@@ -26,7 +27,7 @@ namespace LayerProcessing
                 recomp.Add(StandartPrefix);
                 if (extpr) { recomp.Add("["+ExtProjectName+"]"); }
                 recomp.Add(MainName);
-                recomp.Add(BuildStatus);
+                recomp.Add(BuildStatusText);
                 if (recstatus) { recomp.Add("пер"); }
                 return string.Join("_", recomp.ToArray());
             }
@@ -38,7 +39,7 @@ namespace LayerProcessing
         {
             get
             {
-                return string.Join("_", new string[2] { MainName, st_txt[bldstatus] });
+                return string.Join("_", new string[2] { MainName, st_txt[(int)BuildStatus] });
             }
         }
         private static readonly string[] st_txt = new string[6] { "сущ", "дем", "пр", "неутв", "ндем", "нреорг" };
@@ -46,7 +47,6 @@ namespace LayerProcessing
         protected bool recstatus = false;
         protected bool extpr = false;
         protected bool geomassigned = false;
-        protected int bldstatus;
 
         public LayerParser(string layername)
         {
@@ -102,7 +102,7 @@ namespace LayerProcessing
             {
                 if (st_txt[i]==str)
                 {
-                    bldstatus=i; stfound = true; break;
+                    BuildStatus=(Status)i; stfound = true; break;
                 }
             }
             if (!stfound) { throw new WrongLayerException($"В слое {layername} не найден статус"); }
@@ -112,14 +112,14 @@ namespace LayerProcessing
 
         public void StatusSwitch(Status newstatus)
         {
-            bldstatus=(int)newstatus;
+            BuildStatus=newstatus;
             //disabling reconstruction marker for existing objects layers
-            if (recstatus & !(bldstatus==2||bldstatus==3||bldstatus==5))
+            if (recstatus & !(BuildStatus==Status.Planned||BuildStatus==Status.NSPlanned||BuildStatus==Status.NSReorg))
             {
                 recstatus=false;
             }
             //disabling external project tag for current project and existing layers
-            if (extpr & !(bldstatus==3||bldstatus==4||bldstatus==5))
+            if (extpr & !(BuildStatus==Status.NSPlanned||BuildStatus==Status.NSDeconstructing||BuildStatus==Status.NSReorg))
             {
                 ExtProjectName = "";
                 extpr = false;
@@ -129,7 +129,7 @@ namespace LayerProcessing
 
         public void ReconstrSwitch()
         {
-            if (bldstatus==2||bldstatus==3||bldstatus==5) //filter only planned layers
+            if (BuildStatus==Status.Planned||BuildStatus==Status.NSPlanned||BuildStatus==Status.NSReorg) //filter only planned layers
             {
                 if (recstatus)
                 {
@@ -142,7 +142,7 @@ namespace LayerProcessing
             }
             else
             {
-                bldstatus = 2;
+                BuildStatus = Status.Planned;
                 recstatus = true;
             }
             return;
@@ -151,9 +151,9 @@ namespace LayerProcessing
         public void ExtProjNameAssign(string newprojname)
         {
             bool emptyname = newprojname == "";
-            if (!emptyname&!(bldstatus==3||bldstatus==4||bldstatus==5))
+            if (!emptyname&!(BuildStatus==Status.NSPlanned||BuildStatus==Status.NSDeconstructing||BuildStatus==Status.NSReorg))
             {
-                bldstatus = 3;
+                BuildStatus = Status.NSPlanned;
             } //assigning NSPlanned status when current project layer processed (non NS)
             if (extpr)
             {
@@ -296,11 +296,11 @@ namespace LayerProcessing
                 BoundLayer.IsOff = false;
                 if (base.recstatus)
                 {
-                    if (base.bldstatus == (int)Status.Planned)
+                    if (base.BuildStatus == Status.Planned)
                     {
                         BoundLayer.Color = Teigha.Colors.Color.FromRgb(redproj, greenproj, blueproj);
                     }
-                    else if (base.bldstatus == (int)Status.NSPlanned)
+                    else if (base.BuildStatus == Status.NSPlanned)
                     {
                         BoundLayer.Color = Teigha.Colors.Color.FromRgb(redns, greenns, bluens);
                     }
