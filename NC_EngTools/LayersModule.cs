@@ -1,15 +1,14 @@
 ﻿using System.Linq;
+using System;
+using System.Collections.Generic;
+using Teigha.DatabaseServices;
+using HostMgd.ApplicationServices;
+using ExternalData;
+using NC_EngTools;
 
 
 namespace LayerProcessing
 {
-    using System;
-    using System.Text.RegularExpressions;
-    using System.Collections.Generic;
-    using Teigha.DatabaseServices;
-    using HostMgd.ApplicationServices;
-    using ExternalData;
-    using NC_EngTools;
     public abstract class LayerParser
     {
         public string InputLayerName { get; private set; }
@@ -39,9 +38,6 @@ namespace LayerProcessing
         {
             get
             {
-                //Regex rgx = new Regex($"_{GeomType}_");
-                //string mainwgeom = string.Join("_", decomp.Skip(mainnamestart).Take(mainnameend-mainnamestart+1));
-                //MainName = rgx.Replace(mainwgeom, "");
                 return string.Join("_", new string[2] { MainName, st_txt[bldstatus] });
             }
         }
@@ -180,14 +176,14 @@ namespace LayerProcessing
 
         public void Alter()
         {
-            bool success = LayerAlteringDictionary.Dictionary.TryGetValue(MainName, out string str);
+            string str = LayerAlteringDictionary.GetValue(MainName, out bool success);
             if (!success) { return; }
             MainName = str;
         }
 
         public abstract void Push();
 
-        public enum Status
+        public enum Status : int
         {
             Existing = 0,
             Deconstructing = 1,
@@ -230,7 +226,7 @@ namespace LayerProcessing
                        where ltr.Name == OutputLayerName
                        select layer;
             db.Clayer = elem.FirstOrDefault();
-            LayerProps lp = LayerProperties.GetLayerProps(OutputLayerName);
+            LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName,out bool propsgetsuccess);
             db.Celtscale = lp.LTScale;
             db.Plinewid = lp.ConstWidth;
         }
@@ -250,7 +246,7 @@ namespace LayerProcessing
         public override void Push()
         {
             LayerChecker.Check(OutputLayerName);
-            LayerProps lp = LayerProperties.GetLayerProps(OutputLayerName);
+            LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName, out bool propsgetsuccess);
             foreach (Entity ent in ObjList)
             {
                 ent.Layer = OutputLayerName;

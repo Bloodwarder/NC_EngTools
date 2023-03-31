@@ -10,7 +10,7 @@ namespace LPropsTest
         [TestMethod]
         public void DataExtractionTest()
         {
-            LayerProps lp = LayerProperties.GetLayerProps("ВС_л_хп_неутв");
+            LayerProps lp = LayerPropertiesDictionary.GetLayerProps("ВС_л_хп_неутв");
             Assert.AreEqual(lp.ConstWidth, 0.6);
             Assert.AreEqual(lp.LTScale, 0.8);
             Assert.AreEqual(lp.Green, 0);

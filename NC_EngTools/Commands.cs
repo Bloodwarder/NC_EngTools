@@ -167,7 +167,7 @@ namespace NC_EngTools
 
             PromptResult pr = ed.GetString($"Введите имя проекта, согласно которому отображён выбранный объект <{PrevExtProject}>");
             string extprname;
-            if (pr.Status == PromptStatus.OK)
+            if (pr.Status != (PromptStatus.Error | PromptStatus.Cancel))
             {
                 extprname = pr.StringResult;
                 PrevExtProject = extprname;
@@ -397,7 +397,6 @@ namespace NC_EngTools
 
     static class LayerChecker
     {
-        //delegate void LayerAddedEventHandler(string layername);
         internal static event System.EventHandler LayerAdded;
         internal static void Check(string layername)
         {
@@ -413,16 +412,12 @@ namespace NC_EngTools
                     LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForWrite, false);
                     if (!lt.Has(layername))
                     {
-                        LayerProps lp = LayerProperties.GetLayerProps(layername);
-                        
-                        //SimpleLayerParser laypars = new SimpleLayerParser(layername);
-                        //bool success = LayerProperties._dictionary.TryGetValue(laypars.TrueName, out LayerProps lp);
-                        //if (!success) { throw new NoPropertiesException("Нет стандартов для слоя"); }
+                        LayerProps lp = LayerPropertiesDictionary.GetValue(layername,out bool propsgetsuccess);
                         LinetypeTable ltt = (LinetypeTable)tm.GetObject(db.LinetypeTableId, OpenMode.ForWrite, false);
                         bool ltgetsucess = true;
                         if (!ltt.Has(lp.LTName))
                         {
-                            FileInfo fi = new FileInfo(PropsReloader.Path+"\\STANDARD1.lin"); //ПЕРЕДЕЛАТЬ С НОРМАЛЬНОЙ ССЛЫКОЙ, а PropsReloader.Path снова сделать приватным
+                            FileInfo fi = new FileInfo(PathOrganizer.GetPath("Linetypes"));
                             try
                             { db.LoadLineTypeFile(lp.LTName, fi.FullName); }
                             catch

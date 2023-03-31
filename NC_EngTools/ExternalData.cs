@@ -1,18 +1,21 @@
-﻿namespace ExternalData
-{
-    using System.Collections.Generic;
-    using Microsoft.Office.Interop.Excel;
-    using System.IO;
-    using System.Linq;
-    using System.Xml.Serialization;
-    using Teigha.Runtime;
-    using NC_EngTools;
-    //using HostMgd.ApplicationServices;
-    using HostMgd.EditorInput;
-    using Teigha.DatabaseServices;
-    using LayerProcessing;
+﻿using System.Collections.Generic;
+using Microsoft.Office.Interop.Excel;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Serialization;
+using Teigha.Runtime;
+using NC_EngTools;
+//using HostMgd.ApplicationServices;
+using HostMgd.EditorInput;
+using Teigha.DatabaseServices;
+using LayerProcessing;
+using System;
+using Legend;
 
-    public class PropsReloader
+namespace ExternalData
+{
+    internal static class PathOrganizer
     {
         //здесь необходимо задать относительный путь и взять его из файла конфигурации. сделаю, как разберусь
         //const string path = "/LayerData/";
@@ -20,23 +23,163 @@
         const string xlname = "Layer_Props.xlsm";
         const string xmlpropsname = "Layer_Props.xml";
         const string xmlaltername = "Layer_Alter.xml";
-        public static string Path;
-        static PropsReloader()
+        const string xmllegendname = "Layer_Legend.xml";
+        const string linname = "STANDARD1.lin";
+        static Dictionary<string, string> pathdictionary = new Dictionary<string, string>();
+        public static string BasePath { get; private set; }
+        static PathOrganizer()
         {
-            FileInfo fi = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            Path = fi.DirectoryName + "\\LayersData\\";
+            FileInfo fi = new FileInfo(Assembly.GetExecutingAssembly().Location);
+            string BasePath = fi.DirectoryName + "\\LayersData\\";
+
+            pathdictionary.Add("Excel", string.Concat(BasePath, xlname));
+            pathdictionary.Add("Props", string.Concat(BasePath, xmlpropsname));
+            pathdictionary.Add("Alter", string.Concat(BasePath, xmlaltername));
+            pathdictionary.Add("Linetypes", string.Concat(BasePath, linname));
+            pathdictionary.Add("Legend", string.Concat(BasePath, xmllegendname));
+        }
+
+        public static string GetPath(string sourcename)
+        {
+            return pathdictionary[sourcename];
+        }
+    }
+
+    internal abstract class DictionaryDataProvider<TKey, TValue>
+    {
+
+        public abstract Dictionary<TKey, TValue> GetDictionary();
+        public abstract void OverwriteSource(Dictionary<TKey, TValue> dictionary);
+
+    }
+
+    internal class XmlDictionaryDataProvider<TKey, TValue> : DictionaryDataProvider<TKey, TValue>
+    {
+        string filepath { get; set; }
+        FileInfo fileinfo;
+
+        internal XmlDictionaryDataProvider(string path)
+        {
+            filepath = path;
+            fileinfo = new FileInfo(filepath);
+        }
+
+        public override Dictionary<TKey, TValue> GetDictionary()
+        {
+            if (!fileinfo.Exists) { throw new System.Exception("Файл не существует"); }
+            XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<TKey, TValue>));
+            using (FileStream fs = new FileStream(filepath, FileMode.Open))
+            {
+                XmlSerializableDictionary<TKey, TValue> dct = xs.Deserialize(fs) as XmlSerializableDictionary<TKey, TValue>;
+                return dct;
+            }
+        }
+
+        public override void OverwriteSource(Dictionary<TKey, TValue> dictionary)
+        {
+            XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<TKey, TValue>));
+            using (FileStream fs = new FileStream(filepath, FileMode.Create))
+            {
+                xs.Serialize(fs, dictionary as XmlSerializableDictionary<TKey, TValue>);
+            }
+        }
+    }
+
+    abstract internal class ExcelDictionaryDataProvider<TKey, TValue> : DictionaryDataProvider<TKey, TValue> //where TValue : struct
+    {
+        internal string Path { get; set; }
+        string sheetname;
+        FileInfo fileinfo;
+
+        internal ExcelDictionaryDataProvider(string path, string sheetname)
+        {
+            Path=path;
+            fileinfo = new FileInfo(Path);
+            if (!fileinfo.Exists) { throw new System.Exception("Файл не существует"); }
+            this.sheetname=sheetname;
+        }
+
+        public override Dictionary<TKey, TValue> GetDictionary()
+        {
+            Application xlapp = new Application
+            {
+                DisplayAlerts = false
+            };
+
+            Workbook xlwb = xlapp.Workbooks.Open(fileinfo.FullName, ReadOnly: true, IgnoreReadOnlyRecommended: true);
+            XmlSerializableDictionary<TKey, TValue> dct = new XmlSerializableDictionary<TKey, TValue>();
+            try
+            {
+                Range rng = xlwb.Worksheets[sheetname].Cells[1, 1].CurrentRegion;
+                for (int i = 1; i < rng.Rows.Count+1; i++)
+                {
+                    TKey key = (TKey)rng.Cells[i, 1].Value;
+                    dct.Add(key, cellsExtract(rng.Cells[i, 2]));
+                }
+            }
+            finally
+            {
+                xlwb.Close(SaveChanges: false);
+                xlapp.Quit();
+            }
+            return dct;
+        }
+
+        public override void OverwriteSource(Dictionary<TKey, TValue> dictionary)
+        {
+            throw new NotImplementedException();
         }
 
 
-        [CommandMethod("RELOADPROPS")]
-        public void ReloadDictionaries()
+        abstract private protected TValue cellsExtract(Range rng);
+    }
+    internal class ExcelStructDictionaryDataProvider<TKey, TValue> : ExcelDictionaryDataProvider<TKey, TValue> where TValue : struct
+    {
+        internal ExcelStructDictionaryDataProvider(string path, string sheetname) : base(path, sheetname) { }
+        private protected override TValue cellsExtract(Range rng)
         {
-            XmlSerializableDictionary<string, LayerProps> dct = ExtractPropsExcel();
-            XmlSerializableDictionary<string, string> dct2 = ExtractAlterExcel();
-            XmlSerializeProps(dct);
-            XmlSerializeAlteringDictionary(dct2);
-            LayerProperties.UpdateDictionary(dct);
-            LayerAlteringDictionary.Dictionary = dct2;
+            return ExcelStructReader<TValue>.Read(rng);
+        }
+    }
+    internal class ExcelSimpleDictionaryDataProvider<TKey, TValue> : ExcelDictionaryDataProvider<TKey, TValue>
+    {
+        internal ExcelSimpleDictionaryDataProvider(string path, string sheetname) : base(path, sheetname) { }
+        private protected override TValue cellsExtract(Range rng)
+        {
+            return (TValue)rng.Value;
+        }
+    }
+
+    
+    public static class PropsReloader
+    {
+
+        [CommandMethod("RELOADPROPS")]
+        public static void ReloadDictionaries()
+        {
+            Reloader(ToReload.Properties | ToReload.Alter | ToReload.Legend);
+        }
+
+        public static void Reloader(ToReload reload)
+        {
+            if ((reload & ToReload.Properties) == ToReload.Properties)
+            {
+                ExcelStructDictionaryDataProvider<string, LayerProps> xlpropsprovider = new ExcelStructDictionaryDataProvider<string, LayerProps>(PathOrganizer.GetPath("Excel"), "Props");
+                XmlDictionaryDataProvider<string, LayerProps> xmlpropsprovider = new XmlDictionaryDataProvider<string, LayerProps>(PathOrganizer.GetPath("Props"));
+                LayerPropertiesDictionary.Reload(xmlpropsprovider, xlpropsprovider);
+            }
+            if ((reload & ToReload.Alter) == ToReload.Alter)
+            {
+                ExcelSimpleDictionaryDataProvider<string, string> xlalterprovider = new ExcelSimpleDictionaryDataProvider<string, string>(PathOrganizer.GetPath("Excel"), "Alter");
+                XmlDictionaryDataProvider<string, string> xmlalterprovider = new XmlDictionaryDataProvider<string, string>(PathOrganizer.GetPath("Alter"));
+                LayerAlteringDictionary.Reload(xmlalterprovider, xlalterprovider);
+            }
+            if ((reload & ToReload.Legend) == ToReload.Legend)
+            {
+                ExcelStructDictionaryDataProvider<string, LegendData> xllegendprovider = new ExcelStructDictionaryDataProvider<string, LegendData>(PathOrganizer.GetPath("Excel"), "Legend");
+                XmlDictionaryDataProvider<string, LegendData> xmllegendprovider = new XmlDictionaryDataProvider<string, LegendData>(PathOrganizer.GetPath("Legend"));
+                LayerLegendDictionary.Reload(xmllegendprovider, xllegendprovider);
+            }
         }
 
         [CommandMethod("EXTRACTLAYERS")]
@@ -73,7 +216,7 @@
                         bool lpsuccess = true;
                         try
                         {
-                            lp = LayerProperties.GetLayerProps(checkedname, false);
+                            lp = LayerPropertiesDictionary.GetValue(checkedname, out lpsuccess, false);
                         }
                         catch (NoPropertiesException)
                         {
@@ -98,132 +241,45 @@
                 }
                 finally
                 {
-                    workbook.SaveAs(Path+"ExtractedLayers.xlsx");
+                    workbook.SaveAs(PathOrganizer.BasePath+"ExtractedLayers.xlsx");
                     workbook.Close();
                     xlapp.Quit();
                 }
             }
         }
+    }
 
-        private XmlSerializableDictionary<string, LayerProps> ExtractPropsExcel()
+    internal abstract class ExternalDictionary<TKey, TValue>
+    {
+        private protected static Dictionary<TKey, TValue> s_dictionary { get; set; }
+
+        public static TValue GetValue(TKey key, out bool success)
         {
-            Application xlapp = new Application
-            {
-                DisplayAlerts = false
-            };
-            FileInfo fi = new FileInfo(Path+xlname);
-            if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
-
-            Workbook xlwb = xlapp.Workbooks.Open(fi.FullName, ReadOnly: true, IgnoreReadOnlyRecommended: true);
-            XmlSerializableDictionary<string, LayerProps> dct = new XmlSerializableDictionary<string, LayerProps>();
-            try
-            {
-                Range rng = xlwb.Worksheets[1].Cells[1, 1].CurrentRegion;
-                for (int i = 1; i < rng.Rows.Count+1; i++)
-                {
-                    LayerProps lp = new LayerProps
-                    {
-                        ConstWidth = rng.Cells[i, 2].Value,
-                        LTScale = rng.Cells[i, 3].Value,
-                        Red = (byte)rng.Cells[i, 4].Value,
-                        Green = (byte)rng.Cells[i, 5].Value,
-                        Blue = (byte)rng.Cells[i, 6].Value,
-                        LTName = rng.Cells[i, 7].Text,
-                        LineWeight = (int)rng.Cells[i, 8].Value
-                    };
-                    string str = rng.Cells[i, 1].Text;
-                    dct.Add(str, lp);
-                }
-            }
-            finally
-            {
-                xlwb.Close(SaveChanges: false);
-                xlapp.Quit();
-            }
-            return dct;
+            success = s_dictionary.TryGetValue(key, out TValue value);
+            return value;
         }
 
-        private XmlSerializableDictionary<string, string> ExtractAlterExcel()
+        internal static void Reload(DictionaryDataProvider<TKey, TValue> primary, DictionaryDataProvider<TKey, TValue> secondary)
         {
-            Application xlapp = new Application
-            {
-                DisplayAlerts = false
-            };
-            FileInfo fi = new FileInfo(Path+xlname);
-            if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
-
-            Workbook xlwb = xlapp.Workbooks.Open(fi.FullName, ReadOnly: true, IgnoreReadOnlyRecommended: true);
-            XmlSerializableDictionary<string, string> dct = new XmlSerializableDictionary<string, string>();
-            try
-            {
-
-                Range rng = xlwb.Worksheets[2].Cells[1, 1].CurrentRegion;
-                for (int i = 1; i < rng.Rows.Count+1; i++)
-                {
-                    string strkey = rng.Cells[i, 1].Text;
-                    string strval = rng.Cells[i, 2].Text;
-                    dct.Add(strkey, strval);
-                }
-            }
-            finally
-            {
-                xlwb.Close(SaveChanges: false);
-                xlapp.Quit();
-            }
-            return dct;
-        }
-        private void XmlSerializeProps(XmlSerializableDictionary<string, LayerProps> dictionary)
-        {
-            XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<string, LayerProps>));
-            using (FileStream fs = new FileStream(Path+xmlpropsname, FileMode.Create))
-            {
-                xs.Serialize(fs, dictionary);
-            }
+            s_dictionary = secondary.GetDictionary();
+            primary.OverwriteSource(s_dictionary);
         }
 
-        internal static Dictionary<string, LayerProps> XmlDeserializeProps()
+        internal static void UpdateDictionary(Dictionary<TKey, TValue> dictionary)
         {
-            FileInfo fi = new FileInfo(Path+xmlpropsname);
-            if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
-
-            XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<string, LayerProps>));
-            using (FileStream fs = new FileStream(Path+xmlpropsname, FileMode.Open))
-            {
-                XmlSerializableDictionary<string, LayerProps> dct = xs.Deserialize(fs) as XmlSerializableDictionary<string, LayerProps>;
-                return dct;
-            }
-        }
-
-        private void XmlSerializeAlteringDictionary(XmlSerializableDictionary<string, string> dictionary)
-        {
-            XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<string, string>));
-            using (FileStream fs = new FileStream(Path+xmlaltername, FileMode.Create))
-            {
-                xs.Serialize(fs, dictionary);
-            }
-        }
-
-        internal static Dictionary<string, string> XmlDeserializeAlteringDictionary()
-        {
-            FileInfo fi = new FileInfo(Path+xmlaltername);
-            if (!fi.Exists) { throw new System.Exception("Файл не существует"); }
-            XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<string, string>));
-            using (FileStream fs = new FileStream(Path+xmlaltername, FileMode.Open))
-            {
-                XmlSerializableDictionary<string, string> dct = xs.Deserialize(fs) as XmlSerializableDictionary<string, string>;
-                return dct;
-            }
+            s_dictionary = dictionary;
         }
     }
-    public class LayerProperties
+
+    internal class LayerPropertiesDictionary : ExternalDictionary<string, LayerProps>
     {
-        private static Dictionary<string, LayerProps> s_dictionary { get; set; }
         private static Dictionary<string, LayerProps> s_defaultLayerProps = new Dictionary<string, LayerProps>();
-        static LayerProperties()
+        static LayerPropertiesDictionary()
         {
             try
             {
-                s_dictionary = PropsReloader.XmlDeserializeProps();
+                s_dictionary = new XmlDictionaryDataProvider<string, LayerProps>(PathOrganizer.GetPath("Props")).GetDictionary();
+
                 s_defaultLayerProps.Add("сущ", new LayerProps { ConstWidth = 0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3 });
                 s_defaultLayerProps.Add("дем", new LayerProps { ConstWidth = 0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3, Red = 107, Green = 107, Blue = 107 });
                 s_defaultLayerProps.Add("пр", new LayerProps { ConstWidth = 0.6, LTScale=0.8, LTName="Continuous", LineWeight=-3 });
@@ -233,14 +289,14 @@
             }
             catch (FileNotFoundException)
             {
-                PropsReloader pr = new PropsReloader();
-                pr.ReloadDictionaries();
+                PropsReloader.Reloader(ToReload.Properties);
             }
         }
 
-        public static LayerProps GetLayerProps(string layername, bool enabledefaults = true)
+        public static LayerProps GetValue(string layername, out bool success, bool enabledefaults = true)
         {
             SimpleLayerParser slp;
+            success = false;
             try
             {
                 slp = new SimpleLayerParser(layername);
@@ -249,6 +305,7 @@
             {
                 if (enabledefaults)
                 {
+                    success = true;
                     return new LayerProps { ConstWidth=0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3 };
                 }
                 else
@@ -256,7 +313,7 @@
                     throw new NoPropertiesException("Нет стандартов для слоя");
                 }
             }
-            bool success = s_dictionary.TryGetValue(slp.TrueName, out LayerProps layerProps);
+            success = s_dictionary.TryGetValue(slp.TrueName, out LayerProps layerProps);
             if (success)
             {
                 return layerProps;
@@ -265,6 +322,7 @@
             {
                 if (enabledefaults)
                 {
+                    success=true;
                     return s_defaultLayerProps[slp.BuildStatus];
                 }
                 else
@@ -273,29 +331,85 @@
                 }
             }
         }
-        internal static void UpdateDictionary(Dictionary<string, LayerProps> layerPropertiesDictionary)
+
+        public static LayerProps GetValue(LayerParser layerparser, out bool success, bool enabledefaults = true)
         {
-            s_dictionary = layerPropertiesDictionary;
+            success = s_dictionary.TryGetValue(layerparser.TrueName, out LayerProps layerProps);
+            if (success)
+            {
+                return layerProps;
+            }
+            else
+            {
+                if (enabledefaults)
+                {
+                    success=true;
+                    return s_defaultLayerProps[layerparser.BuildStatus];
+                }
+                else
+                {
+                    throw new NoPropertiesException("Нет стандартов для слоя");
+                }
+            }
         }
     }
 
-    internal class LayerAlteringDictionary
+    internal class LayerAlteringDictionary : ExternalDictionary<string, string>
     {
-        public static Dictionary<string, string> Dictionary { get; set; }
+
         static LayerAlteringDictionary()
         {
             try
             {
-                Dictionary = PropsReloader.XmlDeserializeAlteringDictionary();
+                s_dictionary = new XmlDictionaryDataProvider<string, string>(PathOrganizer.GetPath("Alter")).GetDictionary();
             }
             catch (FileNotFoundException)
             {
-                PropsReloader pr = new PropsReloader();
-                pr.ReloadDictionaries();
+                PropsReloader.Reloader(ToReload.Alter);
+            }
+        }
+
+        public static string GetValue(LayerParser layer, out bool success)
+        {
+            string str = GetValue(layer.MainName, out success);
+            return str;
+        }
+    }
+
+    internal class LayerLegendDictionary : ExternalDictionary<string, Legend.LegendData>
+    {
+        static LayerLegendDictionary()
+        {
+            try
+            {
+                s_dictionary = new XmlDictionaryDataProvider<string, Legend.LegendData>(PathOrganizer.GetPath("Legend")).GetDictionary();
+            }
+            catch (FileNotFoundException)
+            {
+                PropsReloader.Reloader(ToReload.Legend);
             }
         }
     }
 
+    internal static class ExcelStructReader<T> where T : struct
+    {
+        internal static T Read(Range rng)
+        {
+            if (typeof(T).IsPrimitive)
+                return (T)rng.Value;
+
+            T strct = new T();
+            object o = strct;
+
+            FieldInfo[] fieldInfo = typeof(T).GetFields();
+            for (int i = 0; i < fieldInfo.Length; i++)
+            {
+                //не знаю, нужно ли приводить значение ячейки экселя к точному типу перед упаковкой в объект, разобраться позже, пока работает так
+                fieldInfo[i].SetValue(o, (object)Convert.ChangeType(rng.Offset[0, i].Value, fieldInfo[i].FieldType));
+            }
+            return (T)o;
+        }
+    }
     public struct LayerProps
     {
         public double ConstWidth;
@@ -305,5 +419,13 @@
         public byte Blue;
         public string LTName;
         public int LineWeight;
+    }
+
+    [Flags]
+    public enum ToReload
+    {
+        Properties = 1,
+        Alter = 2,
+        Legend = 4
     }
 }
