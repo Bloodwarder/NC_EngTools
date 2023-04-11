@@ -257,6 +257,7 @@ namespace ExternalData
         {
             success = s_dictionary.TryGetValue(key, out TValue value);
             return value;
+            //выдаёт ошибку, когда возвращает value=null. Поправить после перехода на 6.0
         }
 
         internal static void Reload(DictionaryDataProvider<TKey, TValue> primary, DictionaryDataProvider<TKey, TValue> secondary)

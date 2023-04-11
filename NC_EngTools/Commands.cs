@@ -13,7 +13,12 @@ using Teigha.DatabaseServices;
 using Teigha.Runtime;
 using Platform = HostMgd;
 using PlatformDb = Teigha;
-
+using System;
+//internal modules
+using ModelspaceDraw;
+using Teigha.Geometry;
+using System.Text.RegularExpressions;
+using Teigha.Colors;
 
 namespace NC_EngTools
 {
@@ -88,7 +93,7 @@ namespace NC_EngTools
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
-                    ActiveLayerParsers.StatusSwitch((LayerParser.Status)val);
+                    ActiveLayerParsers.StatusSwitch((Status)val);
                     ActiveLayerParsers.Push();
                     myT.Commit();
                 }
@@ -176,7 +181,7 @@ namespace NC_EngTools
             {
                 return;
             }
-            
+
             using (Transaction myT = tm.StartTransaction())
             {
                 try
@@ -270,7 +275,7 @@ namespace NC_EngTools
                 {
                     try
                     {
-                        new RecordLayerParser(ltr);
+                        new ChapterStoreLayerParser(ltr);
                     }
                     catch (WrongLayerException ex)
                     {
@@ -310,10 +315,10 @@ namespace NC_EngTools
 
         public void NewLayerHighlight(object sender, System.EventArgs e)
         {
-            Workstation.Define(out Document doc, out Database db, out Teigha.DatabaseServices.TransactionManager tm);
+            Workstation.Define(out Document doc, out _, out Teigha.DatabaseServices.TransactionManager tm);
             using (Transaction myT = tm.StartTransaction())
             {
-                RecordLayerParser rlp = new RecordLayerParser((LayerTableRecord)sender);
+                ChapterStoreLayerParser rlp = new ChapterStoreLayerParser((LayerTableRecord)sender);
                 rlp.Push(ActiveChapterState[doc]);
                 myT.Commit();
             }
@@ -321,6 +326,116 @@ namespace NC_EngTools
         }
     }
 
+    public class TestClass1
+    {
+
+        [CommandMethod("ТЕСТ_123")]
+        public void Test111()
+        {
+            SimpleTestObjectDraw draw = new SimpleTestObjectDraw(new PlatformDb.Geometry.Point2d(0d, 0d));
+            draw.Draw();
+        }
+
+    }
+
+    public class Labeler
+    {
+        [CommandMethod("ПОДПИСЬ")]
+        public void LabelDraw()
+        {
+            using (Transaction tr = Workstation.TransactionManager.StartTransaction())
+            {
+
+                PromptEntityOptions peo = new PromptEntityOptions("Выберите полилинию")
+                { };
+                peo.AddAllowedClass(typeof(Polyline), true);
+                PromptEntityResult result = Workstation.Editor.GetEntity(peo);
+                if (result.Status != PromptStatus.OK)
+                {
+                    Workstation.Editor.WriteMessage("Ошибка выбора");
+                    return;
+                }
+                PromptPointOptions ppo = new PromptPointOptions("Укажите точку на сегменте полилинии")
+                { };
+                PromptPointResult pointresult = Workstation.Editor.GetPoint(ppo);
+                if (result.Status != PromptStatus.OK)
+                    return;
+                Point3d point = pointresult.Value;
+                Polyline polyline = (Polyline)Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForRead); ;
+                Point3d pointonline = polyline.GetClosestPointTo(point, false);
+                LineSegment2d ls = new LineSegment2d();
+                for (int i = 0; i<polyline.NumberOfVertices-1; i++)
+                {
+                    ls = polyline.GetLineSegment2dAt(i);
+                    Line2d l2d = ls.GetLine();
+                    if (segmentCheck(pointonline.Convert2d(new Plane(new Point3d(0,0,0),new Vector3d(0,0,1))), ls))
+                        break;
+                }
+                Vector2d v2d = ls.Direction;
+
+                PromptResult pr = Workstation.Editor.GetString("Введите текст подписи (д или d в начале строки - знак диаметра");
+                string text;
+                if (pr.Status != (PromptStatus.Error | PromptStatus.Cancel))
+                {
+                    text = pr.StringResult=="" ? "%%C000" : pr.StringResult;
+                }
+                else
+                {
+                    text = "%%C000";
+                }
+
+                BlockTable blocktable = tr.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
+                BlockTableRecord modelspace = tr.GetObject(blocktable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                MText mtext = new MText();
+                mtext.BackgroundFill = true;
+                mtext.UseBackgroundColor = true;
+                mtext.BackgroundScaleFactor = 1.1d;
+                TextStyleTable txtstyletable = tr.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
+                mtext.TextStyleId =txtstyletable["Standard"];
+                mtext.Contents = Regex.Replace(text,"^(д|d)","%%C");
+                mtext.TextHeight = 3.6d;
+                mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleCenter);
+                mtext.Location = point;
+                mtext.Color = polyline.Color;
+
+                mtext.Rotation = (v2d.Angle * 180/Math.PI > 270 ||  v2d.Angle * 180/Math.PI < 90) ? v2d.Angle : v2d.Angle + Math.PI;
+                //mtext.Rotation = Math.Atan2(v2d.Y,v2d.X == 0 ? 0.0001d : v2d.X);
+
+                mtext.Layer = polyline.Layer;
+                mtext.SetPaperOrientation(true);
+                modelspace.AppendEntity(mtext);
+                tr.AddNewlyCreatedDBObject(mtext, true); // и в транзакцию
+
+                tr.Commit();
+
+            }
+        }
+
+        private bool segmentCheck(Point2d point, LineSegment2d entity)
+        {
+            Point2d p1 = entity.StartPoint;
+            Point2d p2 = entity.EndPoint;
+
+            double maxx = new double[] { p1.X, p2.X }.Max();
+            double maxy = new double[] { p1.Y, p2.Y }.Max();
+            double minx = new double[] { p1.X, p2.X }.Min();
+            double miny = new double[] { p1.Y, p2.Y }.Min();
+
+            if (maxx-minx<5)
+            {
+                maxx = maxx+5;
+                minx = minx-5;
+            }
+            if (maxy-miny<5)
+            {
+                maxy = maxy+5;
+                miny = miny-5;
+            }
+            //bool b1 = (point.X>minx & point.X<maxx) & (point.Y>miny & point.Y<maxy);
+            return (point.X>minx & point.X<maxx) & (point.Y>miny & point.Y<maxy);
+        }
+
+    }
 
 
 
@@ -348,7 +463,7 @@ namespace NC_EngTools
             }
             else
             {
-                new CurLayerParser();
+                new CurrentLayerParser();
             }
         }
 
@@ -412,19 +527,11 @@ namespace NC_EngTools
                     LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForWrite, false);
                     if (!lt.Has(layername))
                     {
-                        LayerProps lp = LayerPropertiesDictionary.GetValue(layername,out bool propsgetsuccess);
+                        LayerProps lp = LayerPropertiesDictionary.GetValue(layername, out bool propsgetsuccess);
                         LinetypeTable ltt = (LinetypeTable)tm.GetObject(db.LinetypeTableId, OpenMode.ForWrite, false);
-                        bool ltgetsucess = true;
-                        if (!ltt.Has(lp.LTName))
-                        {
-                            FileInfo fi = new FileInfo(PathOrganizer.GetPath("Linetypes"));
-                            try
-                            { db.LoadLineTypeFile(lp.LTName, fi.FullName); }
-                            catch
-                            { ltgetsucess = false; }
-                        }
+                        CheckLinetype(lp.LTName, out bool ltgetsuccess);
                         ObjectId lttrId = SymbolUtilityServices.GetLinetypeContinuousId(db);
-                        if (ltgetsucess)
+                        if (ltgetsuccess)
                         {
                             var elem = from ObjectId layer in ltt
                                        let lttr = (LinetypeTableRecord)tm.GetObject(layer, OpenMode.ForRead)
@@ -451,10 +558,7 @@ namespace NC_EngTools
 
                         System.EventArgs e = new System.EventArgs();
                         transaction.Commit();
-                        if (LayerAdded!=null)
-                        {
-                            LayerAdded(ltrec, e);
-                        }
+                        LayerAdded?.Invoke(ltrec, e);
 
                     }
                     else
@@ -470,20 +574,45 @@ namespace NC_EngTools
                 {
                     transaction.Dispose();
                 }
-            }
 
+            }
+        }
+        internal static void CheckLinetype(string linetypename, out bool ltgetsuccess)
+        {
+            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Database db = Workstation.Database;
+            LinetypeTable ltt = (LinetypeTable)tm.GetObject(db.LinetypeTableId, OpenMode.ForWrite, false);
+            ltgetsuccess = true;
+            if (!ltt.Has(linetypename))
+            {
+                FileInfo fi = new FileInfo(PathOrganizer.GetPath("Linetypes"));
+                try
+                {
+                    db.LoadLineTypeFile(linetypename, fi.FullName);
+                    return;
+                }
+                catch
+                { ltgetsuccess = false; }
+            }
         }
     }
 
     static class Workstation
     {
+
+        public static Document Document => Application.DocumentManager.MdiActiveDocument;
+        public static Database Database => HostApplicationServices.WorkingDatabase;
+        public static PlatformDb.DatabaseServices.TransactionManager TransactionManager => Database.TransactionManager;
+        public static Editor Editor => Document.Editor;
+
+
         internal static void Define(out Document doc)
         {
-            doc = Application.DocumentManager.MdiActiveDocument;
+            doc = Document;
         }
         internal static void Define(out Database db)
         {
-            db = HostApplicationServices.WorkingDatabase;
+            db = Database;
         }
         internal static void Define(out Document doc, out Database db)
         {
@@ -493,100 +622,100 @@ namespace NC_EngTools
         internal static void Define(out Document doc, out Database db, out PlatformDb.DatabaseServices.TransactionManager tm)
         {
             Define(out doc, out db);
-            tm = db.TransactionManager;
+            tm = TransactionManager;
         }
         internal static void Define(out PlatformDb.DatabaseServices.TransactionManager tm)
         {
-            Define(out Database db);
-            tm = db.TransactionManager;
+            tm = TransactionManager;
         }
         internal static void Define(out Document doc, out Database db, out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed)
         {
             Define(out doc, out db, out tm);
-            ed = doc.Editor;
+            ed = Editor;
         }
         internal static void Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed)
         {
-            Define(out Document doc);
-            Define(out tm);
-            ed = doc.Editor;
+            tm = TransactionManager;
+            ed = Editor;
         }
 
     }
-}
 
 
-namespace TestCommands
-{
-    public class TEST_12
+
+
+    namespace TestCommands
     {
-
-        [CommandMethod("TEST_12")]
-        public void Template2()
+        public class TEST_12
         {
-            Database db = HostApplicationServices.WorkingDatabase;
-            Document doc = Platform.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-            Editor ed = doc.Editor;
-            PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
 
-            // Выводим в командную строку информацию о первых 10 слоях
-            ed.WriteMessage("Выводим первые 10 слоев:");
-            using (Transaction myT = tm.StartTransaction())
+            [CommandMethod("TEST_12")]
+            public void Template2()
             {
-                LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForRead, false);
-                LayerTableRecord ltrec;
+                Database db = HostApplicationServices.WorkingDatabase;
+                Document doc = Platform.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+                Editor ed = doc.Editor;
+                PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
 
-                SymbolTableEnumerator lte = lt.GetEnumerator();
-                for (int i = 0; i < 10; ++i)
-                {
-                    if (!lte.MoveNext())
-                    {
-                        break;
-                    }
-
-                    ObjectId id = (ObjectId)lte.Current;
-                    ltrec = (LayerTableRecord)tm.GetObject(id, OpenMode.ForRead);
-                    ed.WriteMessage(string.Format("Имя слоя:{0}; Цвет слоя: {1}; Код слоя:{2}; Прозрачность: {3}", ltrec.Name, ltrec.Color.ToString(), ltrec.Description, ltrec.Transparency.ToString()));
-                }
-            }
-
-            PromptStringOptions opts = new PromptStringOptions("Введите имя нового слоя")
-            {
-                AllowSpaces = true
-            };
-            PromptResult pr = ed.GetString(opts);
-            if (PromptStatus.OK == pr.Status)
-            {
-                string newLayerName = pr.StringResult;
-
-                // Создаем новый слой
+                // Выводим в командную строку информацию о первых 10 слоях
+                ed.WriteMessage("Выводим первые 10 слоев:");
                 using (Transaction myT = tm.StartTransaction())
                 {
-                    try
-                    {
-                        LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForWrite, false);
+                    LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForRead, false);
+                    LayerTableRecord ltrec;
 
-                        // Проверяем есть ли такой слой
-                        if (!lt.Has(newLayerName))
-                        {
-                            LayerTableRecord ltrec = new LayerTableRecord
-                            {
-                                Name = newLayerName
-                            };
-                            lt.Add(ltrec);
-                            tm.AddNewlyCreatedDBObject(ltrec, true);
-                            myT.Commit();
-                        }
-                    }
-                    finally
+                    SymbolTableEnumerator lte = lt.GetEnumerator();
+                    for (int i = 0; i < 10; ++i)
                     {
-                        myT.Dispose();
+                        if (!lte.MoveNext())
+                        {
+                            break;
+                        }
+
+                        ObjectId id = (ObjectId)lte.Current;
+                        ltrec = (LayerTableRecord)tm.GetObject(id, OpenMode.ForRead);
+                        ed.WriteMessage(string.Format("Имя слоя:{0}; Цвет слоя: {1}; Код слоя:{2}; Прозрачность: {3}", ltrec.Name, ltrec.Color.ToString(), ltrec.Description, ltrec.Transparency.ToString()));
                     }
                 }
-            }
-            else
-            {
-                ed.WriteMessage("Отмена.");
+
+                PromptStringOptions opts = new PromptStringOptions("Введите имя нового слоя")
+                {
+                    AllowSpaces = true
+                };
+                PromptResult pr = ed.GetString(opts);
+                if (PromptStatus.OK == pr.Status)
+                {
+                    string newLayerName = pr.StringResult;
+
+                    // Создаем новый слой
+                    using (Transaction myT = tm.StartTransaction())
+                    {
+                        try
+                        {
+                            LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForWrite, false);
+
+                            // Проверяем есть ли такой слой
+                            if (!lt.Has(newLayerName))
+                            {
+                                LayerTableRecord ltrec = new LayerTableRecord
+                                {
+                                    Name = newLayerName
+                                };
+                                lt.Add(ltrec);
+                                tm.AddNewlyCreatedDBObject(ltrec, true);
+                                myT.Commit();
+                            }
+                        }
+                        finally
+                        {
+                            myT.Dispose();
+                        }
+                    }
+                }
+                else
+                {
+                    ed.WriteMessage("Отмена.");
+                }
             }
         }
     }

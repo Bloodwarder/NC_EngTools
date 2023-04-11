@@ -3,34 +3,37 @@ using System.Collections.Generic;
 using System.Linq;
 using ExternalData;
 using LayerProcessing;
+using Teigha.Geometry;
 
 namespace Legend
 {
     class LegendGrid
     {
         List<LegendGridRow> Rows = new List<LegendGridRow>();
-
+        List<LegendGridCell> Cells = new List<LegendGridCell> ();
+        internal Point2d BasePoint = new Point2d();
         private void addRow(LegendGridRow row)
         {
             row.ParentGrid = this;
             Rows.Add(row);
         }
 
-        internal void AddCell(LegendGridCell cell)
+        internal void AddCells(LegendGridCell cell)
         {
             this[cell.Layer.MainName].AddCell(cell);
+            Cells.Add(cell);
         }
 
         internal void AddCells(IEnumerable<LegendGridCell> cells)
         {
             foreach (var cell in cells)
-                AddCell(cell);
+                AddCells(cell);
         }
 
         private void processCells(IEnumerable<LegendGridCell> cells)
         {
             foreach (LegendGridCell cell in cells)
-                AddCell(cell);
+                AddCells(cell);
         }
         private void processRows()
         {
@@ -50,6 +53,18 @@ namespace Legend
                 LegendGridRow row = new LegendGridRow();
                 row.Label= label;
                 Rows.Insert(Rows.IndexOf(Rows.Where(r => r.LegendEntityChapterName == label).Min()), row);
+            }
+            for (int i = 0; i < Rows.Count; i++)
+                Rows[i].AssignY(i);
+        }
+        private void processColumns()
+        {
+            List<Status> statuses = Cells.Select(c=>c.Layer.BuildStatus).Distinct().ToList();
+            statuses.Sort();
+            for (int i = 0; i < statuses.Count; i++)
+            {
+                foreach(LegendGridCell cell in Cells.Where(c=>c.Layer.BuildStatus == statuses[i]))
+                    cell.AssignX(i);
             }
         }
 
@@ -76,7 +91,7 @@ namespace Legend
 
     class GridsComposer
     {
-        
+
         List<LegendGridCell> Cells { get; set; } = new List<LegendGridCell>();
         List<LegendGrid> Grids { get; set; } = new List<LegendGrid>();
         TableFilter _filter;
@@ -88,31 +103,36 @@ namespace Legend
 
         internal void Compose()
         {
-            switch(_filter)
+            switch (_filter)
             {
                 case TableFilter.ExistingOnly:
-                    addGrid(c => c.Layer.BuildStatusText == "сущ");
+                    addGrid(c => c.Layer.BuildStatus == Status.Existing);
                     break;
 
                 case TableFilter.InternalOnly:
-
+                    addGrid(c => c.Layer.BuildStatus == (Status.Existing|Status.Deconstructing|Status.Planned));
                     break;
 
                 case TableFilter.InternalAndExternal:
+                    addGrid(c => c.Layer.BuildStatus == (Status.Existing|Status.Deconstructing|Status.Planned));
+                    addGrid(c => c.Layer.BuildStatus == (Status.NSDeconstructing|Status.NSPlanned));
 
                     break;
 
                 case TableFilter.InternalAndSeparatedExternal:
-
+                    addGrid(c => c.Layer.BuildStatus == (Status.Existing|Status.Deconstructing|Status.Planned));
+                    List<string> extprojects = Cells.Where(c => c.Layer.ExtProjectName!=string.Empty).Select(c => c.Layer.ExtProjectName).Distinct().ToList();
+                    foreach (string extproject in extprojects)
+                        addGrid(c => c.Layer.ExtProjectName == extproject);
                     break;
 
                 case TableFilter.Full:
-                    
+                    addGrid(c => true);
                     break;
             }
 
         }
-        void addGrid(Func<LegendGridCell,bool> predicate)
+        void addGrid(Func<LegendGridCell, bool> predicate)
         {
             List<LegendGridCell> cells = Cells.Where(predicate).ToList();
             LegendGrid grid = new LegendGrid();
@@ -126,6 +146,7 @@ namespace Legend
         internal string LegendEntityChapterName { get; private set; }
         internal LegendData LegendData { get; private set; }
         internal string Label { get => _islabelrow ? label : LegendData.Label; set => label=value; }
+        internal int YIndex;
         internal bool ItalicLabel = false;
         private bool _islabelrow = false;
         private string label;
@@ -146,19 +167,24 @@ namespace Legend
             if (!success)
                 throw new System.Exception();
         }
-
-        List<LegendGridCell> _cells { get; set; } = new List<LegendGridCell>();
+        internal List<LegendGridCell> Cells { get; set; } = new List<LegendGridCell>();
         internal LegendGrid ParentGrid { get; set; }
 
         public void AddCell(LegendGridCell legendGridCell)
         {
-            _cells.Add(legendGridCell);
+            Cells.Add(legendGridCell);
             legendGridCell.ParentRow = this;
             if (LegendEntityChapterName != string.Empty)
                 return;
             LegendEntityChapterName = legendGridCell.Layer.EngType;
         }
 
+        internal void AssignY(int y)
+        {
+            YIndex = y;
+            foreach (LegendGridCell cell in Cells)
+                cell.AssignY(y);
+        }
         public int CompareTo(object obj)
         {
             LegendGridRow lgr = obj as LegendGridRow;
@@ -168,13 +194,25 @@ namespace Legend
 
     class LegendGridCell
     {
-        LegendGridCell(LayerParser layer)
+
+        LegendGridCell(RecordLayerParser layer)
         {
             Layer=layer;
         }
 
         internal LegendGridRow ParentRow { get; set; }
         internal LayerParser Layer { get; set; }
+        internal CellTableIndex TableIndex = new CellTableIndex();
+
+        internal void AssignX(int x)
+        {
+            TableIndex.X=x;
+        }
+        internal void AssignY(int y)
+        {
+            TableIndex.Y=y;
+        }
+
     }
 
     class LegendGridRowComparer : IComparer<LegendGridRow>
@@ -189,6 +227,8 @@ namespace Legend
                 return 0;
         }
     }
+
+
 
     public static class LegendInfoTable
     {
@@ -206,10 +246,14 @@ namespace Legend
             Dictionary.Add("ТТ", "трубопроводный транспорт");
             Dictionary.Add("ЖД", "сети инфраструктуры железной дороги");
             Dictionary.Add("ИН", "иные");
-            
+
         }
+    }
 
-
+    public struct CellTableIndex
+    {
+        public int X;
+        public int Y;
     }
 
     public struct LegendData
@@ -219,7 +263,7 @@ namespace Legend
         public string SubLabel;
         public bool IgnoreLayer;
     }
-    
+
     public enum TableFilter
     {
         ExistingOnly,

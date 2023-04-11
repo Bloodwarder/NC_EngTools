@@ -23,8 +23,10 @@ namespace LayerProcessing
         {
             get
             {
-                List<string> recomp = new List<string>();
-                recomp.Add(StandartPrefix);
+                List<string> recomp = new List<string>
+                {
+                    StandartPrefix
+                };
                 if (extpr) { recomp.Add("["+ExtProjectName+"]"); }
                 recomp.Add(MainName);
                 recomp.Add(BuildStatusText);
@@ -62,8 +64,10 @@ namespace LayerProcessing
             int counter = 1;
             if (decomp[1].StartsWith("["))
             {
-                List<string> list = new List<string>();
-                list.Add(decomp[1]);
+                List<string> list = new List<string>
+                {
+                    decomp[1]
+                };
                 for (int i = counter+1; i < decomp[1].Length; i++)
                 {
                     if (!decomp[i-1].EndsWith("]"))
@@ -85,7 +89,6 @@ namespace LayerProcessing
             {
                 GeomType = decomp[counter];
                 geomassigned = true;
-                counter++;
             }
             if (decomp[decomp.Length-1]=="пер")
             {
@@ -182,16 +185,15 @@ namespace LayerProcessing
         }
 
         public abstract void Push();
-
-        public enum Status : int
-        {
-            Existing = 0,
-            Deconstructing = 1,
-            Planned = 2,
-            NSPlanned = 3,
-            NSDeconstructing = 4,
-            NSReorg = 5
-        }
+    }
+    public enum Status : int
+    {
+        Existing = 0,
+        Deconstructing = 1,
+        Planned = 2,
+        NSPlanned = 3,
+        NSDeconstructing = 4,
+        NSReorg = 5
     }
 
     public class SimpleLayerParser : LayerParser
@@ -199,13 +201,13 @@ namespace LayerProcessing
         public SimpleLayerParser(string layername) : base(layername) { }
         public override void Push()
         {
-            //Console.WriteLine(OutputLayerName);
+            throw new NotImplementedException();
         }
     }
 
-    internal class CurLayerParser : LayerParser
+    internal class CurrentLayerParser : LayerParser
     {
-        internal CurLayerParser() : base(Clayername()) { ActiveLayerParsers.Add(this); }
+        internal CurrentLayerParser() : base(Clayername()) { ActiveLayerParsers.Add(this); }
 
         private static string Clayername()
         {
@@ -246,7 +248,7 @@ namespace LayerProcessing
         public override void Push()
         {
             LayerChecker.Check(OutputLayerName);
-            LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName, out bool propsgetsuccess);
+            LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName, out _);
             foreach (Entity ent in ObjList)
             {
                 ent.Layer = OutputLayerName;
@@ -261,14 +263,27 @@ namespace LayerProcessing
 
     internal class RecordLayerParser : LayerParser
     {
-        const byte redproj = 0; const byte greenproj = 255; const byte blueproj = 255;
-        const byte redns = 0; const byte greenns = 153; const byte bluens = 153;
         internal LayerTableRecord BoundLayer;
-        internal bool StoredEnabledState;
-        internal Teigha.Colors.Color StoredColor;
+
         internal RecordLayerParser(LayerTableRecord ltr) : base(ltr.Name)
         {
             BoundLayer = ltr;
+        }
+
+        public override void Push()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    internal class ChapterStoreLayerParser : RecordLayerParser
+    {
+        const byte redproj = 0; const byte greenproj = 255; const byte blueproj = 255;
+        const byte redns = 0; const byte greenns = 153; const byte bluens = 153;
+        internal bool StoredEnabledState;
+        internal Teigha.Colors.Color StoredColor;
+        internal ChapterStoreLayerParser(LayerTableRecord ltr) : base(ltr)
+        {
             StoredEnabledState = ltr.IsOff;
             StoredColor = ltr.Color;
             ChapterStoredRecordLayerParsers.Add(this);
@@ -316,7 +331,7 @@ namespace LayerProcessing
     internal static class ActiveLayerParsers
     {
         private static List<LayerParser> List { get; set; } = new List<LayerParser>();
-        internal static void StatusSwitch(LayerParser.Status status)
+        internal static void StatusSwitch(Status status)
         {
             foreach (LayerParser lp in List) { lp.StatusSwitch(status); };
         }
@@ -348,13 +363,13 @@ namespace LayerProcessing
     internal static class ChapterStoredRecordLayerParsers
     {
         private static Dictionary<Document, bool> eventassigned = new Dictionary<Document, bool>(); //должно работать только для одного документа. переделать для многих
-        internal static Dictionary<Document, List<RecordLayerParser>> List { get; } = new Dictionary<Document, List<RecordLayerParser>>();
-        internal static void Add(RecordLayerParser lp)
+        internal static Dictionary<Document, List<ChapterStoreLayerParser>> List { get; } = new Dictionary<Document, List<ChapterStoreLayerParser>>();
+        internal static void Add(ChapterStoreLayerParser lp)
         {
             Workstation.Define(out Document doc);
             if (!List.ContainsKey(doc))
             {
-                List[doc] = new List<RecordLayerParser>();
+                List[doc] = new List<ChapterStoreLayerParser>();
                 eventassigned.Add(doc, false);
             }
             if (!List[doc].Any(l => l.InputLayerName == lp.InputLayerName))
@@ -365,7 +380,7 @@ namespace LayerProcessing
         internal static void Reset()
         {
             Workstation.Define(out Document doc);
-            foreach (RecordLayerParser lp in List[doc]) { lp.Reset(); }
+            foreach (ChapterStoreLayerParser lp in List[doc]) { lp.Reset(); }
             doc.Database.BeginSave -= Reset;
             eventassigned[doc] = false;
         }
@@ -377,7 +392,7 @@ namespace LayerProcessing
 
             using (Transaction myT = tm.StartTransaction())
             {
-                foreach (RecordLayerParser lp in List[doc])
+                foreach (ChapterStoreLayerParser lp in List[doc])
                 {
                     LayerTableRecord ltr = (LayerTableRecord)tm.GetObject(lp.BoundLayer.Id, OpenMode.ForWrite);
                     lp.Reset();
@@ -399,7 +414,7 @@ namespace LayerProcessing
                 doc.Database.BeginSave += Reset;
                 eventassigned[doc] = true;
             }
-            foreach (RecordLayerParser lp in List[doc]) { lp.Push(engtype); }
+            foreach (ChapterStoreLayerParser lp in List[doc]) { lp.Push(engtype); }
         }
         internal static void Flush()
         {

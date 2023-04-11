@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Draw.cs" />
     <Compile Include="ExternalData.cs" />
     <Compile Include="Dictionaries.cs" />
     <Compile Include="LayersModule.cs" />
