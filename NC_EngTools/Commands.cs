@@ -335,7 +335,6 @@ namespace NC_EngTools
             SimpleTestObjectDraw draw = new SimpleTestObjectDraw(new PlatformDb.Geometry.Point2d(0d, 0d));
             draw.Draw();
         }
-
     }
 
     public class Labeler
@@ -345,7 +344,7 @@ namespace NC_EngTools
         {
             using (Transaction tr = Workstation.TransactionManager.StartTransaction())
             {
-
+                //выбираем полилинию
                 PromptEntityOptions peo = new PromptEntityOptions("Выберите полилинию")
                 { };
                 peo.AddAllowedClass(typeof(Polyline), true);
@@ -355,6 +354,8 @@ namespace NC_EngTools
                     Workstation.Editor.WriteMessage("Ошибка выбора");
                     return;
                 }
+
+                //выбираем точку вставки подписи и находим ближайшую точку на полилинии
                 PromptPointOptions ppo = new PromptPointOptions("Укажите точку на сегменте полилинии")
                 { };
                 PromptPointResult pointresult = Workstation.Editor.GetPoint(ppo);
@@ -363,16 +364,19 @@ namespace NC_EngTools
                 Point3d point = pointresult.Value;
                 Polyline polyline = (Polyline)Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForRead); ;
                 Point3d pointonline = polyline.GetClosestPointTo(point, false);
+
+                //проверяем, какому сегменту принадлежит точка и вычисляем его направление
                 LineSegment2d ls = new LineSegment2d();
                 for (int i = 0; i<polyline.NumberOfVertices-1; i++)
                 {
                     ls = polyline.GetLineSegment2dAt(i);
                     Line2d l2d = ls.GetLine();
-                    if (segmentCheck(pointonline.Convert2d(new Plane(new Point3d(0,0,0),new Vector3d(0,0,1))), ls))
+                    if (segmentCheck(pointonline.Convert2d(new Plane(new Point3d(0, 0, 0), new Vector3d(0, 0, 1))), ls))
                         break;
                 }
                 Vector2d v2d = ls.Direction;
 
+                //вводим текст для подписи
                 PromptResult pr = Workstation.Editor.GetString("Введите текст подписи (д или d в начале строки - знак диаметра");
                 string text;
                 if (pr.Status != (PromptStatus.Error | PromptStatus.Cancel))
@@ -381,33 +385,31 @@ namespace NC_EngTools
                 }
                 else
                 {
-                    text = "%%C000";
+                    text = "%%C000"; //по умолчанию
                 }
 
+                //ищем таблицу блоков и моделспейс
                 BlockTable blocktable = tr.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
                 BlockTableRecord modelspace = tr.GetObject(blocktable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                //создаём текст
                 MText mtext = new MText();
                 mtext.BackgroundFill = true;
                 mtext.UseBackgroundColor = true;
                 mtext.BackgroundScaleFactor = 1.1d;
                 TextStyleTable txtstyletable = tr.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
                 mtext.TextStyleId =txtstyletable["Standard"];
-                mtext.Contents = Regex.Replace(text,"^(д|d)","%%C");
+                mtext.Contents = Regex.Replace(text, "^(д|d)", "%%C"); //заменяем первую букву д на знак диаметра
                 mtext.TextHeight = 3.6d;
                 mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleCenter);
                 mtext.Location = point;
                 mtext.Color = polyline.Color;
-
-                mtext.Rotation = (v2d.Angle * 180/Math.PI > 270 ||  v2d.Angle * 180/Math.PI < 90) ? v2d.Angle : v2d.Angle + Math.PI;
-                //mtext.Rotation = Math.Atan2(v2d.Y,v2d.X == 0 ? 0.0001d : v2d.X);
-
-                mtext.Layer = polyline.Layer;
-                mtext.SetPaperOrientation(true);
+                mtext.Layer = polyline.Layer; //устанавливаем цвет и слой как у полилинии
+                mtext.Rotation = (v2d.Angle * 180/Math.PI > 270 ||  v2d.Angle * 180/Math.PI < 90) ? v2d.Angle : v2d.Angle + Math.PI; //вычисляем угол поворота с учётом читаемости
+                //добавляем в модель и в транзакцию
                 modelspace.AppendEntity(mtext);
                 tr.AddNewlyCreatedDBObject(mtext, true); // и в транзакцию
 
                 tr.Commit();
-
             }
         }
 

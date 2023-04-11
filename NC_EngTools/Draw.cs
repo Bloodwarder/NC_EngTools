@@ -59,7 +59,7 @@ namespace ModelspaceDraw
             if (success)
             {
                 pl.LinetypeScale=lp.LTScale;
-                pl.ConstantWidth=lp.ConstWidth;
+                pl.ConstantWidth=lp.ConstantWidth;
             }
             EntitiesList.Add(pl);
         }
@@ -120,7 +120,7 @@ namespace ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-                line.ConstantWidth = LayerPropertiesDictionary.GetValue(_layer, out _, true).ConstWidth;
+                line.ConstantWidth = LayerPropertiesDictionary.GetValue(_layer, out _, true).ConstantWidth;
                 line.LinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
             }
         }
@@ -133,7 +133,7 @@ namespace ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-                line.ConstantWidth = LayerPropertiesDictionary.GetValue(_layer, out _, true).ConstWidth;
+                line.ConstantWidth = LayerPropertiesDictionary.GetValue(_layer, out _, true).ConstantWidth;
                 LayerChecker.CheckLinetype("ACAD_ISO02W100", out bool ltgetsuccess);
                 if (ltgetsuccess)
                     line.Linetype = "ACAD_ISO02W100";
@@ -186,7 +186,7 @@ namespace ModelspaceDraw
             if (success)
             {
                 rectangle.LinetypeScale=lp.LTScale;
-                rectangle.ConstantWidth=lp.ConstWidth;
+                rectangle.ConstantWidth=lp.ConstantWidth;
             }
 
             EntitiesList.Add(rectangle);
@@ -228,7 +228,7 @@ namespace ModelspaceDraw
             if (success)
             {
                 circle.LinetypeScale=lp.LTScale;
-                circle.ConstantWidth=lp.ConstWidth;
+                circle.ConstantWidth=lp.ConstantWidth;
             }
 
             EntitiesList.Add(circle);
@@ -277,51 +277,51 @@ namespace ModelspaceDraw
 
         internal override void Draw()
         {
-            BlockReference bref = new BlockReference(new Point3d(_basepoint.X, _basepoint.Y, 0d),findBlockTableRecord(BlockName));
+            BlockReference bref = new BlockReference(new Point3d(_basepoint.X, _basepoint.Y, 0d), findBlockTableRecord(BlockName));
             EntitiesList.Add(bref);
         }
 
         private ObjectId findBlockTableRecord(string blockname)
         {
             var blocktablerecordid = from ObjectId elem in _blocktable
-                                      let btr = Workstation.TransactionManager.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTableRecord
-                                      where btr.Name == blockname
-                                   select elem;
+                                     let btr = Workstation.TransactionManager.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTableRecord
+                                     where btr.Name == blockname
+                                     select elem;
             return blocktablerecordid.FirstOrDefault();
         }
 
-        private void importBlockTableRecord(string blockname,string filepath)
+        private void importBlockTableRecord(string blockname, string filepath)
         {
             if (_blocktable.Has(blockname))
                 return;
             throw new NotImplementedException();
         }
-
-        internal struct LegendDataTemplate
-        {
-            internal string DrawTemplate;
-            internal string MarkChar;
-            internal string Width;
-            internal string Height;
-            internal double InnerBorderBrightness;
-            internal string InnerHatchPattern;
-            internal double InnerHatchScale;
-            internal double InnerHatchBrightness;
-            internal double InnerHatchAngle;
-            internal string FenceWidth;
-            internal string FenceHeight;
-            internal string FenceLayer;
-            internal string OuterHatchPattern;
-            internal double OuterHatchScale;
-            internal double OuterHatchBrightness;
-            internal double OuterHatchAngle;
-            internal double Radius;
-            internal string BlockName;
-            internal double BlockXOffset;
-            internal double BlockYOffset;
-            internal string BlockPath;
-        }
     }
+    public struct LegendDrawTemplate
+    {
+        public string DrawTemplate;
+        public string MarkChar;
+        public string Width;
+        public string Height;
+        public double InnerBorderBrightness;
+        public string InnerHatchPattern;
+        public double InnerHatchScale;
+        public double InnerHatchBrightness;
+        public double InnerHatchAngle;
+        public string FenceWidth;
+        public string FenceHeight;
+        public string FenceLayer;
+        public string OuterHatchPattern;
+        public double OuterHatchScale;
+        public double OuterHatchBrightness;
+        public double OuterHatchAngle;
+        public double Radius;
+        public string BlockName;
+        public double BlockXOffset;
+        public double BlockYOffset;
+        public string BlockPath;
+    }
+
 
 
     internal class SimpleTestObjectDraw : LegendObjectDraw

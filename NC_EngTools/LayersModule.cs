@@ -230,7 +230,7 @@ namespace LayerProcessing
             db.Clayer = elem.FirstOrDefault();
             LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName,out bool propsgetsuccess);
             db.Celtscale = lp.LTScale;
-            db.Plinewid = lp.ConstWidth;
+            db.Plinewid = lp.ConstantWidth;
         }
     }
     internal class EntityLayerParser : LayerParser
@@ -255,7 +255,7 @@ namespace LayerProcessing
                 if (ent is Polyline pl)
                 {
                     pl.LinetypeScale=lp.LTScale;
-                    pl.ConstantWidth = lp.ConstWidth;
+                    pl.ConstantWidth = lp.ConstantWidth;
                 }
             }
         }
