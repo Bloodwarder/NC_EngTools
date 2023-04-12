@@ -119,7 +119,9 @@ namespace ExternalData
                 rng = rng.Offset[1, 0].Resize[rng.Rows.Count-1, rng.Columns.Count];
                 for (int i = 1; i < rng.Rows.Count+1; i++)
                 {
-                    TKey key = (TKey)rng.Cells[i, 1].Value;
+                    //TKey key = (TKey)rng.Cells[i, 1].Value;
+                    TKey key = Convert.ChangeType(rng.Cells[i, 1].Value, typeof(TKey));
+
                     dct.Add(key, cellsExtract(rng.Cells[i, 2]));
                 }
             }
@@ -246,7 +248,9 @@ namespace ExternalData
         [CommandMethod("RELOADPROPS")]
         public static void ReloadDictionaries()
         {
+            Workstation.Editor.WriteMessage("Начало импорта данных. Подождите");
             Reloader(ToReload.Properties | ToReload.Alter | ToReload.Legend | ToReload.LegendDraw);
+            Workstation.Editor.WriteMessage("Импорт данных завершён");
         }
 
         public static void Reloader(ToReload reload)
@@ -346,35 +350,37 @@ namespace ExternalData
 
     internal abstract class ExternalDictionary<TKey, TValue>
     {
-        private protected static Dictionary<TKey, TValue> s_dictionary { get; set; }
+        private protected Dictionary<TKey, TValue> dictionary { get; set; }
 
-        public static TValue GetValue(TKey key, out bool success)
+        private protected TValue getValue(TKey key, out bool success)
         {
-            success = s_dictionary.TryGetValue(key, out TValue value);
+            success = dictionary.TryGetValue(key, out TValue value);
             return value;
             //выдаёт ошибку, когда возвращает value=null. Поправить после перехода на 6.0
         }
 
-        internal static void Reload(DictionaryDataProvider<TKey, TValue> primary, DictionaryDataProvider<TKey, TValue> secondary)
+        private protected void reload(DictionaryDataProvider<TKey, TValue> primary, DictionaryDataProvider<TKey, TValue> secondary)
         {
-            s_dictionary = secondary.GetDictionary();
-            primary.OverwriteSource(s_dictionary);
-        }
-
-        internal static void UpdateDictionary(Dictionary<TKey, TValue> dictionary)
-        {
-            s_dictionary = dictionary;
+            dictionary = secondary.GetDictionary();
+            primary.OverwriteSource(dictionary);
         }
     }
 
     internal class LayerPropertiesDictionary : ExternalDictionary<string, LayerProps>
     {
-        private static Dictionary<string, LayerProps> s_defaultLayerProps = new Dictionary<string, LayerProps>();
+        private static LayerPropertiesDictionary instance;
+        private Dictionary<string, LayerProps> s_defaultLayerProps = new Dictionary<string, LayerProps>();
         static LayerPropertiesDictionary()
+        {
+            if(instance == null)
+                instance = new LayerPropertiesDictionary();
+        }
+
+        internal LayerPropertiesDictionary()
         {
             try
             {
-                s_dictionary = new XmlDictionaryDataProvider<string, LayerProps>(PathOrganizer.GetPath("Props")).GetDictionary();
+                dictionary = new XmlDictionaryDataProvider<string, LayerProps>(PathOrganizer.GetPath("Props")).GetDictionary();
 
                 s_defaultLayerProps.Add("сущ", new LayerProps { ConstantWidth = 0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3 });
                 s_defaultLayerProps.Add("дем", new LayerProps { ConstantWidth = 0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3, Red = 107, Green = 107, Blue = 107 });
@@ -389,7 +395,7 @@ namespace ExternalData
             }
         }
 
-        public static LayerProps GetValue(string layername, out bool success, bool enabledefaults = true)
+        private protected LayerProps getValue(string layername, out bool success, bool enabledefaults = true)
         {
             SimpleLayerParser slp;
             success = false;
@@ -409,7 +415,7 @@ namespace ExternalData
                     throw new NoPropertiesException("Нет стандартов для слоя");
                 }
             }
-            success = s_dictionary.TryGetValue(slp.TrueName, out LayerProps layerProps);
+            success = dictionary.TryGetValue(slp.TrueName, out LayerProps layerProps);
             if (success)
             {
                 return layerProps;
@@ -428,9 +434,9 @@ namespace ExternalData
             }
         }
 
-        public static LayerProps GetValue(LayerParser layerparser, out bool success, bool enabledefaults = true)
+        private protected LayerProps getValue(LayerParser layerparser, out bool success, bool enabledefaults = true)
         {
-            success = s_dictionary.TryGetValue(layerparser.TrueName, out LayerProps layerProps);
+            success = dictionary.TryGetValue(layerparser.TrueName, out LayerProps layerProps);
             if (success)
             {
                 return layerProps;
@@ -448,16 +454,31 @@ namespace ExternalData
                 }
             }
         }
+
+        public static LayerProps GetValue(string layername, out bool success, bool enabledefaults = true)
+        {
+            return instance.getValue(layername, out success, enabledefaults);
+        }
+        public static void Reload (DictionaryDataProvider<string, LayerProps> primary, DictionaryDataProvider<string, LayerProps> secondary)
+        {
+            instance.reload(primary, secondary);
+        }
+
     }
 
     internal class LayerAlteringDictionary : ExternalDictionary<string, string>
     {
-
+        private static LayerAlteringDictionary instance;
         static LayerAlteringDictionary()
+        {
+            if (instance == null)
+                instance = new LayerAlteringDictionary();
+        }
+        private LayerAlteringDictionary()
         {
             try
             {
-                s_dictionary = new XmlDictionaryDataProvider<string, string>(PathOrganizer.GetPath("Alter")).GetDictionary();
+                dictionary = new XmlDictionaryDataProvider<string, string>(PathOrganizer.GetPath("Alter")).GetDictionary();
             }
             catch (FileNotFoundException)
             {
@@ -465,40 +486,71 @@ namespace ExternalData
             }
         }
 
-        public static string GetValue(LayerParser layer, out bool success)
+        public static string GetValue(string layername, out bool success)
         {
-            string str = GetValue(layer.MainName, out success);
-            return str;
+            return instance.getValue(layername, out success);
+        }
+        public static void Reload(DictionaryDataProvider<string, string> primary, DictionaryDataProvider<string, string> secondary)
+        {
+            instance.reload(primary, secondary);
         }
     }
 
     internal class LayerLegendDictionary : ExternalDictionary<string, Legend.LegendData>
     {
+        private static LayerLegendDictionary instance;
         static LayerLegendDictionary()
+        {
+            if (instance == null)
+                instance = new LayerLegendDictionary();
+        }
+        LayerLegendDictionary()
         {
             try
             {
-                s_dictionary = new XmlDictionaryDataProvider<string, Legend.LegendData>(PathOrganizer.GetPath("Legend")).GetDictionary();
+                dictionary = new XmlDictionaryDataProvider<string, Legend.LegendData>(PathOrganizer.GetPath("Legend")).GetDictionary();
             }
             catch (FileNotFoundException)
             {
                 PropsReloader.Reloader(ToReload.Legend);
             }
         }
+        public static LegendData GetValue(string layername, out bool success)
+        {
+            return instance.getValue(layername, out success);
+        }
+        public static void Reload(DictionaryDataProvider<string, LegendData> primary, DictionaryDataProvider<string, LegendData> secondary)
+        {
+            instance.reload(primary, secondary);
+        }
     }
 
     internal class LayerLegendDrawDictionary : ExternalDictionary<string, LegendDrawTemplate>
     {
+        private static LayerLegendDrawDictionary instance;
         static LayerLegendDrawDictionary()
+        {
+            if (instance == null)
+                instance = new LayerLegendDrawDictionary();
+        }
+        LayerLegendDrawDictionary()
         {
             try
             {
-                s_dictionary = new XmlDictionaryDataProvider<string, LegendDrawTemplate>(PathOrganizer.GetPath("LegendDraw")).GetDictionary();
+                dictionary = new XmlDictionaryDataProvider<string, LegendDrawTemplate>(PathOrganizer.GetPath("LegendDraw")).GetDictionary();
             }
             catch (FileNotFoundException)
             {
                 PropsReloader.Reloader(ToReload.LegendDraw);
             }
+        }
+        public static LegendDrawTemplate GetValue(string layername, out bool success)
+        {
+            return instance.getValue(layername, out success);
+        }
+        public static void Reload(DictionaryDataProvider<string, LegendDrawTemplate> primary, DictionaryDataProvider<string, LegendDrawTemplate> secondary)
+        {
+            instance.reload(primary, secondary);
         }
     }
 

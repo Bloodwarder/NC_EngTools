@@ -19,6 +19,8 @@ using ModelspaceDraw;
 using Teigha.Geometry;
 using System.Text.RegularExpressions;
 using Teigha.Colors;
+using System.Text;
+using Legend;
 
 namespace NC_EngTools
 {
@@ -27,7 +29,7 @@ namespace NC_EngTools
         public static string PrevStatus = "Сущ";
         public static string PrevExtProject = "";
         [CommandMethod("КАЛЬКА")]
-        public void TToggle()
+        public void TransparentOverlayToggle()
         {
             Database db = HostApplicationServices.WorkingDatabase;
             PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
@@ -75,7 +77,7 @@ namespace NC_EngTools
         }
 
         [CommandMethod("ИЗМСТАТУС", CommandFlags.Redraw)]
-        public void LayerSC()
+        public void LayerStatusChange()
         {
             Workstation.Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
 
@@ -140,7 +142,7 @@ namespace NC_EngTools
         }
 
         [CommandMethod("ПЕРЕУСТРОЙСТВО", CommandFlags.Redraw)]
-        public void LayerReconstr()
+        public void LayerReconstruction()
         {
             Workstation.Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
 
@@ -170,7 +172,13 @@ namespace NC_EngTools
         {
             Workstation.Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
 
-            PromptResult pr = ed.GetString($"Введите имя проекта, согласно которому отображён выбранный объект <{PrevExtProject}>");
+            PromptStringOptions pso = new PromptStringOptions($"Введите имя проекта, согласно которому отображён выбранный объект")
+            {
+                AllowSpaces = false,
+                DefaultValue = PrevExtProject,
+                UseDefaultValue = true,
+            };
+            PromptResult pr = ed.GetString(pso);
             string extprname;
             if (pr.Status != (PromptStatus.Error | PromptStatus.Cancel))
             {
@@ -439,7 +447,62 @@ namespace NC_EngTools
 
     }
 
+    public class LegendAssembler
+    {
+        public void Assemble()
+        {
+            //получить точку вставки
+            PromptPointOptions ppo = new PromptPointOptions("Укажите точку вставки")
+            {
+                AllowNone=false
+            };
+            PromptPointResult result = Workstation.Editor.GetPoint(ppo);
+            if (result.Status != PromptStatus.OK)
+                return;
+            Point3d p3d = result.Value;
 
+            //получить таблицу слоёв и слои
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            {
+                StringBuilder wrongLayersStringBuilder = new StringBuilder();
+                LayerTable layertable = Workstation.TransactionManager.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead) as LayerTable;
+                var layers = from ObjectId elem in layertable
+                             let ltr = Workstation.TransactionManager.GetObject(elem, OpenMode.ForWrite, false) as LayerTableRecord
+                             where ltr.Name.StartsWith(LayerParser.StandartPrefix+"_")
+                             select ltr;
+                List<RecordLayerParser> layersList = new List<RecordLayerParser>();
+                foreach (LayerTableRecord ltr in layers)
+                {
+                    try
+                    {
+                        RecordLayerParser rlp = new RecordLayerParser(ltr);
+                        layersList.Add(rlp);
+                    }
+                    catch (WrongLayerException ex)
+                    {
+                        wrongLayersStringBuilder.AppendLine(ex.Message);
+                        continue;
+                    }
+                }
+                List<LegendGridCell> cells = new List<LegendGridCell>();
+                foreach (RecordLayerParser rlp in layersList)
+                {
+                    cells.Add(new LegendGridCell(rlp));
+                }
+
+                //PromptKeywordOptions pko = new PromptKeywordOptions("Выберите режим компоновки")
+                //{
+                //    AppendKeywordsToMessage = true,
+                //    AllowNone = false,
+                //    //Keywords=...
+                //};
+
+                GridsComposer composer = new GridsComposer(cells, TableFilter.Full);
+                composer.Compose(p3d);
+
+            }
+        }
+    }
 
 
     static class LayerChanger
@@ -642,86 +705,87 @@ namespace NC_EngTools
         }
 
     }
+}
 
 
 
 
-    namespace TestCommands
+namespace TestCommands
+{
+    public class TEST_12
     {
-        public class TEST_12
+
+        [CommandMethod("TEST_12")]
+        public void Template2()
         {
+            Database db = HostApplicationServices.WorkingDatabase;
+            Document doc = Platform.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+            Editor ed = doc.Editor;
+            PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
 
-            [CommandMethod("TEST_12")]
-            public void Template2()
+            // Выводим в командную строку информацию о первых 10 слоях
+            ed.WriteMessage("Выводим первые 10 слоев:");
+            using (Transaction myT = tm.StartTransaction())
             {
-                Database db = HostApplicationServices.WorkingDatabase;
-                Document doc = Platform.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-                Editor ed = doc.Editor;
-                PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
+                LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForRead, false);
+                LayerTableRecord ltrec;
 
-                // Выводим в командную строку информацию о первых 10 слоях
-                ed.WriteMessage("Выводим первые 10 слоев:");
+                SymbolTableEnumerator lte = lt.GetEnumerator();
+                for (int i = 0; i < 10; ++i)
+                {
+                    if (!lte.MoveNext())
+                    {
+                        break;
+                    }
+
+                    ObjectId id = (ObjectId)lte.Current;
+                    ltrec = (LayerTableRecord)tm.GetObject(id, OpenMode.ForRead);
+                    ed.WriteMessage(string.Format("Имя слоя:{0}; Цвет слоя: {1}; Код слоя:{2}; Прозрачность: {3}", ltrec.Name, ltrec.Color.ToString(), ltrec.Description, ltrec.Transparency.ToString()));
+                }
+            }
+
+            PromptStringOptions opts = new PromptStringOptions("Введите имя нового слоя")
+            {
+                AllowSpaces = true
+            };
+            PromptResult pr = ed.GetString(opts);
+            if (PromptStatus.OK == pr.Status)
+            {
+                string newLayerName = pr.StringResult;
+
+                // Создаем новый слой
                 using (Transaction myT = tm.StartTransaction())
                 {
-                    LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForRead, false);
-                    LayerTableRecord ltrec;
-
-                    SymbolTableEnumerator lte = lt.GetEnumerator();
-                    for (int i = 0; i < 10; ++i)
+                    try
                     {
-                        if (!lte.MoveNext())
+                        LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForWrite, false);
+
+                        // Проверяем есть ли такой слой
+                        if (!lt.Has(newLayerName))
                         {
-                            break;
-                        }
-
-                        ObjectId id = (ObjectId)lte.Current;
-                        ltrec = (LayerTableRecord)tm.GetObject(id, OpenMode.ForRead);
-                        ed.WriteMessage(string.Format("Имя слоя:{0}; Цвет слоя: {1}; Код слоя:{2}; Прозрачность: {3}", ltrec.Name, ltrec.Color.ToString(), ltrec.Description, ltrec.Transparency.ToString()));
-                    }
-                }
-
-                PromptStringOptions opts = new PromptStringOptions("Введите имя нового слоя")
-                {
-                    AllowSpaces = true
-                };
-                PromptResult pr = ed.GetString(opts);
-                if (PromptStatus.OK == pr.Status)
-                {
-                    string newLayerName = pr.StringResult;
-
-                    // Создаем новый слой
-                    using (Transaction myT = tm.StartTransaction())
-                    {
-                        try
-                        {
-                            LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForWrite, false);
-
-                            // Проверяем есть ли такой слой
-                            if (!lt.Has(newLayerName))
+                            LayerTableRecord ltrec = new LayerTableRecord
                             {
-                                LayerTableRecord ltrec = new LayerTableRecord
-                                {
-                                    Name = newLayerName
-                                };
-                                lt.Add(ltrec);
-                                tm.AddNewlyCreatedDBObject(ltrec, true);
-                                myT.Commit();
-                            }
-                        }
-                        finally
-                        {
-                            myT.Dispose();
+                                Name = newLayerName
+                            };
+                            lt.Add(ltrec);
+                            tm.AddNewlyCreatedDBObject(ltrec, true);
+                            myT.Commit();
                         }
                     }
+                    finally
+                    {
+                        myT.Dispose();
+                    }
                 }
-                else
-                {
-                    ed.WriteMessage("Отмена.");
-                }
+            }
+            else
+            {
+                ed.WriteMessage("Отмена.");
             }
         }
     }
 }
+
 
 
 

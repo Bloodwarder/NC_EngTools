@@ -25,22 +25,33 @@ namespace ModelspaceDraw
     internal abstract class ObjectDraw
     {
         internal List<Entity> EntitiesList { get; } = new List<Entity>();
-        private protected Point2d _basepoint;
-        private protected RecordLayerParser _layer;
+        internal Point2d Basepoint { get ; set ; }
+        internal RecordLayerParser Layer { get ; set; }
+
         internal ObjectDraw(Point2d basepoint, RecordLayerParser layer = null)
         {
-            _basepoint = basepoint;
-            _layer = layer;
+            Basepoint = basepoint;
+            Layer = layer;
         }
         internal abstract void Draw();
         private protected Point2d relativePoint(double x, double y)
         {
-            return new Point2d(x+_basepoint.X, y+_basepoint.Y);
+            return new Point2d(x+Basepoint.X, y+Basepoint.Y);
         }
     }
     internal abstract class LegendObjectDraw : ObjectDraw
     {
-        internal LegendObjectDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal LegendDrawTemplate LegendDrawTemplate { get ; set ; }
+
+        internal LegendObjectDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = LayerLegendDrawDictionary.GetValue(Layer.TrueName, out _);
+        }
+        internal LegendObjectDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = template;
+        }
+
         internal static double CellWidth { get; set; }
         internal static double CellHeight { get; set; }
     }
@@ -48,14 +59,17 @@ namespace ModelspaceDraw
     internal class SolidLineDraw : LegendObjectDraw
     {
         public SolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
-
+        internal SolidLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = template;
+        }
         internal override void Draw()
         {
             Polyline pl = new Polyline();
             pl.AddVertexAt(0, relativePoint(-CellWidth/2, 0d), 0, 0d, 0d);
             pl.AddVertexAt(1, relativePoint(CellWidth/2, 0d), 0, 0d, 0d);
-            pl.Layer = _layer.OutputLayerName;
-            LayerProps lp = LayerPropertiesDictionary.GetValue(_layer.TrueName, out bool success);
+            pl.Layer = Layer.OutputLayerName;
+            LayerProps lp = LayerPropertiesDictionary.GetValue(Layer.TrueName, out bool success);
             if (success)
             {
                 pl.LinetypeScale=lp.LTScale;
@@ -73,7 +87,10 @@ namespace ModelspaceDraw
         internal MarkedLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
         {
         }
-
+        internal MarkedLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = template;
+        }
         internal override void Draw()
         {
             drawText();
@@ -87,8 +104,8 @@ namespace ModelspaceDraw
             mtext.Contents = MarkChar;
             mtext.TextHeight = 4d;
             mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleCenter);
-            mtext.Location = new Point3d(_basepoint.X, _basepoint.Y, 0d);
-            mtext.Layer = _layer.BoundLayer.Name;
+            mtext.Location = new Point3d(Basepoint.X, Basepoint.Y, 0d);
+            mtext.Layer = Layer.BoundLayer.Name;
             _width = mtext.ActualWidth;
             EntitiesList.Add(mtext);
 
@@ -99,11 +116,11 @@ namespace ModelspaceDraw
             Polyline pl2 = new Polyline();
             pl1.AddVertexAt(0, relativePoint(-CellWidth/2, 0d), 0, 0d, 0d);
             pl1.AddVertexAt(1, relativePoint(-(_width/2+0.5d), 0d), 0, 0d, 0d);
-            pl1.Layer = _layer.BoundLayer.Name;
+            pl1.Layer = Layer.BoundLayer.Name;
 
             pl2.AddVertexAt(0, relativePoint(_width/2+0.5d, 0d), 0, 0d, 0d);
             pl2.AddVertexAt(1, relativePoint(CellWidth/2, 0d), 0, 0d, 0d);
-            pl2.Layer = _layer.BoundLayer.Name;
+            pl2.Layer = Layer.BoundLayer.Name;
 
             List<Polyline> list = new List<Polyline> { pl1, pl2 };
             EntitiesList.AddRange(list);
@@ -115,12 +132,15 @@ namespace ModelspaceDraw
     internal class MarkedSolidLineDraw : MarkedLineDraw
     {
         public MarkedSolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
-
+        internal MarkedSolidLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = template;
+        }
         protected override void formatLines(IEnumerable<Polyline> lines)
         {
             foreach (Polyline line in lines)
             {
-                line.ConstantWidth = LayerPropertiesDictionary.GetValue(_layer, out _, true).ConstantWidth;
+                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer.TrueName, out _, true).ConstantWidth;
                 line.LinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
             }
         }
@@ -128,12 +148,15 @@ namespace ModelspaceDraw
     internal class MarkedDashedLineDraw : MarkedLineDraw
     {
         public MarkedDashedLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
-
+        internal MarkedDashedLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = template;
+        }
         protected override void formatLines(IEnumerable<Polyline> lines)
         {
             foreach (Polyline line in lines)
             {
-                line.ConstantWidth = LayerPropertiesDictionary.GetValue(_layer, out _, true).ConstantWidth;
+                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer.TrueName, out _, true).ConstantWidth;
                 LayerChecker.CheckLinetype("ACAD_ISO02W100", out bool ltgetsuccess);
                 if (ltgetsuccess)
                     line.Linetype = "ACAD_ISO02W100";
@@ -145,6 +168,11 @@ namespace ModelspaceDraw
     internal abstract class AreaDraw : LegendObjectDraw
     {
         internal AreaDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal AreaDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = template;
+        }
+
         private protected void drawHatch(IEnumerable<Polyline> borders, string patternname = "SOLID", double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8, Color background = null)
         {
             Hatch hatch = new Hatch();
@@ -153,7 +181,7 @@ namespace ModelspaceDraw
             hatch.AppendLoop(HatchLoopTypes.Polyline, new ObjectIdCollection(borders.Select(o => o.ObjectId).ToArray()));
             hatch.PatternAngle = angle *Math.PI/180;
             hatch.PatternScale = patternscale;
-            Color color = _layer.BoundLayer.Color;
+            Color color = Layer.BoundLayer.Color;
             color = Color.FromRgb((byte)(color.Red+(255-color.Red)*increasebrightness), (byte)(color.Green+(255-color.Green)*increasebrightness), (byte)(color.Blue+(255-color.Blue)*increasebrightness));
             hatch.BackgroundColor = background;
             EntitiesList.Add(hatch);
@@ -163,6 +191,10 @@ namespace ModelspaceDraw
     internal class RectangleDraw : AreaDraw
     {
         public RectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal RectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = template;
+        }
 
         internal double RectangleWidth { get; set; }
         internal double RectangleHeight { get; set; }
@@ -181,7 +213,7 @@ namespace ModelspaceDraw
             rectangle.AddVertexAt(2, relativePoint(width/2, height/2), 0, 0d, 0d);
             rectangle.AddVertexAt(2, relativePoint(width/2, -height/2), 0, 0d, 0d);
             rectangle.Closed = true;
-            rectangle.Layer = layer == null ? _layer.BoundLayer.Name : layer;
+            rectangle.Layer = layer == null ? Layer.BoundLayer.Name : layer;
             LayerProps lp = LayerPropertiesDictionary.GetValue(rectangle.Layer, out bool success);
             if (success)
             {
@@ -197,6 +229,10 @@ namespace ModelspaceDraw
     internal class HatchedRectangleDraw : RectangleDraw
     {
         public HatchedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal HatchedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = template;
+        }
 
         internal override void Draw()
         {
@@ -209,7 +245,10 @@ namespace ModelspaceDraw
     {
         internal double Radius { get; set; }
         public HatchedCircleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
-
+        internal HatchedCircleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = template;
+        }
         internal override void Draw()
         {
             List<Polyline> circle = new List<Polyline> { drawCircle(Radius) };
@@ -223,7 +262,7 @@ namespace ModelspaceDraw
             circle.AddVertexAt(1, relativePoint(0, -radius/2), radius, 0d, 0d);
             circle.AddVertexAt(2, relativePoint(0, radius/2), 0, 0d, 0d);
             circle.Closed = true;
-            circle.Layer = layer==null ? _layer.BoundLayer.Name : layer;
+            circle.Layer = layer==null ? Layer.BoundLayer.Name : layer;
             LayerProps lp = LayerPropertiesDictionary.GetValue(circle.Layer, out bool success);
             if (success)
             {
@@ -242,6 +281,11 @@ namespace ModelspaceDraw
         internal double FenceWidth { get; set; }
         internal double FenceHeight { get; set; }
         public FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = template;
+        }
+
         internal override void Draw()
         {
             List<Polyline> rectangle = new List<Polyline> { drawRectangle(RectangleWidth, RectangleHeight) };
@@ -256,6 +300,11 @@ namespace ModelspaceDraw
         internal double FenceWidth { get; set; }
         internal double FenceHeight { get; set; }
         public HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = template;
+        }
+
         internal override void Draw()
         {
             List<Polyline> rectangles = new List<Polyline> { drawRectangle(RectangleWidth, RectangleHeight) };
@@ -274,10 +323,16 @@ namespace ModelspaceDraw
         {
             _blocktable = Workstation.TransactionManager.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
         }
+        internal BlockReferenceDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            _blocktable = Workstation.TransactionManager.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
+            LegendDrawTemplate = template;
+        }
+
 
         internal override void Draw()
         {
-            BlockReference bref = new BlockReference(new Point3d(_basepoint.X, _basepoint.Y, 0d), findBlockTableRecord(BlockName));
+            BlockReference bref = new BlockReference(new Point3d(Basepoint.X, Basepoint.Y, 0d), findBlockTableRecord(BlockName));
             EntitiesList.Add(bref);
         }
 

@@ -86,9 +86,9 @@
     <Compile Include="SerailizableDictionary.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LayersData\Layer_Props.xlsm">
+    <AdditionalFiles Include="LayersData\Layer_Props.xlsm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </AdditionalFiles>
     <Content Include="LayersData\STANDARD1.lin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

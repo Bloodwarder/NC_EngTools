@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using ExternalData;
 using LayerProcessing;
+using ModelspaceDraw;
 using Teigha.Geometry;
 
 namespace Legend
@@ -10,8 +12,9 @@ namespace Legend
     class LegendGrid
     {
         List<LegendGridRow> Rows = new List<LegendGridRow>();
-        List<LegendGridCell> Cells = new List<LegendGridCell> ();
-        internal Point2d BasePoint = new Point2d();
+        List<LegendGridCell> Cells = new List<LegendGridCell>();
+        internal double Width { get; }
+        internal Point3d BasePoint = new Point3d();
         private void addRow(LegendGridRow row)
         {
             row.ParentGrid = this;
@@ -59,16 +62,20 @@ namespace Legend
         }
         private void processColumns()
         {
-            List<Status> statuses = Cells.Select(c=>c.Layer.BuildStatus).Distinct().ToList();
+            List<Status> statuses = Cells.Select(c => c.Layer.BuildStatus).Distinct().ToList();
             statuses.Sort();
             for (int i = 0; i < statuses.Count; i++)
             {
-                foreach(LegendGridCell cell in Cells.Where(c=>c.Layer.BuildStatus == statuses[i]))
+                foreach (LegendGridCell cell in Cells.Where(c => c.Layer.BuildStatus == statuses[i]))
                     cell.AssignX(i);
             }
         }
 
-
+        internal void Assemble()
+        {
+            processRows();
+            processColumns();
+        }
         //индексатор
         internal LegendGridRow this[string mainname]
         {
@@ -89,19 +96,19 @@ namespace Legend
         }
     }
 
-    class GridsComposer
+    internal class GridsComposer
     {
 
-        List<LegendGridCell> Cells { get; set; } = new List<LegendGridCell>();
-        List<LegendGrid> Grids { get; set; } = new List<LegendGrid>();
+        internal List<LegendGridCell> Cells { get; set; } = new List<LegendGridCell>();
+        internal List<LegendGrid> Grids { get; set; } = new List<LegendGrid>();
         TableFilter _filter;
-        GridsComposer(IEnumerable<LegendGridCell> cells, TableFilter filter)
+        internal GridsComposer(IEnumerable<LegendGridCell> cells, TableFilter filter)
         {
             Cells.AddRange(cells);
             _filter = filter;
         }
 
-        internal void Compose()
+        internal void Compose(Point3d basepoint)
         {
             switch (_filter)
             {
@@ -192,12 +199,19 @@ namespace Legend
         }
     }
 
-    class LegendGridCell
-    {
 
-        LegendGridCell(RecordLayerParser layer)
+    internal class LegendGridCell
+    {
+        List<LegendObjectDraw> _draw = new List<LegendObjectDraw>();
+        internal LegendGridCell(RecordLayerParser layer)
         {
             Layer=layer;
+            LegendDrawTemplate template = LayerLegendDrawDictionary.GetValue(layer.TrueName, out _);
+            LegendObjectDraw lod = Activator.CreateInstance("NC_EngTools", string.Concat(template.DrawTemplate, "Draw")).Unwrap() as LegendObjectDraw;
+            lod.LegendDrawTemplate = template;
+            lod.Layer = layer;
+            
+            _draw.Add(lod);
         }
 
         internal LegendGridRow ParentRow { get; set; }
@@ -215,7 +229,7 @@ namespace Legend
 
     }
 
-    class LegendGridRowComparer : IComparer<LegendGridRow>
+    internal class LegendGridRowComparer : IComparer<LegendGridRow>
     {
         public int Compare(LegendGridRow x, LegendGridRow y)
         {
