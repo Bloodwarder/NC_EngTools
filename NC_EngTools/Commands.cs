@@ -394,7 +394,7 @@ namespace NC_EngTools
                 string text;
                 if (pr.Status != (PromptStatus.Error | PromptStatus.Cancel))
                 {
-                    text = pr.StringResult=="" ? "%%C000" : pr.StringResult;
+                    text = pr.StringResult==null ? "%%C000" : pr.StringResult;
                 }
                 else
                 {
