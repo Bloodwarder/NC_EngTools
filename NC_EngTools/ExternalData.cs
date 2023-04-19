@@ -364,6 +364,9 @@ namespace ExternalData
             dictionary = secondary.GetDictionary();
             primary.OverwriteSource(dictionary);
         }
+
+        private protected bool checkKey(TKey key)
+        { return dictionary.ContainsKey(key); }
     }
 
     internal class LayerPropertiesDictionary : ExternalDictionary<string, LayerProps>
@@ -464,6 +467,10 @@ namespace ExternalData
             instance.reload(primary, secondary);
         }
 
+        public static bool CheckKey(string key)
+        {
+            return instance.checkKey(key);
+        }
     }
 
     internal class LayerAlteringDictionary : ExternalDictionary<string, string>
@@ -494,6 +501,10 @@ namespace ExternalData
         {
             instance.reload(primary, secondary);
         }
+        public static bool CheckKey(string key)
+        {
+            return instance.checkKey(key);
+        }
     }
 
     internal class LayerLegendDictionary : ExternalDictionary<string, Legend.LegendData>
@@ -523,6 +534,10 @@ namespace ExternalData
         {
             instance.reload(primary, secondary);
         }
+        public static bool CheckKey(string key)
+        {
+            return instance.checkKey(key);
+        }
     }
 
     internal class LayerLegendDrawDictionary : ExternalDictionary<string, LegendDrawTemplate>
@@ -551,6 +566,10 @@ namespace ExternalData
         public static void Reload(DictionaryDataProvider<string, LegendDrawTemplate> primary, DictionaryDataProvider<string, LegendDrawTemplate> secondary)
         {
             instance.reload(primary, secondary);
+        }
+        public static bool CheckKey(string key)
+        {
+            return instance.checkKey(key);
         }
     }
 

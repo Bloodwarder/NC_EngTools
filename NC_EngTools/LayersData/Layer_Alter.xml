@@ -58,7 +58,7 @@
   </item>
   <item>
     <key>
-      <string>ГС_л_распред-1.2</string>
+      <string>ГС_л_распред-0.3</string>
     </key>
     <value>
       <string>ГС_л_распред-0.6</string>
@@ -66,6 +66,22 @@
   </item>
   <item>
     <key>
+      <string>ГС_л_распред-0.005</string>
+    </key>
+    <value>
+      <string>ГС_л_распред-0.3</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>ГС_л_распред-1.2</string>
+    </key>
+    <value>
+      <string>ГС_л_распред-0.005</string>
+    </value>
+  </item>
+  <item>
+    <key>
       <string>ДК_л_закрытая</string>
     </key>
     <value>
@@ -138,10 +154,26 @@
   </item>
   <item>
     <key>
+      <string>ЭС_л_ВЛ_6кВ</string>
+    </key>
+    <value>
+      <string>ЭС_л_КЛ_6кВ</string>
+    </value>
+  </item>
+  <item>
+    <key>
       <string>ЭС_л_ВЛ_10кВ</string>
     </key>
     <value>
       <string>ЭС_л_КЛ_10кВ</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>ЭС_л_ВЛ_20кВ</string>
+    </key>
+    <value>
+      <string>ЭС_л_КЛ_20кВ</string>
     </value>
   </item>
   <item>
@@ -178,10 +210,58 @@
   </item>
   <item>
     <key>
-      <string>ЭС_л_ВЛ_6кВ</string>
+      <string>ЭС_л_ВЛ_750кВ</string>
+    </key>
+    <value>
+      <string>ЭС_л_КЛ_750кВ</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>ЭС_л_ВЛЗ_6кВ</string>
     </key>
     <value>
       <string>ЭС_л_КЛ_6кВ</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>ЭС_л_ВЛЗ_10кВ</string>
+    </key>
+    <value>
+      <string>ЭС_л_КЛ_10кВ</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>ЭС_л_ВЛЗ_20кВ</string>
+    </key>
+    <value>
+      <string>ЭС_л_КЛ_20кВ</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>ЭС_л_ВЛ_6кВ_ПЭ</string>
+    </key>
+    <value>
+      <string>ЭС_л_КЛ_6кВ_ПЭ</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>ЭС_л_ВЛ_10кВ_ПЭ</string>
+    </key>
+    <value>
+      <string>ЭС_л_КЛ_10кВ_ПЭ</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>ЭС_л_ВЛ_20кВ_ПЭ</string>
+    </key>
+    <value>
+      <string>ЭС_л_КЛ_20кВ_ПЭ</string>
     </value>
   </item>
   <item>
@@ -194,10 +274,26 @@
   </item>
   <item>
     <key>
+      <string>ЭС_л_КЛ_6кВ</string>
+    </key>
+    <value>
+      <string>ЭС_л_ВЛ_6кВ</string>
+    </value>
+  </item>
+  <item>
+    <key>
       <string>ЭС_л_КЛ_10кВ</string>
     </key>
     <value>
       <string>ЭС_л_ВЛ_10кВ</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>ЭС_л_КЛ_20кВ</string>
+    </key>
+    <value>
+      <string>ЭС_л_ВЛ_20кВ</string>
     </value>
   </item>
   <item>
@@ -234,10 +330,34 @@
   </item>
   <item>
     <key>
-      <string>ЭС_л_КЛ_6кВ</string>
+      <string>ЭС_л_КЛ_750кВ</string>
     </key>
     <value>
-      <string>ЭС_л_ВЛ_6кВ</string>
+      <string>ЭС_л_ВЛ_750кВ</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>ЭС_л_конт.сеть</string>
+    </key>
+    <value>
+      <string>ЭС_л_конт.сеть_3.3кВ</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>ЭС_л_конт.сеть_3.3кВ</string>
+    </key>
+    <value>
+      <string>ЭС_л_конт.сеть_0.6кВ</string>
+    </value>
+  </item>
+  <item>
+    <key>
+      <string>ЭС_л_конт.сеть_0.6кВ</string>
+    </key>
+    <value>
+      <string>ЭС_л_конт.сеть_3.3кВ</string>
     </value>
   </item>
   <item>

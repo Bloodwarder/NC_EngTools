@@ -19,15 +19,18 @@ using PlatformDb = Teigha;
 using NC_EngTools;
 using System;
 using Teigha.Colors;
+using Legend;
 
 namespace ModelspaceDraw
 {
-    internal abstract class ObjectDraw
+    public abstract class ObjectDraw
     {
         internal List<Entity> EntitiesList { get; } = new List<Entity>();
-        internal Point2d Basepoint { get ; set ; }
-        internal RecordLayerParser Layer { get ; set; }
+        internal Point2d Basepoint { get; set; }
+        internal RecordLayerParser Layer { get; set; }
+        protected static Color s_byLayer = Color.FromColorIndex(ColorMethod.ByLayer, 256);
 
+        internal ObjectDraw() { }
         internal ObjectDraw(Point2d basepoint, RecordLayerParser layer = null)
         {
             Basepoint = basepoint;
@@ -39,10 +42,11 @@ namespace ModelspaceDraw
             return new Point2d(x+Basepoint.X, y+Basepoint.Y);
         }
     }
-    internal abstract class LegendObjectDraw : ObjectDraw
+    public abstract class LegendObjectDraw : ObjectDraw
     {
-        internal LegendDrawTemplate LegendDrawTemplate { get ; set ; }
+        internal LegendDrawTemplate LegendDrawTemplate { get; set; }
 
+        internal LegendObjectDraw() { }
         internal LegendObjectDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
         {
             LegendDrawTemplate = LayerLegendDrawDictionary.GetValue(Layer.TrueName, out _);
@@ -52,13 +56,19 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-        internal static double CellWidth { get; set; }
-        internal static double CellHeight { get; set; }
+        internal static double CellWidth => LegendGrid.s_CellWidth;
+        internal static double CellHeight => LegendGrid.s_CellHeight;
+
+        private protected static double parseRelativeValue(string value, double absolute)
+        {
+            return value.EndsWith("*") ? double.Parse(value.Replace("*", ""))*absolute : double.Parse(value);
+        }
     }
 
-    internal class SolidLineDraw : LegendObjectDraw
+    public class SolidLineDraw : LegendObjectDraw
     {
-        public SolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        public SolidLineDraw() { }
+        internal SolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal SolidLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -79,11 +89,12 @@ namespace ModelspaceDraw
         }
     }
 
-    internal abstract class MarkedLineDraw : LegendObjectDraw
+    public abstract class MarkedLineDraw : LegendObjectDraw
     {
-        internal string MarkChar { get; set; }
+        internal string MarkChar => LegendDrawTemplate.MarkChar;
         private double _width;
 
+        internal MarkedLineDraw() { }
         internal MarkedLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
         {
         }
@@ -102,10 +113,13 @@ namespace ModelspaceDraw
         {
             MText mtext = new MText();
             mtext.Contents = MarkChar;
+            TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
+            mtext.TextStyleId =txtstyletable["Standard"];
             mtext.TextHeight = 4d;
+            mtext.Layer = Layer.BoundLayer.Name;
+            mtext.Color = s_byLayer;
             mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleCenter);
             mtext.Location = new Point3d(Basepoint.X, Basepoint.Y, 0d);
-            mtext.Layer = Layer.BoundLayer.Name;
             _width = mtext.ActualWidth;
             EntitiesList.Add(mtext);
 
@@ -129,9 +143,10 @@ namespace ModelspaceDraw
         protected abstract void formatLines(IEnumerable<Polyline> lines);
 
     }
-    internal class MarkedSolidLineDraw : MarkedLineDraw
+    public class MarkedSolidLineDraw : MarkedLineDraw
     {
-        public MarkedSolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        public MarkedSolidLineDraw() { }
+        internal MarkedSolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal MarkedSolidLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -145,9 +160,10 @@ namespace ModelspaceDraw
             }
         }
     }
-    internal class MarkedDashedLineDraw : MarkedLineDraw
+    public class MarkedDashedLineDraw : MarkedLineDraw
     {
-        public MarkedDashedLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        public MarkedDashedLineDraw() { }
+        internal MarkedDashedLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal MarkedDashedLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -165,8 +181,10 @@ namespace ModelspaceDraw
         }
     }
 
-    internal abstract class AreaDraw : LegendObjectDraw
+    public abstract class AreaDraw : LegendObjectDraw
     {
+        public AreaDraw() { }
+
         internal AreaDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal AreaDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
@@ -188,16 +206,18 @@ namespace ModelspaceDraw
         }
     }
 
-    internal class RectangleDraw : AreaDraw
+    public class RectangleDraw : AreaDraw
     {
-        public RectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        public RectangleDraw() { }
+
+        internal RectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal RectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }
 
-        internal double RectangleWidth { get; set; }
-        internal double RectangleHeight { get; set; }
+        internal double RectangleWidth => parseRelativeValue(LegendDrawTemplate.Width, LegendGrid.s_CellWidth);
+        internal double RectangleHeight => parseRelativeValue(LegendDrawTemplate.Height, LegendGrid.s_CellHeight);
 
 
         internal override void Draw()
@@ -226,9 +246,11 @@ namespace ModelspaceDraw
         }
     }
 
-    internal class HatchedRectangleDraw : RectangleDraw
+    public class HatchedRectangleDraw : RectangleDraw
     {
-        public HatchedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        public HatchedRectangleDraw() { }
+
+        internal HatchedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal HatchedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -241,10 +263,11 @@ namespace ModelspaceDraw
         }
     }
 
-    internal class HatchedCircleDraw : AreaDraw
+    public class HatchedCircleDraw : AreaDraw
     {
-        internal double Radius { get; set; }
-        public HatchedCircleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal double Radius => LegendDrawTemplate.Radius;
+        public HatchedCircleDraw() { }
+        internal HatchedCircleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal HatchedCircleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -275,12 +298,13 @@ namespace ModelspaceDraw
         }
     }
 
-    internal class FencedRectangleDraw : RectangleDraw
+    public class FencedRectangleDraw : RectangleDraw
     {
-        string FenceLayer { get; set; } = null;
-        internal double FenceWidth { get; set; }
-        internal double FenceHeight { get; set; }
-        public FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        string FenceLayer => LegendDrawTemplate.FenceLayer;
+        internal double FenceWidth => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.s_CellWidth);
+        internal double FenceHeight => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.s_CellHeight);
+        public FencedRectangleDraw() { }
+        internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -294,12 +318,13 @@ namespace ModelspaceDraw
         }
     }
 
-    internal class HatchedFencedRectangleDraw : RectangleDraw
+    public class HatchedFencedRectangleDraw : RectangleDraw
     {
-        string FenceLayer { get; set; } = null;
-        internal double FenceWidth { get; set; }
-        internal double FenceHeight { get; set; }
-        public HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        string FenceLayer => LegendDrawTemplate.FenceLayer;
+        internal double FenceWidth => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.s_CellWidth);
+        internal double FenceHeight => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.s_CellHeight);
+        public HatchedFencedRectangleDraw() { }
+        internal HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -314,12 +339,16 @@ namespace ModelspaceDraw
         }
     }
 
-    internal class BlockReferenceDraw : LegendObjectDraw
+    public class BlockReferenceDraw : LegendObjectDraw
     {
         internal string BlockName { get; set; }
         internal string FilePath { get; set; }
         BlockTable _blocktable;
-        public BlockReferenceDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
+        public BlockReferenceDraw()
+        {
+            _blocktable = Workstation.TransactionManager.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
+        }
+        internal BlockReferenceDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
         {
             _blocktable = Workstation.TransactionManager.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
         }
@@ -339,7 +368,7 @@ namespace ModelspaceDraw
         private ObjectId findBlockTableRecord(string blockname)
         {
             var blocktablerecordid = from ObjectId elem in _blocktable
-                                     let btr = Workstation.TransactionManager.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTableRecord
+                                     let btr = Workstation.TransactionManager.GetObject(elem, OpenMode.ForRead) as BlockTableRecord
                                      where btr.Name == blockname
                                      select elem;
             return blocktablerecordid.FirstOrDefault();
@@ -352,6 +381,39 @@ namespace ModelspaceDraw
             throw new NotImplementedException();
         }
     }
+
+    public class LabelTextDraw : ObjectDraw
+    {
+        private bool _italic = false;
+        private string _text;
+        static LabelTextDraw()
+        {
+            LayerChecker.Check(string.Concat(LayerParser.StandartPrefix, "_Условные"));
+        }
+        internal LabelTextDraw() { }
+        internal LabelTextDraw(Point2d basepoint, string label, bool italic = false) : base()
+        {
+            Basepoint = basepoint;
+            _italic=italic;
+            _text = label;
+        }
+
+        internal override void Draw()
+        {
+            MText mtext = new MText();
+            mtext.Contents = _text;
+            TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
+            mtext.TextStyleId = txtstyletable["Standard"];
+            mtext.TextHeight = LegendGrid.s_TextHeight;
+            mtext.Layer = string.Concat(LayerParser.StandartPrefix, "_Условные");
+            mtext.Color = s_byLayer;
+            mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleLeft);
+            
+            mtext.Location = new Point3d(Basepoint.X, Basepoint.Y, 0d);
+            EntitiesList.Add(mtext);
+        }
+    }
+
     public struct LegendDrawTemplate
     {
         public string DrawTemplate;
@@ -450,7 +512,7 @@ namespace ModelspaceDraw
                 mtext.BackgroundFill = true;
                 mtext.UseBackgroundColor = true;
                 mtext.BackgroundScaleFactor = 1.1d;
-                TextStyleTable txtstyletable = transaction.GetObject(db.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
+                TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(db.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
                 mtext.TextStyleId =txtstyletable["Standard"];
                 mtext.Contents = "TEST_TEXT";
                 mtext.TextHeight = 4d;

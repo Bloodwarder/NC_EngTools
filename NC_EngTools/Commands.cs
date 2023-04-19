@@ -1,11 +1,9 @@
 ﻿//System
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-//Modules
-using LayerProcessing;
-using ExternalData;
-using Dictionaries;
+using System.Text;
 //nanoCAD
 using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
@@ -13,13 +11,16 @@ using Teigha.DatabaseServices;
 using Teigha.Runtime;
 using Platform = HostMgd;
 using PlatformDb = Teigha;
-using System;
+using Teigha.Colors;
+
 //internal modules
+using LayerProcessing;
+using ExternalData;
+using Dictionaries;
 using ModelspaceDraw;
 using Teigha.Geometry;
 using System.Text.RegularExpressions;
-using Teigha.Colors;
-using System.Text;
+
 using Legend;
 
 namespace NC_EngTools
@@ -337,7 +338,7 @@ namespace NC_EngTools
     public class TestClass1
     {
 
-        [CommandMethod("ТЕСТ_123")]
+        //[CommandMethod("ТЕСТ_123")]
         public void Test111()
         {
             SimpleTestObjectDraw draw = new SimpleTestObjectDraw(new PlatformDb.Geometry.Point2d(0d, 0d));
@@ -364,7 +365,7 @@ namespace NC_EngTools
                 }
 
                 //выбираем точку вставки подписи и находим ближайшую точку на полилинии
-                PromptPointOptions ppo = new PromptPointOptions("Укажите точку на сегменте полилинии")
+                PromptPointOptions ppo = new PromptPointOptions("Укажите точку вставки подписи рядом с сегментом полилинии")
                 { };
                 PromptPointResult pointresult = Workstation.Editor.GetPoint(ppo);
                 if (result.Status != PromptStatus.OK)
@@ -385,7 +386,11 @@ namespace NC_EngTools
                 Vector2d v2d = ls.Direction;
 
                 //вводим текст для подписи
-                PromptResult pr = Workstation.Editor.GetString("Введите текст подписи (д или d в начале строки - знак диаметра");
+                PromptStringOptions pso = new PromptStringOptions("Введите текст подписи (д или d в начале строки - знак диаметра")
+                {
+                    AllowSpaces = true,
+                };
+                PromptResult pr = Workstation.Editor.GetString(pso);
                 string text;
                 if (pr.Status != (PromptStatus.Error | PromptStatus.Cancel))
                 {
@@ -449,6 +454,7 @@ namespace NC_EngTools
 
     public class LegendAssembler
     {
+        [CommandMethod("АВТОСБОРКА")]
         public void Assemble()
         {
             //получить точку вставки
@@ -476,6 +482,11 @@ namespace NC_EngTools
                     try
                     {
                         RecordLayerParser rlp = new RecordLayerParser(ltr);
+                        if (!LayerLegendDictionary.CheckKey(rlp.MainName))
+                        {
+                            wrongLayersStringBuilder.AppendLine($"Нет данных для слоя {string.Concat(LayerParser.StandartPrefix, rlp.MainName)}");
+                            continue;
+                        }
                         layersList.Add(rlp);
                     }
                     catch (WrongLayerException ex)
@@ -499,7 +510,17 @@ namespace NC_EngTools
 
                 GridsComposer composer = new GridsComposer(cells, TableFilter.Full);
                 composer.Compose(p3d);
+                List<Entity> list = composer.DrawGrids();
 
+                BlockTable blocktable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
+                BlockTableRecord modelspace = transaction.GetObject(blocktable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                foreach (Entity e in list)
+                {
+                    modelspace.AppendEntity(e);
+                    transaction.AddNewlyCreatedDBObject(e, true); // и в транзакцию
+                }
+
+                transaction.Commit();
             }
         }
     }
