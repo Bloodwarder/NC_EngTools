@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+
 //Modules
 using LayerProcessing;
 using ExternalData;
@@ -56,8 +57,8 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-        internal static double CellWidth => LegendGrid.s_CellWidth;
-        internal static double CellHeight => LegendGrid.s_CellHeight;
+        internal static double CellWidth => LegendGrid.CellWidth;
+        internal static double CellHeight => LegendGrid.CellHeight;
 
         private protected static double parseRelativeValue(string value, double absolute)
         {
@@ -216,8 +217,8 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-        internal double RectangleWidth => parseRelativeValue(LegendDrawTemplate.Width, LegendGrid.s_CellWidth);
-        internal double RectangleHeight => parseRelativeValue(LegendDrawTemplate.Height, LegendGrid.s_CellHeight);
+        internal double RectangleWidth => parseRelativeValue(LegendDrawTemplate.Width, LegendGrid.CellWidth);
+        internal double RectangleHeight => parseRelativeValue(LegendDrawTemplate.Height, LegendGrid.CellHeight);
 
 
         internal override void Draw()
@@ -301,8 +302,8 @@ namespace ModelspaceDraw
     public class FencedRectangleDraw : RectangleDraw
     {
         string FenceLayer => LegendDrawTemplate.FenceLayer;
-        internal double FenceWidth => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.s_CellWidth);
-        internal double FenceHeight => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.s_CellHeight);
+        internal double FenceWidth => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellWidth);
+        internal double FenceHeight => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellHeight);
         public FencedRectangleDraw() { }
         internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
@@ -321,8 +322,8 @@ namespace ModelspaceDraw
     public class HatchedFencedRectangleDraw : RectangleDraw
     {
         string FenceLayer => LegendDrawTemplate.FenceLayer;
-        internal double FenceWidth => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.s_CellWidth);
-        internal double FenceHeight => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.s_CellHeight);
+        internal double FenceWidth => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellWidth);
+        internal double FenceHeight => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellHeight);
         public HatchedFencedRectangleDraw() { }
         internal HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
@@ -404,7 +405,7 @@ namespace ModelspaceDraw
             mtext.Contents = _text;
             TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
             mtext.TextStyleId = txtstyletable["Standard"];
-            mtext.TextHeight = LegendGrid.s_TextHeight;
+            mtext.TextHeight = LegendGrid.TextHeight;
             mtext.Layer = string.Concat(LayerParser.StandartPrefix, "_Условные");
             mtext.Color = s_byLayer;
             mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleLeft);

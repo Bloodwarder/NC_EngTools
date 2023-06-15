@@ -7,14 +7,11 @@ using System.Xml.Serialization;
 using Teigha.Runtime;
 using NC_EngTools;
 //using HostMgd.ApplicationServices;
-using HostMgd.EditorInput;
 using Teigha.DatabaseServices;
 using LayerProcessing;
 using System;
 using Legend;
-using static ModelspaceDraw.BlockReferenceDraw;
 using ModelspaceDraw;
-using Teigha.DatabaseServices.Filters;
 
 namespace ExternalData
 {
@@ -60,20 +57,20 @@ namespace ExternalData
 
     internal class XmlDictionaryDataProvider<TKey, TValue> : DictionaryDataProvider<TKey, TValue>
     {
-        string filepath { get; set; }
+        private string FilePath { get; set; }
         FileInfo fileinfo;
 
         internal XmlDictionaryDataProvider(string path)
         {
-            filepath = path;
-            fileinfo = new FileInfo(filepath);
+            FilePath = path;
+            fileinfo = new FileInfo(FilePath);
         }
 
         public override Dictionary<TKey, TValue> GetDictionary()
         {
             if (!fileinfo.Exists) { throw new System.Exception("Файл не существует"); }
             XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<TKey, TValue>));
-            using (FileStream fs = new FileStream(filepath, FileMode.Open))
+            using (FileStream fs = new FileStream(FilePath, FileMode.Open))
             {
                 XmlSerializableDictionary<TKey, TValue> dct = xs.Deserialize(fs) as XmlSerializableDictionary<TKey, TValue>;
                 return dct;
@@ -83,7 +80,7 @@ namespace ExternalData
         public override void OverwriteSource(Dictionary<TKey, TValue> dictionary)
         {
             XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<TKey, TValue>));
-            using (FileStream fs = new FileStream(filepath, FileMode.Create))
+            using (FileStream fs = new FileStream(FilePath, FileMode.Create))
             {
                 xs.Serialize(fs, dictionary as XmlSerializableDictionary<TKey, TValue>);
             }
@@ -122,7 +119,7 @@ namespace ExternalData
                     //TKey key = (TKey)rng.Cells[i, 1].Value;
                     TKey key = Convert.ChangeType(rng.Cells[i, 1].Value, typeof(TKey));
 
-                    dct.Add(key, cellsExtract(rng.Cells[i, 2]));
+                    dct.Add(key, CellsExtract(rng.Cells[i, 2]));
                 }
             }
             finally
@@ -143,7 +140,7 @@ namespace ExternalData
             Workbook xlwb = xlapp.Workbooks.Open(fileinfo.FullName, ReadOnly: true, IgnoreReadOnlyRecommended: true);
             try
             {
-                cellsImport(xlwb, dictionary);
+                CellsImport(xlwb, dictionary);
             }
             finally
             {
@@ -153,29 +150,29 @@ namespace ExternalData
         }
 
 
-        abstract private protected TValue cellsExtract(Range rng);
-        abstract private protected void cellsImport(Workbook xlwb, Dictionary<TKey, TValue> importeddictionary);
+        abstract private protected TValue CellsExtract(Range rng);
+        abstract private protected void CellsImport(Workbook xlwb, Dictionary<TKey, TValue> importeddictionary);
     }
     internal class ExcelStructDictionaryDataProvider<TKey, TValue> : ExcelDictionaryDataProvider<TKey, TValue> where TValue : struct
     {
         internal ExcelStructDictionaryDataProvider(string path, string sheetname) : base(path, sheetname) { }
-        private protected override TValue cellsExtract(Range rng)
+        private protected override TValue CellsExtract(Range rng)
         {
             return ExcelStructIO<TValue>.Read(rng);
         }
 
-        private protected override void cellsImport(Workbook xlwb, Dictionary<TKey, TValue> importeddictionary)
+        private protected override void CellsImport(Workbook xlwb, Dictionary<TKey, TValue> importeddictionary)
         {
-            //создаём словарь для индексирования заголовков, заполняем его
+            // Создаём словарь для индексирования заголовков, заполняем его
             Dictionary<string, int> labelindex = new Dictionary<string, int>();
             Range rng = xlwb.Worksheets[sheetname].Cells[1, 1].CurrentRegion;
             for (int i = 1; i<rng.Columns.Count; i++)
             {
                 labelindex.Add(rng[1, i].Value, i);
             }
-            //обрезаем заголовки
+            // Обрезаем заголовки
             rng = rng.Offset[1, 0].Resize[rng.Rows.Count-1, rng.Columns.Count];
-            //заполняем строки через ExcelStructIO
+            // Заполняем строки через ExcelStructIO
             int counter = 1;
             foreach (KeyValuePair<TKey, TValue> keyValue in importeddictionary)
             {
@@ -198,7 +195,7 @@ namespace ExternalData
             FieldInfo[] fieldInfo = typeof(T).GetFields();
             for (int i = 0; i < fieldInfo.Length; i++)
             {
-                //не знаю, нужно ли приводить значение ячейки экселя к точному типу перед упаковкой в объект, разобраться позже, пока работает так
+                // Не знаю, нужно ли приводить значение ячейки экселя к точному типу перед упаковкой в объект, разобраться позже, пока работает так
                 var cellvalue = rng.Offset[0, i].Value;
                 if (cellvalue != null)
                     fieldInfo[i].SetValue(o, (object)Convert.ChangeType(cellvalue, fieldInfo[i].FieldType));
@@ -207,10 +204,10 @@ namespace ExternalData
         }
         internal static void Write(T sourcestruct, Range targetrange, Dictionary<string, int> indexdictionary)
         {
-            //принимаем экземпляр структуры для записи, строку для записи (с числом ячеек равным числу полей структуры), словарь индексов заголовков в эксель таблице
-            //получаем поля структуры через рефлексию
+            // Принимаем экземпляр структуры для записи, строку для записи (с числом ячеек равным числу полей структуры), словарь индексов заголовков в эксель таблице
+            // Получаем поля структуры через рефлексию
             List<FieldInfo> list = typeof(T).GetFields().ToList();
-            //значение каждого поля записываем в ячейки эксель в соответствии с индексом по имени поля (имя поля должно совпадать с заголовком)
+            // Значение каждого поля записываем в ячейки эксель в соответствии с индексом по имени поля (имя поля должно совпадать с заголовком)
             foreach (FieldInfo fi in list)
             {
                 targetrange.Cells[1, indexdictionary[fi.Name]].Value = fi.GetValue(sourcestruct);
@@ -220,17 +217,17 @@ namespace ExternalData
     internal class ExcelSimpleDictionaryDataProvider<TKey, TValue> : ExcelDictionaryDataProvider<TKey, TValue>
     {
         internal ExcelSimpleDictionaryDataProvider(string path, string sheetname) : base(path, sheetname) { }
-        private protected override TValue cellsExtract(Range rng)
+        private protected override TValue CellsExtract(Range rng)
         {
             return (TValue)rng.Value;
         }
 
-        private protected override void cellsImport(Workbook xlwb, Dictionary<TKey, TValue> importeddictionary)
+        private protected override void CellsImport(Workbook xlwb, Dictionary<TKey, TValue> importeddictionary)
         {
-            //обрезаем заголовки
+            // Обрезаем заголовки
             Range rng = xlwb.Worksheets[sheetname].Cells[1, 1].CurrentRegion;
             rng = rng.Offset[1, 0].Resize[rng.Rows.Count-1, rng.Columns.Count];
-            //просто записываем пары ключ-значения в 1 и 2 ячейки строки
+            // Просто записываем пары ключ-значения в 1 и 2 ячейки строки
             int counter = 1;
             foreach (KeyValuePair<TKey, TValue> keyValue in importeddictionary)
             {
@@ -303,7 +300,7 @@ namespace ExternalData
                     {
                         string checkedname = "";
                         LayerProps lp = new LayerProps();
-                        //Попытка распарсить имя слоя для поиска существующих сохранённых свойств
+                        // Попытка распарсить имя слоя для поиска существующих сохранённых свойств
                         try
                         {
                             checkedname = (new SimpleLayerParser(ltr.Name)).TrueName;
@@ -350,23 +347,23 @@ namespace ExternalData
 
     internal abstract class ExternalDictionary<TKey, TValue>
     {
-        private protected Dictionary<TKey, TValue> dictionary { get; set; }
+        private protected Dictionary<TKey, TValue> InstanceDictionary { get; set; }
 
-        private protected TValue getValue(TKey key, out bool success)
+        private protected TValue GetInstanceValue(TKey key, out bool success)
         {
-            success = dictionary.TryGetValue(key, out TValue value);
+            success = InstanceDictionary.TryGetValue(key, out TValue value);
             return value;
-            //выдаёт ошибку, когда возвращает value=null. Поправить после перехода на 6.0
+            // Выдаёт ошибку, когда возвращает value=null. Поправить после перехода на 6.0
         }
 
-        private protected void reload(DictionaryDataProvider<TKey, TValue> primary, DictionaryDataProvider<TKey, TValue> secondary)
+        private protected void ReloadInstance(DictionaryDataProvider<TKey, TValue> primary, DictionaryDataProvider<TKey, TValue> secondary)
         {
-            dictionary = secondary.GetDictionary();
-            primary.OverwriteSource(dictionary);
+            InstanceDictionary = secondary.GetDictionary();
+            primary.OverwriteSource(InstanceDictionary);
         }
 
-        private protected bool checkKey(TKey key)
-        { return dictionary.ContainsKey(key); }
+        private protected bool CheckInstanceKey(TKey key)
+        { return InstanceDictionary.ContainsKey(key); }
     }
 
     internal class LayerPropertiesDictionary : ExternalDictionary<string, LayerProps>
@@ -383,7 +380,7 @@ namespace ExternalData
         {
             try
             {
-                dictionary = new XmlDictionaryDataProvider<string, LayerProps>(PathOrganizer.GetPath("Props")).GetDictionary();
+                InstanceDictionary = new XmlDictionaryDataProvider<string, LayerProps>(PathOrganizer.GetPath("Props")).GetDictionary();
 
                 s_defaultLayerProps.Add("сущ", new LayerProps { ConstantWidth = 0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3 });
                 s_defaultLayerProps.Add("дем", new LayerProps { ConstantWidth = 0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3, Red = 107, Green = 107, Blue = 107 });
@@ -398,7 +395,7 @@ namespace ExternalData
             }
         }
 
-        private protected LayerProps getValue(string layername, out bool success, bool enabledefaults = true)
+        private protected LayerProps GetInstanceValue(string layername, out bool success, bool enabledefaults = true)
         {
             SimpleLayerParser slp;
             success = false;
@@ -418,7 +415,7 @@ namespace ExternalData
                     throw new NoPropertiesException("Нет стандартов для слоя");
                 }
             }
-            success = dictionary.TryGetValue(slp.TrueName, out LayerProps layerProps);
+            success = InstanceDictionary.TryGetValue(slp.TrueName, out LayerProps layerProps);
             if (success)
             {
                 return layerProps;
@@ -437,9 +434,9 @@ namespace ExternalData
             }
         }
 
-        private protected LayerProps getValue(LayerParser layerparser, out bool success, bool enabledefaults = true)
+        private protected LayerProps GetInstanceValue(LayerParser layerparser, out bool success, bool enabledefaults = true)
         {
-            success = dictionary.TryGetValue(layerparser.TrueName, out LayerProps layerProps);
+            success = InstanceDictionary.TryGetValue(layerparser.TrueName, out LayerProps layerProps);
             if (success)
             {
                 return layerProps;
@@ -460,16 +457,16 @@ namespace ExternalData
 
         public static LayerProps GetValue(string layername, out bool success, bool enabledefaults = true)
         {
-            return instance.getValue(layername, out success, enabledefaults);
+            return instance.GetInstanceValue(layername, out success, enabledefaults);
         }
         public static void Reload (DictionaryDataProvider<string, LayerProps> primary, DictionaryDataProvider<string, LayerProps> secondary)
         {
-            instance.reload(primary, secondary);
+            instance.ReloadInstance(primary, secondary);
         }
 
         public static bool CheckKey(string key)
         {
-            return instance.checkKey(key);
+            return instance.CheckInstanceKey(key);
         }
     }
 
@@ -485,7 +482,7 @@ namespace ExternalData
         {
             try
             {
-                dictionary = new XmlDictionaryDataProvider<string, string>(PathOrganizer.GetPath("Alter")).GetDictionary();
+                InstanceDictionary = new XmlDictionaryDataProvider<string, string>(PathOrganizer.GetPath("Alter")).GetDictionary();
             }
             catch (FileNotFoundException)
             {
@@ -495,15 +492,15 @@ namespace ExternalData
 
         public static string GetValue(string layername, out bool success)
         {
-            return instance.getValue(layername, out success);
+            return instance.GetInstanceValue(layername, out success);
         }
         public static void Reload(DictionaryDataProvider<string, string> primary, DictionaryDataProvider<string, string> secondary)
         {
-            instance.reload(primary, secondary);
+            instance.ReloadInstance(primary, secondary);
         }
         public static bool CheckKey(string key)
         {
-            return instance.checkKey(key);
+            return instance.CheckInstanceKey(key);
         }
     }
 
@@ -519,7 +516,7 @@ namespace ExternalData
         {
             try
             {
-                dictionary = new XmlDictionaryDataProvider<string, Legend.LegendData>(PathOrganizer.GetPath("Legend")).GetDictionary();
+                InstanceDictionary = new XmlDictionaryDataProvider<string, Legend.LegendData>(PathOrganizer.GetPath("Legend")).GetDictionary();
             }
             catch (FileNotFoundException)
             {
@@ -528,15 +525,15 @@ namespace ExternalData
         }
         public static LegendData GetValue(string layername, out bool success)
         {
-            return instance.getValue(layername, out success);
+            return instance.GetInstanceValue(layername, out success);
         }
         public static void Reload(DictionaryDataProvider<string, LegendData> primary, DictionaryDataProvider<string, LegendData> secondary)
         {
-            instance.reload(primary, secondary);
+            instance.ReloadInstance(primary, secondary);
         }
         public static bool CheckKey(string key)
         {
-            return instance.checkKey(key);
+            return instance.CheckInstanceKey(key);
         }
     }
 
@@ -552,7 +549,7 @@ namespace ExternalData
         {
             try
             {
-                dictionary = new XmlDictionaryDataProvider<string, LegendDrawTemplate>(PathOrganizer.GetPath("LegendDraw")).GetDictionary();
+                InstanceDictionary = new XmlDictionaryDataProvider<string, LegendDrawTemplate>(PathOrganizer.GetPath("LegendDraw")).GetDictionary();
             }
             catch (FileNotFoundException)
             {
@@ -561,15 +558,15 @@ namespace ExternalData
         }
         public static LegendDrawTemplate GetValue(string layername, out bool success)
         {
-            return instance.getValue(layername, out success);
+            return instance.GetInstanceValue(layername, out success);
         }
         public static void Reload(DictionaryDataProvider<string, LegendDrawTemplate> primary, DictionaryDataProvider<string, LegendDrawTemplate> secondary)
         {
-            instance.reload(primary, secondary);
+            instance.ReloadInstance(primary, secondary);
         }
         public static bool CheckKey(string key)
         {
-            return instance.checkKey(key);
+            return instance.CheckInstanceKey(key);
         }
     }
 

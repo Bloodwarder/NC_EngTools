@@ -47,8 +47,8 @@ namespace NC_EngTools
                         LayerTableRecord ltrec = new LayerTableRecord
                         {
                             Name = tgtlayer,
-                            Color = PlatformDb.Colors.Color.FromRgb(255, 255, 255),
-                            //Transparency = new PlatformDb.Colors.Transparency(PlatformDb.Colors.TransparencyMethod.ByAlpha)
+                            Color = Color.FromRgb(255, 255, 255),
+                            Transparency = new Transparency(166)
                         };
                         lt.Add(ltrec);
                         myT.AddNewlyCreatedDBObject(ltrec, true);
@@ -379,8 +379,7 @@ namespace NC_EngTools
                 for (int i = 0; i<polyline.NumberOfVertices-1; i++)
                 {
                     ls = polyline.GetLineSegment2dAt(i);
-                    Line2d l2d = ls.GetLine();
-                    if (segmentCheck(pointonline.Convert2d(new Plane(new Point3d(0, 0, 0), new Vector3d(0, 0, 1))), ls))
+                    if (SegmentCheck(pointonline.Convert2d(new Plane(new Point3d(0, 0, 0), new Vector3d(0, 0, 1))), ls))
                         break;
                 }
                 Vector2d v2d = ls.Direction;
@@ -394,7 +393,7 @@ namespace NC_EngTools
                 string text;
                 if (pr.Status != (PromptStatus.Error | PromptStatus.Cancel))
                 {
-                    text = pr.StringResult==null ? "%%C000" : pr.StringResult;
+                    text = pr.StringResult ?? "%%C000";
                 }
                 else
                 {
@@ -405,10 +404,12 @@ namespace NC_EngTools
                 BlockTable blocktable = tr.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
                 BlockTableRecord modelspace = tr.GetObject(blocktable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
                 //создаём текст
-                MText mtext = new MText();
-                mtext.BackgroundFill = true;
-                mtext.UseBackgroundColor = true;
-                mtext.BackgroundScaleFactor = 1.1d;
+                MText mtext = new MText
+                {
+                    BackgroundFill = true,
+                    UseBackgroundColor = true,
+                    BackgroundScaleFactor = 1.1d
+                };
                 TextStyleTable txtstyletable = tr.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
                 mtext.TextStyleId =txtstyletable["Standard"];
                 mtext.Contents = Regex.Replace(text, "^(д|d)", "%%C"); //заменяем первую букву д на знак диаметра
@@ -426,7 +427,7 @@ namespace NC_EngTools
             }
         }
 
-        private bool segmentCheck(Point2d point, LineSegment2d entity)
+        private bool SegmentCheck(Point2d point, LineSegment2d entity)
         {
             Point2d p1 = entity.StartPoint;
             Point2d p2 = entity.EndPoint;
@@ -438,13 +439,13 @@ namespace NC_EngTools
 
             if (maxx-minx<5)
             {
-                maxx = maxx+5;
-                minx = minx-5;
+                maxx += 5;
+                minx -= 5;
             }
-            if (maxy-miny<5)
+            if (maxy - miny < 5)
             {
-                maxy = maxy+5;
-                miny = miny-5;
+                maxy += 5;
+                miny -= 5;
             }
             //bool b1 = (point.X>minx & point.X<maxx) & (point.Y>miny & point.Y<maxy);
             return (point.X>minx & point.X<maxx) & (point.Y>miny & point.Y<maxy);
