@@ -12,6 +12,7 @@ using LayerProcessing;
 using System;
 using Legend;
 using ModelspaceDraw;
+using System.Collections.ObjectModel;
 
 namespace ExternalData
 {
@@ -26,24 +27,24 @@ namespace ExternalData
         const string xmllegendname = "Layer_Legend.xml";
         const string xmllegenddrawaname = "Layer_LegendDraw.xml";
         const string linname = "STANDARD1.lin";
-        static Dictionary<string, string> pathdictionary = new Dictionary<string, string>();
+        private readonly static Dictionary<string, string> _pathDictionary = new Dictionary<string, string>();
         public static string BasePath { get; private set; }
         static PathOrganizer()
         {
             FileInfo fi = new FileInfo(Assembly.GetExecutingAssembly().Location);
             string BasePath = fi.DirectoryName + "\\LayersData\\";
 
-            pathdictionary.Add("Excel", string.Concat(BasePath, xlname));
-            pathdictionary.Add("Props", string.Concat(BasePath, xmlpropsname));
-            pathdictionary.Add("Alter", string.Concat(BasePath, xmlaltername));
-            pathdictionary.Add("Linetypes", string.Concat(BasePath, linname));
-            pathdictionary.Add("Legend", string.Concat(BasePath, xmllegendname));
-            pathdictionary.Add("LegendDraw", string.Concat(BasePath, xmllegenddrawaname));
+            _pathDictionary.Add("Excel", string.Concat(BasePath, xlname));
+            _pathDictionary.Add("Props", string.Concat(BasePath, xmlpropsname));
+            _pathDictionary.Add("Alter", string.Concat(BasePath, xmlaltername));
+            _pathDictionary.Add("Linetypes", string.Concat(BasePath, linname));
+            _pathDictionary.Add("Legend", string.Concat(BasePath, xmllegendname));
+            _pathDictionary.Add("LegendDraw", string.Concat(BasePath, xmllegenddrawaname));
         }
 
         public static string GetPath(string sourcename)
         {
-            return pathdictionary[sourcename];
+            return _pathDictionary[sourcename];
         }
     }
 
@@ -58,17 +59,17 @@ namespace ExternalData
     internal class XmlDictionaryDataProvider<TKey, TValue> : DictionaryDataProvider<TKey, TValue>
     {
         private string FilePath { get; set; }
-        FileInfo fileinfo;
+        private readonly FileInfo _fileInfo;
 
         internal XmlDictionaryDataProvider(string path)
         {
             FilePath = path;
-            fileinfo = new FileInfo(FilePath);
+            _fileInfo = new FileInfo(FilePath);
         }
 
         public override Dictionary<TKey, TValue> GetDictionary()
         {
-            if (!fileinfo.Exists) { throw new System.Exception("Файл не существует"); }
+            if (!_fileInfo.Exists) { throw new System.Exception("Файл не существует"); }
             XmlSerializer xs = new XmlSerializer(typeof(XmlSerializableDictionary<TKey, TValue>));
             using (FileStream fs = new FileStream(FilePath, FileMode.Open))
             {
@@ -91,14 +92,14 @@ namespace ExternalData
     {
         internal string Path { get; set; }
         private protected string sheetname;
-        FileInfo fileinfo;
+        private readonly FileInfo _fileInfo;
 
         internal ExcelDictionaryDataProvider(string path, string sheetname)
         {
-            Path=path;
-            fileinfo = new FileInfo(Path);
-            if (!fileinfo.Exists) { throw new System.Exception("Файл не существует"); }
-            this.sheetname=sheetname;
+            Path = path;
+            _fileInfo = new FileInfo(Path);
+            if (!_fileInfo.Exists) { throw new System.Exception("Файл не существует"); }
+            this.sheetname = sheetname;
         }
 
         public override Dictionary<TKey, TValue> GetDictionary()
@@ -108,13 +109,13 @@ namespace ExternalData
                 DisplayAlerts = false
             };
 
-            Workbook xlwb = xlapp.Workbooks.Open(fileinfo.FullName, ReadOnly: true, IgnoreReadOnlyRecommended: true);
+            Workbook xlwb = xlapp.Workbooks.Open(_fileInfo.FullName, ReadOnly: true, IgnoreReadOnlyRecommended: true);
             XmlSerializableDictionary<TKey, TValue> dct = new XmlSerializableDictionary<TKey, TValue>();
             try
             {
                 Range rng = xlwb.Worksheets[sheetname].Cells[1, 1].CurrentRegion;
-                rng = rng.Offset[1, 0].Resize[rng.Rows.Count-1, rng.Columns.Count];
-                for (int i = 1; i < rng.Rows.Count+1; i++)
+                rng = rng.Offset[1, 0].Resize[rng.Rows.Count - 1, rng.Columns.Count];
+                for (int i = 1; i < rng.Rows.Count + 1; i++)
                 {
                     //TKey key = (TKey)rng.Cells[i, 1].Value;
                     TKey key = Convert.ChangeType(rng.Cells[i, 1].Value, typeof(TKey));
@@ -137,7 +138,7 @@ namespace ExternalData
                 DisplayAlerts = false
             };
 
-            Workbook xlwb = xlapp.Workbooks.Open(fileinfo.FullName, ReadOnly: true, IgnoreReadOnlyRecommended: true);
+            Workbook xlwb = xlapp.Workbooks.Open(_fileInfo.FullName, ReadOnly: true, IgnoreReadOnlyRecommended: true);
             try
             {
                 CellsImport(xlwb, dictionary);
@@ -166,12 +167,12 @@ namespace ExternalData
             // Создаём словарь для индексирования заголовков, заполняем его
             Dictionary<string, int> labelindex = new Dictionary<string, int>();
             Range rng = xlwb.Worksheets[sheetname].Cells[1, 1].CurrentRegion;
-            for (int i = 1; i<rng.Columns.Count; i++)
+            for (int i = 1; i < rng.Columns.Count; i++)
             {
                 labelindex.Add(rng[1, i].Value, i);
             }
             // Обрезаем заголовки
-            rng = rng.Offset[1, 0].Resize[rng.Rows.Count-1, rng.Columns.Count];
+            rng = rng.Offset[1, 0].Resize[rng.Rows.Count - 1, rng.Columns.Count];
             // Заполняем строки через ExcelStructIO
             int counter = 1;
             foreach (KeyValuePair<TKey, TValue> keyValue in importeddictionary)
@@ -226,7 +227,7 @@ namespace ExternalData
         {
             // Обрезаем заголовки
             Range rng = xlwb.Worksheets[sheetname].Cells[1, 1].CurrentRegion;
-            rng = rng.Offset[1, 0].Resize[rng.Rows.Count-1, rng.Columns.Count];
+            rng = rng.Offset[1, 0].Resize[rng.Rows.Count - 1, rng.Columns.Count];
             // Просто записываем пары ключ-значения в 1 и 2 ячейки строки
             int counter = 1;
             foreach (KeyValuePair<TKey, TValue> keyValue in importeddictionary)
@@ -337,7 +338,7 @@ namespace ExternalData
                 }
                 finally
                 {
-                    workbook.SaveAs(PathOrganizer.BasePath+"ExtractedLayers.xlsx");
+                    workbook.SaveAs(PathOrganizer.BasePath + "ExtractedLayers.xlsx");
                     workbook.Close();
                     xlapp.Quit();
                 }
@@ -368,11 +369,11 @@ namespace ExternalData
 
     internal class LayerPropertiesDictionary : ExternalDictionary<string, LayerProps>
     {
-        private static LayerPropertiesDictionary instance;
-        private Dictionary<string, LayerProps> s_defaultLayerProps = new Dictionary<string, LayerProps>();
+        private static readonly LayerPropertiesDictionary instance;
+        private readonly Dictionary<string, LayerProps> defaultLayerProps = new Dictionary<string, LayerProps>();
         static LayerPropertiesDictionary()
         {
-            if(instance == null)
+            if (instance == null)
                 instance = new LayerPropertiesDictionary();
         }
 
@@ -382,12 +383,12 @@ namespace ExternalData
             {
                 InstanceDictionary = new XmlDictionaryDataProvider<string, LayerProps>(PathOrganizer.GetPath("Props")).GetDictionary();
 
-                s_defaultLayerProps.Add("сущ", new LayerProps { ConstantWidth = 0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3 });
-                s_defaultLayerProps.Add("дем", new LayerProps { ConstantWidth = 0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3, Red = 107, Green = 107, Blue = 107 });
-                s_defaultLayerProps.Add("пр", new LayerProps { ConstantWidth = 0.6, LTScale=0.8, LTName="Continuous", LineWeight=-3 });
-                s_defaultLayerProps.Add("неутв", new LayerProps { ConstantWidth = 0.6, LTScale=0.8, LTName="Continuous", LineWeight=-3 });
-                s_defaultLayerProps.Add("ндем", new LayerProps { ConstantWidth = 0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3, Red = 192, Green = 168, Blue = 110 });
-                s_defaultLayerProps.Add("нреорг", new LayerProps { ConstantWidth = 0.6, LTScale=0.8, LTName="Continuous", LineWeight=-3, Red = 107, Green = 107, Blue = 107 });
+                defaultLayerProps.Add("сущ", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LTName = "Continuous", LineWeight = -3 });
+                defaultLayerProps.Add("дем", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LTName = "Continuous", LineWeight = -3, Red = 107, Green = 107, Blue = 107 });
+                defaultLayerProps.Add("пр", new LayerProps { ConstantWidth = 0.6, LTScale = 0.8, LTName = "Continuous", LineWeight = -3 });
+                defaultLayerProps.Add("неутв", new LayerProps { ConstantWidth = 0.6, LTScale = 0.8, LTName = "Continuous", LineWeight = -3 });
+                defaultLayerProps.Add("ндем", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LTName = "Continuous", LineWeight = -3, Red = 192, Green = 168, Blue = 110 });
+                defaultLayerProps.Add("нреорг", new LayerProps { ConstantWidth = 0.6, LTScale = 0.8, LTName = "Continuous", LineWeight = -3, Red = 107, Green = 107, Blue = 107 });
             }
             catch (FileNotFoundException)
             {
@@ -408,7 +409,7 @@ namespace ExternalData
                 if (enabledefaults)
                 {
                     success = true;
-                    return new LayerProps { ConstantWidth=0.4, LTScale=0.8, LTName="Continuous", LineWeight=-3 };
+                    return new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LTName = "Continuous", LineWeight = -3 };
                 }
                 else
                 {
@@ -424,8 +425,8 @@ namespace ExternalData
             {
                 if (enabledefaults)
                 {
-                    success=true;
-                    return s_defaultLayerProps[slp.BuildStatusText];
+                    success = true;
+                    return defaultLayerProps[slp.BuildStatusText];
                 }
                 else
                 {
@@ -445,8 +446,8 @@ namespace ExternalData
             {
                 if (enabledefaults)
                 {
-                    success=true;
-                    return s_defaultLayerProps[layerparser.BuildStatusText];
+                    success = true;
+                    return defaultLayerProps[layerparser.BuildStatusText];
                 }
                 else
                 {
@@ -459,7 +460,7 @@ namespace ExternalData
         {
             return instance.GetInstanceValue(layername, out success, enabledefaults);
         }
-        public static void Reload (DictionaryDataProvider<string, LayerProps> primary, DictionaryDataProvider<string, LayerProps> secondary)
+        public static void Reload(DictionaryDataProvider<string, LayerProps> primary, DictionaryDataProvider<string, LayerProps> secondary)
         {
             instance.ReloadInstance(primary, secondary);
         }
@@ -472,7 +473,7 @@ namespace ExternalData
 
     internal class LayerAlteringDictionary : ExternalDictionary<string, string>
     {
-        private static LayerAlteringDictionary instance;
+        private static readonly LayerAlteringDictionary instance;
         static LayerAlteringDictionary()
         {
             if (instance == null)
@@ -506,7 +507,7 @@ namespace ExternalData
 
     internal class LayerLegendDictionary : ExternalDictionary<string, Legend.LegendData>
     {
-        private static LayerLegendDictionary instance;
+        private static readonly LayerLegendDictionary instance;
         static LayerLegendDictionary()
         {
             if (instance == null)
@@ -539,7 +540,7 @@ namespace ExternalData
 
     internal class LayerLegendDrawDictionary : ExternalDictionary<string, LegendDrawTemplate>
     {
-        private static LayerLegendDrawDictionary instance;
+        private static readonly LayerLegendDrawDictionary instance;
         static LayerLegendDrawDictionary()
         {
             if (instance == null)

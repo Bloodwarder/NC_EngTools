@@ -46,9 +46,11 @@
   <ItemGroup>
     <Reference Include="hostdbmgd">
       <HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 21.0\bin\hostdbmgd.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="hostmgd">
       <HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 21.0\bin\hostmgd.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1001\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
@@ -60,6 +62,7 @@
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms">
       <HintPath>..\..\..\..\..\..\..\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\6.0.16\ref\net6.0\System.Windows.Forms.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />

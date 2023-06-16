@@ -22,7 +22,7 @@ namespace Legend
 
         internal List<LegendGridRow> Rows = new List<LegendGridRow>();
         internal List<LegendGridCell> Cells = new List<LegendGridCell>();
-        internal double Width { get => _columns*CellWidth+_columns*WidthInterval+TextWidth; }
+        internal double Width { get => _columns * CellWidth + _columns * WidthInterval + TextWidth; }
         internal Point3d BasePoint = new Point3d();
         private int _columns;
 
@@ -131,7 +131,8 @@ namespace Legend
 
         internal List<LegendGridCell> SourceCells { get; set; } = new List<LegendGridCell>();
         internal List<LegendGrid> Grids { get; set; } = new List<LegendGrid>();
-        TableFilter _filter;
+
+        private readonly TableFilter _filter;
         Point3d _basepoint;
         internal GridsComposer(IEnumerable<LegendGridCell> cells, TableFilter filter)
         {
@@ -149,18 +150,18 @@ namespace Legend
                     break;
 
                 case TableFilter.InternalOnly:
-                    AddGrid(c => c.Layer.BuildStatus == (Status.Existing|Status.Deconstructing|Status.Planned));
+                    AddGrid(c => c.Layer.BuildStatus == (Status.Existing | Status.Deconstructing | Status.Planned));
                     break;
 
                 case TableFilter.InternalAndExternal:
-                    AddGrid(c => c.Layer.BuildStatus == (Status.Existing|Status.Deconstructing|Status.Planned));
-                    AddGrid(c => c.Layer.BuildStatus == (Status.NSDeconstructing|Status.NSPlanned));
+                    AddGrid(c => c.Layer.BuildStatus == (Status.Existing | Status.Deconstructing | Status.Planned));
+                    AddGrid(c => c.Layer.BuildStatus == (Status.NSDeconstructing | Status.NSPlanned));
 
                     break;
 
                 case TableFilter.InternalAndSeparatedExternal:
-                    AddGrid(c => c.Layer.BuildStatus == (Status.Existing|Status.Deconstructing|Status.Planned));
-                    List<string> extprojects = SourceCells.Where(c => c.Layer.ExtProjectName!=string.Empty).Select(c => c.Layer.ExtProjectName).Distinct().ToList();
+                    AddGrid(c => c.Layer.BuildStatus == (Status.Existing | Status.Deconstructing | Status.Planned));
+                    List<string> extprojects = SourceCells.Where(c => c.Layer.ExtProjectName != string.Empty).Select(c => c.Layer.ExtProjectName).Distinct().ToList();
                     foreach (string extproject in extprojects)
                         AddGrid(c => c.Layer.ExtProjectName == extproject);
                     break;
@@ -179,8 +180,8 @@ namespace Legend
             {
                 cells.Add(cell.Clone() as LegendGridCell);
             }
-            double deltax = Grids.Select(g => g.Width).Sum()+500*Grids.Count;
-            LegendGrid grid = new LegendGrid(cells, new Point3d(_basepoint.X+deltax, _basepoint.Y, 0d));
+            double deltax = Grids.Select(g => g.Width).Sum() + 500 * Grids.Count;
+            LegendGrid grid = new LegendGrid(cells, new Point3d(_basepoint.X + deltax, _basepoint.Y, 0d));
             grid.Assemble();
             Grids.Add(grid);
         }
@@ -206,12 +207,12 @@ namespace Legend
         internal string LegendEntityClassName { get; private set; }
         internal string LegendEntityChapterName { get; private set; }
         internal LegendData LegendData { get; private set; }
-        internal string Label { get => _islabelrow ? label : LegendData.Label; set => label=value; }
+        internal string Label { get => _islabelrow ? _label : LegendData.Label; set => _label = value; }
         internal int YIndex;
         internal bool ItalicLabel = false;
-        private bool _islabelrow = false;
-        private string label;
-        ObjectDraw draw;
+        private readonly bool _islabelrow = false;
+        private string _label;
+        private ObjectDraw _draw;
 
         internal LegendGridRow()
         {
@@ -227,7 +228,7 @@ namespace Legend
             LegendEntityClassName = mainname;
             LegendData = LayerLegendDictionary.GetValue(mainname, out bool success);
             if (!success)
-                throw new System.Exception($"Нет данных для слоя {string.Concat(LayerParser.StandartPrefix,mainname)}");
+                throw new System.Exception($"Нет данных для слоя {string.Concat(LayerParser.StandartPrefix, mainname)}");
         }
         internal List<LegendGridCell> Cells { get; set; } = new List<LegendGridCell>();
         internal LegendGrid ParentGrid { get; set; }
@@ -249,14 +250,14 @@ namespace Legend
         }
         public List<Entity> Draw()
         {
-            draw = new LabelTextDraw(
+            _draw = new LabelTextDraw(
                 new Point2d(
                 ParentGrid.BasePoint.X + (ParentGrid.Width - LegendGrid.TextWidth) + LegendGrid.WidthInterval,
-                ParentGrid.BasePoint.Y - YIndex*(LegendGrid.CellHeight+LegendGrid.HeightInterval)+LegendGrid.CellHeight/2),
-                _islabelrow ? label : LegendData.Label);
+                ParentGrid.BasePoint.Y - YIndex * (LegendGrid.CellHeight + LegendGrid.HeightInterval) + LegendGrid.CellHeight / 2),
+                _islabelrow ? _label : LegendData.Label);
             List<Entity> list = new List<Entity>();
-            draw.Draw();
-            list.AddRange(draw.EntitiesList);
+            _draw.Draw();
+            list.AddRange(_draw.EntitiesList);
             return list;
         }
 
@@ -275,7 +276,7 @@ namespace Legend
 
         internal LegendGridCell(RecordLayerParser layer)
         {
-            Layer=layer;
+            Layer = layer;
             _template = LayerLegendDrawDictionary.GetValue(layer.TrueName, out _);
         }
 
@@ -286,19 +287,19 @@ namespace Legend
 
         internal void AssignX(int x)
         {
-            TableIndex.X=x;
+            TableIndex.X = x;
         }
         internal void AssignY(int y)
         {
-            TableIndex.Y=y;
+            TableIndex.Y = y;
         }
         public void CreateDrawObject()
         {
             LegendObjectDraw lod = Activator.CreateInstance("NC_EngTools", string.Concat("ModelspaceDraw.", _template.DrawTemplate, "Draw")).Unwrap() as LegendObjectDraw;
             lod.LegendDrawTemplate = _template;
             lod.Layer = Layer;
-            double x = ParentGrid.BasePoint.X + TableIndex.X*(LegendGrid.CellWidth+LegendGrid.WidthInterval)+LegendGrid.CellWidth/2;
-            double y = ParentGrid.BasePoint.Y - TableIndex.Y*(LegendGrid.CellHeight+LegendGrid.HeightInterval)+LegendGrid.CellHeight/2;
+            double x = ParentGrid.BasePoint.X + TableIndex.X * (LegendGrid.CellWidth + LegendGrid.WidthInterval) + LegendGrid.CellWidth / 2;
+            double y = ParentGrid.BasePoint.Y - TableIndex.Y * (LegendGrid.CellHeight + LegendGrid.HeightInterval) + LegendGrid.CellHeight / 2;
             lod.Basepoint = new Point2d(x, y);
             _draw.Add(lod);
         }

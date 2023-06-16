@@ -38,7 +38,7 @@ namespace ModelspaceDraw
             Layer = layer;
         }
         internal abstract void Draw();
-        private protected Point2d relativePoint(double x, double y)
+        private protected Point2d GetRelativePoint(double x, double y)
         {
             return new Point2d(x+Basepoint.X, y+Basepoint.Y);
         }
@@ -60,7 +60,7 @@ namespace ModelspaceDraw
         internal static double CellWidth => LegendGrid.CellWidth;
         internal static double CellHeight => LegendGrid.CellHeight;
 
-        private protected static double parseRelativeValue(string value, double absolute)
+        private protected static double ParseRelativeValue(string value, double absolute)
         {
             return value.EndsWith("*") ? double.Parse(value.Replace("*", ""))*absolute : double.Parse(value);
         }
@@ -77,8 +77,8 @@ namespace ModelspaceDraw
         internal override void Draw()
         {
             Polyline pl = new Polyline();
-            pl.AddVertexAt(0, relativePoint(-CellWidth/2, 0d), 0, 0d, 0d);
-            pl.AddVertexAt(1, relativePoint(CellWidth/2, 0d), 0, 0d, 0d);
+            pl.AddVertexAt(0, GetRelativePoint(-CellWidth/2, 0d), 0, 0d, 0d);
+            pl.AddVertexAt(1, GetRelativePoint(CellWidth/2, 0d), 0, 0d, 0d);
             pl.Layer = Layer.OutputLayerName;
             LayerProps lp = LayerPropertiesDictionary.GetValue(Layer.TrueName, out bool success);
             if (success)
@@ -105,43 +105,46 @@ namespace ModelspaceDraw
         }
         internal override void Draw()
         {
-            drawText();
-            List<Polyline> polylines = drawLines();
-            formatLines(polylines);
+            DrawText();
+            List<Polyline> polylines = DrawLines();
+            FormatLines(polylines);
         }
 
-        private protected void drawText()
+        private protected void DrawText()
         {
-            MText mtext = new MText();
-            mtext.Contents = MarkChar;
             TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
-            mtext.TextStyleId =txtstyletable["Standard"];
-            mtext.TextHeight = 4d;
-            mtext.Layer = Layer.BoundLayer.Name;
-            mtext.Color = s_byLayer;
+
+            MText mtext = new MText
+            {
+                Contents = MarkChar,
+                TextStyleId = txtstyletable["Standard"],
+                TextHeight = 4d,
+                Layer = Layer.BoundLayer.Name,
+                Color = s_byLayer
+            };
             mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleCenter);
             mtext.Location = new Point3d(Basepoint.X, Basepoint.Y, 0d);
             _width = mtext.ActualWidth;
             EntitiesList.Add(mtext);
 
         }
-        private protected List<Polyline> drawLines()
+        private protected List<Polyline> DrawLines()
         {
             Polyline pl1 = new Polyline();
             Polyline pl2 = new Polyline();
-            pl1.AddVertexAt(0, relativePoint(-CellWidth/2, 0d), 0, 0d, 0d);
-            pl1.AddVertexAt(1, relativePoint(-(_width/2+0.5d), 0d), 0, 0d, 0d);
+            pl1.AddVertexAt(0, GetRelativePoint(-CellWidth/2, 0d), 0, 0d, 0d);
+            pl1.AddVertexAt(1, GetRelativePoint(-(_width/2+0.5d), 0d), 0, 0d, 0d);
             pl1.Layer = Layer.BoundLayer.Name;
 
-            pl2.AddVertexAt(0, relativePoint(_width/2+0.5d, 0d), 0, 0d, 0d);
-            pl2.AddVertexAt(1, relativePoint(CellWidth/2, 0d), 0, 0d, 0d);
+            pl2.AddVertexAt(0, GetRelativePoint(_width/2+0.5d, 0d), 0, 0d, 0d);
+            pl2.AddVertexAt(1, GetRelativePoint(CellWidth/2, 0d), 0, 0d, 0d);
             pl2.Layer = Layer.BoundLayer.Name;
 
             List<Polyline> list = new List<Polyline> { pl1, pl2 };
             EntitiesList.AddRange(list);
             return list;
         }
-        protected abstract void formatLines(IEnumerable<Polyline> lines);
+        protected abstract void FormatLines(IEnumerable<Polyline> lines);
 
     }
     public class MarkedSolidLineDraw : MarkedLineDraw
@@ -152,7 +155,7 @@ namespace ModelspaceDraw
         {
             LegendDrawTemplate = template;
         }
-        protected override void formatLines(IEnumerable<Polyline> lines)
+        protected override void FormatLines(IEnumerable<Polyline> lines)
         {
             foreach (Polyline line in lines)
             {
@@ -169,7 +172,7 @@ namespace ModelspaceDraw
         {
             LegendDrawTemplate = template;
         }
-        protected override void formatLines(IEnumerable<Polyline> lines)
+        protected override void FormatLines(IEnumerable<Polyline> lines)
         {
             foreach (Polyline line in lines)
             {
@@ -192,7 +195,7 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-        private protected void drawHatch(IEnumerable<Polyline> borders, string patternname = "SOLID", double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8, Color background = null)
+        private protected void DrawHatch(IEnumerable<Polyline> borders, string patternname = "SOLID", double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8, Color background = null)
         {
             Hatch hatch = new Hatch();
             hatch.SetHatchPattern(HatchPatternType.UserDefined, patternname);
@@ -217,24 +220,24 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-        internal double RectangleWidth => parseRelativeValue(LegendDrawTemplate.Width, LegendGrid.CellWidth);
-        internal double RectangleHeight => parseRelativeValue(LegendDrawTemplate.Height, LegendGrid.CellHeight);
+        internal double RectangleWidth => ParseRelativeValue(LegendDrawTemplate.Width, LegendGrid.CellWidth);
+        internal double RectangleHeight => ParseRelativeValue(LegendDrawTemplate.Height, LegendGrid.CellHeight);
 
 
         internal override void Draw()
         {
-            drawRectangle(RectangleWidth, RectangleHeight);
+            DrawRectangle(RectangleWidth, RectangleHeight);
         }
 
-        private protected Polyline drawRectangle(double width, double height, string layer = null)
+        private protected Polyline DrawRectangle(double width, double height, string layer = null)
         {
             Polyline rectangle = new Polyline();
-            rectangle.AddVertexAt(0, relativePoint(-width/2, -height/2), 0, 0d, 0d);
-            rectangle.AddVertexAt(1, relativePoint(-width/2, height/2), 0, 0d, 0d);
-            rectangle.AddVertexAt(2, relativePoint(width/2, height/2), 0, 0d, 0d);
-            rectangle.AddVertexAt(2, relativePoint(width/2, -height/2), 0, 0d, 0d);
+            rectangle.AddVertexAt(0, GetRelativePoint(-width/2, -height/2), 0, 0d, 0d);
+            rectangle.AddVertexAt(1, GetRelativePoint(-width/2, height/2), 0, 0d, 0d);
+            rectangle.AddVertexAt(2, GetRelativePoint(width/2, height/2), 0, 0d, 0d);
+            rectangle.AddVertexAt(2, GetRelativePoint(width/2, -height/2), 0, 0d, 0d);
             rectangle.Closed = true;
-            rectangle.Layer = layer == null ? Layer.BoundLayer.Name : layer;
+            rectangle.Layer = layer ?? Layer.BoundLayer.Name;
             LayerProps lp = LayerPropertiesDictionary.GetValue(rectangle.Layer, out bool success);
             if (success)
             {
@@ -259,8 +262,8 @@ namespace ModelspaceDraw
 
         internal override void Draw()
         {
-            List<Polyline> rectangle = new List<Polyline> { drawRectangle(RectangleWidth, RectangleHeight) };
-            drawHatch(rectangle);
+            List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight) };
+            DrawHatch(rectangle);
         }
     }
 
@@ -275,18 +278,18 @@ namespace ModelspaceDraw
         }
         internal override void Draw()
         {
-            List<Polyline> circle = new List<Polyline> { drawCircle(Radius) };
-            drawHatch(circle);
+            List<Polyline> circle = new List<Polyline> { DrawCircle(Radius) };
+            DrawHatch(circle);
         }
 
-        private protected Polyline drawCircle(double radius, string layer = null)
+        private protected Polyline DrawCircle(double radius, string layer = null)
         {
             Polyline circle = new Polyline();
-            circle.AddVertexAt(0, relativePoint(0, radius/2), radius, 0d, 0d);
-            circle.AddVertexAt(1, relativePoint(0, -radius/2), radius, 0d, 0d);
-            circle.AddVertexAt(2, relativePoint(0, radius/2), 0, 0d, 0d);
+            circle.AddVertexAt(0, GetRelativePoint(0, radius/2), radius, 0d, 0d);
+            circle.AddVertexAt(1, GetRelativePoint(0, -radius/2), radius, 0d, 0d);
+            circle.AddVertexAt(2, GetRelativePoint(0, radius/2), 0, 0d, 0d);
             circle.Closed = true;
-            circle.Layer = layer==null ? Layer.BoundLayer.Name : layer;
+            circle.Layer = layer ?? Layer.BoundLayer.Name;
             LayerProps lp = LayerPropertiesDictionary.GetValue(circle.Layer, out bool success);
             if (success)
             {
@@ -302,8 +305,8 @@ namespace ModelspaceDraw
     public class FencedRectangleDraw : RectangleDraw
     {
         string FenceLayer => LegendDrawTemplate.FenceLayer;
-        internal double FenceWidth => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellWidth);
-        internal double FenceHeight => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellHeight);
+        internal double FenceWidth => ParseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellWidth);
+        internal double FenceHeight => ParseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellHeight);
         public FencedRectangleDraw() { }
         internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
@@ -313,17 +316,17 @@ namespace ModelspaceDraw
 
         internal override void Draw()
         {
-            List<Polyline> rectangle = new List<Polyline> { drawRectangle(RectangleWidth, RectangleHeight) };
-            drawHatch(rectangle);
-            drawRectangle(FenceWidth, FenceHeight, FenceLayer);
+            List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight) };
+            DrawHatch(rectangle);
+            DrawRectangle(FenceWidth, FenceHeight, FenceLayer);
         }
     }
 
     public class HatchedFencedRectangleDraw : RectangleDraw
     {
         string FenceLayer => LegendDrawTemplate.FenceLayer;
-        internal double FenceWidth => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellWidth);
-        internal double FenceHeight => parseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellHeight);
+        internal double FenceWidth => ParseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellWidth);
+        internal double FenceHeight => ParseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellHeight);
         public HatchedFencedRectangleDraw() { }
         internal HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
@@ -333,10 +336,10 @@ namespace ModelspaceDraw
 
         internal override void Draw()
         {
-            List<Polyline> rectangles = new List<Polyline> { drawRectangle(RectangleWidth, RectangleHeight) };
-            drawHatch(rectangles);
-            rectangles.Add(drawRectangle(FenceWidth, FenceHeight, FenceLayer));
-            drawHatch(rectangles);
+            List<Polyline> rectangles = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight) };
+            DrawHatch(rectangles);
+            rectangles.Add(DrawRectangle(FenceWidth, FenceHeight, FenceLayer));
+            DrawHatch(rectangles);
         }
     }
 
@@ -344,7 +347,8 @@ namespace ModelspaceDraw
     {
         internal string BlockName { get; set; }
         internal string FilePath { get; set; }
-        BlockTable _blocktable;
+
+        readonly BlockTable _blocktable;
         public BlockReferenceDraw()
         {
             _blocktable = Workstation.TransactionManager.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
@@ -362,11 +366,11 @@ namespace ModelspaceDraw
 
         internal override void Draw()
         {
-            BlockReference bref = new BlockReference(new Point3d(Basepoint.X, Basepoint.Y, 0d), findBlockTableRecord(BlockName));
+            BlockReference bref = new BlockReference(new Point3d(Basepoint.X, Basepoint.Y, 0d), FindBlockTableRecord(BlockName));
             EntitiesList.Add(bref);
         }
 
-        private ObjectId findBlockTableRecord(string blockname)
+        private ObjectId FindBlockTableRecord(string blockname)
         {
             var blocktablerecordid = from ObjectId elem in _blocktable
                                      let btr = Workstation.TransactionManager.GetObject(elem, OpenMode.ForRead) as BlockTableRecord
@@ -375,7 +379,7 @@ namespace ModelspaceDraw
             return blocktablerecordid.FirstOrDefault();
         }
 
-        private void importBlockTableRecord(string blockname, string filepath)
+        private void ImportBlockTableRecord(string blockname, string filepath)
         {
             if (_blocktable.Has(blockname))
                 return;
@@ -385,8 +389,8 @@ namespace ModelspaceDraw
 
     public class LabelTextDraw : ObjectDraw
     {
-        private bool _italic = false;
-        private string _text;
+        private readonly bool _italic = false;
+        private readonly string _text;
         static LabelTextDraw()
         {
             LayerChecker.Check(string.Concat(LayerParser.StandartPrefix, "_Условные"));
@@ -401,13 +405,15 @@ namespace ModelspaceDraw
 
         internal override void Draw()
         {
-            MText mtext = new MText();
-            mtext.Contents = _text;
             TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
-            mtext.TextStyleId = txtstyletable["Standard"];
-            mtext.TextHeight = LegendGrid.TextHeight;
-            mtext.Layer = string.Concat(LayerParser.StandartPrefix, "_Условные");
-            mtext.Color = s_byLayer;
+            MText mtext = new MText
+            {
+                Contents = _text,
+                TextStyleId = txtstyletable["Standard"],
+                TextHeight = LegendGrid.TextHeight,
+                Layer = string.Concat(LayerParser.StandartPrefix, "_Условные"),
+                Color = s_byLayer
+            };
             mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleLeft);
             
             mtext.Location = new Point3d(Basepoint.X, Basepoint.Y, 0d);
@@ -457,15 +463,17 @@ namespace ModelspaceDraw
                 BlockTable blocktable = transaction.GetObject(db.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
                 BlockTableRecord modelspace = transaction.GetObject(blocktable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
 
-                BlockTableRecord newbtr = new BlockTableRecord();
-                newbtr.Name = "NewBlock";
-                newbtr.Explodable = true;
+                BlockTableRecord newbtr = new BlockTableRecord
+                {
+                    Name = "NewBlock",
+                    Explodable = true
+                };
                 blocktable.Add(newbtr);
                 transaction.AddNewlyCreatedDBObject(newbtr, true); // и в транзакцию
 
                 //отрезок
                 Line line = new Line(new Point3d(new double[3] { 0d, 0d, 0d }), new Point3d(new double[3] { 2d, 2d, 0d }));
-                ObjectId lid = newbtr.AppendEntity(line); // добавляем в модельное пространство
+                newbtr.AppendEntity(line); // добавляем в модельное пространство
                 transaction.AddNewlyCreatedDBObject(line, true); // и в транзакцию
 
                 //полилиния
@@ -487,7 +495,7 @@ namespace ModelspaceDraw
                 double m = 0.8d;
                 color = Color.FromRgb((byte)(color.Red+(255-color.Red)*m), (byte)(color.Green+(255-color.Green)*m), (byte)(color.Blue+(255-color.Blue)*m));
                 hatch.BackgroundColor = color;
-                ObjectId hatchid = newbtr.AppendEntity(hatch); // добавляем в модельное пространство
+                newbtr.AppendEntity(hatch); // добавляем в модельное пространство
 
                 //порядок прорисовки
                 DrawOrderTable dro = (DrawOrderTable)transaction.GetObject(newbtr.DrawOrderTableId, OpenMode.ForWrite);
@@ -509,14 +517,16 @@ namespace ModelspaceDraw
                                                                  //}
 
                 //многострочный текст
-                MText mtext = new MText();
-                mtext.BackgroundFill = true;
-                mtext.UseBackgroundColor = true;
-                mtext.BackgroundScaleFactor = 1.1d;
                 TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(db.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
-                mtext.TextStyleId =txtstyletable["Standard"];
-                mtext.Contents = "TEST_TEXT";
-                mtext.TextHeight = 4d;
+                MText mtext = new MText
+                {
+                    BackgroundFill = true,
+                    UseBackgroundColor = true,
+                    BackgroundScaleFactor = 1.1d,
+                    TextStyleId = txtstyletable["Standard"],
+                    Contents = "TEST_TEXT",
+                    TextHeight = 4d
+                };
                 mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleCenter);
                 mtext.Location = new Point3d(-2d, -2d, 0d);
                 modelspace.AppendEntity(mtext);

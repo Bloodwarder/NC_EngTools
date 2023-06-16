@@ -362,7 +362,7 @@ namespace LayerProcessing
     }
     internal static class ChapterStoredRecordLayerParsers
     {
-        private static Dictionary<Document, bool> eventassigned = new Dictionary<Document, bool>(); //должно работать только для одного документа. переделать для многих
+        private static readonly Dictionary<Document, bool> _eventAssigned = new Dictionary<Document, bool>(); //должно работать только для одного документа. переделать для многих
         internal static Dictionary<Document, List<ChapterStoreLayerParser>> List { get; } = new Dictionary<Document, List<ChapterStoreLayerParser>>();
         internal static void Add(ChapterStoreLayerParser lp)
         {
@@ -370,7 +370,7 @@ namespace LayerProcessing
             if (!List.ContainsKey(doc))
             {
                 List[doc] = new List<ChapterStoreLayerParser>();
-                eventassigned.Add(doc, false);
+                _eventAssigned.Add(doc, false);
             }
             if (!List[doc].Any(l => l.InputLayerName == lp.InputLayerName))
             {
@@ -382,7 +382,7 @@ namespace LayerProcessing
             Workstation.Define(out Document doc);
             foreach (ChapterStoreLayerParser lp in List[doc]) { lp.Reset(); }
             doc.Database.BeginSave -= Reset;
-            eventassigned[doc] = false;
+            _eventAssigned[doc] = false;
         }
 
         internal static void Reset(object sender, EventArgs e)
@@ -399,7 +399,7 @@ namespace LayerProcessing
                 }
 
                 doc.Database.BeginSave -= Reset;
-                eventassigned[doc] = false;
+                _eventAssigned[doc] = false;
                 ChapterVisualizer.ActiveChapterState[doc] = null;
                 Flush();
                 myT.Commit();
@@ -409,10 +409,10 @@ namespace LayerProcessing
         internal static void Highlight(string engtype)
         {
             Workstation.Define(out Document doc);
-            if (!eventassigned[doc])
+            if (!_eventAssigned[doc])
             {
                 doc.Database.BeginSave += Reset;
-                eventassigned[doc] = true;
+                _eventAssigned[doc] = true;
             }
             foreach (ChapterStoreLayerParser lp in List[doc]) { lp.Push(engtype); }
         }

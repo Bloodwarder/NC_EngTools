@@ -257,16 +257,16 @@ namespace NC_EngTools
     }
     public class ChapterVisualizer
     {
-        private static Dictionary<Document, string> activeChapterState = new Dictionary<Document, string>();
+        private static readonly Dictionary<Document, string> _activeChapterState = new Dictionary<Document, string>();
 
         internal static Dictionary<Document, string> ActiveChapterState
         {
             get
             {
                 Workstation.Define(out Document doc);
-                if (!activeChapterState.ContainsKey(doc))
-                { activeChapterState.Add(doc, null); }
-                return activeChapterState;
+                if (!_activeChapterState.ContainsKey(doc))
+                { _activeChapterState.Add(doc, null); }
+                return _activeChapterState;
             }
         }
         [CommandMethod("ВИЗРАЗДЕЛ")]
