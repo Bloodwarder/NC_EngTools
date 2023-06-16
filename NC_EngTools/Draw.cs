@@ -40,12 +40,23 @@ namespace ModelspaceDraw
         internal abstract void Draw();
         private protected Point2d GetRelativePoint(double x, double y)
         {
-            return new Point2d(x+Basepoint.X, y+Basepoint.Y);
+            return new Point2d(x + Basepoint.X, y + Basepoint.Y);
         }
     }
     public abstract class LegendObjectDraw : ObjectDraw
     {
-        internal LegendDrawTemplate LegendDrawTemplate { get; set; }
+        private LegendDrawTemplate legendDrawTemplate;
+
+        internal LegendDrawTemplate LegendDrawTemplate
+        {
+            get => legendDrawTemplate;
+            set
+            {
+                legendDrawTemplate = value;
+                TemplateSetEventHandler(this, new EventArgs());
+            }
+        }
+        protected event EventHandler TemplateSetEventHandler;
 
         internal LegendObjectDraw() { }
         internal LegendObjectDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
@@ -62,7 +73,7 @@ namespace ModelspaceDraw
 
         private protected static double ParseRelativeValue(string value, double absolute)
         {
-            return value.EndsWith("*") ? double.Parse(value.Replace("*", ""))*absolute : double.Parse(value);
+            return value.EndsWith("*") ? double.Parse(value.Replace("*", "")) * absolute : double.Parse(value);
         }
     }
 
@@ -77,14 +88,14 @@ namespace ModelspaceDraw
         internal override void Draw()
         {
             Polyline pl = new Polyline();
-            pl.AddVertexAt(0, GetRelativePoint(-CellWidth/2, 0d), 0, 0d, 0d);
-            pl.AddVertexAt(1, GetRelativePoint(CellWidth/2, 0d), 0, 0d, 0d);
+            pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
+            pl.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
             pl.Layer = Layer.OutputLayerName;
             LayerProps lp = LayerPropertiesDictionary.GetValue(Layer.TrueName, out bool success);
             if (success)
             {
-                pl.LinetypeScale=lp.LTScale;
-                pl.ConstantWidth=lp.ConstantWidth;
+                pl.LinetypeScale = lp.LTScale;
+                pl.ConstantWidth = lp.ConstantWidth;
             }
             EntitiesList.Add(pl);
         }
@@ -132,12 +143,12 @@ namespace ModelspaceDraw
         {
             Polyline pl1 = new Polyline();
             Polyline pl2 = new Polyline();
-            pl1.AddVertexAt(0, GetRelativePoint(-CellWidth/2, 0d), 0, 0d, 0d);
-            pl1.AddVertexAt(1, GetRelativePoint(-(_width/2+0.5d), 0d), 0, 0d, 0d);
+            pl1.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
+            pl1.AddVertexAt(1, GetRelativePoint(-(_width / 2 + 0.5d), 0d), 0, 0d, 0d);
             pl1.Layer = Layer.BoundLayer.Name;
 
-            pl2.AddVertexAt(0, GetRelativePoint(_width/2+0.5d, 0d), 0, 0d, 0d);
-            pl2.AddVertexAt(1, GetRelativePoint(CellWidth/2, 0d), 0, 0d, 0d);
+            pl2.AddVertexAt(0, GetRelativePoint(_width / 2 + 0.5d, 0d), 0, 0d, 0d);
+            pl2.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
             pl2.Layer = Layer.BoundLayer.Name;
 
             List<Polyline> list = new List<Polyline> { pl1, pl2 };
@@ -180,7 +191,7 @@ namespace ModelspaceDraw
                 LayerChecker.CheckLinetype("ACAD_ISO02W100", out bool ltgetsuccess);
                 if (ltgetsuccess)
                     line.Linetype = "ACAD_ISO02W100";
-                line.LinetypeScale=0.3d;
+                line.LinetypeScale = 0.3d;
             }
         }
     }
@@ -201,10 +212,10 @@ namespace ModelspaceDraw
             hatch.SetHatchPattern(HatchPatternType.UserDefined, patternname);
             hatch.HatchStyle = HatchStyle.Normal;
             hatch.AppendLoop(HatchLoopTypes.Polyline, new ObjectIdCollection(borders.Select(o => o.ObjectId).ToArray()));
-            hatch.PatternAngle = angle *Math.PI/180;
+            hatch.PatternAngle = angle * Math.PI / 180;
             hatch.PatternScale = patternscale;
             Color color = Layer.BoundLayer.Color;
-            color = Color.FromRgb((byte)(color.Red+(255-color.Red)*increasebrightness), (byte)(color.Green+(255-color.Green)*increasebrightness), (byte)(color.Blue+(255-color.Blue)*increasebrightness));
+            color = Color.FromRgb((byte)(color.Red + (255 - color.Red) * increasebrightness), (byte)(color.Green + (255 - color.Green) * increasebrightness), (byte)(color.Blue + (255 - color.Blue) * increasebrightness));
             hatch.BackgroundColor = background;
             EntitiesList.Add(hatch);
         }
@@ -232,17 +243,17 @@ namespace ModelspaceDraw
         private protected Polyline DrawRectangle(double width, double height, string layer = null)
         {
             Polyline rectangle = new Polyline();
-            rectangle.AddVertexAt(0, GetRelativePoint(-width/2, -height/2), 0, 0d, 0d);
-            rectangle.AddVertexAt(1, GetRelativePoint(-width/2, height/2), 0, 0d, 0d);
-            rectangle.AddVertexAt(2, GetRelativePoint(width/2, height/2), 0, 0d, 0d);
-            rectangle.AddVertexAt(2, GetRelativePoint(width/2, -height/2), 0, 0d, 0d);
+            rectangle.AddVertexAt(0, GetRelativePoint(-width / 2, -height / 2), 0, 0d, 0d);
+            rectangle.AddVertexAt(1, GetRelativePoint(-width / 2, height / 2), 0, 0d, 0d);
+            rectangle.AddVertexAt(2, GetRelativePoint(width / 2, height / 2), 0, 0d, 0d);
+            rectangle.AddVertexAt(2, GetRelativePoint(width / 2, -height / 2), 0, 0d, 0d);
             rectangle.Closed = true;
             rectangle.Layer = layer ?? Layer.BoundLayer.Name;
             LayerProps lp = LayerPropertiesDictionary.GetValue(rectangle.Layer, out bool success);
             if (success)
             {
-                rectangle.LinetypeScale=lp.LTScale;
-                rectangle.ConstantWidth=lp.ConstantWidth;
+                rectangle.LinetypeScale = lp.LTScale;
+                rectangle.ConstantWidth = lp.ConstantWidth;
             }
 
             EntitiesList.Add(rectangle);
@@ -285,16 +296,16 @@ namespace ModelspaceDraw
         private protected Polyline DrawCircle(double radius, string layer = null)
         {
             Polyline circle = new Polyline();
-            circle.AddVertexAt(0, GetRelativePoint(0, radius/2), radius, 0d, 0d);
-            circle.AddVertexAt(1, GetRelativePoint(0, -radius/2), radius, 0d, 0d);
-            circle.AddVertexAt(2, GetRelativePoint(0, radius/2), 0, 0d, 0d);
+            circle.AddVertexAt(0, GetRelativePoint(0, radius / 2), radius, 0d, 0d);
+            circle.AddVertexAt(1, GetRelativePoint(0, -radius / 2), radius, 0d, 0d);
+            circle.AddVertexAt(2, GetRelativePoint(0, radius / 2), 0, 0d, 0d);
             circle.Closed = true;
             circle.Layer = layer ?? Layer.BoundLayer.Name;
             LayerProps lp = LayerPropertiesDictionary.GetValue(circle.Layer, out bool success);
             if (success)
             {
-                circle.LinetypeScale=lp.LTScale;
-                circle.ConstantWidth=lp.ConstantWidth;
+                circle.LinetypeScale = lp.LTScale;
+                circle.ConstantWidth = lp.ConstantWidth;
             }
 
             EntitiesList.Add(circle);
@@ -345,45 +356,99 @@ namespace ModelspaceDraw
 
     public class BlockReferenceDraw : LegendObjectDraw
     {
-        internal string BlockName { get; set; }
-        internal string FilePath { get; set; }
+        private string BlockName => LegendDrawTemplate.BlockName;
+        private string FilePath => LegendDrawTemplate.BlockPath;
 
-        readonly BlockTable _blocktable;
+        // Списки файлов и блоков для единоразовой обработки
+        internal static HashSet<string> QueuedFiles = new HashSet<string>();
+        internal static Dictionary<string, HashSet<string>> QueuedBlocks = new Dictionary<string, HashSet<string>>();
+        // Проверка, выполнен ли иморт блоков
+        private static bool _blocksImported = false;
+
+        private static BlockTable _blocktable;
+
+        static BlockReferenceDraw()
+        {
+            _blocktable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
+        }
         public BlockReferenceDraw()
         {
-            _blocktable = Workstation.TransactionManager.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
+            TemplateSetEventHandler += QueueImportBlockTableRecord;
         }
         internal BlockReferenceDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
         {
-            _blocktable = Workstation.TransactionManager.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
+            TemplateSetEventHandler += QueueImportBlockTableRecord;
         }
         internal BlockReferenceDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
-            _blocktable = Workstation.TransactionManager.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
             LegendDrawTemplate = template;
         }
 
 
         internal override void Draw()
         {
-            BlockReference bref = new BlockReference(new Point3d(Basepoint.X, Basepoint.Y, 0d), FindBlockTableRecord(BlockName));
+            // Перед отрисовкой первого объекта импортируем все блоки в очереди
+            if (!_blocksImported)
+            {
+                ImportRecords(out HashSet<string> _);
+                _blocksImported = true;
+            }
+            // Отрисовываем объект
+            ObjectId btrId = _blocktable[BlockName];
+            BlockReference bref = new BlockReference(new Point3d(Basepoint.X, Basepoint.Y, 0d), btrId);
             EntitiesList.Add(bref);
         }
 
-        private ObjectId FindBlockTableRecord(string blockname)
+        private void QueueImportBlockTableRecord(object sender, System.EventArgs e)
         {
-            var blocktablerecordid = from ObjectId elem in _blocktable
-                                     let btr = Workstation.TransactionManager.GetObject(elem, OpenMode.ForRead) as BlockTableRecord
-                                     where btr.Name == blockname
-                                     select elem;
-            return blocktablerecordid.FirstOrDefault();
+            if (_blocktable.Has(BlockName))
+                return;
+
+            if (QueuedFiles.Count == 0)
+            {
+                // Обновляем таблицу блоков (по открытому чертежу)
+                _blocktable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
+                // Сбрасывем переменную, показывающую, что импорт для данной задачи выполнен
+                _blocksImported = false;
+            }
+
+            // Заполняем очереди блоков и файлов для импорта
+            QueuedFiles.Add(LegendDrawTemplate.BlockPath);
+            HashSet<string> blocksQueue;
+            bool success = QueuedBlocks.TryGetValue(FilePath, out blocksQueue);
+            if (!success)
+                QueuedBlocks.Add(FilePath, blocksQueue = new HashSet<string>());
+            blocksQueue.Add(BlockName);
         }
 
-        private void ImportBlockTableRecord(string blockname, string filepath)
+        private static void ImportRecords(out HashSet<string> failedBlockImports)
         {
-            if (_blocktable.Has(blockname))
-                return;
-            throw new NotImplementedException();
+            failedBlockImports = new HashSet<string>();
+            Transaction transaction = Workstation.TransactionManager.TopTransaction;
+            // По одному разу открываем каждый файл с блоками для условных
+            foreach (string file in QueuedFiles)
+            {
+                using (Document doc = Application.DocumentManager.Open(file))
+                {
+                    // Ищем все нужные нам блоки
+                    BlockTable blockTable = transaction.GetObject(doc.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
+                    var blocks = from ObjectId blockId in blockTable
+                                 let block = transaction.GetObject(blockId, OpenMode.ForRead) as BlockTableRecord
+                                 where QueuedBlocks[file].Contains(block.Name)
+                                 select block;
+                    // Заполняем сет с ненайденными блоками
+                    foreach (BlockTableRecord block in blocks)
+                    {
+                        if (!QueuedBlocks[file].Contains(block.Name))
+                            failedBlockImports.Add(block.Name);
+                    }
+                    // Добавляем все найденные блоки в таблицу блоков текущего чертежа
+                    foreach (BlockTableRecord block in blocks)
+                        _blocktable.Add(block);
+                    // Убираем файл из очереди
+                    QueuedBlocks.Remove(file);
+                }
+            }
         }
     }
 
@@ -399,7 +464,7 @@ namespace ModelspaceDraw
         internal LabelTextDraw(Point2d basepoint, string label, bool italic = false) : base()
         {
             Basepoint = basepoint;
-            _italic=italic;
+            _italic = italic;
             _text = label;
         }
 
@@ -415,7 +480,7 @@ namespace ModelspaceDraw
                 Color = s_byLayer
             };
             mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleLeft);
-            
+
             mtext.Location = new Point3d(Basepoint.X, Basepoint.Y, 0d);
             EntitiesList.Add(mtext);
         }
@@ -490,10 +555,10 @@ namespace ModelspaceDraw
                 Hatch hatch = new Hatch();
                 hatch.SetHatchPattern(HatchPatternType.UserDefined, "ANSI31");
                 hatch.AppendLoop(HatchLoopTypes.Polyline, new ObjectIdCollection(new ObjectId[] { plid }));
-                hatch.PatternAngle = (double)(45 *Math.PI/180);
+                hatch.PatternAngle = (double)(45 * Math.PI / 180);
                 Color color = Color.FromRgb(255, 0, 0);
                 double m = 0.8d;
-                color = Color.FromRgb((byte)(color.Red+(255-color.Red)*m), (byte)(color.Green+(255-color.Green)*m), (byte)(color.Blue+(255-color.Blue)*m));
+                color = Color.FromRgb((byte)(color.Red + (255 - color.Red) * m), (byte)(color.Green + (255 - color.Green) * m), (byte)(color.Blue + (255 - color.Blue) * m));
                 hatch.BackgroundColor = color;
                 newbtr.AppendEntity(hatch); // добавляем в модельное пространство
 

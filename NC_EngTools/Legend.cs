@@ -295,7 +295,13 @@ namespace Legend
         }
         public void CreateDrawObject()
         {
-            LegendObjectDraw lod = Activator.CreateInstance("NC_EngTools", string.Concat("ModelspaceDraw.", _template.DrawTemplate, "Draw")).Unwrap() as LegendObjectDraw;
+            LegendObjectDraw lod = Activator.CreateInstance
+                (
+                Assembly.GetCallingAssembly().FullName,
+                string.Concat("ModelspaceDraw.", _template.DrawTemplate, "Draw")
+                )
+                .Unwrap() as LegendObjectDraw;
+            
             lod.LegendDrawTemplate = _template;
             lod.Layer = Layer;
             double x = ParentGrid.BasePoint.X + TableIndex.X * (LegendGrid.CellWidth + LegendGrid.WidthInterval) + LegendGrid.CellWidth / 2;
