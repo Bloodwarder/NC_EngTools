@@ -211,15 +211,15 @@ namespace LayerProcessing
 
         private static string Clayername()
         {
-            Workstation.Define(out Database db);
+            Database db = Workstation.Database;
             LayerTableRecord ltr = (LayerTableRecord)db.TransactionManager.GetObject(db.Clayer, OpenMode.ForRead);
             return ltr.Name;
         }
 
         public override void Push()
         {
-            Workstation.Define(out Teigha.DatabaseServices.TransactionManager tm);
-            Workstation.Define(out Database db);
+            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Database db = Workstation.Database;
 
             LayerChecker.Check(OutputLayerName);
             LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForRead);
@@ -366,7 +366,7 @@ namespace LayerProcessing
         internal static Dictionary<Document, List<ChapterStoreLayerParser>> List { get; } = new Dictionary<Document, List<ChapterStoreLayerParser>>();
         internal static void Add(ChapterStoreLayerParser lp)
         {
-            Workstation.Define(out Document doc);
+            Document doc = Workstation.Document;
             if (!List.ContainsKey(doc))
             {
                 List[doc] = new List<ChapterStoreLayerParser>();
@@ -379,7 +379,7 @@ namespace LayerProcessing
         }
         internal static void Reset()
         {
-            Workstation.Define(out Document doc);
+            Document doc = Workstation.Document;
             foreach (ChapterStoreLayerParser lp in List[doc]) { lp.Reset(); }
             doc.Database.BeginSave -= Reset;
             _eventAssigned[doc] = false;
@@ -387,8 +387,8 @@ namespace LayerProcessing
 
         internal static void Reset(object sender, EventArgs e)
         {
-            Workstation.Define(out Document doc);
-            Workstation.Define(out Teigha.DatabaseServices.TransactionManager tm);
+            Document doc = Workstation.Document;
+            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
 
             using (Transaction myT = tm.StartTransaction())
             {
@@ -408,7 +408,7 @@ namespace LayerProcessing
         }
         internal static void Highlight(string engtype)
         {
-            Workstation.Define(out Document doc);
+            Document doc = Workstation.Document;
             if (!_eventAssigned[doc])
             {
                 doc.Database.BeginSave += Reset;
@@ -418,7 +418,7 @@ namespace LayerProcessing
         }
         internal static void Flush()
         {
-            Workstation.Define(out Document doc);
+            Document doc = Workstation.Document;
             List[doc].Clear();
         }
     }

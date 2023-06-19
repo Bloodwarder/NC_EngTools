@@ -53,7 +53,8 @@ namespace ModelspaceDraw
             set
             {
                 legendDrawTemplate = value;
-                TemplateSetEventHandler(this, new EventArgs());
+                if (TemplateSetEventHandler != null)
+                    TemplateSetEventHandler(this, new EventArgs());
             }
         }
         protected event EventHandler TemplateSetEventHandler;
@@ -74,6 +75,22 @@ namespace ModelspaceDraw
         private protected static double ParseRelativeValue(string value, double absolute)
         {
             return value.EndsWith("*") ? double.Parse(value.Replace("*", "")) * absolute : double.Parse(value);
+        }
+
+        private protected Color BrightnessShift(double value)
+        {
+            if (value == 0)
+                return s_byLayer;
+            Color color = Layer.BoundLayer.Color;
+            if (value > 0)
+            {
+                color = Color.FromRgb((byte)(color.Red + (255 - color.Red) * value), (byte)(color.Green + (255 - color.Green) * value), (byte)(color.Blue + (255 - color.Blue) * value));
+            }
+            else if (value < 0)
+            {
+                color = Color.FromRgb((byte)(color.Red + color.Red * value), (byte)(color.Green + color.Green * value), (byte)(color.Blue + color.Blue * value));
+            }
+            return color;
         }
     }
 
@@ -97,6 +114,34 @@ namespace ModelspaceDraw
                 pl.LinetypeScale = lp.LTScale;
                 pl.ConstantWidth = lp.ConstantWidth;
             }
+            EntitiesList.Add(pl);
+        }
+    }
+
+    public class DoubleSolidLineDraw : LegendObjectDraw
+    {
+        public DoubleSolidLineDraw() { }
+        internal DoubleSolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal DoubleSolidLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = template;
+        }
+        internal override void Draw()
+        {
+            Polyline pl = new Polyline();
+            pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
+            pl.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
+            pl.Layer = Layer.OutputLayerName;
+            Polyline pl2 = pl.Clone() as Polyline;
+            LayerProps lp = LayerPropertiesDictionary.GetValue(Layer.TrueName, out bool success);
+            if (success)
+            {
+                pl.LinetypeScale = lp.LTScale;
+                pl.ConstantWidth = lp.ConstantWidth;
+            }
+            pl2.ConstantWidth = double.Parse(LegendDrawTemplate.Width);  // ТОЖЕ КОСТЫЛЬ, ЧТОБЫ НЕ ДОБАВЛЯТЬ ДОП ПОЛЕ В ТАБЛИЦУ. ТАКИХ СЛОЯ ВСЕГО 3
+            pl2.Color = Color.FromRgb(0, 0, 255);   // ЗАТЫЧКА, ПОКА ТАКОЙ ОБЪЕКТ ВСЕГО ОДИН
+            EntitiesList.Add(pl2);
             EntitiesList.Add(pl);
         }
     }
@@ -206,17 +251,36 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-        private protected void DrawHatch(IEnumerable<Polyline> borders, string patternname = "SOLID", double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8, Color background = null)
+        private protected void DrawHatch(IEnumerable<Polyline> borders, string patternname = "SOLID", double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8)
         {
             Hatch hatch = new Hatch();
-            hatch.SetHatchPattern(HatchPatternType.UserDefined, patternname);
+
+            hatch.SetHatchPattern(!patternname.Contains("ANSI") ? HatchPatternType.PreDefined : HatchPatternType.UserDefined, patternname); // ВОЗНИКАЮТ ОШИБКИ ОТОБРАЖЕНИЯ ШТРИХОВОК "DASH" и "HONEY"
             hatch.HatchStyle = HatchStyle.Normal;
-            hatch.AppendLoop(HatchLoopTypes.Polyline, new ObjectIdCollection(borders.Select(o => o.ObjectId).ToArray()));
-            hatch.PatternAngle = angle * Math.PI / 180;
-            hatch.PatternScale = patternscale;
-            Color color = Layer.BoundLayer.Color;
-            color = Color.FromRgb((byte)(color.Red + (255 - color.Red) * increasebrightness), (byte)(color.Green + (255 - color.Green) * increasebrightness), (byte)(color.Blue + (255 - color.Blue) * increasebrightness));
-            hatch.BackgroundColor = background;
+            foreach (Polyline pl in borders)
+            {
+                Point2dCollection vertexCollection = new Point2dCollection(pl.NumberOfVertices);
+                DoubleCollection bulgesCollection = new DoubleCollection(pl.NumberOfVertices);
+                for (int i = 0; i < pl.NumberOfVertices; i++)
+                {
+                    vertexCollection.Add(pl.GetPoint2dAt(i));
+                    bulgesCollection.Add(pl.GetBulgeAt(i));
+                }
+                hatch.AppendLoop(HatchLoopTypes.Polyline, vertexCollection, bulgesCollection);
+            }
+            if (patternname != "SOLID")
+            {
+                hatch.PatternAngle = angle * Math.PI / 180;
+                hatch.PatternScale = patternscale;
+                if (increasebrightness != 0)
+                    hatch.BackgroundColor = BrightnessShift(increasebrightness);
+            }
+            else
+            {
+                hatch.Color = BrightnessShift(increasebrightness);
+            }
+            hatch.Layer = Layer.BoundLayer.Name;
+            ;
             EntitiesList.Add(hatch);
         }
     }
@@ -240,23 +304,26 @@ namespace ModelspaceDraw
             DrawRectangle(RectangleWidth, RectangleHeight);
         }
 
-        private protected Polyline DrawRectangle(double width, double height, string layer = null)
+        private protected Polyline DrawRectangle(double width, double height, string layer = null, double brightnessshift = 0d)
         {
             Polyline rectangle = new Polyline();
             rectangle.AddVertexAt(0, GetRelativePoint(-width / 2, -height / 2), 0, 0d, 0d);
             rectangle.AddVertexAt(1, GetRelativePoint(-width / 2, height / 2), 0, 0d, 0d);
             rectangle.AddVertexAt(2, GetRelativePoint(width / 2, height / 2), 0, 0d, 0d);
-            rectangle.AddVertexAt(2, GetRelativePoint(width / 2, -height / 2), 0, 0d, 0d);
+            rectangle.AddVertexAt(3, GetRelativePoint(width / 2, -height / 2), 0, 0d, 0d);
             rectangle.Closed = true;
-            rectangle.Layer = layer ?? Layer.BoundLayer.Name;
+            if (layer != null)
+                LayerChecker.Check($"{LayerParser.StandartPrefix}_{layer}"); //ПОКА ЗАВЯЗАНО НА ЧЕКЕР ИЗ ДРУГОГО МОДУЛЯ. ПРОАНАЛИЗИРОВАТЬ ВОЗМОЖНОСТИ ОПТИМИЗАЦИИ
+            rectangle.Layer = layer == null ? Layer.BoundLayer.Name : $"{LayerParser.StandartPrefix}_{layer}";
             LayerProps lp = LayerPropertiesDictionary.GetValue(rectangle.Layer, out bool success);
             if (success)
             {
                 rectangle.LinetypeScale = lp.LTScale;
                 rectangle.ConstantWidth = lp.ConstantWidth;
             }
-
+            rectangle.Color = BrightnessShift(brightnessshift);
             EntitiesList.Add(rectangle);
+            //Workstation.TransactionManager.TopTransaction.AddNewlyCreatedDBObject(rectangle, true);
             return rectangle;
         }
     }
@@ -273,8 +340,13 @@ namespace ModelspaceDraw
 
         internal override void Draw()
         {
-            List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight) };
-            DrawHatch(rectangle);
+            List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight, brightnessshift: LegendDrawTemplate.InnerBorderBrightness) };
+            DrawHatch(rectangle,
+                patternname: LegendDrawTemplate.InnerHatchPattern,
+                angle: LegendDrawTemplate.InnerHatchAngle,
+                patternscale: LegendDrawTemplate.InnerHatchScale,
+                increasebrightness: LegendDrawTemplate.InnerHatchBrightness
+                );
         }
     }
 
@@ -290,7 +362,12 @@ namespace ModelspaceDraw
         internal override void Draw()
         {
             List<Polyline> circle = new List<Polyline> { DrawCircle(Radius) };
-            DrawHatch(circle);
+            DrawHatch(circle,
+                patternname: LegendDrawTemplate.InnerHatchPattern,
+                angle: LegendDrawTemplate.InnerHatchAngle,
+                patternscale: LegendDrawTemplate.InnerHatchScale,
+                increasebrightness: LegendDrawTemplate.InnerHatchBrightness
+                );
         }
 
         private protected Polyline DrawCircle(double radius, string layer = null)
@@ -317,7 +394,7 @@ namespace ModelspaceDraw
     {
         string FenceLayer => LegendDrawTemplate.FenceLayer;
         internal double FenceWidth => ParseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellWidth);
-        internal double FenceHeight => ParseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellHeight);
+        internal double FenceHeight => ParseRelativeValue(LegendDrawTemplate.FenceHeight, LegendGrid.CellHeight);
         public FencedRectangleDraw() { }
         internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
@@ -327,8 +404,13 @@ namespace ModelspaceDraw
 
         internal override void Draw()
         {
-            List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight) };
-            DrawHatch(rectangle);
+            List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight, brightnessshift: LegendDrawTemplate.InnerBorderBrightness) };
+            DrawHatch(rectangle,
+                patternname: LegendDrawTemplate.InnerHatchPattern,
+                angle: LegendDrawTemplate.InnerHatchAngle,
+                patternscale: LegendDrawTemplate.InnerHatchScale,
+                increasebrightness: LegendDrawTemplate.InnerHatchBrightness
+                );
             DrawRectangle(FenceWidth, FenceHeight, FenceLayer);
         }
     }
@@ -347,10 +429,32 @@ namespace ModelspaceDraw
 
         internal override void Draw()
         {
-            List<Polyline> rectangles = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight) };
-            DrawHatch(rectangles);
+            List<Polyline> rectangles = new List<Polyline>
+                {
+                DrawRectangle
+                    (
+                    RectangleWidth,
+                    RectangleHeight,
+                    brightnessshift: LegendDrawTemplate.InnerBorderBrightness
+                    )
+                };
+            DrawHatch
+                (
+                rectangles,
+                patternname: LegendDrawTemplate.InnerHatchPattern,
+                angle: LegendDrawTemplate.InnerHatchAngle,
+                patternscale: LegendDrawTemplate.InnerHatchScale,
+                increasebrightness: LegendDrawTemplate.InnerHatchBrightness
+                );
             rectangles.Add(DrawRectangle(FenceWidth, FenceHeight, FenceLayer));
-            DrawHatch(rectangles);
+            DrawHatch
+                (
+                rectangles,
+                patternname: LegendDrawTemplate.OuterHatchPattern,
+                angle: LegendDrawTemplate.OuterHatchAngle,
+                patternscale: LegendDrawTemplate.OuterHatchScale,
+                increasebrightness: LegendDrawTemplate.OuterHatchBrightness
+                );
         }
     }
 
@@ -369,7 +473,7 @@ namespace ModelspaceDraw
 
         static BlockReferenceDraw()
         {
-            _blocktable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
+            _blocktable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite) as BlockTable;
         }
         public BlockReferenceDraw()
         {
@@ -395,7 +499,8 @@ namespace ModelspaceDraw
             }
             // Отрисовываем объект
             ObjectId btrId = _blocktable[BlockName];
-            BlockReference bref = new BlockReference(new Point3d(Basepoint.X, Basepoint.Y, 0d), btrId);
+            BlockReference bref = new BlockReference(new Point3d(Basepoint.X + LegendDrawTemplate.BlockXOffset, Basepoint.Y + LegendDrawTemplate.BlockYOffset, 0d), btrId);
+            bref.Layer = Layer.BoundLayer.Name;
             EntitiesList.Add(bref);
         }
 
@@ -407,7 +512,7 @@ namespace ModelspaceDraw
             if (QueuedFiles.Count == 0)
             {
                 // Обновляем таблицу блоков (по открытому чертежу)
-                _blocktable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
+                _blocktable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite) as BlockTable;
                 // Сбрасывем переменную, показывающую, что импорт для данной задачи выполнен
                 _blocksImported = false;
             }
@@ -428,14 +533,16 @@ namespace ModelspaceDraw
             // По одному разу открываем каждый файл с блоками для условных
             foreach (string file in QueuedFiles)
             {
-                using (Document doc = Application.DocumentManager.Open(file))
+                Document doc = Application.DocumentManager.Open(file, true);
+                doc.Window.Visible = false;
+                try
                 {
                     // Ищем все нужные нам блоки
                     BlockTable blockTable = transaction.GetObject(doc.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
-                    var blocks = from ObjectId blockId in blockTable
-                                 let block = transaction.GetObject(blockId, OpenMode.ForRead) as BlockTableRecord
-                                 where QueuedBlocks[file].Contains(block.Name)
-                                 select block;
+                    var blocks = (from ObjectId blockId in blockTable
+                                  let block = transaction.GetObject(blockId, OpenMode.ForRead) as BlockTableRecord
+                                  where QueuedBlocks[file].Contains(block.Name)
+                                  select block).ToList();
                     // Заполняем сет с ненайденными блоками
                     foreach (BlockTableRecord block in blocks)
                     {
@@ -443,12 +550,17 @@ namespace ModelspaceDraw
                             failedBlockImports.Add(block.Name);
                     }
                     // Добавляем все найденные блоки в таблицу блоков текущего чертежа
-                    foreach (BlockTableRecord block in blocks)
-                        _blocktable.Add(block);
-                    // Убираем файл из очереди
+                    blockTable.Database.WblockCloneObjects(new ObjectIdCollection(blocks.Select(b => b.ObjectId).ToArray()), _blocktable.ObjectId, new IdMapping(), DuplicateRecordCloning.Ignore, false);
+
+                }
+                finally
+                {
+                    // Закрываем файл и убираем из очереди
+                    doc.CloseAndDiscard();
                     QueuedBlocks.Remove(file);
                 }
             }
+            QueuedFiles.Clear();
         }
     }
 
@@ -471,12 +583,14 @@ namespace ModelspaceDraw
         internal override void Draw()
         {
             TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
+            string legendTextLayer = string.Concat(LayerParser.StandartPrefix, "_Условные");
+            LayerChecker.Check(legendTextLayer);
             MText mtext = new MText
             {
                 Contents = _text,
                 TextStyleId = txtstyletable["Standard"],
                 TextHeight = LegendGrid.TextHeight,
-                Layer = string.Concat(LayerParser.StandartPrefix, "_Условные"),
+                Layer = legendTextLayer,
                 Color = s_byLayer
             };
             mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleLeft);
@@ -599,18 +713,6 @@ namespace ModelspaceDraw
 
                 transaction.Commit();
             }
-        }
-    }
-
-
-    public struct Point
-    {
-        public double X;
-        public double Y;
-
-        public Point(double x, double y)
-        {
-            X = x; Y = y;
         }
     }
 }

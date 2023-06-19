@@ -1,11 +1,11 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Dictionary>
   <item>
     <key>
       <string>ВО_л_быт_напор</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>1700</Rank>
         <Label>напорный коллектор бытовой канализации</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -17,7 +17,7 @@
       <string>ВО_л_быт_самотёк</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>1600</Rank>
         <Label>самотечный коллектор бытовой канализации</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -29,7 +29,7 @@
       <string>ВО_л_илопровод</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>2100</Rank>
         <Label>илопроводы</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -41,7 +41,7 @@
       <string>ВО_л_ограждение</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>2300</Rank>
         <Label>ограждения объектов водоотведения</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -53,7 +53,7 @@
       <string>ВО_л_произв_напор</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>1900</Rank>
         <Label>напорный коллектор производственной канализации</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -65,7 +65,7 @@
       <string>ВО_л_произв_самотёк</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>1800</Rank>
         <Label>самотечный коллектор производственной канализации</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -77,7 +77,7 @@
       <string>ВО_л_футляр</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>2200</Rank>
         <Label>устройство футляра</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -89,7 +89,7 @@
       <string>ВО_п_камеры</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>2000</Rank>
         <Label>канализационные камеры</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -101,7 +101,7 @@
       <string>ВО_п_КНС</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>1400</Rank>
         <Label>канализационная насосная станция</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -113,7 +113,7 @@
       <string>ВО_п_КОС</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>1200</Rank>
         <Label>очистные сооружения бытовой канализации</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -125,7 +125,7 @@
       <string>ВО_т_КГ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>1500</Rank>
         <Label>камера гашения</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -137,7 +137,7 @@
       <string>ВО_т_септик</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>1300</Rank>
         <Label>септики</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -149,7 +149,7 @@
       <string>ВС_л_водоводы</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>500</Rank>
         <Label>водоводы</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -161,7 +161,7 @@
       <string>ВС_л_ограждение</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>1100</Rank>
         <Label>ограждения объектов водоснабжения</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -173,7 +173,7 @@
       <string>ВС_л_пож</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>700</Rank>
         <Label>водопроводные сети противопожарного назначения</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -185,7 +185,7 @@
       <string>ВС_л_техн</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>800</Rank>
         <Label>водопроводные сети технического назначения</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -197,7 +197,7 @@
       <string>ВС_л_футляр</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>1000</Rank>
         <Label>устройство футляра</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -209,7 +209,7 @@
       <string>ВС_л_хп</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>600</Rank>
         <Label>водопроводные сети</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -221,7 +221,7 @@
       <string>ВС_п_ВЗУ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>100</Rank>
         <Label>водозаборный узел</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -233,7 +233,7 @@
       <string>ВС_п_ВНС</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>300</Rank>
         <Label>водопроводная насосная станция</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -245,7 +245,7 @@
       <string>ВС_п_камеры</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>900</Rank>
         <Label>водопроводные камеры</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -257,7 +257,7 @@
       <string>ВС_п_резервуары</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>400</Rank>
         <Label>пожарные резервуары</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -269,7 +269,7 @@
       <string>ВС_т_артскважины</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>200</Rank>
         <Label>артезианские скважины</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -281,7 +281,7 @@
       <string>ГС_л_магистр-5.5</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>5100</Rank>
         <Label>магистральные газопроводы (P ≤ 5,4 МПа)</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -293,7 +293,7 @@
       <string>ГС_л_ограждение</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>5800</Rank>
         <Label>ограждения объектов газоснабжения</Label>
         <IgnoreLayer>true</IgnoreLayer>
@@ -305,7 +305,7 @@
       <string>ГС_л_распред-0.005</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>5600</Rank>
         <Label>- низкого давления P ≤ 0,005 МПа</Label>
         <SubLabel>распределительные газопроводы:</SubLabel>
@@ -318,7 +318,7 @@
       <string>ГС_л_распред-0.3</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>5500</Rank>
         <Label>- среднего давления P ≤ 0,3 МПа</Label>
         <SubLabel>распределительные газопроводы:</SubLabel>
@@ -331,7 +331,7 @@
       <string>ГС_л_распред-0.6</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>5400</Rank>
         <Label>- высокого давления P ≤ 0,6 МПа</Label>
         <SubLabel>распределительные газопроводы:</SubLabel>
@@ -344,7 +344,7 @@
       <string>ГС_л_распред-1.2</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>5300</Rank>
         <Label>- высокого давления P ≤ 1,2 МПа</Label>
         <SubLabel>распределительные газопроводы:</SubLabel>
@@ -357,7 +357,7 @@
       <string>ГС_л_футляр</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>5700</Rank>
         <Label>устройство футляра</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -369,7 +369,7 @@
       <string>ГС_п_ГРС</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>5000</Rank>
         <Label>газораспределительные станции (ГРС)</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -381,7 +381,7 @@
       <string>ГС_п_ПРГ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>5200</Rank>
         <Label>пункты редуцирования газа</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -393,7 +393,7 @@
       <string>ДК_л_дренаж</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>3500</Rank>
         <Label>дренажные сети</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -405,7 +405,7 @@
       <string>ДК_л_закрытая</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>2800</Rank>
         <Label>закрытая сеть дождевой канализации</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -417,7 +417,7 @@
       <string>ДК_л_канавы</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>3400</Rank>
         <Label>водоотводные канавы</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -429,7 +429,7 @@
       <string>ДК_л_лоток</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>3300</Rank>
         <Label>железобетонные лотки</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -441,7 +441,7 @@
       <string>ДК_л_напорная</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>2900</Rank>
         <Label>напорный коллектор дождевой канализации</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -453,7 +453,7 @@
       <string>ДК_л_ограждение</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>4100</Rank>
         <Label>ограждения объектов дождевой канализации</Label>
         <IgnoreLayer>true</IgnoreLayer>
@@ -465,7 +465,7 @@
       <string>ДК_л_подп.стенка</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>3800</Rank>
         <Label>подпорные стенки</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -477,7 +477,7 @@
       <string>ДК_л_сбросной_напор</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>3100</Rank>
         <Label>напорный коллектор очищенных стоков</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -489,7 +489,7 @@
       <string>ДК_л_сбросной_самотёк</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>3000</Rank>
         <Label>сбросной коллектор очищенных стоков</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -501,7 +501,7 @@
       <string>ДК_л_труба</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>3700</Rank>
         <Label>водопропускные трубы</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -513,7 +513,7 @@
       <string>ДК_л_футляр</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>3600</Rank>
         <Label>устройство футляра</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -525,7 +525,7 @@
       <string>ДК_п_засыпка</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>3900</Rank>
         <Label>засыпка</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -537,7 +537,7 @@
       <string>ДК_п_камеры</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>3200</Rank>
         <Label>камеры дождевой канализации</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -549,7 +549,7 @@
       <string>ДК_п_КНС</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>2500</Rank>
         <Label>станция перекачки поверностного стока</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -561,7 +561,7 @@
       <string>ДК_п_ОС</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>2400</Rank>
         <Label>очистные сооружения дождевой канализации</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -573,7 +573,7 @@
       <string>ДК_п_резервуар</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>2700</Rank>
         <Label>накопительный резервуар</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -585,7 +585,7 @@
       <string>ДК_п_русло</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>4000</Rank>
         <Label>устройство русла</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -597,7 +597,7 @@
       <string>ДК_т_КГ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>2600</Rank>
         <Label>камера гашения</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -609,7 +609,7 @@
       <string>ЖД_л_воздухопровод</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>11800</Rank>
         <Label>воздухопроводы</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -621,7 +621,7 @@
       <string>ЖД_л_волноводы</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>11900</Rank>
         <Label>водноводы</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -633,7 +633,7 @@
       <string>СС_л_воздушная</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>11300</Rank>
         <Label>воздушные линии связи</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -645,7 +645,7 @@
       <string>СС_л_кабели</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>11200</Rank>
         <Label>кабели связи</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -657,7 +657,7 @@
       <string>СС_л_канализация</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>11000</Rank>
         <Label>кабельная канализация связи</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -669,7 +669,7 @@
       <string>СС_л_ВОЛС</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>11100</Rank>
         <Label>волоконно-оптические линии связи</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -681,7 +681,7 @@
       <string>СС_л_ограждение</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>11700</Rank>
         <Label>ограждения объектов связи</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -693,7 +693,7 @@
       <string>СС_л_СЦБ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>11400</Rank>
         <Label>кабели СЦБ</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -705,7 +705,7 @@
       <string>СС_л_технологическая_ЛРТ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>11500</Rank>
         <Label>технологическая связь ЛРТ</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -717,7 +717,7 @@
       <string>СС_л_футляр</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>11600</Rank>
         <Label>устройство защиты от механических повреждений</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -729,7 +729,7 @@
       <string>СС_п_АТС</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>10700</Rank>
         <Label>автоматические телефонные станции</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -741,7 +741,7 @@
       <string>СС_п_камеры</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>10900</Rank>
         <Label>камеры видеонаблюдения</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -753,7 +753,7 @@
       <string>СС_п_сооружения</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>10800</Rank>
         <Label>сооружения связи</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -765,7 +765,7 @@
       <string>ТС_л_сети</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>4400</Rank>
         <Label>тепловые сети</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -777,7 +777,7 @@
       <string>ТС_л_футляр</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>4600</Rank>
         <Label>устройство футляра</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -789,7 +789,7 @@
       <string>ТС_п_камеры</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>4500</Rank>
         <Label>тепловые камеры</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -801,7 +801,7 @@
       <string>ТС_п_котельная</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>4200</Rank>
         <Label>котельная</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -813,7 +813,7 @@
       <string>ТС_п_ЦТП</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>4300</Rank>
         <Label>центральный тепловой пункт (ЦТП)</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -825,7 +825,7 @@
       <string>ТТ_л_нефтепровод</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>4700</Rank>
         <Label>нефтепровод</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -837,7 +837,7 @@
       <string>ТТ_л_нефтепродуктопровод</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>4800</Rank>
         <Label>нефтепродуктопровод</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -849,7 +849,7 @@
       <string>ТТ_л_футляр</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>4900</Rank>
         <Label>устройство футляра</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -861,7 +861,7 @@
       <string>ЭС_л_ВЛ_0.4кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>7400</Rank>
         <Label>- напряжением 0,4 кВ</Label>
         <SubLabel>воздушные линии электропередачи:</SubLabel>
@@ -874,7 +874,7 @@
       <string>ЭС_л_ВЛ_10кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>7200</Rank>
         <Label>- напряжением 10 кВ</Label>
         <SubLabel>воздушные линии электропередачи:</SubLabel>
@@ -887,7 +887,7 @@
       <string>ЭС_л_ВЛ_10кВ_ПЭ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>7900</Rank>
         <Label>- напряжением 10 кВ</Label>
         <SubLabel>воздушные линии электропередачи продольного электроснабжения железной дороги (ПЭ):</SubLabel>
@@ -900,7 +900,7 @@
       <string>ЭС_л_ВЛ_110кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>6900</Rank>
         <Label>- напряжением 110 кВ</Label>
         <SubLabel>воздушные линии электропередачи:</SubLabel>
@@ -913,7 +913,7 @@
       <string>ЭС_л_ВЛ_20кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>7100</Rank>
         <Label>- напряжением 20 кВ</Label>
         <SubLabel>воздушные линии электропередачи:</SubLabel>
@@ -926,7 +926,7 @@
       <string>ЭС_л_ВЛ_20кВ_ПЭ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>7800</Rank>
         <Label>- напряжением 20 кВ</Label>
         <SubLabel>воздушные линии электропередачи продольного электроснабжения железной дороги (ПЭ):</SubLabel>
@@ -939,7 +939,7 @@
       <string>ЭС_л_ВЛ_220кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>6800</Rank>
         <Label>- напряжением 220 кВ</Label>
         <SubLabel>воздушные линии электропередачи:</SubLabel>
@@ -952,7 +952,7 @@
       <string>ЭС_л_ВЛ_35кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>7000</Rank>
         <Label>- напряжением 35 кВ</Label>
         <SubLabel>воздушные линии электропередачи:</SubLabel>
@@ -965,7 +965,7 @@
       <string>ЭС_л_ВЛ_500кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>6700</Rank>
         <Label>- напряжением 500 кВ</Label>
         <SubLabel>воздушные линии электропередачи:</SubLabel>
@@ -978,7 +978,7 @@
       <string>ЭС_л_ВЛ_6кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>7300</Rank>
         <Label>- напряжением 6 кВ</Label>
         <SubLabel>воздушные линии электропередачи:</SubLabel>
@@ -991,7 +991,7 @@
       <string>ЭС_л_ВЛ_6кВ_ПЭ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>8000</Rank>
         <Label>- напряжением 6 кВ</Label>
         <SubLabel>воздушные линии электропередачи продольного электроснабжения железной дороги (ПЭ):</SubLabel>
@@ -1004,7 +1004,7 @@
       <string>ЭС_л_ВЛ_750кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>6600</Rank>
         <Label>- напряжением 750 кВ</Label>
         <SubLabel>воздушные линии электропередачи:</SubLabel>
@@ -1017,7 +1017,7 @@
       <string>ЭС_л_ВЛЗ_10кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>7600</Rank>
         <Label>- напряжением 10 кВ</Label>
         <SubLabel>воздушные линии электропередачи выполненные защищёнными проводами с изолирующей оболочкой (ВЛЗ):</SubLabel>
@@ -1030,7 +1030,7 @@
       <string>ЭС_л_ВЛЗ_20кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>7500</Rank>
         <Label>- напряжением 20 кВ</Label>
         <SubLabel>воздушные линии электропередачи выполненные защищёнными проводами с изолирующей оболочкой (ВЛЗ):</SubLabel>
@@ -1043,7 +1043,7 @@
       <string>ЭС_л_ВЛЗ_6кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>7700</Rank>
         <Label>- напряжением 6 кВ</Label>
         <SubLabel>воздушные линии электропередачи выполненные защищёнными проводами с изолирующей оболочкой (ВЛЗ):</SubLabel>
@@ -1056,7 +1056,7 @@
       <string>ЭС_л_КЛ_0.4кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>8900</Rank>
         <Label>- напряжением 0,4 кВ</Label>
         <SubLabel>кабельные линии электропередачи:</SubLabel>
@@ -1069,7 +1069,7 @@
       <string>ЭС_л_КЛ_0.6кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>10200</Rank>
         <Label>питающие линии электропередачи контактной сети ЛРТ напряжением 0,6 кВ</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1081,7 +1081,7 @@
       <string>ЭС_л_КЛ_10кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>8700</Rank>
         <Label>- напряжением 10 кВ</Label>
         <SubLabel>кабельные линии электропередачи:</SubLabel>
@@ -1094,7 +1094,7 @@
       <string>ЭС_л_КЛ_10кВ_ПЭ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>9100</Rank>
         <Label>- напряжением 10 кВ</Label>
         <SubLabel>кабельные линии электропередачи продольного электроснабжения железной дороги (ПЭ):</SubLabel>
@@ -1107,7 +1107,7 @@
       <string>ЭС_л_КЛ_110кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>8400</Rank>
         <Label>- напряжением 110 кВ</Label>
         <SubLabel>кабельные линии электропередачи:</SubLabel>
@@ -1120,7 +1120,7 @@
       <string>ЭС_л_КЛ_20кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>8600</Rank>
         <Label>- напряжением 20 кВ</Label>
         <SubLabel>кабельные линии электропередачи:</SubLabel>
@@ -1133,7 +1133,7 @@
       <string>ЭС_л_КЛ_20кВ_ПЭ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>9000</Rank>
         <Label>- напряжением 20 кВ</Label>
         <SubLabel>кабельные линии электропередачи продольного электроснабжения железной дороги (ПЭ):</SubLabel>
@@ -1146,7 +1146,7 @@
       <string>ЭС_л_КЛ_220кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>8300</Rank>
         <Label>- напряжением 220 кВ</Label>
         <SubLabel>кабельные линии электропередачи:</SubLabel>
@@ -1159,7 +1159,7 @@
       <string>ЭС_л_КЛ_35кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>8500</Rank>
         <Label>- напряжением 35 кВ</Label>
         <SubLabel>кабельные линии электропередачи:</SubLabel>
@@ -1172,7 +1172,7 @@
       <string>ЭС_л_КЛ_500кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>8200</Rank>
         <Label>- напряжением 500 кВ</Label>
         <SubLabel>кабельные линии электропередачи:</SubLabel>
@@ -1185,7 +1185,7 @@
       <string>ЭС_л_КЛ_6кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>8800</Rank>
         <Label>- напряжением 6 кВ</Label>
         <SubLabel>кабельные линии электропередачи:</SubLabel>
@@ -1198,7 +1198,7 @@
       <string>ЭС_л_КЛ_6кВ_ПЭ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>9200</Rank>
         <Label>- напряжением 6 кВ</Label>
         <SubLabel>кабельные линии электропередачи продольного электроснабжения железной дороги (ПЭ):</SubLabel>
@@ -1211,7 +1211,7 @@
       <string>ЭС_л_КЛ_750кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>8100</Rank>
         <Label>- напряжением 750 кВ</Label>
         <SubLabel>кабельные линии электропередачи:</SubLabel>
@@ -1224,7 +1224,7 @@
       <string>ЭС_л_конт.сеть</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>10300</Rank>
         <Label>контактная сеть</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1236,7 +1236,7 @@
       <string>ЭС_л_конт.сеть_3.3кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>10301</Rank>
         <Label>контактная сеть железной дороги</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1248,7 +1248,7 @@
       <string>ЭС_л_конт.сеть_0.6кВ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>9201</Rank>
         <Label>контактная сеть ЛРТ</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1260,7 +1260,7 @@
       <string>ЭС_л_нар.осв_возд</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>9600</Rank>
         <Label>воздушная ЛЭП напряжением 0,4 кВ сети наружного освещения</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1272,7 +1272,7 @@
       <string>ЭС_л_нар.осв_кабель</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>9700</Rank>
         <Label>кабельная ЛЭП напряжением 0,4 кВ сети наружного освещения</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1284,7 +1284,7 @@
       <string>ЭС_л_нар.осв</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>9800</Rank>
         <Label>кабельно-воздушная ЛЭП напряжением 0,4 кВ сети наружного освещения</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1296,7 +1296,7 @@
       <string>ЭС_л_ограждение</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>6500</Rank>
         <Label>ограждения объектов электроснабжения</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1308,7 +1308,7 @@
       <string>ЭС_л_опоры</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>9500</Rank>
         <Label>опоры воздушных линий электропередачи</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1320,7 +1320,7 @@
       <string>ЭС_л_футляр</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>10400</Rank>
         <Label>устройство защиты от механических повреждений</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1332,7 +1332,7 @@
       <string>ЭС_п_БРП</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>6300</Rank>
         <Label>блочные распределительные пункты</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1344,7 +1344,7 @@
       <string>ЭС_п_ДГУ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>6400</Rank>
         <Label>дизель-генераторные установки</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1356,7 +1356,7 @@
       <string>ЭС_п_камеры</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>9300</Rank>
         <Label>камеры</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1368,7 +1368,7 @@
       <string>ЭС_п_каналы</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>9400</Rank>
         <Label>кабельные каналы и туннели</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1380,7 +1380,7 @@
       <string>ЭС_п_коллектор_общ</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>10600</Rank>
         <Label>коллектор для совместной прокладки инженерных коммуникаций</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1392,7 +1392,7 @@
       <string>ЭС_п_ПП</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>6000</Rank>
         <Label>переходный пункт</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1404,7 +1404,7 @@
       <string>ЭС_п_ПС</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>5900</Rank>
         <Label>электрическая подстанция</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1416,7 +1416,7 @@
       <string>ЭС_п_реконструкция</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>10500</Rank>
         <Label>реконструкция объекта электроэнергетики</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1428,7 +1428,7 @@
       <string>ЭС_п_РП</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>6100</Rank>
         <Label>распределительный пункт</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1440,7 +1440,7 @@
       <string>ЭС_п_ТП</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>6200</Rank>
         <Label>трансформаторная подстанция</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1452,7 +1452,7 @@
       <string>ЭС_п_ТП_площадки</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>99900</Rank>
         <Label>площадки для размещения тяговых трансформаторных подстанций</Label>
         <IgnoreLayer>true</IgnoreLayer>
@@ -1464,7 +1464,7 @@
       <string>ЭС_п_ТП-тяг</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>10100</Rank>
         <Label>тяговые трансформаторные подстанции ЛРТ</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1476,7 +1476,7 @@
       <string>ЭС_т_зарядная станция</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>10000</Rank>
         <Label>электрическая зарядная станция</Label>
         <IgnoreLayer>false</IgnoreLayer>
@@ -1488,7 +1488,7 @@
       <string>ЭС_т_нар.осв_мачта</string>
     </key>
     <value>
-      <LegendData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <LegendData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <Rank>9900</Rank>
         <Label>мачта наружного освещения</Label>
         <IgnoreLayer>false</IgnoreLayer>

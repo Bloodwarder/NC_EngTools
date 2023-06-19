@@ -35,7 +35,7 @@ namespace NC_EngTools
             Database db = HostApplicationServices.WorkingDatabase;
             PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
 
-            string tgtlayer = LayerParser.StandartPrefix+"_Калька";
+            string tgtlayer = LayerParser.StandartPrefix + "_Калька";
 
             using (Transaction myT = tm.StartTransaction())
             {
@@ -60,7 +60,7 @@ namespace NC_EngTools
                                                   where ltr.Name == tgtlayer
                                                   select ltr)
                                                   .FirstOrDefault();
-                        if (ltrec.IsFrozen||ltrec.IsOff)
+                        if (ltrec.IsFrozen || ltrec.IsOff)
                         {
                             ltrec.IsOff = false;
                             ltrec.IsFrozen = false;
@@ -80,7 +80,10 @@ namespace NC_EngTools
         [CommandMethod("ИЗМСТАТУС", CommandFlags.Redraw)]
         public void LayerStatusChange()
         {
-            Workstation.Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
+            Workstation.Define();
+            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Editor ed = Workstation.Editor;
+
 
             PromptKeywordOptions pko = new PromptKeywordOptions($"Укажите статус объекта <{PrevStatus}> [Сущ/Демонтаж/Проект/Неутв/Неутв_демонтаж/Неутв_реорганизация]", "Сущ Демонтаж Проект Неутв Неутв_демонтаж Неутв_реорганизация")
             {
@@ -119,7 +122,9 @@ namespace NC_EngTools
         [CommandMethod("АЛЬТЕРНАТИВНЫЙ", CommandFlags.Redraw)]
         public void LayerAlter()
         {
-            Workstation.Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
+            Workstation.Define();
+            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Editor ed = Workstation.Editor;
 
             using (Transaction myT = tm.StartTransaction())
             {
@@ -145,7 +150,9 @@ namespace NC_EngTools
         [CommandMethod("ПЕРЕУСТРОЙСТВО", CommandFlags.Redraw)]
         public void LayerReconstruction()
         {
-            Workstation.Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
+            Workstation.Define();
+            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Editor ed = Workstation.Editor;
 
             using (Transaction myT = tm.StartTransaction())
             {
@@ -171,7 +178,9 @@ namespace NC_EngTools
         [CommandMethod("ВНЕШПРОЕКТ", CommandFlags.Redraw)]
         public void ExtAssign()
         {
-            Workstation.Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
+            Workstation.Define();
+            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Editor ed = Workstation.Editor;
 
             PromptStringOptions pso = new PromptStringOptions($"Введите имя проекта, согласно которому отображён выбранный объект")
             {
@@ -215,7 +224,9 @@ namespace NC_EngTools
         [CommandMethod("СВС", CommandFlags.Redraw)]
         public void StandartLayerValues()
         {
-            Workstation.Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
+            Workstation.Define();
+            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Editor ed = Workstation.Editor;
 
             using (Transaction myT = tm.StartTransaction())
             {
@@ -241,8 +252,8 @@ namespace NC_EngTools
         [CommandMethod("ПРЕФИКС")]
         public void ChangePrefix()
         {
-            Document doc = Application.DocumentManager.MdiActiveDocument;
-            Editor ed = doc.Editor;
+            Workstation.Define();
+            Editor ed = Workstation.Editor;
             PromptStringOptions pso = new PromptStringOptions($"Введите новый префикс обрабатываемых слоёв <{LayerParser.StandartPrefix}>")
             {
                 AllowSpaces = false
@@ -263,7 +274,7 @@ namespace NC_EngTools
         {
             get
             {
-                Workstation.Define(out Document doc);
+                Document doc = Workstation.Document;
                 if (!_activeChapterState.ContainsKey(doc))
                 { _activeChapterState.Add(doc, null); }
                 return _activeChapterState;
@@ -272,13 +283,20 @@ namespace NC_EngTools
         [CommandMethod("ВИЗРАЗДЕЛ")]
         public void Visualizer()
         {
-            Workstation.Define(out Document doc, out Database db, out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
+            Workstation.Define();
+            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Editor ed = Workstation.Editor;
+            Document doc = Workstation.Document;
+            Database db = Workstation.Database;
+
+
+
             using (Transaction myT = tm.StartTransaction())
             {
                 LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForRead, false);
                 var layers = from ObjectId elem in lt
                              let ltr = (LayerTableRecord)tm.GetObject(elem, OpenMode.ForWrite, false)
-                             where ltr.Name.StartsWith(LayerParser.StandartPrefix+"_")
+                             where ltr.Name.StartsWith(LayerParser.StandartPrefix + "_")
                              select ltr;
                 foreach (LayerTableRecord ltr in layers)
                 {
@@ -292,9 +310,9 @@ namespace NC_EngTools
                         continue;
                     }
                 }
-                var layerchapters = ChapterStoredRecordLayerParsers.List[doc].Where(l => l.EngType!=null).Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
+                var layerchapters = ChapterStoredRecordLayerParsers.List[doc].Where(l => l.EngType != null).Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
                 List<string> lcplus = layerchapters.Append("Сброс").ToList();
-                PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел ["+string.Join("/", lcplus)+"]", string.Join(" ", lcplus))
+                PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел [" + string.Join("/", lcplus) + "]", string.Join(" ", lcplus))
                 {
                     AppendKeywordsToMessage = true,
                     AllowNone = false,
@@ -305,7 +323,7 @@ namespace NC_EngTools
                 if (res.StringResult == "Сброс")
                 {
                     ChapterStoredRecordLayerParsers.Reset();
-                    if (ActiveChapterState!=null)
+                    if (ActiveChapterState != null)
                     {
                         LayerChecker.LayerAdded -= NewLayerHighlight;
                         ActiveChapterState[doc] = null;
@@ -324,7 +342,9 @@ namespace NC_EngTools
 
         public void NewLayerHighlight(object sender, System.EventArgs e)
         {
-            Workstation.Define(out Document doc, out _, out Teigha.DatabaseServices.TransactionManager tm);
+            Document doc = Workstation.Document;
+            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+
             using (Transaction myT = tm.StartTransaction())
             {
                 ChapterStoreLayerParser rlp = new ChapterStoreLayerParser((LayerTableRecord)sender);
@@ -351,6 +371,8 @@ namespace NC_EngTools
         [CommandMethod("ПОДПИСЬ")]
         public void LabelDraw()
         {
+            Workstation.Define();
+
             using (Transaction tr = Workstation.TransactionManager.StartTransaction())
             {
                 //выбираем полилинию
@@ -376,7 +398,7 @@ namespace NC_EngTools
 
                 //проверяем, какому сегменту принадлежит точка и вычисляем его направление
                 LineSegment2d ls = new LineSegment2d();
-                for (int i = 0; i<polyline.NumberOfVertices-1; i++)
+                for (int i = 0; i < polyline.NumberOfVertices - 1; i++)
                 {
                     ls = polyline.GetLineSegment2dAt(i);
                     if (SegmentCheck(pointonline.Convert2d(new Plane(new Point3d(0, 0, 0), new Vector3d(0, 0, 1))), ls))
@@ -411,14 +433,14 @@ namespace NC_EngTools
                     BackgroundScaleFactor = 1.1d
                 };
                 TextStyleTable txtstyletable = tr.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
-                mtext.TextStyleId =txtstyletable["Standard"];
+                mtext.TextStyleId = txtstyletable["Standard"];
                 mtext.Contents = Regex.Replace(text, "^(д|d)", "%%C"); //заменяем первую букву д на знак диаметра
                 mtext.TextHeight = 3.6d;
                 mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleCenter);
                 mtext.Location = point;
                 mtext.Color = polyline.Color;
                 mtext.Layer = polyline.Layer; //устанавливаем цвет и слой как у полилинии
-                mtext.Rotation = (v2d.Angle * 180/Math.PI > 270 ||  v2d.Angle * 180/Math.PI < 90) ? v2d.Angle : v2d.Angle + Math.PI; //вычисляем угол поворота с учётом читаемости
+                mtext.Rotation = (v2d.Angle * 180 / Math.PI > 270 || v2d.Angle * 180 / Math.PI < 90) ? v2d.Angle : v2d.Angle + Math.PI; //вычисляем угол поворота с учётом читаемости
                 //добавляем в модель и в транзакцию
                 modelspace.AppendEntity(mtext);
                 tr.AddNewlyCreatedDBObject(mtext, true); // и в транзакцию
@@ -437,7 +459,7 @@ namespace NC_EngTools
             double minx = new double[] { p1.X, p2.X }.Min();
             double miny = new double[] { p1.Y, p2.Y }.Min();
 
-            if (maxx-minx<5)
+            if (maxx - minx < 5)
             {
                 maxx += 5;
                 minx -= 5;
@@ -448,7 +470,7 @@ namespace NC_EngTools
                 miny -= 5;
             }
             //bool b1 = (point.X>minx & point.X<maxx) & (point.Y>miny & point.Y<maxy);
-            return (point.X>minx & point.X<maxx) & (point.Y>miny & point.Y<maxy);
+            return (point.X > minx & point.X < maxx) & (point.Y > miny & point.Y < maxy);
         }
 
     }
@@ -458,10 +480,14 @@ namespace NC_EngTools
         [CommandMethod("АВТОСБОРКА")]
         public void Assemble()
         {
+            Workstation.Define();
+            LayerChecker.Check(string.Concat(LayerParser.StandartPrefix, "_Условные"));
+
             //получить точку вставки
             PromptPointOptions ppo = new PromptPointOptions("Укажите точку вставки")
             {
-                AllowNone=false
+                UseBasePoint = false,
+                AllowNone = false
             };
             PromptPointResult result = Workstation.Editor.GetPoint(ppo);
             if (result.Status != PromptStatus.OK)
@@ -475,7 +501,7 @@ namespace NC_EngTools
                 LayerTable layertable = Workstation.TransactionManager.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead) as LayerTable;
                 var layers = from ObjectId elem in layertable
                              let ltr = Workstation.TransactionManager.GetObject(elem, OpenMode.ForWrite, false) as LayerTableRecord
-                             where ltr.Name.StartsWith(LayerParser.StandartPrefix+"_")
+                             where ltr.Name.StartsWith(LayerParser.StandartPrefix + "_")
                              select ltr;
                 List<RecordLayerParser> layersList = new List<RecordLayerParser>();
                 foreach (LayerTableRecord ltr in layers)
@@ -520,6 +546,8 @@ namespace NC_EngTools
                     modelspace.AppendEntity(e);
                     transaction.AddNewlyCreatedDBObject(e, true); // и в транзакцию
                 }
+                DrawOrderTable dro = (DrawOrderTable)transaction.GetObject(modelspace.DrawOrderTableId, OpenMode.ForWrite);
+                dro.MoveToTop(new ObjectIdCollection(list.Where(e => !(e is Hatch)).Select(e => e.ObjectId).ToArray()));
 
                 transaction.Commit();
             }
@@ -533,13 +561,16 @@ namespace NC_EngTools
 
         internal static void UpdateActiveLayerParsers()
         {
-            Workstation.Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed);
+
+            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Editor ed = Workstation.Editor;
+
             PromptSelectionResult sr = ed.SelectImplied();
 
             if (sr.Status == PromptStatus.OK)
             {
                 SelectionSet ss = sr.Value;
-                if (ss.Count<MaxSimple)
+                if (ss.Count < MaxSimple)
                 {
                     ChangerSimple(tm, ss);
                 }
@@ -622,7 +653,7 @@ namespace NC_EngTools
                         {
                             var elem = from ObjectId layer in ltt
                                        let lttr = (LinetypeTableRecord)tm.GetObject(layer, OpenMode.ForRead)
-                                       where lttr.Name.ToUpper()==lp.LTName.ToUpper()
+                                       where lttr.Name.ToUpper() == lp.LTName.ToUpper()
                                        select lttr;
                             lttrId = elem.FirstOrDefault().Id;
                         }
@@ -686,44 +717,23 @@ namespace NC_EngTools
 
     static class Workstation
     {
+        private static Document document;
+        private static Database database;
+        private static PlatformDb.DatabaseServices.TransactionManager transactionManager;
+        private static Editor editor;
 
-        public static Document Document => Application.DocumentManager.MdiActiveDocument;
-        public static Database Database => HostApplicationServices.WorkingDatabase;
-        public static PlatformDb.DatabaseServices.TransactionManager TransactionManager => Database.TransactionManager;
-        public static Editor Editor => Document.Editor;
 
+        public static Document Document => document;
+        public static Database Database => database;
+        public static PlatformDb.DatabaseServices.TransactionManager TransactionManager => transactionManager;
+        public static Editor Editor => editor;
 
-        internal static void Define(out Document doc)
+        public static void Define()
         {
-            doc = Document;
-        }
-        internal static void Define(out Database db)
-        {
-            db = Database;
-        }
-        internal static void Define(out Document doc, out Database db)
-        {
-            Define(out doc);
-            Define(out db);
-        }
-        internal static void Define(out Document doc, out Database db, out PlatformDb.DatabaseServices.TransactionManager tm)
-        {
-            Define(out doc, out db);
-            tm = TransactionManager;
-        }
-        internal static void Define(out PlatformDb.DatabaseServices.TransactionManager tm)
-        {
-            tm = TransactionManager;
-        }
-        internal static void Define(out Document doc, out Database db, out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed)
-        {
-            Define(out doc, out db, out tm);
-            ed = Editor;
-        }
-        internal static void Define(out PlatformDb.DatabaseServices.TransactionManager tm, out Editor ed)
-        {
-            tm = TransactionManager;
-            ed = Editor;
+            document = Application.DocumentManager.MdiActiveDocument;
+            database = HostApplicationServices.WorkingDatabase;
+            transactionManager = Database.TransactionManager;
+            editor = Document.Editor;
         }
 
     }
