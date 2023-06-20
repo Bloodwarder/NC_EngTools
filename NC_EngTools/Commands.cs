@@ -491,10 +491,10 @@ namespace NC_EngTools
                 UseBasePoint = false,
                 AllowNone = false
             };
-            PromptPointResult result = Workstation.Editor.GetPoint(ppo);
-            if (result.Status != PromptStatus.OK)
+            PromptPointResult pointResult = Workstation.Editor.GetPoint(ppo);
+            if (pointResult.Status != PromptStatus.OK)
                 return;
-            Point3d p3d = result.Value;
+            Point3d p3d = pointResult.Value;
 
             //получить таблицу слоёв и слои
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
@@ -505,6 +505,7 @@ namespace NC_EngTools
                              let ltr = Workstation.TransactionManager.GetObject(elem, OpenMode.ForWrite, false) as LayerTableRecord
                              where ltr.Name.StartsWith(LayerParser.StandartPrefix + "_")
                              select ltr;
+                // Создать парсеры для слоёв
                 List<RecordLayerParser> layersList = new List<RecordLayerParser>();
                 foreach (LayerTableRecord ltr in layers)
                 {
@@ -524,35 +525,40 @@ namespace NC_EngTools
                         continue;
                     }
                 }
+                // Создать шаблон ячейки для каждого успешно обработанного слоя
                 List<LegendGridCell> cells = new List<LegendGridCell>();
                 foreach (RecordLayerParser rlp in layersList)
                 {
                     cells.Add(new LegendGridCell(rlp));
                 }
+                // Выбрать фильтр (режим компоновки)
                 PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите режим компоновки: [{string.Join("/",_filterKeywords)}]",string.Join(" ",_filterKeywords))
                 {
                     AppendKeywordsToMessage = true,
                     AllowNone = false,
                     AllowArbitraryInput = false
                 };
-                PromptResult res = Workstation.Editor.GetKeywords(pko);
-                if (res.Status != PromptStatus.OK)
+                PromptResult keywordResult = Workstation.Editor.GetKeywords(pko);
+                if (keywordResult.Status != PromptStatus.OK)
                     return;
-                TableFilter filter = GetFilter(res.StringResult);
+                TableFilter filter = GetFilter(keywordResult.StringResult);
+
+                // Запустить компоновщик таблиц условных и получить созданные объекты чертежа для вставки в ModelSpace
                 GridsComposer composer = new GridsComposer(cells, filter);
                 composer.Compose(p3d);
-                List<Entity> list = composer.DrawGrids();
-
+                List<Entity> entitiesList = composer.DrawGrids();
+                // Получить таблицу блоков и ModelSpace, затем вставить объекты таблиц условных в чертёж
                 BlockTable blocktable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
                 BlockTableRecord modelspace = transaction.GetObject(blocktable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
-                foreach (Entity e in list)
+                foreach (Entity e in entitiesList)
                 {
                     modelspace.AppendEntity(e);
                     transaction.AddNewlyCreatedDBObject(e, true); // и в транзакцию
                 }
-                DrawOrderTable dro = (DrawOrderTable)transaction.GetObject(modelspace.DrawOrderTableId, OpenMode.ForWrite);
-                dro.MoveToTop(new ObjectIdCollection(list.Where(e => !(e is Hatch)).Select(e => e.ObjectId).ToArray()));
-
+                // Поднять наверх в таблице порядка прорисовки все созданные объекты кроме штриховок
+                DrawOrderTable drawOrderTable = (DrawOrderTable)transaction.GetObject(modelspace.DrawOrderTableId, OpenMode.ForWrite);
+                drawOrderTable.MoveToTop(new ObjectIdCollection(entitiesList.Where(e => !(e is Hatch)).Select(e => e.ObjectId).ToArray()));
+                // Завершить транзакцию и вывести список необработанных слоёв в консоль
                 transaction.Commit();
                 Workstation.Editor.WriteMessage(wrongLayersStringBuilder.ToString());
             }
@@ -571,22 +577,18 @@ namespace NC_EngTools
 
         internal static void UpdateActiveLayerParsers()
         {
+            PromptSelectionResult result = Workstation.Editor.SelectImplied();
 
-            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
-            Editor ed = Workstation.Editor;
-
-            PromptSelectionResult sr = ed.SelectImplied();
-
-            if (sr.Status == PromptStatus.OK)
+            if (result.Status == PromptStatus.OK)
             {
-                SelectionSet ss = sr.Value;
-                if (ss.Count < MaxSimple)
+                SelectionSet selectionSet = result.Value;
+                if (selectionSet.Count < MaxSimple)
                 {
-                    ChangerSimple(tm, ss);
+                    ChangerSimple(selectionSet);
                 }
                 else
                 {
-                    ChangerBig(tm, ss);
+                    ChangerBig(selectionSet);
                 }
             }
             else
@@ -595,15 +597,15 @@ namespace NC_EngTools
             }
         }
 
-        private static void ChangerSimple(PlatformDb.DatabaseServices.TransactionManager tm, SelectionSet ss)
+        private static void ChangerSimple(SelectionSet selectionSet)
         {
-            foreach (Entity ent in from ObjectId elem in ss.GetObjectIds()
-                                   let ent = (Entity)tm.GetObject(elem, OpenMode.ForWrite)
+            foreach (Entity entity in from ObjectId elem in selectionSet.GetObjectIds()
+                                   let ent = (Entity)Workstation.TransactionManager.GetObject(elem, OpenMode.ForWrite)
                                    select ent)
             {
                 try
                 {
-                    EntityLayerParser entlp = new EntityLayerParser(ent);
+                    EntityLayerParser entlp = new EntityLayerParser(entity);
                 }
                 catch (WrongLayerException)
                 {
@@ -612,22 +614,22 @@ namespace NC_EngTools
             }
         }
 
-        private static void ChangerBig(PlatformDb.DatabaseServices.TransactionManager tm, SelectionSet ss)
+        private static void ChangerBig(SelectionSet selectionSet)
         {
             Dictionary<string, EntityLayerParser> dct = new Dictionary<string, EntityLayerParser>();
-            foreach (var ent in from ObjectId elem in ss.GetObjectIds()
-                                let ent = (Entity)tm.GetObject(elem, OpenMode.ForWrite)
+            foreach (var entity in from ObjectId elem in selectionSet.GetObjectIds()
+                                let ent = (Entity)Workstation.TransactionManager.GetObject(elem, OpenMode.ForWrite)
                                 select ent)
             {
-                if (dct.ContainsKey(ent.Layer))
+                if (dct.ContainsKey(entity.Layer))
                 {
-                    dct[ent.Layer].ObjList.Add(ent);
+                    dct[entity.Layer].ObjectList.Add(entity);
                 }
                 else
                 {
                     try
                     {
-                        dct.Add(ent.Layer, new EntityLayerParser(ent));
+                        dct.Add(entity.Layer, new EntityLayerParser(entity));
                     }
                     catch (WrongLayerException)
                     {
@@ -749,84 +751,6 @@ namespace NC_EngTools
     }
 }
 
-
-
-
-namespace TestCommands
-{
-    public class TEST_12
-    {
-
-        [CommandMethod("TEST_12")]
-        public void Template2()
-        {
-            Database db = HostApplicationServices.WorkingDatabase;
-            Document doc = Platform.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-            Editor ed = doc.Editor;
-            PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
-
-            // Выводим в командную строку информацию о первых 10 слоях
-            ed.WriteMessage("Выводим первые 10 слоев:");
-            using (Transaction myT = tm.StartTransaction())
-            {
-                LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForRead, false);
-                LayerTableRecord ltrec;
-
-                SymbolTableEnumerator lte = lt.GetEnumerator();
-                for (int i = 0; i < 10; ++i)
-                {
-                    if (!lte.MoveNext())
-                    {
-                        break;
-                    }
-
-                    ObjectId id = (ObjectId)lte.Current;
-                    ltrec = (LayerTableRecord)tm.GetObject(id, OpenMode.ForRead);
-                    ed.WriteMessage(string.Format("Имя слоя:{0}; Цвет слоя: {1}; Код слоя:{2}; Прозрачность: {3}", ltrec.Name, ltrec.Color.ToString(), ltrec.Description, ltrec.Transparency.ToString()));
-                }
-            }
-
-            PromptStringOptions opts = new PromptStringOptions("Введите имя нового слоя")
-            {
-                AllowSpaces = true
-            };
-            PromptResult pr = ed.GetString(opts);
-            if (PromptStatus.OK == pr.Status)
-            {
-                string newLayerName = pr.StringResult;
-
-                // Создаем новый слой
-                using (Transaction myT = tm.StartTransaction())
-                {
-                    try
-                    {
-                        LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForWrite, false);
-
-                        // Проверяем есть ли такой слой
-                        if (!lt.Has(newLayerName))
-                        {
-                            LayerTableRecord ltrec = new LayerTableRecord
-                            {
-                                Name = newLayerName
-                            };
-                            lt.Add(ltrec);
-                            tm.AddNewlyCreatedDBObject(ltrec, true);
-                            myT.Commit();
-                        }
-                    }
-                    finally
-                    {
-                        myT.Dispose();
-                    }
-                }
-            }
-            else
-            {
-                ed.WriteMessage("Отмена.");
-            }
-        }
-    }
-}
 
 
 

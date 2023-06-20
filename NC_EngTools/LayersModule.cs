@@ -241,15 +241,15 @@ namespace LayerProcessing
         }
         internal EntityLayerParser(Entity ent) : base(ent.Layer)
         {
-            ObjList.Add(ent); ActiveLayerParsers.Add(this);
+            ObjectList.Add(ent); ActiveLayerParsers.Add(this);
         }
 
-        internal List<Entity> ObjList = new List<Entity>();
+        internal List<Entity> ObjectList = new List<Entity>();
         public override void Push()
         {
             LayerChecker.Check(OutputLayerName);
             LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName, out _);
-            foreach (Entity ent in ObjList)
+            foreach (Entity ent in ObjectList)
             {
                 ent.Layer = OutputLayerName;
                 if (ent is Polyline pl)

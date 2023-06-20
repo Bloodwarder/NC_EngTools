@@ -548,34 +548,35 @@ namespace ModelspaceDraw
         {
             failedBlockImports = new HashSet<string>();
             Transaction transaction = Workstation.TransactionManager.TopTransaction;
-            // По одному разу открываем каждый файл с блоками для условных
+            // По одному разу открываем базу данных каждого файла с блоками для условных
             foreach (string file in QueuedFiles)
             {
-                Document doc = Application.DocumentManager.Open(file, true);
-                doc.Window.Visible = false;
-                try
+                using (Database importDatabase = new Database(false, true))
                 {
-                    // Ищем все нужные нам блоки
-                    BlockTable blockTable = transaction.GetObject(doc.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
-                    var blocks = (from ObjectId blockId in blockTable
-                                  let block = transaction.GetObject(blockId, OpenMode.ForRead) as BlockTableRecord
-                                  where QueuedBlocks[file].Contains(block.Name)
-                                  select block).ToList();
-                    // Заполняем сет с ненайденными блоками
-                    foreach (BlockTableRecord block in blocks)
+                    importDatabase.ReadDwgFile(file, FileOpenMode.OpenForReadAndAllShare, false, null);
+                    try
                     {
-                        if (!QueuedBlocks[file].Contains(block.Name))
-                            failedBlockImports.Add(block.Name);
-                    }
-                    // Добавляем все найденные блоки в таблицу блоков текущего чертежа
-                    blockTable.Database.WblockCloneObjects(new ObjectIdCollection(blocks.Select(b => b.ObjectId).ToArray()), _blocktable.ObjectId, new IdMapping(), DuplicateRecordCloning.Ignore, false);
+                        // Ищем все нужные нам блоки
+                        BlockTable importBlockTable = transaction.GetObject(importDatabase.BlockTableId, OpenMode.ForRead) as BlockTable;
+                        var importedBlocks = (from ObjectId blockId in importBlockTable
+                                      let block = transaction.GetObject(blockId, OpenMode.ForRead) as BlockTableRecord
+                                      where QueuedBlocks[file].Contains(block.Name)
+                                      select block).ToList();
+                        // Заполняем сет с ненайденными блоками
+                        foreach (BlockTableRecord block in importedBlocks)
+                        {
+                            if (!QueuedBlocks[file].Contains(block.Name))
+                                failedBlockImports.Add(block.Name);
+                        }
+                        // Добавляем все найденные блоки в таблицу блоков текущего чертежа
+                        importBlockTable.Database.WblockCloneObjects(new ObjectIdCollection(importedBlocks.Select(b => b.ObjectId).ToArray()), _blocktable.ObjectId, new IdMapping(), DuplicateRecordCloning.Ignore, false);
 
-                }
-                finally
-                {
-                    // Закрываем файл и убираем из очереди
-                    doc.CloseAndDiscard();
-                    QueuedBlocks.Remove(file);
+                    }
+                    finally
+                    {
+                        // Убираем файл из очереди
+                        QueuedBlocks.Remove(file);
+                    }
                 }
             }
             QueuedFiles.Clear();

@@ -51,8 +51,10 @@ namespace Legend
         }
         private void ProcessRows()
         {
+            // Выбрать и сортировать слои без метки игнорирования
             Rows = Rows.Where(r => !r.LegendData.IgnoreLayer).ToList();
             Rows.Sort();
+            // Выбрать разделы и вставить их названия в нужные места таблицы
             var labels = Rows.Select(r => r.LegendEntityChapterName).Distinct().ToList();
             foreach (var label in labels)
             {
@@ -64,6 +66,7 @@ namespace Legend
                 };
                 Rows.Insert(Rows.IndexOf(Rows.Where(r => r.LegendEntityChapterName == label).Min()), row);
             }
+            // И то же самое для подразделов
             var sublabels = Rows.Select(r => r.LegendData.SubLabel).Where(s => s != null).Distinct().ToList();
             foreach (var label in sublabels)
             {
@@ -74,11 +77,13 @@ namespace Legend
                 };
                 Rows.Insert(Rows.IndexOf(Rows.Where(r => r.LegendData.SubLabel == label).Min()), row);
             }
+            // Назначить целочисленные Y координаты каждому ряду таблицы
             for (int i = 0; i < Rows.Count; i++)
                 Rows[i].AssignY(i);
         }
         private void ProcessColumns()
         {
+            // Назначить целочисленные X координаты ячейкам таблицы на основе их статусов
             List<Status> statuses = Cells.Select(c => c.Layer.BuildStatus).Distinct().ToList();
             _columns = statuses.Count;
             statuses.Sort();
@@ -103,7 +108,7 @@ namespace Legend
             ProcessColumns();
             ProcessDrawObjects();
         }
-        //индексатор
+        // Индексатор, создающий строку при её отсутствии
         internal LegendGridRow this[string mainname]
         {
             get
@@ -129,7 +134,7 @@ namespace Legend
     internal class GridsComposer
     {
 
-        const double SEPARATED_GRIDS_OFFSET = 250d;
+        const double SEPARATED_GRIDS_OFFSET = 150d;
         internal List<LegendGridCell> SourceCells { get; set; } = new List<LegendGridCell>();
         internal List<LegendGrid> Grids { get; set; } = new List<LegendGrid>();
 
@@ -148,45 +153,62 @@ namespace Legend
             switch (_filter)
             {
                 case TableFilter.ExistingOnly:
+                    // Сетка только с сущом
                     AddGrid(c => c.Layer.BuildStatus == Status.Existing);
                     break;
 
                 case TableFilter.InternalOnly:
+                    // Сетка с сущом, проектом и утверждаемым демонтажом
                     AddGrid(c => new Status[] { Status.Existing, Status.Deconstructing, Status.Planned }.Contains(c.Layer.BuildStatus));
                     break;
 
                 case TableFilter.InternalAndExternal:
+                    // Сетка с сущом, проектом и утверждаемым демонтажом
                     AddGrid(c => new Status[] { Status.Existing, Status.Deconstructing, Status.Planned }.Contains(c.Layer.BuildStatus));
+                    // Сетка с неутв и неутв демонтажом
                     AddGrid(c => new Status[] { Status.NSDeconstructing, Status.NSPlanned }.Contains(c.Layer.BuildStatus));
 
                     break;
 
                 case TableFilter.InternalAndSeparatedExternal:
+                    // Сетка с сущом и проектом
                     AddGrid(c => new Status[] { Status.Existing, Status.Deconstructing, Status.Planned }.Contains(c.Layer.BuildStatus));
-                    List<string> extprojects = SourceCells.Where(c => c.Layer.ExtProjectName != string.Empty).Select(c => c.Layer.ExtProjectName).Distinct().ToList();
+                    // Сетка с неутв и неутв демонтажом без метки конкретного внешнего проекта
+                    AddGrid(c => new Status[] { Status.NSDeconstructing, Status.NSPlanned }.Contains(c.Layer.BuildStatus) && c.Layer.ExtProjectName == null);
+                    // Сетки с неутв и неутв демонтажом для кадого конкретного внешнего проекта
+                    List<string> extprojects = SourceCells.Where(c => c.Layer.ExtProjectName != null).Select(c => c.Layer.ExtProjectName).Distinct().ToList();
                     foreach (string extproject in extprojects)
                         AddGrid(c => c.Layer.ExtProjectName == extproject);
                     break;
 
                 case TableFilter.Full:
+                    // Полная общая сетка для всех успешно обработанных слоёв
                     AddGrid(c => true);
                     break;
             }
 
         }
-        void AddGrid(Func<LegendGridCell, bool> predicate)
+        private void AddGrid(Func<LegendGridCell, bool> predicate)
         {
+            // Отфильтровать ячейки, созданные для успешно обработанных слоёв и клонировать их в новый список в соответствии с заданным фильтром
             List<LegendGridCell> filteredcells = SourceCells.Where(predicate).ToList();
             List<LegendGridCell> cells = new List<LegendGridCell>();
             foreach (LegendGridCell cell in filteredcells)
             {
                 cells.Add(cell.Clone() as LegendGridCell);
             }
+            // Посчитать точку вставки на основании уже вставленных сеток
             double deltax = Grids.Select(g => g.Width).Sum() + SEPARATED_GRIDS_OFFSET * Grids.Count;
+            // Собрать сетку и добавить в список созданных сеток
             LegendGrid grid = new LegendGrid(cells, new Point3d(_basepoint.X + deltax, _basepoint.Y, 0d));
             grid.Assemble();
             Grids.Add(grid);
         }
+
+        /// <summary>
+        /// Создать и получить все объекты чертежа для отрисовки (вставки в ModelSpace) сеток условных обозначений
+        /// </summary>
+        /// <returns></returns>
         internal List<Entity> DrawGrids()
         {
             List<Entity> entities = new List<Entity>();
