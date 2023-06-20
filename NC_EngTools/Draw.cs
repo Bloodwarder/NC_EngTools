@@ -254,8 +254,27 @@ namespace ModelspaceDraw
         private protected void DrawHatch(IEnumerable<Polyline> borders, string patternname = "SOLID", double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8)
         {
             Hatch hatch = new Hatch();
+            //ДИКИЙ БЛОК, ПЫТАЮЩИЙСЯ ОБРАБОТАТЬ ОШИБКИ ДЛЯ НЕПОНЯТНЫХ ШТРИХОВОК
+            try
+            {
+                hatch.SetHatchPattern(!patternname.Contains("ANSI") ? HatchPatternType.PreDefined : HatchPatternType.UserDefined, patternname); // ВОЗНИКАЮТ ОШИБКИ ОТОБРАЖЕНИЯ ШТРИХОВОК "DASH" и "HONEY"
+            }
+            catch
+            {
 
-            hatch.SetHatchPattern(!patternname.Contains("ANSI") ? HatchPatternType.PreDefined : HatchPatternType.UserDefined, patternname); // ВОЗНИКАЮТ ОШИБКИ ОТОБРАЖЕНИЯ ШТРИХОВОК "DASH" и "HONEY"
+                for (int i = 2; i > -1; i--)
+                {
+                    try
+                    {
+                        hatch.SetHatchPattern((HatchPatternType)i, patternname); // ВОЗНИКАЮТ ОШИБКИ ОТОБРАЖЕНИЯ ШТРИХОВОК "DASH" и "HONEY"
+                        break;
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                }
+            }
             hatch.HatchStyle = HatchStyle.Normal;
             foreach (Polyline pl in borders)
             {
@@ -323,7 +342,6 @@ namespace ModelspaceDraw
             }
             rectangle.Color = BrightnessShift(brightnessshift);
             EntitiesList.Add(rectangle);
-            //Workstation.TransactionManager.TopTransaction.AddNewlyCreatedDBObject(rectangle, true);
             return rectangle;
         }
     }

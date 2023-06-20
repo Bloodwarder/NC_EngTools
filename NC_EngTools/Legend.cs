@@ -129,6 +129,7 @@ namespace Legend
     internal class GridsComposer
     {
 
+        const double SEPARATED_GRIDS_OFFSET = 250d;
         internal List<LegendGridCell> SourceCells { get; set; } = new List<LegendGridCell>();
         internal List<LegendGrid> Grids { get; set; } = new List<LegendGrid>();
 
@@ -139,7 +140,8 @@ namespace Legend
             SourceCells.AddRange(cells);
             _filter = filter;
         }
-
+        
+        // Компоновка сеток с условными обозначениями на основе выбранных фильтров
         internal void Compose(Point3d basepoint)
         {
             _basepoint = basepoint;
@@ -150,17 +152,17 @@ namespace Legend
                     break;
 
                 case TableFilter.InternalOnly:
-                    AddGrid(c => c.Layer.BuildStatus == (Status.Existing | Status.Deconstructing | Status.Planned));
+                    AddGrid(c => new Status[] { Status.Existing, Status.Deconstructing, Status.Planned }.Contains(c.Layer.BuildStatus));
                     break;
 
                 case TableFilter.InternalAndExternal:
-                    AddGrid(c => c.Layer.BuildStatus == (Status.Existing | Status.Deconstructing | Status.Planned));
-                    AddGrid(c => c.Layer.BuildStatus == (Status.NSDeconstructing | Status.NSPlanned));
+                    AddGrid(c => new Status[] { Status.Existing, Status.Deconstructing, Status.Planned }.Contains(c.Layer.BuildStatus));
+                    AddGrid(c => new Status[] { Status.NSDeconstructing, Status.NSPlanned }.Contains(c.Layer.BuildStatus));
 
                     break;
 
                 case TableFilter.InternalAndSeparatedExternal:
-                    AddGrid(c => c.Layer.BuildStatus == (Status.Existing | Status.Deconstructing | Status.Planned));
+                    AddGrid(c => new Status[] { Status.Existing, Status.Deconstructing, Status.Planned }.Contains(c.Layer.BuildStatus));
                     List<string> extprojects = SourceCells.Where(c => c.Layer.ExtProjectName != string.Empty).Select(c => c.Layer.ExtProjectName).Distinct().ToList();
                     foreach (string extproject in extprojects)
                         AddGrid(c => c.Layer.ExtProjectName == extproject);
@@ -180,7 +182,7 @@ namespace Legend
             {
                 cells.Add(cell.Clone() as LegendGridCell);
             }
-            double deltax = Grids.Select(g => g.Width).Sum() + 500 * Grids.Count;
+            double deltax = Grids.Select(g => g.Width).Sum() + SEPARATED_GRIDS_OFFSET * Grids.Count;
             LegendGrid grid = new LegendGrid(cells, new Point3d(_basepoint.X + deltax, _basepoint.Y, 0d));
             grid.Assemble();
             Grids.Add(grid);
@@ -301,7 +303,7 @@ namespace Legend
                 string.Concat("ModelspaceDraw.", _template.DrawTemplate, "Draw")
                 )
                 .Unwrap() as LegendObjectDraw;
-            
+
             lod.LegendDrawTemplate = _template;
             lod.Layer = Layer;
             double x = ParentGrid.BasePoint.X + TableIndex.X * (LegendGrid.CellWidth + LegendGrid.WidthInterval) + LegendGrid.CellWidth / 2;
@@ -381,10 +383,15 @@ namespace Legend
 
     public enum TableFilter
     {
+        // Только существующие
         ExistingOnly,
+        // Полная таблица
         Full,
+        // Только существующие и утверждаемые проектные / демонтируемые сети
         InternalOnly,
+        // Две отдельных таблицы с утверждаемыми и не утверждаемыми сетями
         InternalAndExternal,
+        // Таблица для утверждаемых объектов и отдельные таблицы для каждого имени внешнего проекта
         InternalAndSeparatedExternal
     }
 }

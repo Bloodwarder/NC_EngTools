@@ -477,6 +477,8 @@ namespace NC_EngTools
 
     public class LegendAssembler
     {
+        private static readonly string[] _filterKeywords = { "Существующие", "Общая_таблица", "Внутренние", "Утв_и_неутв", "Разделённые" };
+
         [CommandMethod("АВТОСБОРКА")]
         public void Assemble()
         {
@@ -511,7 +513,7 @@ namespace NC_EngTools
                         RecordLayerParser rlp = new RecordLayerParser(ltr);
                         if (!LayerLegendDictionary.CheckKey(rlp.MainName))
                         {
-                            wrongLayersStringBuilder.AppendLine($"Нет данных для слоя {string.Concat(LayerParser.StandartPrefix, rlp.MainName)}");
+                            wrongLayersStringBuilder.AppendLine($"Нет данных для слоя {string.Concat(LayerParser.StandartPrefix,"_", rlp.MainName)}");
                             continue;
                         }
                         layersList.Add(rlp);
@@ -527,15 +529,17 @@ namespace NC_EngTools
                 {
                     cells.Add(new LegendGridCell(rlp));
                 }
-
-                //PromptKeywordOptions pko = new PromptKeywordOptions("Выберите режим компоновки")
-                //{
-                //    AppendKeywordsToMessage = true,
-                //    AllowNone = false,
-                //    //Keywords=...
-                //};
-
-                GridsComposer composer = new GridsComposer(cells, TableFilter.Full);
+                PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите режим компоновки: [{string.Join("/",_filterKeywords)}]",string.Join(" ",_filterKeywords))
+                {
+                    AppendKeywordsToMessage = true,
+                    AllowNone = false,
+                    AllowArbitraryInput = false
+                };
+                PromptResult res = Workstation.Editor.GetKeywords(pko);
+                if (res.Status != PromptStatus.OK)
+                    return;
+                TableFilter filter = GetFilter(res.StringResult);
+                GridsComposer composer = new GridsComposer(cells, filter);
                 composer.Compose(p3d);
                 List<Entity> list = composer.DrawGrids();
 
@@ -550,7 +554,13 @@ namespace NC_EngTools
                 dro.MoveToTop(new ObjectIdCollection(list.Where(e => !(e is Hatch)).Select(e => e.ObjectId).ToArray()));
 
                 transaction.Commit();
+                Workstation.Editor.WriteMessage(wrongLayersStringBuilder.ToString());
             }
+        }
+
+        private TableFilter GetFilter(string keyword)
+        {
+            return (TableFilter)Array.IndexOf(_filterKeywords,keyword);
         }
     }
 
