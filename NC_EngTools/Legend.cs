@@ -40,6 +40,8 @@ namespace Legend
         private void AddCells(LegendGridCell cell)
         {
             this[cell.Layer.MainName].AddCell(cell);
+            if (cell.ParentRow.LegendData.IgnoreLayer)
+                return;
             cell.ParentGrid = this;
             Cells.Add(cell);
         }
@@ -77,7 +79,15 @@ namespace Legend
                 };
                 Rows.Insert(Rows.IndexOf(Rows.Where(r => r.LegendData.SubLabel == label).Min()), row);
             }
+            LegendGridRow gridLabel = new LegendGridRow
+            {
+                ParentGrid = this,
+                Label = "Инженерная инфраструктура".ToUpper()   // ВРЕМЕННО, ПОТОМ ОБРАБОТАТЬ КАЖДУЮ ТАБЛИЦУ В КОМПОНОВЩИКЕ
+            };
+            Rows.Insert(0, gridLabel);
+
             // Назначить целочисленные Y координаты каждому ряду таблицы
+
             for (int i = 0; i < Rows.Count; i++)
                 Rows[i].AssignY(i);
         }

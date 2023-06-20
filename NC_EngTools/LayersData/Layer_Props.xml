@@ -4150,7 +4150,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>0.2</ConstantWidth>
+        <ConstantWidth>0.4</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>107</Red>
         <Green>107</Green>
@@ -4166,7 +4166,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>0.2</ConstantWidth>
+        <ConstantWidth>0.4</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>192</Red>
         <Green>168</Green>
@@ -4182,7 +4182,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>0.2</ConstantWidth>
+        <ConstantWidth>0.4</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>0</Red>
         <Green>0</Green>
@@ -4198,7 +4198,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>0.2</ConstantWidth>
+        <ConstantWidth>0.4</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>107</Red>
         <Green>107</Green>
@@ -4214,7 +4214,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>0.2</ConstantWidth>
+        <ConstantWidth>0.4</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>102</Red>
         <Green>0</Green>
@@ -4230,7 +4230,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>0.2</ConstantWidth>
+        <ConstantWidth>0.4</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>255</Red>
         <Green>127</Green>
@@ -6006,7 +6006,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>1</ConstantWidth>
+        <ConstantWidth>0.2</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>107</Red>
         <Green>107</Green>
@@ -6022,7 +6022,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>1</ConstantWidth>
+        <ConstantWidth>0.2</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>192</Red>
         <Green>168</Green>
@@ -6038,7 +6038,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>1</ConstantWidth>
+        <ConstantWidth>0.8</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>0</Red>
         <Green>0</Green>
@@ -6054,7 +6054,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>1</ConstantWidth>
+        <ConstantWidth>0.8</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>107</Red>
         <Green>107</Green>
@@ -6070,7 +6070,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>1</ConstantWidth>
+        <ConstantWidth>0.8</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>204</Red>
         <Green>102</Green>
@@ -6086,7 +6086,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>1</ConstantWidth>
+        <ConstantWidth>0.2</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>202</Red>
         <Green>191</Green>
@@ -6102,7 +6102,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>1</ConstantWidth>
+        <ConstantWidth>0.2</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>107</Red>
         <Green>107</Green>
@@ -6118,7 +6118,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>1</ConstantWidth>
+        <ConstantWidth>0.2</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>192</Red>
         <Green>168</Green>
@@ -6134,7 +6134,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>1</ConstantWidth>
+        <ConstantWidth>0.8</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>0</Red>
         <Green>0</Green>
@@ -6150,7 +6150,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>1</ConstantWidth>
+        <ConstantWidth>0.8</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>107</Red>
         <Green>107</Green>
@@ -6166,7 +6166,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>1</ConstantWidth>
+        <ConstantWidth>0.8</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>0</Red>
         <Green>204</Green>
@@ -6182,7 +6182,7 @@
     </key>
     <value>
       <LayerProps xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-        <ConstantWidth>1</ConstantWidth>
+        <ConstantWidth>0.2</ConstantWidth>
         <LTScale>1</LTScale>
         <Red>76</Red>
         <Green>153</Green>
