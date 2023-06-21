@@ -78,7 +78,6 @@
     <Compile Include="LayersModule.cs" />
     <Compile Include="Commands.cs" />
     <None Include="app.config" />
-    <None Include="OldCode.cs" />
     <Compile Include="Legend.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerailizableDictionary.cs" />

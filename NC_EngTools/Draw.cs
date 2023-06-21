@@ -24,25 +24,37 @@ using Legend;
 
 namespace ModelspaceDraw
 {
+    /// <summary>
+    /// Класс для отрисовки объекта чертежа
+    /// </summary>
     public abstract class ObjectDraw
     {
         internal List<Entity> EntitiesList { get; } = new List<Entity>();
         internal Point2d Basepoint { get; set; }
         internal RecordLayerParser Layer { get; set; }
-        protected static Color s_byLayer = Color.FromColorIndex(ColorMethod.ByLayer, 256);
+        internal static Color s_byLayer = Color.FromColorIndex(ColorMethod.ByLayer, 256);
 
-        internal ObjectDraw() { }
+        /// <summary>
+        /// Конструктор класса без параметров
+        /// </summary>
+        internal protected ObjectDraw() { }
         internal ObjectDraw(Point2d basepoint, RecordLayerParser layer = null)
         {
             Basepoint = basepoint;
             Layer = layer;
         }
-        internal abstract void Draw();
+        /// <summary>
+        /// Создать объекты чертежа для отрисовки (последующей вставки в модель целевого чертежа)
+        /// </summary>
+        public abstract void Draw();
         private protected Point2d GetRelativePoint(double x, double y)
         {
             return new Point2d(x + Basepoint.X, y + Basepoint.Y);
         }
     }
+    /// <summary>
+    /// Класс для отрисовки элемента легенды
+    /// </summary>
     public abstract class LegendObjectDraw : ObjectDraw
     {
         private LegendDrawTemplate legendDrawTemplate;
@@ -53,13 +65,19 @@ namespace ModelspaceDraw
             set
             {
                 legendDrawTemplate = value;
-                if (TemplateSetEventHandler != null)
-                    TemplateSetEventHandler(this, new EventArgs());
+                TemplateSetEventHandler?.Invoke(this, new EventArgs());
             }
         }
+        /// <summary>
+        /// Событие назначения объекту конкретного шаблона отрисовки.
+        /// Необходимо для объектов, которые нельзя обрабатывать одномоментно и нужно поставить в очередь на обработку (например блоки, импортируемые из внешних чертежей).
+        /// </summary>
         protected event EventHandler TemplateSetEventHandler;
 
-        internal LegendObjectDraw() { }
+        /// <summary>
+        /// Конструктор класса без параметров
+        /// </summary>
+        internal protected LegendObjectDraw() { }
         internal LegendObjectDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
         {
             LegendDrawTemplate = LayerLegendDrawDictionary.GetValue(Layer.TrueName, out _);
@@ -94,6 +112,9 @@ namespace ModelspaceDraw
         }
     }
 
+    /// <summary>
+    /// Класс для отрисовки непрерывной линии
+    /// </summary>
     public class SolidLineDraw : LegendObjectDraw
     {
         public SolidLineDraw() { }
@@ -102,7 +123,7 @@ namespace ModelspaceDraw
         {
             LegendDrawTemplate = template;
         }
-        internal override void Draw()
+        public override void Draw()
         {
             Polyline pl = new Polyline();
             pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
@@ -118,6 +139,9 @@ namespace ModelspaceDraw
         }
     }
 
+    /// <summary>
+    /// Класс для отрисовки двойной линии (одна над другой, верхняя линия по стандарту слоя)
+    /// </summary>
     public class DoubleSolidLineDraw : LegendObjectDraw
     {
         public DoubleSolidLineDraw() { }
@@ -126,7 +150,7 @@ namespace ModelspaceDraw
         {
             LegendDrawTemplate = template;
         }
-        internal override void Draw()
+        public override void Draw()
         {
             Polyline pl = new Polyline();
             pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
@@ -146,6 +170,9 @@ namespace ModelspaceDraw
         }
     }
 
+    /// <summary>
+    /// Класс для отрисовки линии с вставленными символами (буквамИ)
+    /// </summary>
     public abstract class MarkedLineDraw : LegendObjectDraw
     {
         internal string MarkChar => LegendDrawTemplate.MarkChar;
@@ -159,7 +186,7 @@ namespace ModelspaceDraw
         {
             LegendDrawTemplate = template;
         }
-        internal override void Draw()
+        public override void Draw()
         {
             DrawText();
             List<Polyline> polylines = DrawLines();
@@ -211,7 +238,7 @@ namespace ModelspaceDraw
         {
             LegendDrawTemplate = template;
         }
-        protected override void FormatLines(IEnumerable<Polyline> lines)
+         protected sealed override void FormatLines(IEnumerable<Polyline> lines)
         {
             foreach (Polyline line in lines)
             {
@@ -318,7 +345,7 @@ namespace ModelspaceDraw
         internal double RectangleHeight => ParseRelativeValue(LegendDrawTemplate.Height, LegendGrid.CellHeight);
 
 
-        internal override void Draw()
+        public override void Draw()
         {
             DrawRectangle(RectangleWidth, RectangleHeight);
         }
@@ -356,7 +383,7 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-        internal override void Draw()
+        public override void Draw()
         {
             List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight, brightnessshift: LegendDrawTemplate.InnerBorderBrightness) };
             DrawHatch(rectangle,
@@ -377,7 +404,7 @@ namespace ModelspaceDraw
         {
             LegendDrawTemplate = template;
         }
-        internal override void Draw()
+        public override void Draw()
         {
             List<Polyline> circle = new List<Polyline> { DrawCircle(Radius) };
             DrawHatch(circle,
@@ -420,7 +447,7 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-        internal override void Draw()
+        public override void Draw()
         {
             List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight, brightnessshift: LegendDrawTemplate.InnerBorderBrightness) };
             DrawHatch(rectangle,
@@ -445,7 +472,7 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-        internal override void Draw()
+        public override void Draw()
         {
             List<Polyline> rectangles = new List<Polyline>
                 {
@@ -476,6 +503,9 @@ namespace ModelspaceDraw
         }
     }
 
+    /// <summary>
+    /// Отрисовывает вхождение блока
+    /// </summary>
     public class BlockReferenceDraw : LegendObjectDraw
     {
         private string BlockName => LegendDrawTemplate.BlockName;
@@ -507,7 +537,7 @@ namespace ModelspaceDraw
         }
 
 
-        internal override void Draw()
+        public override void Draw()
         {
             // Перед отрисовкой первого объекта импортируем все блоки в очереди
             if (!_blocksImported)
@@ -559,9 +589,9 @@ namespace ModelspaceDraw
                         // Ищем все нужные нам блоки
                         BlockTable importBlockTable = transaction.GetObject(importDatabase.BlockTableId, OpenMode.ForRead) as BlockTable;
                         var importedBlocks = (from ObjectId blockId in importBlockTable
-                                      let block = transaction.GetObject(blockId, OpenMode.ForRead) as BlockTableRecord
-                                      where QueuedBlocks[file].Contains(block.Name)
-                                      select block).ToList();
+                                              let block = transaction.GetObject(blockId, OpenMode.ForRead) as BlockTableRecord
+                                              where QueuedBlocks[file].Contains(block.Name)
+                                              select block).ToList();
                         // Заполняем сет с ненайденными блоками
                         foreach (BlockTableRecord block in importedBlocks)
                         {
@@ -583,6 +613,9 @@ namespace ModelspaceDraw
         }
     }
 
+    /// <summary>
+    /// Отрисовывает надпись
+    /// </summary>
     public class LabelTextDraw : ObjectDraw
     {
         private readonly bool _italic = false;
@@ -599,7 +632,7 @@ namespace ModelspaceDraw
             _text = label;
         }
 
-        internal override void Draw()
+        public override void Draw()
         {
             TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
             string legendTextLayer = string.Concat(LayerParser.StandartPrefix, "_Условные");
@@ -619,28 +652,94 @@ namespace ModelspaceDraw
         }
     }
 
+    /// <summary>
+    /// Данные для отрисовки шаблона легенды
+    /// </summary>
     public struct LegendDrawTemplate
     {
+        /// <summary>
+        /// Имя шаблона
+        /// </summary>
         public string DrawTemplate;
+        /// <summary>
+        /// Символ для вставки посередине линии
+        /// </summary>
         public string MarkChar;
+        /// <summary>
+        /// Ширина (для прямоугольных шаблонов)
+        /// </summary>
         public string Width;
+        /// <summary>
+        /// Высота (для прямоугольных шаблонов)
+        /// </summary>
         public string Height;
+        /// <summary>
+        /// Дополнительная яркость внутреннего прямоугольника  (от - 1 до 1)
+        /// </summary>
         public double InnerBorderBrightness;
+        /// <summary>
+        /// Имя образца внутренней штриховки
+        /// </summary>
         public string InnerHatchPattern;
+        /// <summary>
+        /// Масштаб внутренней штриховки
+        /// </summary>
         public double InnerHatchScale;
+        /// <summary>
+        /// Дополнительная яркость внутренней штриховки  (от - 1 до 1)
+        /// </summary>
         public double InnerHatchBrightness;
+        /// <summary>
+        /// Угол поворота внутренней штриховки
+        /// </summary>
         public double InnerHatchAngle;
+        /// <summary>
+        /// Ширина внешнего прямоугольника
+        /// </summary>
         public string FenceWidth;
+        /// <summary>
+        /// Высота внешнего прямоугольника
+        /// </summary>
         public string FenceHeight;
+        /// <summary>
+        /// Слой внешнего прямоугольника (если отличается от основного слоя)
+        /// </summary>
         public string FenceLayer;
+        /// <summary>
+        /// Имя образца внешней штриховки
+        /// </summary>
         public string OuterHatchPattern;
+        /// <summary>
+        /// Масштаб внешней штриховки
+        /// </summary>
         public double OuterHatchScale;
+        /// <summary>
+        /// Дополнительная яркость внешней штриховки (от - 1 до 1)
+        /// </summary>
         public double OuterHatchBrightness;
+        /// <summary>
+        /// Угол поворота внешней штриховки
+        /// </summary>
         public double OuterHatchAngle;
+        /// <summary>
+        /// Радиус
+        /// </summary>
         public double Radius;
+        /// <summary>
+        /// Имя блока
+        /// </summary>
         public string BlockName;
+        /// <summary>
+        /// Смещение точки вставки блока по оси X
+        /// </summary>
         public double BlockXOffset;
+        /// <summary>
+        /// Смещение точки вставки блока по оси Y
+        /// </summary>
         public double BlockYOffset;
+        /// <summary>
+        /// Путь к файлу для импорта блока
+        /// </summary>
         public string BlockPath;
     }
 
@@ -650,7 +749,7 @@ namespace ModelspaceDraw
     {
         public SimpleTestObjectDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
 
-        internal override void Draw()
+        public override void Draw()
         {
 
 

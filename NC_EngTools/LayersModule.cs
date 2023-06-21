@@ -154,10 +154,24 @@ namespace LayerProcessing
         public void ExtProjNameAssign(string newprojname)
         {
             bool emptyname = newprojname == "";
-            if (!emptyname&!(BuildStatus==Status.NSPlanned||BuildStatus==Status.NSDeconstructing||BuildStatus==Status.NSReorg))
+            if (!emptyname)
             {
-                BuildStatus = Status.NSPlanned;
-            } //assigning NSPlanned status when current project layer processed (non NS)
+                switch (BuildStatus)
+                {
+                    case Status.Planned:
+                    case Status.Existing:
+                        BuildStatus = Status.NSPlanned;
+                        break;
+                    case Status.Deconstructing:
+                        BuildStatus = Status.NSDeconstructing;
+                        break;
+                }
+            }
+
+            //if (!emptyname&!(BuildStatus==Status.NSPlanned||BuildStatus==Status.NSDeconstructing||BuildStatus==Status.NSReorg))
+            //{
+            //    BuildStatus = Status.NSPlanned;
+            //} //assigning NSPlanned status when current project layer processed (non NS)
             if (extpr)
             {
                 if (!emptyname) //replacing name

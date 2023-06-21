@@ -399,31 +399,67 @@ namespace Legend
         }
     }
 
+    /// <summary>
+    /// Целочисленные индексы элементов для отрисовки легенды
+    /// </summary>
     public struct CellTableIndex
     {
+        /// <summary>
+        /// Целочисленный индекс X
+        /// </summary>
         public int X;
+        /// <summary>
+        /// Целочисленный индекс Y
+        /// </summary>
         public int Y;
     }
 
+    /// <summary>
+    /// Данные слоя для компоновки легенды
+    /// </summary>
     public struct LegendData
     {
+        /// <summary>
+        /// Ранг. Меньше - отображается выше
+        /// </summary>
         public int Rank;
+        /// <summary>
+        /// Текст в легенде
+        /// </summary>
         public string Label;
+        /// <summary>
+        /// Текст в легенде для подраздела
+        /// </summary>
         public string SubLabel;
+        /// <summary>
+        /// Показывает, нужно ли компоновщику игнорировать указанный слой
+        /// </summary>
         public bool IgnoreLayer;
     }
-
+    /// <summary>
+    /// Фильтр для компоновщика сетки легенды
+    /// </summary>
     public enum TableFilter
     {
-        // Только существующие
+        /// <summary>
+        /// Только существующие
+        /// </summary>
         ExistingOnly,
-        // Полная таблица
+        /// <summary>
+        /// Полная таблица
+        /// </summary>
         Full,
-        // Только существующие и утверждаемые проектные / демонтируемые сети
+        /// <summary>
+        /// Только существующие и утверждаемые проектные / демонтируемые сети
+        /// </summary>
         InternalOnly,
-        // Две отдельных таблицы с утверждаемыми и не утверждаемыми сетями
+        /// <summary>
+        /// Две отдельных таблицы с утверждаемыми и не утверждаемыми сетями
+        /// </summary>
         InternalAndExternal,
-        // Таблица для утверждаемых объектов и отдельные таблицы для каждого имени внешнего проекта
+        /// <summary>
+        /// Таблица для утверждаемых объектов и отдельные таблицы для каждого имени внешнего проекта
+        /// </summary>
         InternalAndSeparatedExternal
     }
 }

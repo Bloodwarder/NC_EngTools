@@ -9,15 +9,12 @@ using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
 using Teigha.DatabaseServices;
 using Teigha.Runtime;
-using Platform = HostMgd;
-using PlatformDb = Teigha;
 using Teigha.Colors;
 
 //internal modules
 using LayerProcessing;
 using ExternalData;
 using Dictionaries;
-using ModelspaceDraw;
 using Teigha.Geometry;
 using System.Text.RegularExpressions;
 
@@ -25,15 +22,21 @@ using Legend;
 
 namespace NC_EngTools
 {
+    /// <summary>
+    /// Класс с командами для работы с классифицированными слоями
+    /// </summary>
     public class NCLayersCommands
     {
-        public static string PrevStatus = "Сущ";
-        public static string PrevExtProject = "";
+        internal static string PrevStatus = "Сущ";
+        internal static string PrevExtProject = "";
+        /// <summary>
+        /// Переключение кальки, при необходимости добавление её в чертёж
+        /// </summary>
         [CommandMethod("КАЛЬКА")]
         public void TransparentOverlayToggle()
         {
             Database db = HostApplicationServices.WorkingDatabase;
-            PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
+            Teigha.DatabaseServices.TransactionManager tm = db.TransactionManager;
 
             string tgtlayer = LayerParser.StandartPrefix + "_Калька";
 
@@ -77,11 +80,14 @@ namespace NC_EngTools
             }
         }
 
+        /// <summary>
+        /// Изменение статуса объекта в соответствии с данными LayerParser
+        /// </summary>
         [CommandMethod("ИЗМСТАТУС", CommandFlags.Redraw)]
         public void LayerStatusChange()
         {
             Workstation.Define();
-            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
             Editor ed = Workstation.Editor;
 
 
@@ -119,11 +125,14 @@ namespace NC_EngTools
             }
         }
 
+        /// <summary>
+        /// Изменение типа объекта на альтернативный в соответствии с таблицей
+        /// </summary>
         [CommandMethod("АЛЬТЕРНАТИВНЫЙ", CommandFlags.Redraw)]
         public void LayerAlter()
         {
             Workstation.Define();
-            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
             Editor ed = Workstation.Editor;
 
             using (Transaction myT = tm.StartTransaction())
@@ -147,11 +156,14 @@ namespace NC_EngTools
             }
         }
 
+        /// <summary>
+        /// Назначение объекту/слою приписки, обозначающей переустройство
+        /// </summary>
         [CommandMethod("ПЕРЕУСТРОЙСТВО", CommandFlags.Redraw)]
         public void LayerReconstruction()
         {
             Workstation.Define();
-            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
             Editor ed = Workstation.Editor;
 
             using (Transaction myT = tm.StartTransaction())
@@ -175,12 +187,15 @@ namespace NC_EngTools
             }
         }
 
+        /// <summary>
+        /// Назначение объекту/слою имени внешнего проекта (неутверждаемого)
+        /// </summary>
         [CommandMethod("ВНЕШПРОЕКТ", CommandFlags.Redraw)]
         public void ExtAssign()
         {
             Workstation.Define();
-            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
-            Editor ed = Workstation.Editor;
+            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Editor editor = Workstation.Editor;
 
             PromptStringOptions pso = new PromptStringOptions($"Введите имя проекта, согласно которому отображён выбранный объект")
             {
@@ -188,67 +203,73 @@ namespace NC_EngTools
                 DefaultValue = PrevExtProject,
                 UseDefaultValue = true,
             };
-            PromptResult pr = ed.GetString(pso);
-            string extprname;
-            if (pr.Status != (PromptStatus.Error | PromptStatus.Cancel))
+            PromptResult result = editor.GetString(pso);
+            string extProjectName;
+            if (result.Status != (PromptStatus.Error | PromptStatus.Cancel))
             {
-                extprname = pr.StringResult;
-                PrevExtProject = extprname;
+                extProjectName = result.StringResult;
+                PrevExtProject = extProjectName;
             }
             else
             {
                 return;
             }
 
-            using (Transaction myT = tm.StartTransaction())
+            using (Transaction transaction = tm.StartTransaction())
             {
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
-                    ActiveLayerParsers.ExtProjNameAssign(extprname);
+                    ActiveLayerParsers.ExtProjNameAssign(extProjectName);
                     ActiveLayerParsers.Push();
-                    myT.Commit();
+                    transaction.Commit();
                 }
                 catch (WrongLayerException ex)
                 {
-                    ed.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                    editor.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
                 }
                 finally
                 {
-                    myT.Dispose();
+                    transaction.Dispose();
                     ActiveLayerParsers.Flush();
                 }
             }
         }
 
+        /// <summary>
+        /// Приведение свойств объекта или текущих переменных чертежа к стандарту (ширина и масштаб типов линий)
+        /// </summary>
         [CommandMethod("СВС", CommandFlags.Redraw)]
         public void StandartLayerValues()
         {
             Workstation.Define();
-            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
-            Editor ed = Workstation.Editor;
+            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Editor editor = Workstation.Editor;
 
-            using (Transaction myT = tm.StartTransaction())
+            using (Transaction transaction = tm.StartTransaction())
             {
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
                     ActiveLayerParsers.Push();
-                    myT.Commit();
+                    transaction.Commit();
                 }
                 catch (WrongLayerException ex)
                 {
-                    ed.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                    editor.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
                 }
                 finally
                 {
-                    myT.Dispose();
+                    transaction.Dispose();
                     ActiveLayerParsers.Flush();
                 }
             }
 
         }
-
+        
+        /// <summary>
+        /// Изменение обрабатываемого префикса слоёв
+        /// </summary>
         [CommandMethod("ПРЕФИКС")]
         public void ChangePrefix()
         {
@@ -266,6 +287,10 @@ namespace NC_EngTools
 
         }
     }
+
+    /// <summary>
+    /// Класс для визуализации объектов по разделам на основе данных в LayerParser
+    /// </summary>
     public class ChapterVisualizer
     {
         private static readonly Dictionary<Document, string> _activeChapterState = new Dictionary<Document, string>();
@@ -280,18 +305,22 @@ namespace NC_EngTools
                 return _activeChapterState;
             }
         }
+
+        /// <summary>
+        /// Подсветить слои для выбранного раздела (выключить остальные и визуализировать переустройство)
+        /// </summary>
         [CommandMethod("ВИЗРАЗДЕЛ")]
         public void Visualizer()
         {
             Workstation.Define();
-            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
-            Editor ed = Workstation.Editor;
+            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Editor editor = Workstation.Editor;
             Document doc = Workstation.Document;
             Database db = Workstation.Database;
 
 
 
-            using (Transaction myT = tm.StartTransaction())
+            using (Transaction transaction = tm.StartTransaction())
             {
                 LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForRead, false);
                 var layers = from ObjectId elem in lt
@@ -306,7 +335,7 @@ namespace NC_EngTools
                     }
                     catch (WrongLayerException ex)
                     {
-                        ed.WriteMessage(ex.Message);
+                        editor.WriteMessage(ex.Message);
                         continue;
                     }
                 }
@@ -318,9 +347,9 @@ namespace NC_EngTools
                     AllowNone = false,
                     AllowArbitraryInput = false
                 };
-                PromptResult res = ed.GetKeywords(pko);
-                if (res.Status != PromptStatus.OK) { return; }
-                if (res.StringResult == "Сброс")
+                PromptResult result = editor.GetKeywords(pko);
+                if (result.Status != PromptStatus.OK) { return; }
+                if (result.StringResult == "Сброс")
                 {
                     ChapterStoredRecordLayerParsers.Reset();
                     if (ActiveChapterState != null)
@@ -332,42 +361,36 @@ namespace NC_EngTools
                 }
                 else
                 {
-                    ActiveChapterState[doc] = res.StringResult;
+                    ActiveChapterState[doc] = result.StringResult;
                     ChapterStoredRecordLayerParsers.Highlight(ActiveChapterState[doc]);
                     LayerChecker.LayerAdded += NewLayerHighlight;
                 }
-                myT.Commit();
+                transaction.Commit();
             }
         }
 
-        public void NewLayerHighlight(object sender, System.EventArgs e)
+        internal void NewLayerHighlight(object sender, System.EventArgs e)
         {
             Document doc = Workstation.Document;
             Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
 
-            using (Transaction myT = tm.StartTransaction())
+            using (Transaction transaction = tm.StartTransaction())
             {
                 ChapterStoreLayerParser rlp = new ChapterStoreLayerParser((LayerTableRecord)sender);
                 rlp.Push(ActiveChapterState[doc]);
-                myT.Commit();
+                transaction.Commit();
             }
 
         }
     }
-
-    public class TestClass1
-    {
-
-        //[CommandMethod("ТЕСТ_123")]
-        public void Test111()
-        {
-            SimpleTestObjectDraw draw = new SimpleTestObjectDraw(new PlatformDb.Geometry.Point2d(0d, 0d));
-            draw.Draw();
-        }
-    }
-
+    /// <summary>
+    /// Класс для создания подписей сегментам полилинии
+    /// </summary>
     public class Labeler
     {
+        /// <summary>
+        /// Создать подпись для сегмента полилинии
+        /// </summary>
         [CommandMethod("ПОДПИСЬ")]
         public void LabelDraw()
         {
@@ -475,10 +498,16 @@ namespace NC_EngTools
 
     }
 
+    /// <summary>
+    /// Класс для автосборки условных обозначений на основе слоёв чертежа и логики LayerParser
+    /// </summary>
     public class LegendAssembler
     {
         private static readonly string[] _filterKeywords = { "Существующие", "Общая_таблица", "Внутренние", "Утв_и_неутв", "Разделённые" };
 
+        /// <summary>
+        /// Автосборка условных обозначений на основе слоёв чертежа и логики LayerParser
+        /// </summary>
         [CommandMethod("АВТОСБОРКА")]
         public void Assemble()
         {
@@ -514,7 +543,7 @@ namespace NC_EngTools
                         RecordLayerParser rlp = new RecordLayerParser(ltr);
                         if (!LayerLegendDictionary.CheckKey(rlp.MainName))
                         {
-                            wrongLayersStringBuilder.AppendLine($"Нет данных для слоя {string.Concat(LayerParser.StandartPrefix,"_", rlp.MainName)}");
+                            wrongLayersStringBuilder.AppendLine($"Нет данных для слоя {string.Concat(LayerParser.StandartPrefix, "_", rlp.MainName)}");
                             continue;
                         }
                         layersList.Add(rlp);
@@ -532,7 +561,7 @@ namespace NC_EngTools
                     cells.Add(new LegendGridCell(rlp));
                 }
                 // Выбрать фильтр (режим компоновки)
-                PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите режим компоновки: [{string.Join("/",_filterKeywords)}]",string.Join(" ",_filterKeywords))
+                PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите режим компоновки: [{string.Join("/", _filterKeywords)}]", string.Join(" ", _filterKeywords))
                 {
                     AppendKeywordsToMessage = true,
                     AllowNone = false,
@@ -550,6 +579,7 @@ namespace NC_EngTools
                 // Получить таблицу блоков и ModelSpace, затем вставить объекты таблиц условных в чертёж
                 BlockTable blocktable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
                 BlockTableRecord modelspace = transaction.GetObject(blocktable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                Workstation.Database.Cecolor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
                 foreach (Entity e in entitiesList)
                 {
                     modelspace.AppendEntity(e);
@@ -566,12 +596,12 @@ namespace NC_EngTools
 
         private TableFilter GetFilter(string keyword)
         {
-            return (TableFilter)Array.IndexOf(_filterKeywords,keyword);
+            return (TableFilter)Array.IndexOf(_filterKeywords, keyword);
         }
     }
 
 
-    static class LayerChanger
+    internal static class LayerChanger
     {
         internal static int MaxSimple { get; set; } = 5;
 
@@ -599,9 +629,9 @@ namespace NC_EngTools
 
         private static void ChangerSimple(SelectionSet selectionSet)
         {
-            foreach (Entity entity in from ObjectId elem in selectionSet.GetObjectIds()
-                                   let ent = (Entity)Workstation.TransactionManager.GetObject(elem, OpenMode.ForWrite)
-                                   select ent)
+            foreach (Entity entity in (from ObjectId elem in selectionSet.GetObjectIds()
+                                      let ent = (Entity)Workstation.TransactionManager.GetObject(elem, OpenMode.ForWrite)
+                                      select ent).ToArray())
             {
                 try
                 {
@@ -617,9 +647,9 @@ namespace NC_EngTools
         private static void ChangerBig(SelectionSet selectionSet)
         {
             Dictionary<string, EntityLayerParser> dct = new Dictionary<string, EntityLayerParser>();
-            foreach (var entity in from ObjectId elem in selectionSet.GetObjectIds()
-                                let ent = (Entity)Workstation.TransactionManager.GetObject(elem, OpenMode.ForWrite)
-                                select ent)
+            foreach (var entity in (from ObjectId elem in selectionSet.GetObjectIds()
+                                   let ent = (Entity)Workstation.TransactionManager.GetObject(elem, OpenMode.ForWrite)
+                                   select ent).ToArray())
             {
                 if (dct.ContainsKey(entity.Layer))
                 {
@@ -647,7 +677,7 @@ namespace NC_EngTools
         {
 
             Database db = HostApplicationServices.WorkingDatabase;
-            PlatformDb.DatabaseServices.TransactionManager tm = db.TransactionManager;
+            Teigha.DatabaseServices.TransactionManager tm = db.TransactionManager;
             Transaction transaction = tm.StartTransaction();
 
             using (transaction)
@@ -677,10 +707,10 @@ namespace NC_EngTools
                         LayerTableRecord ltrec = new LayerTableRecord
                         {
                             Name = layername,
-                            Color = PlatformDb.Colors.Color.FromRgb(lp.Red, lp.Green, lp.Blue),
+                            Color = Teigha.Colors.Color.FromRgb(lp.Red, lp.Green, lp.Blue),
                             LineWeight = (LineWeight)lp.LineWeight,
                             LinetypeObjectId = lttrId
-                            //Transparency = new PlatformDb.Colors.Transparency(PlatformDb.Colors.TransparencyMethod.ByAlpha)
+                            //Transparency = new Teigha.Colors.Transparency(Teigha.Colors.TransparencyMethod.ByAlpha)
                         };
                         lt.Add(ltrec);
                         tm.AddNewlyCreatedDBObject(ltrec, true);
@@ -700,16 +730,11 @@ namespace NC_EngTools
                 {
                     throw new NoPropertiesException("Проверка слоя не удалась");
                 }
-                finally
-                {
-                    transaction.Dispose();
-                }
-
             }
         }
         internal static void CheckLinetype(string linetypename, out bool ltgetsuccess)
         {
-            PlatformDb.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
             Database db = Workstation.Database;
             LinetypeTable ltt = (LinetypeTable)tm.GetObject(db.LinetypeTableId, OpenMode.ForWrite, false);
             ltgetsuccess = true;
@@ -727,17 +752,17 @@ namespace NC_EngTools
         }
     }
 
-    static class Workstation
+    internal static class Workstation
     {
         private static Document document;
         private static Database database;
-        private static PlatformDb.DatabaseServices.TransactionManager transactionManager;
+        private static Teigha.DatabaseServices.TransactionManager transactionManager;
         private static Editor editor;
 
 
         public static Document Document => document;
         public static Database Database => database;
-        public static PlatformDb.DatabaseServices.TransactionManager TransactionManager => transactionManager;
+        public static Teigha.DatabaseServices.TransactionManager TransactionManager => transactionManager;
         public static Editor Editor => editor;
 
         public static void Define()
