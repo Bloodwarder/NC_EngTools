@@ -379,6 +379,9 @@ namespace Legend
 
 
 
+    /// <summary>
+    /// Словарь с именами разделов
+    /// </summary>
     public static class LegendInfoTable
     {
         internal static Dictionary<string, string> Dictionary = new Dictionary<string, string>();

@@ -27,11 +27,11 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\..\..\..\ReleaseBuilds\NC_EngTools\</OutputPath>
+    <OutputPath>D:\Обмен - Коновалов\NC_EngTools\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\NC_EngTools_21.xml</DocumentationFile>
+    <DocumentationFile>D:\Обмен - Коновалов\NC_EngTools\NC_EngTools_21.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>

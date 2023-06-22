@@ -1,26 +1,20 @@
 ﻿//System
+using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.IO;
 
 //Modules
+using NC_EngTools;
+using Legend;
 using LayerProcessing;
 using ExternalData;
-using Dictionaries;
 //nanoCAD
-using HostMgd.ApplicationServices;
-using HostMgd.EditorInput;
 using Teigha.DatabaseServices;
-using Teigha.Runtime;
 using Teigha.Geometry;
-using Platform = HostMgd;
-using PlatformDb = Teigha;
-
-
-using NC_EngTools;
-using System;
 using Teigha.Colors;
-using Legend;
+
+
+
 
 namespace ModelspaceDraw
 {
@@ -29,13 +23,19 @@ namespace ModelspaceDraw
     /// </summary>
     public abstract class ObjectDraw
     {
-        internal List<Entity> EntitiesList { get; } = new List<Entity>();
-        internal Point2d Basepoint { get; set; }
+        /// <summary>
+        /// Список созданных объектов чертежа для вставки в модель целевого чертежа. Заполняется через метод Draw
+        /// </summary>
+        public List<Entity> EntitiesList { get; } = new List<Entity>();
+        /// <summary>
+        /// Базовая точка для вставки объектов в целевой чертёж
+        /// </summary>
+        public Point2d Basepoint { get; set; }
         internal RecordLayerParser Layer { get; set; }
         internal static Color s_byLayer = Color.FromColorIndex(ColorMethod.ByLayer, 256);
 
         /// <summary>
-        /// Конструктор класса без параметров
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         internal protected ObjectDraw() { }
         internal ObjectDraw(Point2d basepoint, RecordLayerParser layer = null)
@@ -44,10 +44,16 @@ namespace ModelspaceDraw
             Layer = layer;
         }
         /// <summary>
-        /// Создать объекты чертежа для отрисовки (последующей вставки в модель целевого чертежа)
+        /// Создать объекты чертежа для отрисовки (последующей вставки в модель целевого чертежа). После выполнения доступны через свойство EntitiesList.
         /// </summary>
         public abstract void Draw();
-        private protected Point2d GetRelativePoint(double x, double y)
+        /// <summary>
+        /// Преобразование относительных координат в сетке условных в абсолютные координаты целевого чертежа
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        protected Point2d GetRelativePoint(double x, double y)
         {
             return new Point2d(x + Basepoint.X, y + Basepoint.Y);
         }
@@ -58,8 +64,10 @@ namespace ModelspaceDraw
     public abstract class LegendObjectDraw : ObjectDraw
     {
         private LegendDrawTemplate legendDrawTemplate;
-
-        internal LegendDrawTemplate LegendDrawTemplate
+        /// <summary>
+        /// Структура с данными для отрисовки объекта
+        /// </summary>
+        public LegendDrawTemplate LegendDrawTemplate
         {
             get => legendDrawTemplate;
             set
@@ -75,7 +83,7 @@ namespace ModelspaceDraw
         protected event EventHandler TemplateSetEventHandler;
 
         /// <summary>
-        /// Конструктор класса без параметров
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         internal protected LegendObjectDraw() { }
         internal LegendObjectDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
@@ -117,12 +125,16 @@ namespace ModelspaceDraw
     /// </summary>
     public class SolidLineDraw : LegendObjectDraw
     {
+        /// <summary>
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
+        /// </summary>
         public SolidLineDraw() { }
         internal SolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal SolidLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }
+/// <inheritdoc/>
         public override void Draw()
         {
             Polyline pl = new Polyline();
@@ -144,12 +156,16 @@ namespace ModelspaceDraw
     /// </summary>
     public class DoubleSolidLineDraw : LegendObjectDraw
     {
+        /// <summary>
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
+        /// </summary>
         public DoubleSolidLineDraw() { }
         internal DoubleSolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal DoubleSolidLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }
+/// <inheritdoc/>
         public override void Draw()
         {
             Polyline pl = new Polyline();
@@ -171,7 +187,7 @@ namespace ModelspaceDraw
     }
 
     /// <summary>
-    /// Класс для отрисовки линии с вставленными символами (буквамИ)
+    /// Класс для отрисовки линии с вставленными символами (буквами)
     /// </summary>
     public abstract class MarkedLineDraw : LegendObjectDraw
     {
@@ -186,6 +202,7 @@ namespace ModelspaceDraw
         {
             LegendDrawTemplate = template;
         }
+        /// <inheritdoc/>
         public override void Draw()
         {
             DrawText();
@@ -193,7 +210,10 @@ namespace ModelspaceDraw
             FormatLines(polylines);
         }
 
-        private protected void DrawText()
+        /// <summary>
+        /// Создание текста для линии и его добавление в список объектов для отрисовки
+        /// </summary>
+        protected void DrawText()
         {
             TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
 
@@ -209,9 +229,12 @@ namespace ModelspaceDraw
             mtext.Location = new Point3d(Basepoint.X, Basepoint.Y, 0d);
             _width = mtext.ActualWidth;
             EntitiesList.Add(mtext);
-
         }
-        private protected List<Polyline> DrawLines()
+        /// <summary>
+        /// Создание полилиний и добавление их в список объектов для отрисовки
+        /// </summary>
+        /// <returns> Полилинии, добавленные в список объектов для отрисовки</returns>
+        protected List<Polyline> DrawLines()
         {
             Polyline pl1 = new Polyline();
             Polyline pl2 = new Polyline();
@@ -227,17 +250,28 @@ namespace ModelspaceDraw
             EntitiesList.AddRange(list);
             return list;
         }
+        /// <summary>
+        /// Придание нужных свойств линиям, созданным для данного объекта отрисовки
+        /// </summary>
+        /// <param name="lines">Коллекция полилиний для обработки</param>
         protected abstract void FormatLines(IEnumerable<Polyline> lines);
 
     }
+    /// <summary>
+    /// Класс для отрисовки сплошной линии с символьным (буквенным) обозначением
+    /// </summary>
     public class MarkedSolidLineDraw : MarkedLineDraw
     {
+        /// <summary>
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
+        /// </summary>
         public MarkedSolidLineDraw() { }
         internal MarkedSolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal MarkedSolidLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }
+         /// <inheritdoc/>
          protected sealed override void FormatLines(IEnumerable<Polyline> lines)
         {
             foreach (Polyline line in lines)
@@ -247,15 +281,22 @@ namespace ModelspaceDraw
             }
         }
     }
+    /// <summary>
+    /// Класс для отрисовки пунктирной линии с символьным (буквенным) обозначением
+    /// </summary>
     public class MarkedDashedLineDraw : MarkedLineDraw
     {
+        /// <summary>
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
+        /// </summary>
         public MarkedDashedLineDraw() { }
         internal MarkedDashedLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal MarkedDashedLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }
-        protected override void FormatLines(IEnumerable<Polyline> lines)
+        /// <inheritdoc/>
+        protected sealed override void FormatLines(IEnumerable<Polyline> lines)
         {
             foreach (Polyline line in lines)
             {
@@ -268,17 +309,30 @@ namespace ModelspaceDraw
         }
     }
 
+    /// <summary>
+    /// Абстрактный класс для отрисовки заштрихованных объектов
+    /// </summary>
     public abstract class AreaDraw : LegendObjectDraw
     {
+        /// <summary>
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
+        /// </summary>
         public AreaDraw() { }
-
-        internal AreaDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+                internal AreaDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal AreaDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }
 
-        private protected void DrawHatch(IEnumerable<Polyline> borders, string patternname = "SOLID", double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8)
+        /// <summary>
+        /// Отрисовка штриховки
+        /// </summary>
+        /// <param name="borders"> Объекты контура </param>
+        /// <param name="patternname"> Имя образца </param>
+        /// <param name="patternscale"> Масштаб образца </param>
+        /// <param name="angle"> Угол поворота </param>
+        /// <param name="increasebrightness"> Изменение яркости относительно базового цвета слоя </param>
+        protected void DrawHatch(IEnumerable<Polyline> borders, string patternname = "SOLID", double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8)
         {
             Hatch hatch = new Hatch();
             //ДИКИЙ БЛОК, ПЫТАЮЩИЙСЯ ОБРАБОТАТЬ ОШИБКИ ДЛЯ НЕПОНЯТНЫХ ШТРИХОВОК
@@ -331,8 +385,14 @@ namespace ModelspaceDraw
         }
     }
 
+    /// <summary>
+    /// Класс для отрисовки пустого прямоугольника
+    /// </summary>
     public class RectangleDraw : AreaDraw
     {
+        /// <summary>
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
+        /// </summary>
         public RectangleDraw() { }
 
         internal RectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
@@ -343,8 +403,7 @@ namespace ModelspaceDraw
 
         internal double RectangleWidth => ParseRelativeValue(LegendDrawTemplate.Width, LegendGrid.CellWidth);
         internal double RectangleHeight => ParseRelativeValue(LegendDrawTemplate.Height, LegendGrid.CellHeight);
-
-
+/// <inheritdoc/>
         public override void Draw()
         {
             DrawRectangle(RectangleWidth, RectangleHeight);
@@ -373,8 +432,14 @@ namespace ModelspaceDraw
         }
     }
 
+    /// <summary>
+    /// Класс для отрисовки заштрихованного прямоугольника
+    /// </summary>
     public class HatchedRectangleDraw : RectangleDraw
     {
+        /// <summary>
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
+        /// </summary>
         public HatchedRectangleDraw() { }
 
         internal HatchedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
@@ -383,6 +448,7 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
+/// <inheritdoc/>
         public override void Draw()
         {
             List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight, brightnessshift: LegendDrawTemplate.InnerBorderBrightness) };
@@ -395,15 +461,22 @@ namespace ModelspaceDraw
         }
     }
 
+    /// <summary>
+    /// Класс для отрисовки заштрихованного круга
+    /// </summary>
     public class HatchedCircleDraw : AreaDraw
     {
         internal double Radius => LegendDrawTemplate.Radius;
+        /// <summary>
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
+        /// </summary>
         public HatchedCircleDraw() { }
         internal HatchedCircleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal HatchedCircleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }
+        /// <inheritdoc/>
         public override void Draw()
         {
             List<Polyline> circle = new List<Polyline> { DrawCircle(Radius) };
@@ -418,8 +491,8 @@ namespace ModelspaceDraw
         private protected Polyline DrawCircle(double radius, string layer = null)
         {
             Polyline circle = new Polyline();
-            circle.AddVertexAt(0, GetRelativePoint(0, radius / 2), radius, 0d, 0d);
-            circle.AddVertexAt(1, GetRelativePoint(0, -radius / 2), radius, 0d, 0d);
+            circle.AddVertexAt(0, GetRelativePoint(0, radius / 2), 1, 0d, 0d);
+            circle.AddVertexAt(1, GetRelativePoint(0, -radius / 2), 1, 0d, 0d);
             circle.AddVertexAt(2, GetRelativePoint(0, radius / 2), 0, 0d, 0d);
             circle.Closed = true;
             circle.Layer = layer ?? Layer.BoundLayer.Name;
@@ -435,11 +508,17 @@ namespace ModelspaceDraw
         }
     }
 
+    /// <summary>
+    /// Класс для отрисовки заштрихованного прямоугольника внутри другого прямоугольника-ограждения
+    /// </summary>
     public class FencedRectangleDraw : RectangleDraw
     {
         string FenceLayer => LegendDrawTemplate.FenceLayer;
         internal double FenceWidth => ParseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellWidth);
         internal double FenceHeight => ParseRelativeValue(LegendDrawTemplate.FenceHeight, LegendGrid.CellHeight);
+        /// <summary>
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
+        /// </summary>
         public FencedRectangleDraw() { }
         internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
@@ -447,6 +526,7 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
+/// <inheritdoc/>
         public override void Draw()
         {
             List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight, brightnessshift: LegendDrawTemplate.InnerBorderBrightness) };
@@ -460,18 +540,24 @@ namespace ModelspaceDraw
         }
     }
 
+    /// <summary>
+    /// Класс для отрисовки двух прямоугольников с двумя штриховками
+    /// </summary>
     public class HatchedFencedRectangleDraw : RectangleDraw
     {
         string FenceLayer => LegendDrawTemplate.FenceLayer;
         internal double FenceWidth => ParseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellWidth);
         internal double FenceHeight => ParseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellHeight);
+        /// <summary>
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
+        /// </summary>
         public HatchedFencedRectangleDraw() { }
         internal HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }
-
+/// <inheritdoc/>
         public override void Draw()
         {
             List<Polyline> rectangles = new List<Polyline>
@@ -523,6 +609,9 @@ namespace ModelspaceDraw
         {
             _blocktable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite) as BlockTable;
         }
+        /// <summary>
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
+        /// </summary>
         public BlockReferenceDraw()
         {
             TemplateSetEventHandler += QueueImportBlockTableRecord;
@@ -536,13 +625,15 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-
+/// <inheritdoc/>
         public override void Draw()
         {
             // Перед отрисовкой первого объекта импортируем все блоки в очереди
             if (!_blocksImported)
             {
-                ImportRecords(out HashSet<string> _);
+                ImportRecords(out HashSet<string> failedImports);
+                foreach (string str in failedImports)
+                    Workstation.Editor.WriteMessage($"Не удалось импортировать блок {str}");
                 _blocksImported = true;
             }
             // Отрисовываем объект
@@ -632,6 +723,7 @@ namespace ModelspaceDraw
             _text = label;
         }
 
+/// <inheritdoc/>
         public override void Draw()
         {
             TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
