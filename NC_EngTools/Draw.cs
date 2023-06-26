@@ -674,9 +674,9 @@ namespace ModelspaceDraw
             {
                 using (Database importDatabase = new Database(false, true))
                 {
-                    importDatabase.ReadDwgFile(file, FileOpenMode.OpenForReadAndAllShare, false, null);
                     try
                     {
+                        importDatabase.ReadDwgFile(file, FileOpenMode.OpenForReadAndAllShare, false, null);
                         // Ищем все нужные нам блоки
                         BlockTable importBlockTable = transaction.GetObject(importDatabase.BlockTableId, OpenMode.ForRead) as BlockTable;
                         var importedBlocks = (from ObjectId blockId in importBlockTable
@@ -691,7 +691,10 @@ namespace ModelspaceDraw
                         }
                         // Добавляем все найденные блоки в таблицу блоков текущего чертежа
                         importBlockTable.Database.WblockCloneObjects(new ObjectIdCollection(importedBlocks.Select(b => b.ObjectId).ToArray()), _blocktable.ObjectId, new IdMapping(), DuplicateRecordCloning.Ignore, false);
-
+                    }
+                    catch (System.Exception)
+                    {
+                        Workstation.Editor.WriteMessage($"Ошибка импорта блоков из файла \"{file}\"");
                     }
                     finally
                     {

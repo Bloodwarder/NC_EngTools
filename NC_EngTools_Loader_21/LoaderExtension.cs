@@ -17,6 +17,7 @@ namespace Loader
             FileInfo assembly = new FileInfo(Assembly.GetExecutingAssembly().Location);
             ToolsAssemblyDirectory localPackage = new ToolsAssemblyDirectory(assembly.DirectoryName);
             localPackage.CompareAndRewrite(sourcePackage);
+            Assembly.LoadFrom(localPackage.ToolsAssemblyInfo.FullName);
         }
 
         public void Terminate()
