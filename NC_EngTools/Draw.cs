@@ -694,7 +694,7 @@ namespace ModelspaceDraw
                     }
                     catch (System.Exception)
                     {
-                        Workstation.Editor.WriteMessage($"Ошибка импорта блоков из файла \"{file}\"");
+                        Workstation.Editor.WriteMessage($"Ошибка импорта блоков из файла \"{file}\"\n");
                     }
                     finally
                     {

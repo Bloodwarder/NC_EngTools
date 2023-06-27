@@ -27,7 +27,7 @@ namespace LayerProcessing
                 {
                     StandartPrefix
                 };
-                if (extpr) { recomp.Add("["+ExtProjectName+"]"); }
+                if (extpr) { recomp.Add("[" + ExtProjectName + "]"); }
                 recomp.Add(MainName);
                 recomp.Add(BuildStatusText);
                 if (recstatus) { recomp.Add("пер"); }
@@ -68,17 +68,17 @@ namespace LayerProcessing
                 {
                     decomp[1]
                 };
-                for (int i = counter+1; i < decomp[1].Length; i++)
+                for (int i = counter + 1; i < decomp[1].Length; i++)
                 {
-                    if (!decomp[i-1].EndsWith("]"))
+                    if (!decomp[i - 1].EndsWith("]"))
                     { list.Add(decomp[i]); }
                     else
                     { break; }
                 }
-                ExtProjectName =string.Join("_", list.ToArray()).Replace("[", "").Replace("]", "");
+                ExtProjectName = string.Join("_", list.ToArray()).Replace("[", "").Replace("]", "");
                 extpr = true;
-                counter =+list.Count + 1;
-                mainnamestart=counter;
+                counter = +list.Count + 1;
+                mainnamestart = counter;
             }
             if (decomp[counter].Length == 2)
             {
@@ -90,39 +90,39 @@ namespace LayerProcessing
                 GeomType = decomp[counter];
                 geomassigned = true;
             }
-            if (decomp[decomp.Length-1]=="пер")
+            if (decomp[decomp.Length - 1] == "пер")
             {
                 recstatus = true;
-                mainnameend = decomp.Length-3;
+                mainnameend = decomp.Length - 3;
             }
             else
             {
-                mainnameend = decomp.Length-2;
+                mainnameend = decomp.Length - 2;
             }
-            string str = recstatus ? decomp[decomp.Length-2] : decomp[decomp.Length-1];
+            string str = recstatus ? decomp[decomp.Length - 2] : decomp[decomp.Length - 1];
             bool stfound = false;
-            for (int i = 0; i<st_txt.Length; i++) //searching and assigning status index (IMPROVE CODE LATER)
+            for (int i = 0; i < st_txt.Length; i++) //searching and assigning status index (IMPROVE CODE LATER)
             {
-                if (st_txt[i]==str)
+                if (st_txt[i] == str)
                 {
-                    BuildStatus=(Status)i; stfound = true; break;
+                    BuildStatus = (Status)i; stfound = true; break;
                 }
             }
             if (!stfound) { throw new WrongLayerException($"В слое {layername} не найден статус"); }
 
-            MainName = string.Join("_", decomp.Skip(mainnamestart).Take(mainnameend-mainnamestart+1));
+            MainName = string.Join("_", decomp.Skip(mainnamestart).Take(mainnameend - mainnamestart + 1));
         }
 
         public void StatusSwitch(Status newstatus)
         {
-            BuildStatus=newstatus;
+            BuildStatus = newstatus;
             //disabling reconstruction marker for existing objects layers
-            if (recstatus & !(BuildStatus==Status.Planned||BuildStatus==Status.NSPlanned||BuildStatus==Status.NSReorg))
+            if (recstatus & !(BuildStatus == Status.Planned || BuildStatus == Status.NSPlanned || BuildStatus == Status.NSReorg))
             {
-                recstatus=false;
+                recstatus = false;
             }
             //disabling external project tag for current project and existing layers
-            if (extpr & !(BuildStatus==Status.NSPlanned||BuildStatus==Status.NSDeconstructing||BuildStatus==Status.NSReorg))
+            if (extpr & !(BuildStatus == Status.NSPlanned || BuildStatus == Status.NSDeconstructing || BuildStatus == Status.NSReorg))
             {
                 ExtProjectName = "";
                 extpr = false;
@@ -132,15 +132,15 @@ namespace LayerProcessing
 
         public void ReconstrSwitch()
         {
-            if (BuildStatus==Status.Planned||BuildStatus==Status.NSPlanned||BuildStatus==Status.NSReorg) //filter only planned layers
+            if (BuildStatus == Status.Planned || BuildStatus == Status.NSPlanned || BuildStatus == Status.NSReorg) //filter only planned layers
             {
                 if (recstatus)
                 {
-                    recstatus=false;
+                    recstatus = false;
                 }
                 else
                 {
-                    recstatus=true;
+                    recstatus = true;
                 }
             }
             else
@@ -205,9 +205,9 @@ namespace LayerProcessing
         Existing = 0,
         Deconstructing = 1,
         Planned = 2,
-        NSPlanned = 3,
-        NSDeconstructing = 4,
-        NSReorg = 5
+        NSDeconstructing = 3,
+        NSReorg = 4,
+        NSPlanned = 5
     }
 
     public class SimpleLayerParser : LayerParser
@@ -242,7 +242,7 @@ namespace LayerProcessing
                        where ltr.Name == OutputLayerName
                        select layer;
             db.Clayer = elem.FirstOrDefault();
-            LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName,out bool propsgetsuccess);
+            LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName, out bool propsgetsuccess);
             db.Celtscale = lp.LTScale;
             db.Plinewid = lp.ConstantWidth;
         }
@@ -268,7 +268,7 @@ namespace LayerProcessing
                 ent.Layer = OutputLayerName;
                 if (ent is Polyline pl)
                 {
-                    pl.LinetypeScale=lp.LTScale;
+                    pl.LinetypeScale = lp.LTScale;
                     pl.ConstantWidth = lp.ConstantWidth;
                 }
             }
