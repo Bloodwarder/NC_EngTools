@@ -1,0 +1,50 @@
+﻿<Window x:Class="NC_EngTools_Loader_21.StartupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NC_EngTools_Loader_21"
+        mc:Ignorable="d"
+        Title="StartupWindow" Height="500" Width="700">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="7" Height="250">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="70"/>
+                <ColumnDefinition Width="70"/>
+                <ColumnDefinition Width="*" MaxWidth="200"/>
+                <ColumnDefinition Width="*" MaxWidth="500"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <DockPanel Grid.Row="0" Grid.Column="3">
+                <CheckBox DockPanel.Dock="Right" Margin="10" VerticalAlignment="Top" Name="chbShowOnStartup"/>
+                <TextBlock DockPanel.Dock="Right" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10" Text="Показывать при старте"/>
+            </DockPanel>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Включить" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="10"/>
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="Автообновление" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="9"/>
+            <CheckBox Grid.Row="3" Grid.Column="0" Name="chbIncludeNCEngTools" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <CheckBox Grid.Row="3" Grid.Column="1" Name="chbAutoUpdateNCEngTools" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <Button Grid.Row ="3" Grid.Column="2" Name="bUpdateNCEngTools" Margin="20 5 20 5" Content="Обновить" FontSize="14"/>
+            <TextBlock Grid.Row="3" Grid.Column="3" Text="NC_EngTools" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
+            <CheckBox Grid.Row="4" Grid.Column="0" Name="chbIncludeUtilities" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <CheckBox Grid.Row="4" Grid.Column="1" Name="chbAutoUpdateUtilities" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <Button Grid.Row ="4" Grid.Column="2" Name="bUpdateUtilities" Margin="20 5 20 5" Content="Обновить" FontSize="14"/>
+            <TextBlock Grid.Row="4" Grid.Column="3" Text="Utilities" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
+            <DockPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Width="Auto" LastChildFill="True" Margin="5">
+                <TextBlock DockPanel.Dock="Left" Text="Путь к файлам обновлений:" VerticalAlignment="Center"/>
+                <TextBox Name="tbSourcePath" Height="30" Width="Auto" VerticalAlignment="Center" Margin="5"/>
+            </DockPanel>
+        </Grid>
+        <TextBlock Grid.Row="1" Margin="3"/>
+    </Grid>
+</Window>

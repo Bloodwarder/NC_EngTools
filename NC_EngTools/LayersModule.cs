@@ -44,7 +44,7 @@ namespace LayerProcessing
                 return string.Join("_", new string[2] { MainName, st_txt[(int)BuildStatus] });
             }
         }
-        private static readonly string[] st_txt = new string[6] { "сущ", "дем", "пр", "неутв", "ндем", "нреорг" };
+        private static readonly string[] st_txt = new string[6] { "сущ", "дем", "пр", "ндем", "нреорг", "неутв" };
 
         protected bool recstatus = false;
         protected bool extpr = false;

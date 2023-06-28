@@ -388,6 +388,10 @@ namespace NC_EngTools
     /// </summary>
     public class Labeler
     {
+        private const double LabelTextHeight = 3.6d;
+        private const double LabelBackgroundScaleFactor = 1.1d;
+
+        private static string PrevText { get; set; } = "";
         /// <summary>
         /// Создать подпись для сегмента полилинии
         /// </summary>
@@ -430,20 +434,16 @@ namespace NC_EngTools
                 Vector2d v2d = ls.Direction;
 
                 //вводим текст для подписи
-                PromptStringOptions pso = new PromptStringOptions("Введите текст подписи (д или d в начале строки - знак диаметра")
+                PromptStringOptions pso = new PromptStringOptions($"Введите текст подписи (д или d в начале строки - знак диаметра <{PrevText}>")
                 {
                     AllowSpaces = true,
+                    UseDefaultValue = true,
+                    DefaultValue = PrevText
                 };
                 PromptResult pr = Workstation.Editor.GetString(pso);
-                string text;
-                if (pr.Status != (PromptStatus.Error | PromptStatus.Cancel))
-                {
-                    text = pr.StringResult ?? "%%C000";
-                }
-                else
-                {
-                    text = "%%C000"; //по умолчанию
-                }
+                if (pr.Status != PromptStatus.OK) return;
+                string text = pr.StringResult;
+                PrevText = text;
 
                 //ищем таблицу блоков и моделспейс
                 BlockTable blocktable = tr.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
@@ -453,12 +453,12 @@ namespace NC_EngTools
                 {
                     BackgroundFill = true,
                     UseBackgroundColor = true,
-                    BackgroundScaleFactor = 1.1d
+                    BackgroundScaleFactor = LabelBackgroundScaleFactor
                 };
                 TextStyleTable txtstyletable = tr.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
                 mtext.TextStyleId = txtstyletable["Standard"];
-                mtext.Contents = Regex.Replace(text, "^(д|d)", "%%C"); //заменяем первую букву д на знак диаметра
-                mtext.TextHeight = 3.6d;
+                mtext.Contents = Regex.Replace(text, "(?<=(^|[1-4]))(д|d)", "%%C"); //заменяем первую букву д на знак диаметра
+                mtext.TextHeight = LabelTextHeight;
                 mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleCenter);
                 mtext.Location = point;
                 mtext.Color = polyline.Color;
@@ -528,6 +528,7 @@ namespace NC_EngTools
             //получить таблицу слоёв и слои
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
+                Workstation.Database.Cecolor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
                 StringBuilder wrongLayersStringBuilder = new StringBuilder();
                 LayerTable layertable = Workstation.TransactionManager.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead) as LayerTable;
                 var layers = from ObjectId elem in layertable

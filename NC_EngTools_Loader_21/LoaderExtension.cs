@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HostMgd.ApplicationServices;
+using HostMgd.Windows;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +15,8 @@ namespace Loader
     {
         public void Initialize()
         {
+            System.Windows.Window newWindow = new NC_EngTools_Loader_21.StartupWindow();
+            newWindow.ShowDialog();
             ToolsAssemblyDirectory sourcePackage = new ToolsAssemblyDirectory(@"\\Comp575\обмен - коновалов\NC_EngTools");
             FileInfo assembly = new FileInfo(Assembly.GetExecutingAssembly().Location);
             ToolsAssemblyDirectory localPackage = new ToolsAssemblyDirectory(assembly.DirectoryName);
