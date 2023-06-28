@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace NC_EngTools_Loader_21
+namespace LoaderUI
 {
     /// <summary>
     /// Логика взаимодействия для StartupWindow.xaml

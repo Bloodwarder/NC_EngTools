@@ -9,24 +9,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Teigha.Runtime;
 
-namespace Loader
+namespace LoaderCore
 {
-    public class LoaderExtension : IExtensionApplication
+    public static class LoaderExtension
     {
-        public void Initialize()
+        public static void Initialize()
         {
-            System.Windows.Window newWindow = new NC_EngTools_Loader_21.StartupWindow();
+            System.Windows.Window newWindow = new LoaderUI.StartupWindow();
             newWindow.ShowDialog();
             ToolsAssemblyDirectory sourcePackage = new ToolsAssemblyDirectory(@"\\Comp575\обмен - коновалов\NC_EngTools");
             FileInfo assembly = new FileInfo(Assembly.GetExecutingAssembly().Location);
             ToolsAssemblyDirectory localPackage = new ToolsAssemblyDirectory(assembly.DirectoryName);
             localPackage.CompareAndRewrite(sourcePackage);
             Assembly.LoadFrom(localPackage.ToolsAssemblyInfo.FullName);
-        }
-
-        public void Terminate()
-        {
-            //throw new NotImplementedException();
         }
     }
 
@@ -43,8 +38,8 @@ namespace Loader
         internal ToolsAssemblyDirectory(DirectoryInfo directory)
         {
             _directory = directory;
-            _toolsAssemblyInfo = new FileInfo($"{_directory.FullName}\\{ToolsAssemblyName}");
-            _layersDataDirectory = new DirectoryInfo($"{_directory.FullName}\\LayersData");
+            _toolsAssemblyInfo = new FileInfo(Path.Combine(_directory.FullName, ToolsAssemblyName));
+            _layersDataDirectory = new DirectoryInfo(Path.Combine(_directory.FullName, "LayersData"));
             if (!_layersDataDirectory.Exists)
                 _layersDataDirectory.Create();
             _xmlDataFiles.AddRange(_layersDataDirectory.GetFiles().Where(f => f.Extension == ".xml").ToList());
@@ -54,7 +49,7 @@ namespace Loader
 
         public void CompareAndRewrite(ToolsAssemblyDirectory sourceDirectory)
         {
-            foreach (FileInfo file in sourceDirectory.XmlDataFiles) 
+            foreach (FileInfo file in sourceDirectory.XmlDataFiles)
             {
                 FileInfo localFile = new FileInfo($"{_layersDataDirectory.FullName}\\{file.Name}");
                 if (!localFile.Exists || file.LastWriteTime > localFile.LastWriteTime)

@@ -414,8 +414,7 @@ namespace NC_EngTools
                 }
 
                 //выбираем точку вставки подписи и находим ближайшую точку на полилинии
-                PromptPointOptions ppo = new PromptPointOptions("Укажите точку вставки подписи рядом с сегментом полилинии")
-                { };
+                PromptPointOptions ppo = new PromptPointOptions("Укажите точку вставки подписи рядом с сегментом полилинии");
                 PromptPointResult pointresult = Workstation.Editor.GetPoint(ppo);
                 if (result.Status != PromptStatus.OK)
                     return;
@@ -434,7 +433,7 @@ namespace NC_EngTools
                 Vector2d v2d = ls.Direction;
 
                 //вводим текст для подписи
-                PromptStringOptions pso = new PromptStringOptions($"Введите текст подписи (д или d в начале строки - знак диаметра <{PrevText}>")
+                PromptStringOptions pso = new PromptStringOptions($"Введите текст подписи (д или d в начале строки - знак диаметра")
                 {
                     AllowSpaces = true,
                     UseDefaultValue = true,
