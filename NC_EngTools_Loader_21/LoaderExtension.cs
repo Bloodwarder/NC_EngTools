@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Teigha.Runtime;
 
 namespace LoaderCore
@@ -15,57 +16,121 @@ namespace LoaderCore
     {
         public static void Initialize()
         {
-            System.Windows.Window newWindow = new LoaderUI.StartupWindow();
-            newWindow.ShowDialog();
-            ToolsAssemblyDirectory sourcePackage = new ToolsAssemblyDirectory(@"\\Comp575\обмен - коновалов\NC_EngTools");
-            FileInfo assembly = new FileInfo(Assembly.GetExecutingAssembly().Location);
-            ToolsAssemblyDirectory localPackage = new ToolsAssemblyDirectory(assembly.DirectoryName);
-            localPackage.CompareAndRewrite(sourcePackage);
-            Assembly.LoadFrom(localPackage.ToolsAssemblyInfo.FullName);
+            //System.Windows.Window newWindow = new LoaderUI.StartupWindow();
+            //newWindow.ShowDialog();
+
         }
     }
 
-    internal class ToolsAssemblyDirectory
+    public static class PathProvider
     {
-        private const string ToolsAssemblyName = "NC_EngTools_21.dll";
-        private readonly FileInfo _toolsAssemblyInfo;
-        private readonly List<FileInfo> _xmlDataFiles = new List<FileInfo>();
-        private readonly DirectoryInfo _directory;
-        private readonly DirectoryInfo _layersDataDirectory;
+        private static Dictionary<string, string> PathDictionary { get; set; }
 
-        internal FileInfo ToolsAssemblyInfo => _toolsAssemblyInfo;
-        internal List<FileInfo> XmlDataFiles => _xmlDataFiles;
-        internal ToolsAssemblyDirectory(DirectoryInfo directory)
+        internal static void InitializeStructure(string path)
         {
-            _directory = directory;
-            _toolsAssemblyInfo = new FileInfo(Path.Combine(_directory.FullName, ToolsAssemblyName));
-            _layersDataDirectory = new DirectoryInfo(Path.Combine(_directory.FullName, "LayersData"));
-            if (!_layersDataDirectory.Exists)
-                _layersDataDirectory.Create();
-            _xmlDataFiles.AddRange(_layersDataDirectory.GetFiles().Where(f => f.Extension == ".xml").ToList());
+            XDocument xDoc = XDocument.Load(path);
+            string basepath = xDoc.Root.Element("basepath").Element("local").Name.LocalName;
         }
-        internal ToolsAssemblyDirectory(string path) : this(new DirectoryInfo(path)) { }
 
-
-        public void CompareAndRewrite(ToolsAssemblyDirectory sourceDirectory)
+        public static string GetPath(string name)
         {
-            foreach (FileInfo file in sourceDirectory.XmlDataFiles)
+            return PathDictionary[name];
+        }
+    }
+
+    internal static class StructureComparer
+    {
+        internal static List<string> IncludedModules { get; } = new List<string>() { "General" };
+        internal static List<ComparedFiles> GetFiles(XDocument xDocument)
+        {
+            XElement innerpath = xDocument.Root.Element("innerpath");
+            string localPath = xDocument.Root.Element("basepath").Element("local").Value;
+            string sourcePath = xDocument.Root.Element("basepath").Element("source").Value;
+
+            List<ComparedFiles> result = new List<ComparedFiles>();
+            result.AddRange(SearchStructure(innerpath, localPath, sourcePath));
+            return result;
+        }
+
+        private static IEnumerable<ComparedFiles> SearchStructure(XElement element, string localPath, string sourcePath)
+        {
+            if (!element.HasElements)
+                return Enumerable.Empty<ComparedFiles>();
+            List<ComparedFiles> results = new List<ComparedFiles>();
+            foreach (XElement childElement in element.Elements("directory"))
             {
-                FileInfo localFile = new FileInfo($"{_layersDataDirectory.FullName}\\{file.Name}");
-                if (!localFile.Exists || file.LastWriteTime > localFile.LastWriteTime)
-                {
-                    try
-                    {
-                        file.CopyTo(localFile.FullName, true);
-                    }
-                    catch (System.Exception)
-                    {
-                        continue;
-                    }
-                }
+                results.AddRange(SearchStructure(
+                    childElement,
+                    Path.Combine(localPath, childElement.Name.LocalName),
+                    Path.Combine(sourcePath, childElement.Name.LocalName)));
             }
-            if (!_toolsAssemblyInfo.Exists || sourceDirectory.ToolsAssemblyInfo.LastWriteTime > _toolsAssemblyInfo.LastWriteTime)
-                sourceDirectory.ToolsAssemblyInfo.CopyTo(_toolsAssemblyInfo.FullName);
+            foreach (XElement childElement in element.Elements("file"))
+            {
+                if (!IncludedModules.Contains(childElement.Attribute("Module").Value))
+                    continue;
+                ComparedFiles compared = new ComparedFiles
+                    (
+                    new FileInfo(Path.Combine(localPath, childElement.Attribute("Name").Value)),
+                    new FileInfo(Path.Combine(sourcePath, childElement.Attribute("Name").Value)),
+                    childElement.Attribute("Module").Value
+                    );
+                new FileInfo(Path.Combine(localPath, childElement.Attribute("Name").Value));
+                results.Add(compared);
+            }
+            return results;
+        }
+    }
+
+    internal static class FileUpdater
+    {
+        internal static List<string> UpdatedModules { get; } = new List<string>() { "General" };
+
+        internal static event EventHandler FileUpdated;
+
+        private static readonly bool _testRun = true;
+        internal static void UpdateFile(FileInfo local, FileInfo source)
+        {
+            bool localExists = local.Exists;
+            bool sourceExists = source.Exists;
+            if (!localExists && !sourceExists)
+            {
+                throw new System.Exception($"\nОтсутствует локальный файл {local.Name} и нет доступа к файлам обновления");
+            }
+            if (sourceExists && (!localExists || local.LastWriteTime != source.LastWriteTime))
+            {
+                if (!_testRun)
+                    source.CopyTo(local.FullName, true);
+                FileUpdated(local, new EventArgs());
+                Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Файл {local.Name} обновлён");
+                return;
+            }
+        }
+
+        internal static void UpdateFile(ComparedFiles comparedFiles)
+        {
+            if (UpdatedModules.Contains(comparedFiles.ModuleTag))
+                UpdateFile(comparedFiles.LocalFile, comparedFiles.SourceFile);
+        }
+
+        internal static void UpdateRange(IEnumerable<ComparedFiles> comparedFiles)
+        {
+            foreach (ComparedFiles fileSet in comparedFiles)
+                UpdateFile(fileSet.LocalFile, fileSet.SourceFile);
+        }
+
+    }
+
+    internal struct ComparedFiles
+    {
+        internal FileInfo LocalFile;
+        internal FileInfo SourceFile;
+        internal string ModuleTag;
+
+        internal ComparedFiles(FileInfo local, FileInfo source, string moduleTag)
+        {
+            LocalFile = local;
+            SourceFile = source;
+            ModuleTag = moduleTag;
         }
     }
 }

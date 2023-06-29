@@ -7,8 +7,8 @@
     <ProjectGuid>{AE5B4650-D8D9-4B12-AA8D-3334834D1EE4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NC_EngTools_Loader</RootNamespace>
-    <AssemblyName>NC_EngTools_Loader</AssemblyName>
+    <RootNamespace>NC_EngTools_StartUp</RootNamespace>
+    <AssemblyName>NC_EngTools_StartUp</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<structure>
+	<basepath>
+		<local></local>
+		<source>\\Comp575\обмен - коновалов\NC_EngTools</source>
+	</basepath>
+	<innerpath>
+		<directory Name="ExtensionLibraries">
+			<directory Name="LayersData">
+				<file Name="Layer_Props.xml" Module="LayerWorks"/>
+				<file Name="Layer_Alter.xml" Module="LayerWorks"/>
+				<file Name="Layer_Legend.xml" Module="LayerWorks"/>
+				<file Name="Layer_LegendDraw.xml" Module="LayerWorks"/>
+				<file Name="Layer_Props.xlsm" Module="LayerWorks"/>
+				<file Name="STANDARD1.lin" Module="LayerWorks"/>
+			</directory>
+			<!--<file Name="LoaderCore.dll"/>-->
+			<file Name="NC_EngTools_21" Module="LayerWorks"/>
+		</directory>
+		<file Name="Известные проблемы.txt" Module="General"/>
+		<file Name="Команды.txt" Module="General"/>
+		<file Name="Список изменений.txt" Module="General"/>
+		<!--<file Name="NC_EngTools_Loader.dll"/>-->
+	</innerpath>
+</structure>

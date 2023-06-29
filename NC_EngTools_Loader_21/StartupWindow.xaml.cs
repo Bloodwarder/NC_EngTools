@@ -24,4 +24,12 @@ namespace LoaderUI
             InitializeComponent();
         }
     }
+
+    public class StartupWindowViewModel
+    {
+        public StartupWindowViewModel() 
+        {
+        
+        }
+    }
 }
