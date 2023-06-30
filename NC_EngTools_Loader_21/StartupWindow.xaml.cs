@@ -19,28 +19,28 @@ using System.IO;
 namespace LoaderUI
 {
     /// <summary>
-    /// Логика взаимодействия для StartupWindow.xaml
+    /// Логика взаимодействия для StartUpWindow.xaml
     /// </summary>
-    public partial class StartupWindow : Window
+    public partial class StartUpWindow : Window
     {
         XDocument _xmlConfig;
         string _xmlConfigPath;
         XDocument _xmlStructure;
         string _xmlStructurePath;
 
-        public StartupWindow(string xmlConfigPath, string xmlStructurePath)
+        public StartUpWindow(string xmlConfigPath, string xmlStructurePath)
         {
             _xmlConfigPath = xmlConfigPath;
             _xmlConfig = XDocument.Load(xmlConfigPath);
             _xmlStructurePath = xmlStructurePath;
             _xmlStructure = XDocument.Load(xmlStructurePath);
-            chbShowOnStartup.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value);
+            InitializeComponent();
+            chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value);
             chbIncludeLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Include").Value);
             chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("AutoUpdate").Value);
             chbIncludeUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Include").Value);
             chbAutoUpdateUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("AutoUpdate").Value);
             tbSourcePath.Text = _xmlStructure.Root.Element("basepath").Element("source").Value;
-            InitializeComponent();
         }
 
         public void IncludeCheckChanged(object sender, RoutedEventArgs e)
@@ -77,9 +77,9 @@ namespace LoaderUI
             e.Handled = true;
         }
 
-        private void StartupWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void StartUpWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            _xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value = XmlConvert.ToString((bool)chbShowOnStartup.IsChecked);
+            _xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value = XmlConvert.ToString((bool)chbShowOnStartUp.IsChecked);
             _xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Include").Value = XmlConvert.ToString((bool)chbIncludeLayerWorks.IsChecked);
             _xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("AutoUpdate").Value = XmlConvert.ToString((bool)chbAutoUpdateLayerWorks.IsChecked);
             _xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Include").Value = XmlConvert.ToString((bool)chbIncludeUtilities.IsChecked);
@@ -92,9 +92,9 @@ namespace LoaderUI
         }
     }
 
-    public class StartupWindowViewModel
+    public class StartUpWindowViewModel
     {
-        public StartupWindowViewModel()
+        public StartUpWindowViewModel()
         {
 
         }

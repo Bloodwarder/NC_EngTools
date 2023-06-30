@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<startup>
-	<StartUpShow Enabled="True"/>
+<StartUp>
+	<StartUpShow Enabled="true"/>
 	<Modules>
-		<LayerWorks Include="True" Update="True"/>
-		<Utilities Include="True" Update="True"/>
+		<LayerWorks Include="true" Update="true"/>
+		<Utilities Include="true" Update="true"/>
 	</Modules>
-</startup>
+</StartUp>

@@ -14,7 +14,7 @@ namespace NC_EngTools_Loader
         const string LoaderCoreAssemblyName = "LoaderCore.dll";
         const string StructureXmlName = "Structure.xml";
 
-        private readonly FileInfo LocalStartupAssemblyFile = new FileInfo(Assembly.GetExecutingAssembly().Location);
+        private readonly FileInfo LocalStartUpAssemblyFile = new FileInfo(Assembly.GetExecutingAssembly().Location);
         private string sourceDirectory;
         private string SourceDirectory
         {
@@ -24,7 +24,7 @@ namespace NC_EngTools_Loader
                 {
                     try
                     {
-                        XDocument xDocument = XDocument.Load(Path.Combine(LocalStartupAssemblyFile.DirectoryName,StructureXmlName));
+                        XDocument xDocument = XDocument.Load(Path.Combine(LocalStartUpAssemblyFile.DirectoryName, StructureXmlName));
                         sourceDirectory = xDocument.Root.Element("basepath").Element("source").Value;
                         xDocument = null;
                         GC.Collect();
@@ -44,9 +44,9 @@ namespace NC_EngTools_Loader
         /// </summary>
         public void Initialize()
         {
-            FileInfo localLoaderAssemblyFile = new FileInfo(Path.Combine(LocalStartupAssemblyFile.DirectoryName, LoaderCoreDirectory, LoaderCoreAssemblyName));
+            FileInfo localLoaderAssemblyFile = new FileInfo(Path.Combine(LocalStartUpAssemblyFile.DirectoryName, LoaderCoreDirectory, LoaderCoreAssemblyName));
             FileInfo sourceLoaderAssemblyFile = new FileInfo(Path.Combine(SourceDirectory, LoaderCoreDirectory, LoaderCoreAssemblyName));
-            FileInfo localStructureXml = new FileInfo(Path.Combine(LocalStartupAssemblyFile.DirectoryName, LoaderCoreDirectory, StructureXmlName));
+            FileInfo localStructureXml = new FileInfo(Path.Combine(LocalStartUpAssemblyFile.DirectoryName, LoaderCoreDirectory, StructureXmlName));
             FileInfo sourceStructureXml = new FileInfo(Path.Combine(SourceDirectory, LoaderCoreDirectory, StructureXmlName));
             bool xmlupdated;
             try
@@ -59,23 +59,22 @@ namespace NC_EngTools_Loader
                 Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage(ex.Message);
                 return;
             }
-            if (xmlupdated)
+
+            try
             {
-                try
-                {
-                    XDocument xmldoc = XDocument.Load(localStructureXml.FullName);
-                    XElement localPathElement = xmldoc.Root.Element("basepath").Element("local");
-                    localPathElement.Value = LocalStartupAssemblyFile.Directory.FullName;
-                    xmldoc.Save(localStructureXml.FullName);
-                }
-                catch (System.Exception)
-                {
-                    Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Ошибка работы с файлом {StructureXmlName}");
-                    return;
-                }
+                XDocument xmldoc = XDocument.Load(localStructureXml.FullName);
+                XElement localPathElement = xmldoc.Root.Element("basepath").Element("local");
+                localPathElement.Value = LocalStartUpAssemblyFile.Directory.FullName;
+                xmldoc.Save(localStructureXml.FullName);
             }
+            catch (System.Exception)
+            {
+                Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Ошибка работы с файлом {StructureXmlName}");
+                return;
+            }
+
             Assembly loaderAssembly = Assembly.LoadFrom(localLoaderAssemblyFile.FullName);
-            Type loaderType = loaderAssembly.GetType("LoaderExtension");
+            Type loaderType = loaderAssembly.GetType("Loader.LoaderExtension", true);
             MethodInfo initializeMethod = loaderType.GetMethod("Initialize");
             initializeMethod.Invoke(null, null);
         }

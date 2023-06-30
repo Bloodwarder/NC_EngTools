@@ -18,20 +18,20 @@ namespace Loader
     public static class LoaderExtension
     {
         const string StructureXmlName = "Structure.xml";
-        const string StartUpConfigName = "StartupConfig.xml";
+        const string StartUpConfigName = "StartUpConfig.xml";
 
         public static void Initialize()
         {
-            //System.Windows.Window newWindow = new LoaderUI.StartupWindow();
+            //System.Windows.Window newWindow = new LoaderUI.StartUpWindow();
             //newWindow.ShowDialog();
             DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
             XDocument structureXml = XDocument.Load(Path.Combine(dir.FullName, StructureXmlName));
             List<ComparedFiles> files = StructureComparer.GetFiles(structureXml);
             PathProvider.InitializeStructure(files);
-            StartupWindow window = new StartupWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
+            StartUpWindow window = new StartUpWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
             window.ShowDialog();
-            XDocument startupConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
-            List<string> updatedModules = startupConfig
+            XDocument StartUpConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
+            List<string> updatedModules = StartUpConfig
                 .Root
                 .Element("Modules")
                 .Elements()
@@ -40,7 +40,7 @@ namespace Loader
                 .ToList();
             FileUpdater.UpdatedModules.UnionWith(updatedModules);
             FileUpdater.UpdateRange(files);
-            List<string> loadedModules = startupConfig
+            List<string> loadedModules = StartUpConfig
                 .Root
                 .Element("Modules")
                 .Elements()
@@ -92,13 +92,13 @@ namespace Loader
             {
                 results.AddRange(SearchStructure(
                     childElement,
-                    Path.Combine(localPath, childElement.Name.LocalName),
-                    Path.Combine(sourcePath, childElement.Name.LocalName)));
+                    Path.Combine(localPath, childElement.Attribute("Name").Value),
+                    Path.Combine(sourcePath, childElement.Attribute("Name").Value)));
             }
             foreach (XElement childElement in element.Elements("file"))
             {
-                if (!IncludedModules.Contains(childElement.Attribute("Module").Value))
-                    continue;
+                //if (!IncludedModules.Contains(childElement.Attribute("Module").Value))
+                //    continue;
                 ComparedFiles compared = new ComparedFiles
                     (
                     new FileInfo(Path.Combine(localPath, childElement.Attribute("Name").Value)),

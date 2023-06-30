@@ -1,11 +1,11 @@
-﻿<Window x:Class="LoaderUI.StartupWindow"
+﻿<Window x:Class="LoaderUI.StartUpWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LoaderUI"
         mc:Ignorable="d"
-        Title="StartupWindow" Height="500" Width="700" Closing="StartupWindowClosing">
+        Title="StartUpWindow" Height="500" Width="700" Closing="StartUpWindowClosing">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="503*"/>
@@ -32,7 +32,7 @@
                 <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
             <DockPanel Grid.Row="0" Grid.Column="3">
-                <CheckBox DockPanel.Dock="Right" Margin="10" VerticalAlignment="Top" Name="chbShowOnStartup" IsChecked="True"/>
+                <CheckBox DockPanel.Dock="Right" Margin="10" VerticalAlignment="Top" Name="chbShowOnStartUp" IsChecked="True"/>
                 <TextBlock DockPanel.Dock="Right" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10" Text="Показывать при старте"/>
             </DockPanel>
             <DockPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Width="Auto" LastChildFill="True" Margin="5">

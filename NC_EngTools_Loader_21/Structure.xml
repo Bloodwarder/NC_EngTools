@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <structure>
 	<basepath>
-		<local></local>
+		<local>C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\Debug\ExtensionLibraries</local>
 		<source>\\Comp575\обмен - коновалов\NC_EngTools</source>
 	</basepath>
 	<innerpath>
@@ -17,6 +17,8 @@
 			<!--<file Name="LoaderCore.dll"/>-->
 			<file Name="LayerWorks.dll" Module="LayerWorks"/>
 			<file Name="Utilities.dll" Module="Utilities"/>
+			<file Name="StartUpConfig.xml" Module="General"/>
+			<file Name="Structure.xml" Module="PreUpdated"/>
 		</directory>
 		<file Name="Известные проблемы.txt" Module="General"/>
 		<file Name="Команды.txt" Module="General"/>
