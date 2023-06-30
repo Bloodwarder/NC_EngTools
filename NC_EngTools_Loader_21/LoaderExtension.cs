@@ -32,7 +32,7 @@ namespace Loader
             // Читаем конфигурацию на предмет необходимости отображения стартового окна и отображаем его
             XDocument StartUpConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
             bool showStartUp = XmlConvert.ToBoolean(StartUpConfig.Root.Element("StartUpShow").Attribute("Enabled").Value);
-            if (showStartUp) 
+            if (showStartUp)
             {
                 StartUpWindow window = new StartUpWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
                 window.ShowDialog();
@@ -99,7 +99,7 @@ namespace Loader
         /// Сет с тегами загружаемых модулей
         /// </summary>
         internal static HashSet<string> IncludedModules { get; set; } = new HashSet<string>() { "General" };
-        
+
         /// <summary>
         /// Получить все пути файлов в локальной папке, папке источнике и теги модулей
         /// </summary>
@@ -176,11 +176,12 @@ namespace Loader
             // Если доступен источник, сравниваем даты обновления и при необходимости перезаписываем локальный файл. Если нет - работаем с локальным без обновления
             if (sourceExists && (!localExists || local.LastWriteTime != source.LastWriteTime))
             {
-                if (!_testRun)
+                if (_testRun)
                 {
-                    source.CopyTo(local.FullName, true);
-                    Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Отладочная сборка. Сообщение об обновлении файла (без самого обновления):");
+                    Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Отладочная сборка. Вывод сообщения об обновлении {local.Name}");
+                    return;
                 }
+                source.CopyTo(local.FullName, true);
                 if (FileUpdatedEvent != null)
                     FileUpdatedEvent(local, new EventArgs());
                 Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Файл {local.Name} обновлён");
@@ -196,10 +197,18 @@ namespace Loader
 
         internal static void UpdateRange(IEnumerable<ComparedFiles> comparedFiles, string singleTagUpdate = null)
         {
-            List<ComparedFiles> workSet = singleTagUpdate == null ? comparedFiles.ToList() : comparedFiles.Where(cf => cf.ModuleTag == singleTagUpdate).ToList();
-
-            foreach (ComparedFiles fileSet in workSet)
-                UpdateFile(fileSet.LocalFile, fileSet.SourceFile);
+            // Если не задан конкретный тег - заранее фильтрует набор по нему и обновляет с пропуском стандартной проверки
+            // Если задан - сразу передаёт в метод со стандартной проверкой на содержание тега в наборе обновляемых модулей
+            if (singleTagUpdate == null)
+            {
+                foreach (ComparedFiles fileSet in comparedFiles)
+                    UpdateFile(fileSet);
+            }
+            else
+            {
+                foreach (ComparedFiles fileSet in comparedFiles.Where(fs => fs.ModuleTag == singleTagUpdate).ToList())
+                    UpdateFile(fileSet.LocalFile, fileSet.SourceFile);
+            }
         }
 
     }
