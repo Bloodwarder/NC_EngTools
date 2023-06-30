@@ -1,36 +1,44 @@
 ﻿using HostMgd.ApplicationServices;
-using HostMgd.Windows;
 using LoaderUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using Teigha.Runtime;
 
 namespace Loader
 {
-
+    /// <summary>
+    /// Загрузчик сборок с окном конфигурации
+    /// </summary>
     public static class LoaderExtension
     {
         const string StructureXmlName = "Structure.xml";
         const string StartUpConfigName = "StartUpConfig.xml";
 
+        // Поиск обновлений и настройка загрузки и обновления сборок
         public static void Initialize()
         {
-            //System.Windows.Window newWindow = new LoaderUI.StartUpWindow();
-            //newWindow.ShowDialog();
+            // Получаем директорию выполняемой сборки и xml файл со структурой папок приложения
             DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
             XDocument structureXml = XDocument.Load(Path.Combine(dir.FullName, StructureXmlName));
+            // Получить наборы файлов для сопоставления (локальный, источник и тег модуля) и создать словарь путей для обращения
             List<ComparedFiles> files = StructureComparer.GetFiles(structureXml);
             PathProvider.InitializeStructure(files);
-            StartUpWindow window = new StartUpWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
-            window.ShowDialog();
+            // Читаем конфигурацию на предмет необходимости отображения стартового окна и отображаем его
             XDocument StartUpConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
+            bool showStartUp = XmlConvert.ToBoolean(StartUpConfig.Root.Element("StartUpShow").Attribute("Enabled").Value);
+            if (showStartUp) 
+            {
+                StartUpWindow window = new StartUpWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
+                window.ShowDialog();
+            }
+            // Заново читаем конфиг (мог измениться)
+            StartUpConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
+            // Получаем из конфига теги обновляемых модулей и обновляем все необходимые файлы, помеченные указанными тегами
             List<string> updatedModules = StartUpConfig
                 .Root
                 .Element("Modules")
@@ -40,6 +48,7 @@ namespace Loader
                 .ToList();
             FileUpdater.UpdatedModules.UnionWith(updatedModules);
             FileUpdater.UpdateRange(files);
+            // Аналогичная процедура с загружаемыми сборками
             List<string> loadedModules = StartUpConfig
                 .Root
                 .Element("Modules")
@@ -52,6 +61,16 @@ namespace Loader
             foreach (FileInfo assembly in loadingAssemblies)
                 Assembly.LoadFrom(assembly.FullName);
         }
+
+        /// <summary>
+        /// Команда вызова окна конфигурации
+        /// </summary>
+        [CommandMethod("NCET_CONFIG")]
+        public static void ConfigureAutorun()
+        {
+            StartUpWindow window = new StartUpWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
+            window.ShowDialog();
+        }
     }
 
     public static class PathProvider
@@ -62,7 +81,11 @@ namespace Loader
         {
             PathDictionary = files.ToDictionary(cf => cf.LocalFile.Name, cf => cf.LocalFile.FullName);
         }
-
+        /// <summary>
+        /// Получить полный путь файла в директории приложения
+        /// </summary>
+        /// <param name="name">Имя файла</param>
+        /// <returns>Полный путь к файлу</returns>
         public static string GetPath(string name)
         {
             return PathDictionary[name];
@@ -71,7 +94,16 @@ namespace Loader
 
     internal static class StructureComparer
     {
+        /// <summary>
+        /// Сет с тегами загружаемых модулей
+        /// </summary>
         internal static HashSet<string> IncludedModules { get; set; } = new HashSet<string>() { "General" };
+        
+        /// <summary>
+        /// Получить все пути файлов в локальной папке, папке источнике и теги модулей
+        /// </summary>
+        /// <param name="xDocument">xml-документ со структурой папок приложения</param>
+        /// <returns>Список сравниваемых файлов</returns>
         internal static List<ComparedFiles> GetFiles(XDocument xDocument)
         {
             XElement innerpath = xDocument.Root.Element("innerpath");
@@ -82,7 +114,13 @@ namespace Loader
             result.AddRange(SearchStructure(innerpath, localPath, sourcePath));
             return result;
         }
-
+        /// <summary>
+        /// Рекурсивная функция поиска по структуре xml-файла
+        /// </summary>
+        /// <param name="element">Элемент innerpath в файле структуры</param>
+        /// <param name="localPath">Полный путь к локальной папке</param>
+        /// <param name="sourcePath">Полный путь к папке-источнику</param>
+        /// <returns></returns>
         private static IEnumerable<ComparedFiles> SearchStructure(XElement element, string localPath, string sourcePath)
         {
             if (!element.HasElements)
@@ -114,24 +152,33 @@ namespace Loader
 
     internal static class FileUpdater
     {
+        /// <summary>
+        /// Сет с тегами обновляемых модулей
+        /// </summary>
         internal static HashSet<string> UpdatedModules { get; } = new HashSet<string>() { "General" };
 
-        internal static event EventHandler FileUpdated;
+        internal static event EventHandler FileUpdatedEvent;
 
+        /// <summary>
+        /// Выключить для реального обновления файлов
+        /// </summary>
         private static readonly bool _testRun = true;
         internal static void UpdateFile(FileInfo local, FileInfo source)
         {
             bool localExists = local.Exists;
             bool sourceExists = source.Exists;
+            // Если нет ни локального файла, ни источника, выдаем ошибку
             if (!localExists && !sourceExists)
             {
                 throw new System.Exception($"\nОтсутствует локальный файл {local.Name} и нет доступа к файлам обновления");
             }
+            // Если доступен источник, сравниваем даты обновления и при необходимости перезаписываем локальный файл. Если нет - работаем с локальным без обновления
             if (sourceExists && (!localExists || local.LastWriteTime != source.LastWriteTime))
             {
                 if (!_testRun)
                     source.CopyTo(local.FullName, true);
-                FileUpdated(local, new EventArgs());
+                if (FileUpdatedEvent != null)
+                    FileUpdatedEvent(local, new EventArgs());
                 Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Файл {local.Name} обновлён");
                 return;
             }
@@ -145,7 +192,7 @@ namespace Loader
 
         internal static void UpdateRange(IEnumerable<ComparedFiles> comparedFiles, string singleTagUpdate = null)
         {
-            List<ComparedFiles> workSet = singleTagUpdate != null ? comparedFiles.ToList() : comparedFiles.Where(cf => cf.ModuleTag == singleTagUpdate).ToList();
+            List<ComparedFiles> workSet = singleTagUpdate == null ? comparedFiles.ToList() : comparedFiles.Where(cf => cf.ModuleTag == singleTagUpdate).ToList();
 
             foreach (ComparedFiles fileSet in workSet)
                 UpdateFile(fileSet.LocalFile, fileSet.SourceFile);

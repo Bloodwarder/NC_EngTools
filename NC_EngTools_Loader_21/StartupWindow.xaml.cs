@@ -37,9 +37,9 @@ namespace LoaderUI
             InitializeComponent();
             chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value);
             chbIncludeLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Include").Value);
-            chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("AutoUpdate").Value);
+            chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Update").Value);
             chbIncludeUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Include").Value);
-            chbAutoUpdateUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("AutoUpdate").Value);
+            chbAutoUpdateUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Update").Value);
             tbSourcePath.Text = _xmlStructure.Root.Element("basepath").Element("source").Value;
         }
 
@@ -72,8 +72,11 @@ namespace LoaderUI
                 RootFolder = Environment.SpecialFolder.NetworkShortcuts
             };
             dialog.ShowDialog();
-            if (dialog.SelectedPath != null)
+            DirectoryInfo dir = new DirectoryInfo(dialog.SelectedPath);
+            if (dir.Exists)
+            {
                 tbSourcePath.Text = dialog.SelectedPath;
+            }
             e.Handled = true;
         }
 
@@ -81,9 +84,9 @@ namespace LoaderUI
         {
             _xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value = XmlConvert.ToString((bool)chbShowOnStartUp.IsChecked);
             _xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Include").Value = XmlConvert.ToString((bool)chbIncludeLayerWorks.IsChecked);
-            _xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("AutoUpdate").Value = XmlConvert.ToString((bool)chbAutoUpdateLayerWorks.IsChecked);
+            _xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Update").Value = XmlConvert.ToString((bool)chbAutoUpdateLayerWorks.IsChecked);
             _xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Include").Value = XmlConvert.ToString((bool)chbIncludeUtilities.IsChecked);
-            _xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("AutoUpdate").Value = XmlConvert.ToString((bool)chbAutoUpdateUtilities.IsChecked);
+            _xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Update").Value = XmlConvert.ToString((bool)chbAutoUpdateUtilities.IsChecked);
             _xmlConfig.Save(_xmlConfigPath);
             DirectoryInfo checkdir = new DirectoryInfo(tbSourcePath.Text);
             if (checkdir.Exists)
