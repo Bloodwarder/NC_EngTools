@@ -16,11 +16,11 @@
 			</directory>
 			<!--<file Name="LoaderCore.dll"/>-->
 			<file Name="LayerWorks.dll" Module="LayerWorks"/>
-			<file Name="Utilities.dll" Module="LayerWorks"/>
+			<file Name="Utilities.dll" Module="Utilities"/>
 		</directory>
 		<file Name="Известные проблемы.txt" Module="General"/>
 		<file Name="Команды.txt" Module="General"/>
 		<file Name="Список изменений.txt" Module="General"/>
-		<!--<file Name="NC_EngTools_Loader.dll"/>-->
+		<!--<file Name="NC_EngTools_StartUp.dll"/>-->
 	</innerpath>
 </structure>

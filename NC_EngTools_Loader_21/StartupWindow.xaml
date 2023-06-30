@@ -5,14 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LoaderUI"
         mc:Ignorable="d"
-        Title="StartupWindow" Height="500" Width="700">
+        Title="StartupWindow" Height="500" Width="700" Closing="StartupWindowClosing">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="503*"/>
+            <ColumnDefinition Width="110*"/>
+            <ColumnDefinition Width="87*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="7" Height="250">
+        <Grid Grid.Row="0" Margin="7,7,7,227" Height="250" Grid.ColumnSpan="3" Grid.RowSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="70"/>
                 <ColumnDefinition Width="70"/>
@@ -30,21 +35,29 @@
                 <CheckBox DockPanel.Dock="Right" Margin="10" VerticalAlignment="Top" Name="chbShowOnStartup" IsChecked="True"/>
                 <TextBlock DockPanel.Dock="Right" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10" Text="Показывать при старте"/>
             </DockPanel>
-            <TextBlock Grid.Row="2" Grid.Column="0" Text="Включить" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="10"/>
-            <TextBlock Grid.Row="2" Grid.Column="1" Text="Автообновление" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="9"/>
-            <CheckBox Grid.Row="3" Grid.Column="0" Name="chbIncludeNCEngTools" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True"/>
-            <CheckBox Grid.Row="3" Grid.Column="1" Name="chbAutoUpdateNCEngTools" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True"/>
-            <Button Grid.Row ="3" Grid.Column="2" Name="bUpdateNCEngTools" Margin="20 5 20 5" Content="Обновить" FontSize="14"/>
-            <TextBlock Grid.Row="3" Grid.Column="3" Text="NC_EngTools" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
-            <CheckBox Grid.Row="4" Grid.Column="0" Name="chbIncludeUtilities" VerticalAlignment="Center" HorizontalAlignment="Center" IsEnabled="False"/>
-            <CheckBox Grid.Row="4" Grid.Column="1" Name="chbAutoUpdateUtilities" VerticalAlignment="Center" HorizontalAlignment="Center" IsEnabled="False"/>
-            <Button Grid.Row ="4" Grid.Column="2" Name="bUpdateUtilities" Margin="20 5 20 5" Content="Обновить" FontSize="14" IsEnabled="False"/>
-            <TextBlock Grid.Row="4" Grid.Column="3" Text="Utilities" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
             <DockPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Width="Auto" LastChildFill="True" Margin="5">
                 <TextBlock DockPanel.Dock="Left" Text="Путь к файлам обновлений:" VerticalAlignment="Center"/>
-                <TextBox Name="tbSourcePath" Height="30" Width="Auto" VerticalAlignment="Center" Margin="5"/>
+                <Button Name="bSetUpdatePath" DockPanel.Dock="Right" Height="30" Width="30" Click="SetUpdatePathButtonClick"/>
+                <TextBox Name="tbSourcePath" Height="30" Width="Auto" VerticalAlignment="Center" Margin="5" IsEnabled="False"/>
             </DockPanel>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Включить" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="10"/>
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="Автообновление" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="9"/>
+            <CheckBox Grid.Row="3" Grid.Column="0" Name="chbIncludeLayerWorks" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="LayerWorks"
+                      Checked="IncludeCheckChanged"/>
+            <CheckBox Grid.Row="3" Grid.Column="1" Name="chbAutoUpdateLayerWorks" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="LayerWorks"
+                      Checked="AutoUpdateCheckChanged"/>
+            <Button Grid.Row ="3" Grid.Column="2" Name="bUpdateLayerWorks" Margin="20 5 20 5" Content="Обновить" FontSize="14" Tag="LayerWorks"/>
+            <TextBlock Grid.Row="3" Grid.Column="3" Text="LayerWorks" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
+            <CheckBox Grid.Row="4" Grid.Column="0" Name="chbIncludeUtilities" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="Utilities"
+                      Checked="IncludeCheckChanged"/>
+            <CheckBox Grid.Row="4" Grid.Column="1" Name="chbAutoUpdateUtilities" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="Utilities"
+                      Checked="AutoUpdateCheckChanged"/>
+            <Button Grid.Row ="4" Grid.Column="2" Name="bUpdateUtilities" Margin="20 5 20 5" Content="Обновить" FontSize="14" Tag="Utilities"/>
+            <TextBlock Grid.Row="4" Grid.Column="3" Text="Utilities" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
+
         </Grid>
-        <TextBlock Grid.Row="1" Margin="3"/>
+        <ScrollViewer Grid.Row="1" Margin="3,3,3,3" Grid.ColumnSpan="3">
+            <TextBlock x:Name="tbLog" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="12"/>
+        </ScrollViewer>
     </Grid>
 </Window>

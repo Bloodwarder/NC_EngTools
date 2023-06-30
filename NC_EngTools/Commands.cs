@@ -383,9 +383,6 @@ namespace NC_EngTools
 
         }
     }
-    /// <summary>
-    /// Класс для создания подписей сегментам полилинии
-    /// </summary>
 
 
     /// <summary>

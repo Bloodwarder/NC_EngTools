@@ -1,5 +1,6 @@
 ﻿using HostMgd.ApplicationServices;
 using HostMgd.Windows;
+using LoaderUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,12 +8,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 using Teigha.Runtime;
 
-namespace LoaderCore
+namespace Loader
 {
-    
+
     public static class LoaderExtension
     {
         const string StructureXmlName = "Structure.xml";
@@ -23,8 +25,32 @@ namespace LoaderCore
             //System.Windows.Window newWindow = new LoaderUI.StartupWindow();
             //newWindow.ShowDialog();
             DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
-            List<ComparedFiles> files = StructureComparer.GetFiles(XDocument.Load(Path.Combine(dir.FullName, StructureXmlName)));
+            XDocument structureXml = XDocument.Load(Path.Combine(dir.FullName, StructureXmlName));
+            List<ComparedFiles> files = StructureComparer.GetFiles(structureXml);
             PathProvider.InitializeStructure(files);
+            StartupWindow window = new StartupWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
+            window.ShowDialog();
+            XDocument startupConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
+            List<string> updatedModules = startupConfig
+                .Root
+                .Element("Modules")
+                .Elements()
+                .Where(e => XmlConvert.ToBoolean(e.Attribute("Update").Value))
+                .Select(e => e.Name.LocalName)
+                .ToList();
+            FileUpdater.UpdatedModules.UnionWith(updatedModules);
+            FileUpdater.UpdateRange(files);
+            List<string> loadedModules = startupConfig
+                .Root
+                .Element("Modules")
+                .Elements()
+                .Where(e => XmlConvert.ToBoolean(e.Attribute("Include").Value))
+                .Select(e => e.Name.LocalName)
+                .ToList();
+            StructureComparer.IncludedModules.UnionWith(loadedModules);
+            List<FileInfo> loadingAssemblies = files.Where(cf => cf.LocalFile.Extension == ".dll" && StructureComparer.IncludedModules.Contains(cf.ModuleTag)).Select(cf => cf.LocalFile).ToList();
+            foreach (FileInfo assembly in loadingAssemblies)
+                Assembly.LoadFrom(assembly.FullName);
         }
     }
 
@@ -45,7 +71,7 @@ namespace LoaderCore
 
     internal static class StructureComparer
     {
-        internal static List<string> IncludedModules { get; } = new List<string>() { "General" };
+        internal static HashSet<string> IncludedModules { get; set; } = new HashSet<string>() { "General" };
         internal static List<ComparedFiles> GetFiles(XDocument xDocument)
         {
             XElement innerpath = xDocument.Root.Element("innerpath");
@@ -88,7 +114,7 @@ namespace LoaderCore
 
     internal static class FileUpdater
     {
-        internal static List<string> UpdatedModules { get; } = new List<string>() { "General" };
+        internal static HashSet<string> UpdatedModules { get; } = new HashSet<string>() { "General" };
 
         internal static event EventHandler FileUpdated;
 

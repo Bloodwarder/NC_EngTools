@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <startup>
-	<WindowShow>True</WindowShow>
+	<StartUpShow Enabled="True"/>
 	<Modules>
 		<LayerWorks Include="True" Update="True"/>
 		<Utilities Include="True" Update="True"/>

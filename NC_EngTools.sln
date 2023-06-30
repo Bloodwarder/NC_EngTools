@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NC_EngTools_21", "NC_EngTools\NC_EngTools_21.csproj", "{9346FF2C-1290-41EA-AEB2-C59463E2B325}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LayerWorks", "NC_EngTools\LayerWorks.csproj", "{9346FF2C-1290-41EA-AEB2-C59463E2B325}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoaderCore", "NC_EngTools_Loader_21\LoaderCore.csproj", "{422E95A1-FD27-4248-B8A9-73783681C5B4}"
 EndProject
