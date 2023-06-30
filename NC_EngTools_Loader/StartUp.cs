@@ -4,8 +4,10 @@ using System.Xml.Linq;
 using System.Reflection;
 using Teigha.Runtime;
 using HostMgd.ApplicationServices;
+using System.Diagnostics;
+using System.Linq;
 
-namespace NC_EngTools_Loader
+namespace StartUp
 {
     public class StartUp : IExtensionApplication
     {
@@ -14,6 +16,7 @@ namespace NC_EngTools_Loader
         const string LoaderCoreAssemblyName = "LoaderCore.dll";
         const string StructureXmlName = "Structure.xml";
 
+        private bool _debugAssembly = Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
         private readonly FileInfo LocalStartUpAssemblyFile = new FileInfo(Assembly.GetExecutingAssembly().Location);
         private string sourceDirectory;
         private string SourceDirectory
@@ -88,6 +91,13 @@ namespace NC_EngTools_Loader
 
         private void UpdateFile(FileInfo local, FileInfo source, out bool updated)
         {
+            if (_debugAssembly)
+            {
+                updated = false;
+                Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Отладочная сборка. Файл {local.Name} не обновлён");
+                return;
+            }
+
             bool localExists = local.Exists;
             bool sourceExists = source.Exists;
             if (!localExists && !sourceExists)

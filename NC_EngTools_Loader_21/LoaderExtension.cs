@@ -2,6 +2,7 @@
 using LoaderUI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -162,7 +163,7 @@ namespace Loader
         /// <summary>
         /// Выключить для реального обновления файлов
         /// </summary>
-        private static readonly bool _testRun = true;
+        private static readonly bool _testRun = Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
         internal static void UpdateFile(FileInfo local, FileInfo source)
         {
             bool localExists = local.Exists;
@@ -176,7 +177,10 @@ namespace Loader
             if (sourceExists && (!localExists || local.LastWriteTime != source.LastWriteTime))
             {
                 if (!_testRun)
+                {
                     source.CopyTo(local.FullName, true);
+                    Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Отладочная сборка. Сообщение об обновлении файла (без самого обновления):");
+                }
                 if (FileUpdatedEvent != null)
                     FileUpdatedEvent(local, new EventArgs());
                 Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Файл {local.Name} обновлён");

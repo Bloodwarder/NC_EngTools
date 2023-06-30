@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Xml.Linq;
 using System.Xml;
 using System.IO;
+using Loader;
 
 namespace LoaderUI
 {
@@ -80,6 +81,7 @@ namespace LoaderUI
             e.Handled = true;
         }
 
+
         private void StartUpWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value = XmlConvert.ToString((bool)chbShowOnStartUp.IsChecked);
@@ -93,13 +95,11 @@ namespace LoaderUI
                 _xmlStructure.Root.Element("basepath").Element("source").Value = tbSourcePath.Text;
             _xmlStructure.Save(_xmlStructurePath);
         }
-    }
 
-    public class StartUpWindowViewModel
-    {
-        public StartUpWindowViewModel()
+        private void UpdateButtonClick(object sender, RoutedEventArgs e)
         {
-
+            Button button = sender as Button;
+            FileUpdater.UpdateRange(StructureComparer.GetFiles(_xmlStructure), button.Tag.ToString());
         }
     }
 }

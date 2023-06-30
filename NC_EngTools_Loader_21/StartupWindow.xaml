@@ -46,13 +46,13 @@
                       Checked="IncludeCheckChanged"/>
             <CheckBox Grid.Row="3" Grid.Column="1" Name="chbAutoUpdateLayerWorks" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="LayerWorks"
                       Checked="AutoUpdateCheckChanged"/>
-            <Button Grid.Row ="3" Grid.Column="2" Name="bUpdateLayerWorks" Margin="20 5 20 5" Content="Обновить" FontSize="14" Tag="LayerWorks"/>
+            <Button Grid.Row ="3" Grid.Column="2" Name="bUpdateLayerWorks" Margin="20 5 20 5" Content="Обновить" FontSize="14" Tag="LayerWorks" Click="UpdateButtonClick"/>
             <TextBlock Grid.Row="3" Grid.Column="3" Text="LayerWorks" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
             <CheckBox Grid.Row="4" Grid.Column="0" Name="chbIncludeUtilities" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="Utilities"
                       Checked="IncludeCheckChanged"/>
             <CheckBox Grid.Row="4" Grid.Column="1" Name="chbAutoUpdateUtilities" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="Utilities"
                       Checked="AutoUpdateCheckChanged"/>
-            <Button Grid.Row ="4" Grid.Column="2" Name="bUpdateUtilities" Margin="20 5 20 5" Content="Обновить" FontSize="14" Tag="Utilities"/>
+            <Button Grid.Row ="4" Grid.Column="2" Name="bUpdateUtilities" Margin="20 5 20 5" Content="Обновить" FontSize="14" Tag="Utilities" Click="UpdateButtonClick"/>
             <TextBlock Grid.Row="4" Grid.Column="3" Text="Utilities" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
 
         </Grid>
