@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoaderCore", "NC_EngTools_L
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NC_EngTools_StartUp", "NC_EngTools_Loader\NC_EngTools_StartUp.csproj", "{AE5B4650-D8D9-4B12-AA8D-3334834D1EE4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Utilities.csproj", "{BC37020E-E998-40FE-952F-133E841045B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug 21|Any CPU = Debug 21|Any CPU
@@ -33,6 +35,12 @@ Global
 		{AE5B4650-D8D9-4B12-AA8D-3334834D1EE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE5B4650-D8D9-4B12-AA8D-3334834D1EE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE5B4650-D8D9-4B12-AA8D-3334834D1EE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC37020E-E998-40FE-952F-133E841045B7}.Debug 21|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC37020E-E998-40FE-952F-133E841045B7}.Debug 21|Any CPU.Build.0 = Debug|Any CPU
+		{BC37020E-E998-40FE-952F-133E841045B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC37020E-E998-40FE-952F-133E841045B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC37020E-E998-40FE-952F-133E841045B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC37020E-E998-40FE-952F-133E841045B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

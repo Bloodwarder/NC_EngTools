@@ -7,8 +7,8 @@
     <ProjectGuid>{9346FF2C-1290-41EA-AEB2-C59463E2B325}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NC_EngTools</RootNamespace>
-    <AssemblyName>NC_EngTools_21</AssemblyName>
+    <RootNamespace>LayerWorks</RootNamespace>
+    <AssemblyName>LayerWorks</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -31,7 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>D:\Обмен - Коновалов\NC_EngTools\ExtensionLibraries\NC_EngTools_21.xml</DocumentationFile>
+    <DocumentationFile>D:\Обмен - Коновалов\NC_EngTools\ExtensionLibraries\LayerWorks.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>

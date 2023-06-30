@@ -15,7 +15,8 @@
 				<file Name="STANDARD1.lin" Module="LayerWorks"/>
 			</directory>
 			<!--<file Name="LoaderCore.dll"/>-->
-			<file Name="NC_EngTools_21" Module="LayerWorks"/>
+			<file Name="LayerWorks.dll" Module="LayerWorks"/>
+			<file Name="Utilities.dll" Module="LayerWorks"/>
 		</directory>
 		<file Name="Известные проблемы.txt" Module="General"/>
 		<file Name="Команды.txt" Module="General"/>

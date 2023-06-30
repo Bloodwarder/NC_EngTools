@@ -12,13 +12,19 @@ using Teigha.Runtime;
 
 namespace LoaderCore
 {
+    
     public static class LoaderExtension
     {
+        const string StructureXmlName = "Structure.xml";
+        const string StartUpConfigName = "StartupConfig.xml";
+
         public static void Initialize()
         {
             //System.Windows.Window newWindow = new LoaderUI.StartupWindow();
             //newWindow.ShowDialog();
-
+            DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
+            List<ComparedFiles> files = StructureComparer.GetFiles(XDocument.Load(Path.Combine(dir.FullName, StructureXmlName)));
+            PathProvider.InitializeStructure(files);
         }
     }
 
@@ -26,10 +32,9 @@ namespace LoaderCore
     {
         private static Dictionary<string, string> PathDictionary { get; set; }
 
-        internal static void InitializeStructure(string path)
+        internal static void InitializeStructure(IEnumerable<ComparedFiles> files)
         {
-            XDocument xDoc = XDocument.Load(path);
-            string basepath = xDoc.Root.Element("basepath").Element("local").Name.LocalName;
+            PathDictionary = files.ToDictionary(cf => cf.LocalFile.Name, cf => cf.LocalFile.FullName);
         }
 
         public static string GetPath(string name)
@@ -112,9 +117,11 @@ namespace LoaderCore
                 UpdateFile(comparedFiles.LocalFile, comparedFiles.SourceFile);
         }
 
-        internal static void UpdateRange(IEnumerable<ComparedFiles> comparedFiles)
+        internal static void UpdateRange(IEnumerable<ComparedFiles> comparedFiles, string singleTagUpdate = null)
         {
-            foreach (ComparedFiles fileSet in comparedFiles)
+            List<ComparedFiles> workSet = singleTagUpdate != null ? comparedFiles.ToList() : comparedFiles.Where(cf => cf.ModuleTag == singleTagUpdate).ToList();
+
+            foreach (ComparedFiles fileSet in workSet)
                 UpdateFile(fileSet.LocalFile, fileSet.SourceFile);
         }
 
