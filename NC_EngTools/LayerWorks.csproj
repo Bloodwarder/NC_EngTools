@@ -92,9 +92,9 @@
     <AdditionalFiles Include="LayersData\Layer_LegendDraw.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </AdditionalFiles>
-    <Content Include="LayersData\STANDARD1.lin">
+    <AdditionalFiles Include="LayersData\STANDARD1.lin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </AdditionalFiles>
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="LayersData\Layer_Props.xml">

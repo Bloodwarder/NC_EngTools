@@ -58,7 +58,7 @@
 
         </Grid>
         <ScrollViewer Grid.Row="1" Margin="3,3,3,3" Grid.ColumnSpan="4">
-            <TextBlock x:Name="tbLog" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="12"/>
+            <TextBlock x:Name="tbLog" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="12" Foreground="Blue"/>
         </ScrollViewer>
     </Grid>
 </Window>

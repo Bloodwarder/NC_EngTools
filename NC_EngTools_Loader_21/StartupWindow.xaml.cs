@@ -24,10 +24,10 @@ namespace LoaderUI
     /// </summary>
     public partial class StartUpWindow : Window
     {
-        XDocument _xmlConfig;
-        string _xmlConfigPath;
-        XDocument _xmlStructure;
-        string _xmlStructurePath;
+        private readonly XDocument _xmlConfig;
+        private readonly string _xmlConfigPath;
+        private readonly XDocument _xmlStructure;
+        private readonly string _xmlStructurePath;
 
         public StartUpWindow(string xmlConfigPath, string xmlStructurePath)
         {
@@ -36,6 +36,7 @@ namespace LoaderUI
             _xmlStructurePath = xmlStructurePath;
             _xmlStructure = XDocument.Load(xmlStructurePath);
             InitializeComponent();
+            Logger.WriteLog += LogWindow;
             chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value);
             chbIncludeLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Include").Value);
             chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Update").Value);
@@ -94,12 +95,18 @@ namespace LoaderUI
             if (checkdir.Exists)
                 _xmlStructure.Root.Element("basepath").Element("source").Value = tbSourcePath.Text;
             _xmlStructure.Save(_xmlStructurePath);
+            Logger.WriteLog -= LogWindow;
         }
 
         private void UpdateButtonClick(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
             FileUpdater.UpdateRange(StructureComparer.GetFiles(_xmlStructure), button.Tag.ToString());
+        }
+
+        private void LogWindow(string message)
+        {
+            tbLog.Text += $"\n{message}";
         }
     }
 }

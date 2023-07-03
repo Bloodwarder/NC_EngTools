@@ -5,6 +5,7 @@
 		<source>\\Comp575\обмен - коновалов\NC_EngTools</source>
 	</basepath>
 	<innerpath>
+		<!--General включаются и обновляются всегда. PreUpdated подразумевается, что были обновлены первым автозапуском или конфигуратором-->
 		<directory Name="ExtensionLibraries">
 			<directory Name="LayersData">
 				<file Name="Layer_Props.xml" Module="LayerWorks"/>
@@ -14,15 +15,15 @@
 				<file Name="Layer_Props.xlsm" Module="LayerWorks"/>
 				<file Name="STANDARD1.lin" Module="LayerWorks"/>
 			</directory>
-			<!--<file Name="LoaderCore.dll"/>-->
+			<file Name="LoaderCore.dll" Module="PreUpdated"/>
 			<file Name="LayerWorks.dll" Module="LayerWorks"/>
 			<file Name="Utilities.dll" Module="Utilities"/>
-			<file Name="StartUpConfig.xml" Module="General"/>
+			<file Name="StartUpConfig.xml" Module="PreUpdated"/>
 			<file Name="Structure.xml" Module="PreUpdated"/>
 		</directory>
 		<file Name="Известные проблемы.txt" Module="General"/>
 		<file Name="Команды.txt" Module="General"/>
 		<file Name="Список изменений.txt" Module="General"/>
-		<!--<file Name="NC_EngTools_StartUp.dll"/>-->
+		<file Name="NC_EngTools_StartUp.dll" Module="PreUpdated"/>
 	</innerpath>
 </structure>

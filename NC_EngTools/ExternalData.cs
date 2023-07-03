@@ -246,6 +246,7 @@ namespace ExternalData
         [CommandMethod("RELOADPROPS")]
         public static void ReloadDictionaries()
         {
+            Workstation.Define();
             Workstation.Editor.WriteMessage("Начало импорта данных. Подождите");
             Reloader(ToReload.Properties | ToReload.Alter | ToReload.Legend | ToReload.LegendDraw);
             Workstation.Editor.WriteMessage("Импорт данных завершён");

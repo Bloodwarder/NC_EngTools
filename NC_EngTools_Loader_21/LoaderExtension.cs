@@ -23,6 +23,7 @@ namespace Loader
         // Поиск обновлений и настройка загрузки и обновления сборок
         public static void Initialize()
         {
+            Logger.WriteLog += Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage;
             // Получаем директорию выполняемой сборки и xml файл со структурой папок приложения
             DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
             XDocument structureXml = XDocument.Load(Path.Combine(dir.FullName, StructureXmlName));
@@ -60,7 +61,11 @@ namespace Loader
             StructureComparer.IncludedModules.UnionWith(loadedModules);
             List<FileInfo> loadingAssemblies = files.Where(cf => cf.LocalFile.Extension == ".dll" && StructureComparer.IncludedModules.Contains(cf.ModuleTag)).Select(cf => cf.LocalFile).ToList();
             foreach (FileInfo assembly in loadingAssemblies)
+            {
                 Assembly.LoadFrom(assembly.FullName);
+                Logger.WriteLog.Invoke($"Сборка {assembly.Name} загружена");
+            }
+            Logger.WriteLog = null; 
         }
 
         /// <summary>
@@ -178,13 +183,12 @@ namespace Loader
             {
                 if (_testRun)
                 {
-                    Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Отладочная сборка. Вывод сообщения об обновлении {local.Name}");
+                    Logger.WriteLog?.Invoke($"Отладочная сборка. Вывод сообщения об обновлении {local.Name}");
                     return;
                 }
                 source.CopyTo(local.FullName, true);
-                if (FileUpdatedEvent != null)
-                    FileUpdatedEvent(local, new EventArgs());
-                Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Файл {local.Name} обновлён");
+                FileUpdatedEvent?.Invoke(local, new EventArgs());
+                Logger.WriteLog?.Invoke($"Файл {local.Name} обновлён");
                 return;
             }
         }
@@ -215,6 +219,13 @@ namespace Loader
             }
         }
 
+    }
+
+    internal static class Logger
+    {
+        internal static Log WriteLog;
+
+        internal delegate void Log(string message);
     }
 
     internal struct ComparedFiles
