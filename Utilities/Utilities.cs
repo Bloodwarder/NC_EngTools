@@ -186,8 +186,8 @@ namespace Utilities
                 // Расчёт уклона
                 double slope = Math.Abs(red2 - red1) / l1 * 1000;
                 // Назначение величин блокам
-                BlockAttributeSet(slopeBRef, SlopeTag, slope.ToString());
-                BlockAttributeSet(slopeBRef, DistanceTag, slope.ToString());
+                BlockAttributeSet(slopeBRef, SlopeTag, slope.ToString("0"));
+                BlockAttributeSet(slopeBRef, DistanceTag, l1.ToString("0.0"));
                 transaction.Commit();
             }
         }
@@ -222,9 +222,9 @@ namespace Utilities
 
                 double redNext = red1 + l1 * slope * 0.001d;
 
-                BlockAttributeSet(slopeBRef, SlopeTag, slope.ToString());
-                BlockAttributeSet(slopeBRef, DistanceTag, l1.ToString());
-                BlockAttributeSet(markNext, RedMarkTag, redNext.ToString());
+                BlockAttributeSet(slopeBRef, SlopeTag, Math.Abs(slope).ToString("0"));
+                BlockAttributeSet(slopeBRef, DistanceTag, l1.ToString("0.0"));
+                BlockAttributeSet(markNext, RedMarkTag, redNext.ToString("0.00"));
 
                 transaction.Commit();
             }
@@ -247,10 +247,6 @@ namespace Utilities
                 { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
                 if (!TryGetEntity("Выберите ось 2", out Polyline axis2))
                 { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                if (!TryGetEntity("Выберите блок уклона", out BlockReference slopeBRef, SlopeBlockName))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-
-
 
                 // Получить значения для расчёта
                 double red1 = double.Parse(BlockAttributeGet(mark1, RedMarkTag));
@@ -262,7 +258,7 @@ namespace Utilities
                 double red3 = red1 + Math.Abs(red2 - red1) * l1 / (l1 + l2);
 
                 // Назначить аттрибут блока
-                BlockAttributeSet(markOutput, RedMarkTag, red3.ToString());
+                BlockAttributeSet(markOutput, RedMarkTag, red3.ToString("0.00"));
                 transaction.Commit();
             }
         }
@@ -286,7 +282,7 @@ namespace Utilities
                     return;
                 }
                 double halfWidth = result.Value;
-                PromptDoubleOptions pdo = new PromptDoubleOptions($"Укажите шаг горизонталей <{LastHorStep}>")
+                PromptDoubleOptions pdo = new PromptDoubleOptions($"Укажите шаг горизонталей ")
                 {
                     UseDefaultValue = true,
                     DefaultValue = LastHorStep
@@ -314,17 +310,14 @@ namespace Utilities
 
                 double scaleDifference = Math.Round(red1 % 1, 2) * 100;
                 double horStep100 = horStep * 100;
-                while (scaleDifference < horStep100)
-                {
-                    scaleDifference -= horStep100;
-                }
+                scaleDifference = scaleDifference % horStep100;
 
                 double levelDisplacement = upwards ? horStep100 - scaleDifference : scaleDifference;
-                double axisDisplacement = levelDisplacement / slope;
+                double axisDisplacement = levelDisplacement * 0.01d / slope;
 
-                Workstation.Editor.WriteMessage($"\nУклон: {string.Format("0", slope * 1000)}");
-                Workstation.Editor.WriteMessage($"\nШаг на оси: {string.Format("0.0", axisStep)}");
-                Workstation.Editor.WriteMessage($"\nСмещение на оси от первой отметки: {string.Format("0.0", axisDisplacement)}");
+                Workstation.Editor.WriteMessage($"\nУклон: {(slope*1000d).ToString("0")}");
+                Workstation.Editor.WriteMessage($"\nШаг на оси: {axisStep.ToString("0.0")}");
+                Workstation.Editor.WriteMessage($"\nСмещение на оси от первой отметки: {axisDisplacement.ToString("0.0")}");
 
 
                 //'ВСТАВКА ТЕКСТА С ПАРАМЕТРАМИ (геометрия)
@@ -355,24 +348,28 @@ namespace Utilities
             }
         }
 
-        [CommandMethod("КРАСН_ЧЕРН_УРАВН")]
+        [CommandMethod("КРАСН_ЧЕРН_УРАВН", CommandFlags.Redraw)]
         public static void RedBlackEqual()
         {
-            PromptSelectionResult result = Workstation.Editor.SelectImplied();
-            SelectionSet selectionSet;
-            if (result.Status == PromptStatus.OK)
-                selectionSet = result.Value;
-            else
-                return;
+            Workstation.Define();
+
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-
-                List<Entity> entities = (from ObjectId id in selectionSet
-                                         let entity = transaction.GetObject(id, OpenMode.ForRead) as Entity
-                                         where entity is BlockReference blockReference && blockReference.BlockName == ElevationMarkBlockName
+                PromptSelectionResult result = Workstation.Editor.SelectImplied();
+                SelectionSet selectionSet;
+                if (result.Status == PromptStatus.OK)
+                    selectionSet = result.Value;
+                else
+                    return;
+                List<Entity> entities = (from ObjectId id in selectionSet.GetObjectIds()
+                                         let entity = transaction.GetObject(id, OpenMode.ForWrite) as Entity
+                                         //where entity is BlockReference blockReference && blockReference.BlockName == ElevationMarkBlockName
                                          select entity).ToList();
                 foreach (Entity entity in entities)
                 {
+                    if (!(entity is BlockReference))
+                        continue;
+                    // НЕОБХОДИМО ПРОВЕСТИ ВАЛИДАЦИЮ ПО ИМЕНИ БЛОКА, НО КАК ЕГО ДОСТАТЬ ЧЕРЕЗ BlockReference ПОКА НЕ НАШЁЛ. КИДАЕТ ModelSpace.
                     double elevation = double.Parse(BlockAttributeGet((BlockReference)entity, BlackMarkTag));
                     BlockAttributeSet((BlockReference)entity, RedMarkTag, elevation.ToString());
                 }
@@ -390,7 +387,7 @@ namespace Utilities
                           select rfr).FirstOrDefault();
             if (atrref != null)
             {
-                return atrref.TextString ?? "";
+                return atrref.TextString.Replace(".", ",") ?? "";
             }
             else
             {
@@ -402,11 +399,11 @@ namespace Utilities
         {
             AttributeCollection atrs = bref.AttributeCollection;
             var atrref = (from ObjectId objid in atrs
-                          let rfr = Workstation.TransactionManager.TopTransaction.GetObject(objid, OpenMode.ForRead) as AttributeReference
+                          let rfr = Workstation.TransactionManager.TopTransaction.GetObject(objid, OpenMode.ForWrite) as AttributeReference
                           where rfr.Tag == tag
                           select rfr).FirstOrDefault();
             if (atrref == null) return;
-            atrref.TextString = value;
+            atrref.TextString = value.Replace(",", ".");
         }
 
         private static bool TryGetEntity<T>(string message, out T entity, string blockName = null) where T : Entity
@@ -422,15 +419,15 @@ namespace Utilities
             }
             entity = Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForRead) as T;
 
-            if (blockName != null)
-            {
-                if (entity is BlockReference blockReference && blockReference.BlockName != blockName)
-                {
-                    entity = null;
-                    return false;
-                }
-            }
-            return true;
+            //if (blockName != null)
+                //{
+                //    if (entity is BlockReference blockReference && blockReference.BlockName != blockName)
+                //    {
+                //        entity = null;
+                //        return false;
+                //    }
+                //}
+                return true;
         }
     }
 
