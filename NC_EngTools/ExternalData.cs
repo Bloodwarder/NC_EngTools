@@ -460,6 +460,10 @@ namespace ExternalData
         {
             return instance.GetInstanceValue(layername, out success, enabledefaults);
         }
+        public static LayerProps GetValue(LayerParser layer, out bool success, bool enabledefaults = true)
+        {
+            return instance.GetInstanceValue(layer, out success, enabledefaults);
+        }
         public static void Reload(DictionaryDataProvider<string, LayerProps> primary, DictionaryDataProvider<string, LayerProps> secondary)
         {
             instance.ReloadInstance(primary, secondary);

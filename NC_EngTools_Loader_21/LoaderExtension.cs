@@ -202,7 +202,11 @@ namespace Loader
             if (singleTagUpdate == null)
             {
                 foreach (ComparedFiles fileSet in comparedFiles)
+                {
+                    if (!fileSet.LocalFile.Directory.Exists)
+                        fileSet.LocalFile.Directory.Create();
                     UpdateFile(fileSet);
+                }
             }
             else
             {

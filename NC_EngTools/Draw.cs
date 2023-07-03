@@ -141,7 +141,7 @@ namespace ModelspaceDraw
             pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
             pl.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
             pl.Layer = Layer.OutputLayerName;
-            LayerProps lp = LayerPropertiesDictionary.GetValue(Layer.TrueName, out bool success);
+            LayerProps lp = LayerPropertiesDictionary.GetValue(Layer, out bool success);
             if (success)
             {
                 pl.LinetypeScale = lp.LTScale;
@@ -173,7 +173,7 @@ namespace ModelspaceDraw
             pl.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
             pl.Layer = Layer.OutputLayerName;
             Polyline pl2 = pl.Clone() as Polyline;
-            LayerProps lp = LayerPropertiesDictionary.GetValue(Layer.TrueName, out bool success);
+            LayerProps lp = LayerPropertiesDictionary.GetValue(Layer, out bool success);
             if (success)
             {
                 pl.LinetypeScale = lp.LTScale;
@@ -276,7 +276,7 @@ namespace ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer.TrueName, out _, true).ConstantWidth;
+                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer, out _, true).ConstantWidth;
                 line.LinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
             }
         }
@@ -300,7 +300,7 @@ namespace ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer.TrueName, out _, true).ConstantWidth;
+                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer, out _, true).ConstantWidth;
                 LayerChecker.CheckLinetype("ACAD_ISO02W100", out bool ltgetsuccess);
                 if (ltgetsuccess)
                     line.Linetype = "ACAD_ISO02W100";
