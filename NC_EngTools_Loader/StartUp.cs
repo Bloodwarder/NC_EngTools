@@ -105,7 +105,7 @@ namespace StartUp
                 updated = false;
                 throw new System.Exception($"\nПриложение не загружено. Отсутствует локальный файл {local.Name} и нет доступа к файлам обновления");
             }
-            if (sourceExists && (!localExists || local.LastWriteTime != source.LastWriteTime))
+            if (sourceExists && (!localExists || local.LastWriteTime < source.LastWriteTime))
             {
                 source.CopyTo(local.FullName, true);
                 Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Файл {local.Name} обновлён");
