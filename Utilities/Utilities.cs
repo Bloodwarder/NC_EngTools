@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Teigha.Colors;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using Teigha.Runtime;
@@ -141,28 +142,6 @@ namespace Utilities
 
         private static double LastHorStep { get; set; } = 0.2d;
 
-        [CommandMethod("БЛОКТЕСТ")]
-        public static void VertTest()
-        {
-            Workstation.Define();
-            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
-            {
-                //запрашиваем у пользователя блок и проверяем выбор на null
-                PromptEntityOptions peo = new PromptEntityOptions("Выберите блок с отметкой")
-                { AllowNone = false };
-                peo.AddAllowedClass(typeof(BlockReference), true);
-                PromptEntityResult result = Workstation.Editor.GetEntity(peo);
-                if (result.Status != PromptStatus.OK)
-                    return;
-                BlockReference bref = Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForRead) as BlockReference;
-                if (bref == null)
-                    return;
-                BlockAttributeSet(bref, RedMarkTag, "010.10");
-
-                transaction.Commit();
-            }
-        }
-
         [CommandMethod("УКЛОН")]
         public static void SlopeCalc()
         {
@@ -188,6 +167,9 @@ namespace Utilities
                 // Назначение величин блокам
                 BlockAttributeSet(slopeBRef, SlopeTag, slope.ToString("0"));
                 BlockAttributeSet(slopeBRef, DistanceTag, l1.ToString("0.0"));
+
+                Highlighter.Unhighlight();
+
                 transaction.Commit();
             }
         }
@@ -226,6 +208,8 @@ namespace Utilities
                 BlockAttributeSet(slopeBRef, DistanceTag, l1.ToString("0.0"));
                 BlockAttributeSet(markNext, RedMarkTag, redNext.ToString("0.00"));
 
+                Highlighter.Unhighlight();
+
                 transaction.Commit();
             }
         }
@@ -259,6 +243,7 @@ namespace Utilities
 
                 // Назначить аттрибут блока
                 BlockAttributeSet(markOutput, RedMarkTag, red3.ToString("0.00"));
+                Highlighter.Unhighlight();
                 transaction.Commit();
             }
         }
@@ -275,20 +260,20 @@ namespace Utilities
                 { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
                 if (!TryGetEntity("Выберите ось", out Polyline axis))
                 { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                PromptDoubleResult result = Workstation.Editor.GetDistance("Укажите полуширину проезжей части");
-                if (result.Status != PromptStatus.OK)
-                {
-                    Workstation.Editor.WriteMessage("Неверный ввод");
-                    return;
-                }
-                double halfWidth = result.Value;
+                //PromptDoubleResult result = Workstation.Editor.GetDistance("Укажите полуширину проезжей части");
+                //if (result.Status != PromptStatus.OK)
+                //{
+                //    Workstation.Editor.WriteMessage("Неверный ввод");
+                //    return;
+                //}
+                //double halfWidth = result.Value;
                 PromptDoubleOptions pdo = new PromptDoubleOptions($"Укажите шаг горизонталей ")
                 {
                     UseDefaultValue = true,
                     DefaultValue = LastHorStep
                 };
                 PromptDoubleResult result2 = Workstation.Editor.GetDouble(pdo);
-                if (result.Status != PromptStatus.OK)
+                if (result2.Status != PromptStatus.OK)
                 {
                     Workstation.Editor.WriteMessage("Неверный ввод");
                     return;
@@ -315,35 +300,33 @@ namespace Utilities
                 double levelDisplacement = upwards ? horStep100 - scaleDifference : scaleDifference;
                 double axisDisplacement = levelDisplacement * 0.01d / slope;
 
-                Workstation.Editor.WriteMessage($"\nУклон: {(slope*1000d).ToString("0")}");
-                Workstation.Editor.WriteMessage($"\nШаг на оси: {axisStep.ToString("0.0")}");
-                Workstation.Editor.WriteMessage($"\nСмещение на оси от первой отметки: {axisDisplacement.ToString("0.0")}");
+                StringBuilder sb = new StringBuilder();
+                sb.Append($"\nУклон: {(slope * 1000d).ToString("0")}");
+                sb.Append($"\nШаг на оси: {axisStep.ToString("0.0")}");
+                sb.Append($"\nСмещение на оси от первой отметки: {axisDisplacement.ToString("0.0")}");
+                string textContent = sb.ToString();
 
+                Workstation.Editor.WriteMessage(textContent);
 
-                //'ВСТАВКА ТЕКСТА С ПАРАМЕТРАМИ (геометрия)
-                //Set ResTxt = acd.ModelSpace.AddMText(blc1.InsertionPoint, 0, "Уклон: " + Format(Slp * 1000, "0") + Chr(10) + "Шаг на оси: " + Format(AxStep, "0.0") _
-                // + Chr(10) + "Смещение на оси от первой отметки: " + Format(AxDispl, "0.0"))
-                //txtclr.ColorIndex = acRed
-                //With ResTxt
-                //    .BackgroundFill = False
-                //    .AttachmentPoint = acAttachmentPointTopLeft
-                //    .TrueColor = txtclr
-                //    .Height = 3.5
-                //    .EntityTransparency = 0
-                //End With
+                BlockTable blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite) as BlockTable;
+                BlockTableRecord modelSpace = transaction.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+                double vx = mark1.Position.X - mark2.Position.X;
+                double vy = mark1.Position.Y - mark2.Position.Y;
+                MText mText = new MText()
+                {
+                    BackgroundFill = false,
+                    Attachment = vx > 0 ? AttachmentPoint.TopRight : AttachmentPoint.TopLeft,
+                    Color = Color.FromRgb(0, 0, 255),
+                    TextHeight = 3.5d,
+                    Location = mark1.Position,
+                    Rotation = Math.Atan(vy / vx),
+                    Contents = textContent,
+                };
 
-                //vy = blc1.InsertionPoint(1) - blc2.InsertionPoint(1)
-                //vx = blc1.InsertionPoint(0) - blc2.InsertionPoint(0)
+                Highlighter.Unhighlight();
 
-                //If vx > 0 Then
-                //    With ResTxt
-                //        .AttachmentPoint = acAttachmentPointTopRight
-                //        .InsertionPoint = blc1.InsertionPoint
-                //    End With
-                //End If
-
-                //ResTxt.Rotation = Atn(vy / vx)
-
+                transaction.AddNewlyCreatedDBObject(mText, true);
+                modelSpace.AppendEntity(mText);
                 transaction.Commit();
             }
         }
@@ -418,16 +401,34 @@ namespace Utilities
                 return false;
             }
             entity = Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForRead) as T;
-
+            Highlighter.Highlight(entity);
             //if (blockName != null)
-                //{
-                //    if (entity is BlockReference blockReference && blockReference.BlockName != blockName)
-                //    {
-                //        entity = null;
-                //        return false;
-                //    }
-                //}
-                return true;
+            //{
+            //    if (entity is BlockReference blockReference && blockReference.BlockName != blockName)
+            //    {
+            //        entity = null;
+            //        return false;
+            //    }
+            //}
+            return true;
+        }
+    }
+
+    internal static class Highlighter
+    {
+        private readonly static List<Entity> _list = new List<Entity>();
+
+        internal static void Highlight(Entity entity)
+        {
+            _list.Add(entity);
+            entity.Highlight();
+        }
+
+        internal static void Unhighlight()
+        {
+            foreach (Entity entity in _list)
+                entity.Unhighlight();
+            _list.Clear();
         }
     }
 
