@@ -295,15 +295,15 @@ namespace Utilities
 
                 double scaleDifference = Math.Round(red1 % 1, 2) * 100;
                 double horStep100 = horStep * 100;
-                scaleDifference = scaleDifference % horStep100;
+                scaleDifference %= horStep100;
 
                 double levelDisplacement = upwards ? horStep100 - scaleDifference : scaleDifference;
                 double axisDisplacement = levelDisplacement * 0.01d / slope;
 
                 StringBuilder sb = new StringBuilder();
-                sb.Append($"\nУклон: {(slope * 1000d).ToString("0")}");
-                sb.Append($"\nШаг на оси: {axisStep.ToString("0.0")}");
-                sb.Append($"\nСмещение на оси от первой отметки: {axisDisplacement.ToString("0.0")}");
+                sb.Append($"\nУклон: {slope * 1000d:0}");
+                sb.Append($"\nШаг на оси: {axisStep:0.0}");
+                sb.Append($"\nСмещение на оси от первой отметки: {axisDisplacement:0.0}");
                 string textContent = sb.ToString();
 
                 Workstation.Editor.WriteMessage(textContent);
@@ -353,6 +353,8 @@ namespace Utilities
                     if (!(entity is BlockReference))
                         continue;
                     // НЕОБХОДИМО ПРОВЕСТИ ВАЛИДАЦИЮ ПО ИМЕНИ БЛОКА, НО КАК ЕГО ДОСТАТЬ ЧЕРЕЗ BlockReference ПОКА НЕ НАШЁЛ. КИДАЕТ ModelSpace.
+                    BlockReference btr = (BlockReference)entity;
+                    
                     double elevation = double.Parse(BlockAttributeGet((BlockReference)entity, BlackMarkTag));
                     BlockAttributeSet((BlockReference)entity, RedMarkTag, elevation.ToString());
                 }
@@ -402,15 +404,25 @@ namespace Utilities
             }
             entity = Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForRead) as T;
             Highlighter.Highlight(entity);
-            //if (blockName != null)
-            //{
-            //    if (entity is BlockReference blockReference && blockReference.BlockName != blockName)
-            //    {
-            //        entity = null;
-            //        return false;
-            //    }
-            //}
+            if (blockName != null)
+            {
+                if (entity is BlockReference blockReference && blockReference.BlockTableRecordName() != blockName)
+                {
+                    entity = null;
+                    return false;
+                }
+            }
             return true;
+        }
+    }
+
+    internal static class BlockReferenceNameExtension
+    {
+
+        internal static string BlockTableRecordName(this BlockReference bref)
+        {
+            BlockTableRecord btr = Workstation.TransactionManager.TopTransaction.GetObject(bref.BlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+            return btr.Name;
         }
     }
 
