@@ -11,6 +11,8 @@ using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using Teigha.Runtime;
 
+using static Utilities.EntitySelector;
+
 namespace Utilities
 {
     /// <summary>
@@ -29,75 +31,154 @@ namespace Utilities
         public void LabelDraw()
         {
             Workstation.Define();
-
-            using (Transaction tr = Workstation.TransactionManager.StartTransaction())
+            try
             {
-                //выбираем полилинию
-                PromptEntityOptions peo = new PromptEntityOptions("Выберите полилинию")
-                { };
-                peo.AddAllowedClass(typeof(Polyline), true);
-                PromptEntityResult result = Workstation.Editor.GetEntity(peo);
-                if (result.Status != PromptStatus.OK)
+                using (Transaction tr = Workstation.TransactionManager.StartTransaction())
                 {
-                    Workstation.Editor.WriteMessage("Ошибка выбора");
-                    return;
+                    //выбираем полилинию
+                    PromptEntityOptions peo = new PromptEntityOptions("Выберите полилинию")
+                    { };
+                    peo.AddAllowedClass(typeof(Polyline), true);
+                    PromptEntityResult result = Workstation.Editor.GetEntity(peo);
+                    if (result.Status != PromptStatus.OK)
+                    {
+                        Workstation.Editor.WriteMessage("Ошибка выбора");
+                        return;
+                    }
+
+                    //выбираем точку вставки подписи и находим ближайшую точку на полилинии
+                    PromptPointOptions ppo = new PromptPointOptions("Укажите точку вставки подписи рядом с сегментом полилинии");
+                    PromptPointResult pointresult = Workstation.Editor.GetPoint(ppo);
+                    if (result.Status != PromptStatus.OK)
+                        return;
+                    Point3d point = pointresult.Value;
+                    Polyline polyline = (Polyline)Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForRead); ;
+
+                    Vector2d v2d = GetPolylineSegment(polyline, point).Direction;
+
+                    //вводим текст для подписи
+                    PromptStringOptions pso = new PromptStringOptions($"Введите текст подписи (д или d в начале строки - знак диаметра")
+                    {
+                        AllowSpaces = true,
+                        UseDefaultValue = true,
+                        DefaultValue = PrevText
+                    };
+                    PromptResult pr = Workstation.Editor.GetString(pso);
+                    if (pr.Status != PromptStatus.OK) return;
+                    string text = pr.StringResult;
+                    PrevText = text;
+
+                    //ищем таблицу блоков и моделспейс
+                    BlockTable blocktable = tr.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
+                    BlockTableRecord modelspace = tr.GetObject(blocktable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                    //создаём текст
+                    MText mtext = new MText
+                    {
+                        BackgroundFill = true,
+                        UseBackgroundColor = true,
+                        BackgroundScaleFactor = LabelBackgroundScaleFactor
+                    };
+                    TextStyleTable txtstyletable = tr.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
+                    mtext.TextStyleId = txtstyletable["Standard"];
+                    mtext.Contents = Regex.Replace(text, "(?<=(^|[1-4]))(д|d)", "%%C"); //заменяем первую букву д на знак диаметра
+                    mtext.TextHeight = LabelTextHeight;
+                    mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleCenter);
+                    mtext.Location = point;
+                    mtext.Color = polyline.Color;
+                    mtext.Layer = polyline.Layer; //устанавливаем цвет и слой как у полилинии
+                    mtext.Rotation = CalculateTextOrient(v2d); //вычисляем угол поворота с учётом читаемости
+                                                               //добавляем в модель и в транзакцию
+                    modelspace.AppendEntity(mtext);
+                    tr.AddNewlyCreatedDBObject(mtext, true); // и в транзакцию
+
+                    tr.Commit();
                 }
+            }
+            finally
+            {
+                Highlighter.Unhighlight();
+            }
+        }
 
-                //выбираем точку вставки подписи и находим ближайшую точку на полилинии
-                PromptPointOptions ppo = new PromptPointOptions("Укажите точку вставки подписи рядом с сегментом полилинии");
-                PromptPointResult pointresult = Workstation.Editor.GetPoint(ppo);
-                if (result.Status != PromptStatus.OK)
-                    return;
-                Point3d point = pointresult.Value;
-                Polyline polyline = (Polyline)Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForRead); ;
-                Point3d pointonline = polyline.GetClosestPointTo(point, false);
-
-                //проверяем, какому сегменту принадлежит точка и вычисляем его направление
-                LineSegment2d ls = new LineSegment2d();
-                for (int i = 0; i < polyline.NumberOfVertices - 1; i++)
+        [CommandMethod("ТОРИЕНТ")]
+        public void TextOrientBy2Points()
+        {
+            Workstation.Define();
+            try
+            {
+                using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
                 {
-                    ls = polyline.GetLineSegment2dAt(i);
-                    if (SegmentCheck(pointonline.Convert2d(new Plane(new Point3d(0, 0, 0), new Vector3d(0, 0, 1))), ls))
-                        break;
+
+                    if (!TryGetEntity("Выберите МТекст", out MText mText))
+                    { Workstation.Editor.WriteMessage("Ошибка выбора"); return; }
+
+                    //выбираем точку вставки подписи и находим ближайшую точку на полилинии
+                    PromptPointOptions ppo = new PromptPointOptions("Укажите первую точку")
+                    {
+                        UseBasePoint = false
+                    };
+                    PromptPointResult pointresult = Workstation.Editor.GetPoint(ppo);
+                    if (pointresult.Status != PromptStatus.OK)
+                        return;
+                    Point3d point1 = pointresult.Value;
+                    //ppo = new PromptPointOptions("Укажите вторую точку")
+                    //{
+                    //    UseBasePoint = true,
+                    //    BasePoint = point1
+                    //};
+                    //PromptPointResult pointresult2 = Workstation.Editor.GetPoint(ppo);
+                    //if (pointresult.Status != PromptStatus.OK)
+                    //    return;
+                    //Point3d point2 = pointresult2.Value;
+                    //Vector2d v2d = new Vector2d();
+                    PromptAngleOptions pao = new PromptAngleOptions("Укажите угол")
+                    {
+                        UseBasePoint = true,
+                        BasePoint = point1
+                    };
+                    PromptDoubleResult angleresult = Workstation.Editor.GetAngle(pao);
+                    if (angleresult.Status != PromptStatus.OK)
+                        return;
+                    mText.Rotation = angleresult.Value;
+                    Highlighter.Unhighlight();
+                    transaction.Commit();
                 }
-                Vector2d v2d = ls.Direction;
+            }
+            finally
+            {
+                Highlighter.Unhighlight();
+            }
+        }
 
-                //вводим текст для подписи
-                PromptStringOptions pso = new PromptStringOptions($"Введите текст подписи (д или d в начале строки - знак диаметра")
+        [CommandMethod("ПЛТОРИЕНТ")]
+        public void TextOrientByPolilineSegment()
+        {
+            Workstation.Define();
+            try
+            {
+                using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
                 {
-                    AllowSpaces = true,
-                    UseDefaultValue = true,
-                    DefaultValue = PrevText
-                };
-                PromptResult pr = Workstation.Editor.GetString(pso);
-                if (pr.Status != PromptStatus.OK) return;
-                string text = pr.StringResult;
-                PrevText = text;
+                    if (!TryGetEntity("Выберите МТекст", out MText mText))
+                    { Workstation.Editor.WriteMessage("Ошибка выбора"); return; }
 
-                //ищем таблицу блоков и моделспейс
-                BlockTable blocktable = tr.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
-                BlockTableRecord modelspace = tr.GetObject(blocktable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
-                //создаём текст
-                MText mtext = new MText
-                {
-                    BackgroundFill = true,
-                    UseBackgroundColor = true,
-                    BackgroundScaleFactor = LabelBackgroundScaleFactor
-                };
-                TextStyleTable txtstyletable = tr.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
-                mtext.TextStyleId = txtstyletable["Standard"];
-                mtext.Contents = Regex.Replace(text, "(?<=(^|[1-4]))(д|d)", "%%C"); //заменяем первую букву д на знак диаметра
-                mtext.TextHeight = LabelTextHeight;
-                mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleCenter);
-                mtext.Location = point;
-                mtext.Color = polyline.Color;
-                mtext.Layer = polyline.Layer; //устанавливаем цвет и слой как у полилинии
-                mtext.Rotation = (v2d.Angle * 180 / Math.PI > 270 || v2d.Angle * 180 / Math.PI < 90) ? v2d.Angle : v2d.Angle + Math.PI; //вычисляем угол поворота с учётом читаемости
-                //добавляем в модель и в транзакцию
-                modelspace.AppendEntity(mtext);
-                tr.AddNewlyCreatedDBObject(mtext, true); // и в транзакцию
-
-                tr.Commit();
+                    PromptEntityOptions peo = new PromptEntityOptions("Выберите полилинию")
+                    { };
+                    peo.AddAllowedClass(typeof(Polyline), true);
+                    PromptEntityResult result = Workstation.Editor.GetEntity(peo);
+                    if (result.Status != PromptStatus.OK)
+                    {
+                        Workstation.Editor.WriteMessage("Ошибка выбора");
+                        return;
+                    }
+                    Polyline polyline = Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForRead) as Polyline;
+                    LineSegment2d segment = GetPolylineSegment(polyline, result.PickedPoint);
+                    mText.Rotation = CalculateTextOrient(segment.Direction);
+                    transaction.Commit();
+                }
+            }
+            finally
+            {
+                Highlighter.Unhighlight();
             }
         }
 
@@ -125,6 +206,25 @@ namespace Utilities
             return (point.X > minx & point.X < maxx) & (point.Y > miny & point.Y < maxy);
         }
 
+        private double CalculateTextOrient(Vector2d v2d)
+        {
+            return (v2d.Angle * 180 / Math.PI > 270 || v2d.Angle * 180 / Math.PI < 90) ? v2d.Angle : v2d.Angle + Math.PI;
+        }
+
+        private LineSegment2d GetPolylineSegment(Polyline polyline, Point3d point)
+        {
+            Point3d pointonline = polyline.GetClosestPointTo(point, false);
+
+            //проверяем, какому сегменту принадлежит точка и вычисляем его направление
+            LineSegment2d ls = new LineSegment2d();
+            for (int i = 0; i < polyline.NumberOfVertices - 1; i++)
+            {
+                ls = polyline.GetLineSegment2dAt(i);
+                if (SegmentCheck(pointonline.Convert2d(new Plane(new Point3d(0, 0, 0), new Vector3d(0, 0, 1))), ls))
+                    break;
+            }
+            return ls;
+        }
     }
 
     /// <summary>
@@ -146,31 +246,36 @@ namespace Utilities
         public static void SlopeCalc()
         {
             Workstation.Define();
-            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            try
             {
-                // Получить объекты чертежа для расчёта
-                if (!TryGetEntity("Выберите блок первой отметки", out BlockReference mark1, ElevationMarkBlockName))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                if (!TryGetEntity("Выберите блок второй отметки", out BlockReference mark2, ElevationMarkBlockName))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                if (!TryGetEntity("Выберите ось", out Polyline axis))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                if (!TryGetEntity("Выберите блок уклона", out BlockReference slopeBRef, SlopeBlockName))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+                {
+                    // Получить объекты чертежа для расчёта
+                    if (!TryGetEntity("Выберите блок первой отметки", out BlockReference mark1, ElevationMarkBlockName))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    if (!TryGetEntity("Выберите блок второй отметки", out BlockReference mark2, ElevationMarkBlockName))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    if (!TryGetEntity("Выберите ось", out Polyline axis))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    if (!TryGetEntity("Выберите блок уклона", out BlockReference slopeBRef, SlopeBlockName))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
 
 
-                double red1 = double.Parse(BlockAttributeGet(mark1, RedMarkTag));
-                double red2 = double.Parse(BlockAttributeGet(mark2, RedMarkTag));
-                double l1 = axis.Length;
-                // Расчёт уклона
-                double slope = Math.Abs(red2 - red1) / l1 * 1000;
-                // Назначение величин блокам
-                BlockAttributeSet(slopeBRef, SlopeTag, slope.ToString("0"));
-                BlockAttributeSet(slopeBRef, DistanceTag, l1.ToString("0.0"));
+                    double red1 = double.Parse(BlockAttributeGet(mark1, RedMarkTag));
+                    double red2 = double.Parse(BlockAttributeGet(mark2, RedMarkTag));
+                    double l1 = axis.Length;
+                    // Расчёт уклона
+                    double slope = Math.Abs(red2 - red1) / l1 * 1000;
+                    // Назначение величин блокам
+                    BlockAttributeSet(slopeBRef, SlopeTag, slope.ToString("0"));
+                    BlockAttributeSet(slopeBRef, DistanceTag, l1.ToString("0.0"));
 
+                    transaction.Commit();
+                }
+            }
+            finally
+            {
                 Highlighter.Unhighlight();
-
-                transaction.Commit();
             }
         }
 
@@ -178,39 +283,44 @@ namespace Utilities
         public static void NextMark()
         {
             Workstation.Define();
-            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            try
             {
-                // Получить объекты чертежа для расчёта
-                if (!TryGetEntity("Выберите блок первой отметки", out BlockReference mark1, ElevationMarkBlockName))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                if (!TryGetEntity("Выберите ось", out Polyline axis))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                if (!TryGetEntity("Выберите блок уклона", out BlockReference slopeBRef, SlopeBlockName))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                PromptDoubleResult result = Workstation.Editor.GetDouble("Введите уклон в промилле. В случае уклона вниз - введите отрицательное значение");
+                using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+                {
+                    // Получить объекты чертежа для расчёта
+                    if (!TryGetEntity("Выберите блок первой отметки", out BlockReference mark1, ElevationMarkBlockName))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    if (!TryGetEntity("Выберите ось", out Polyline axis))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    if (!TryGetEntity("Выберите блок уклона", out BlockReference slopeBRef, SlopeBlockName))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    PromptDoubleResult result = Workstation.Editor.GetDouble("Введите уклон в промилле. В случае уклона вниз - введите отрицательное значение");
 
-                double slope;
-                if (result.Status == PromptStatus.OK)
-                    slope = result.Value;
-                else
-                    return;
-                if (!TryGetEntity("Выберите блок для расчёта отметки", out BlockReference markNext, ElevationMarkBlockName))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    double slope;
+                    if (result.Status == PromptStatus.OK)
+                        slope = result.Value;
+                    else
+                        return;
+                    if (!TryGetEntity("Выберите блок для расчёта отметки", out BlockReference markNext, ElevationMarkBlockName))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
 
 
 
-                double red1 = double.Parse(BlockAttributeGet(mark1, RedMarkTag));
-                double l1 = axis.Length;
+                    double red1 = double.Parse(BlockAttributeGet(mark1, RedMarkTag));
+                    double l1 = axis.Length;
 
-                double redNext = red1 + l1 * slope * 0.001d;
+                    double redNext = red1 + l1 * slope * 0.001d;
 
-                BlockAttributeSet(slopeBRef, SlopeTag, Math.Abs(slope).ToString("0"));
-                BlockAttributeSet(slopeBRef, DistanceTag, l1.ToString("0.0"));
-                BlockAttributeSet(markNext, RedMarkTag, redNext.ToString("0.00"));
+                    BlockAttributeSet(slopeBRef, SlopeTag, Math.Abs(slope).ToString("0"));
+                    BlockAttributeSet(slopeBRef, DistanceTag, l1.ToString("0.0"));
+                    BlockAttributeSet(markNext, RedMarkTag, redNext.ToString("0.00"));
 
+                    transaction.Commit();
+                }
+            }
+            finally
+            {
                 Highlighter.Unhighlight();
-
-                transaction.Commit();
             }
         }
 
@@ -218,33 +328,39 @@ namespace Utilities
         public static void AverageLevel()
         {
             Workstation.Define();
-            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            try
             {
-                // Получить объекты чертежа для расчёта
-                if (!TryGetEntity("Выберите блок первой (нижней) отметки", out BlockReference mark1, ElevationMarkBlockName))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                if (!TryGetEntity("Выберите блок второй (верхней) отметки", out BlockReference mark2, ElevationMarkBlockName))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                if (!TryGetEntity("Выберите блок рассчитываемой отметки", out BlockReference markOutput, ElevationMarkBlockName))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                if (!TryGetEntity("Выберите ось 1", out Polyline axis1))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                if (!TryGetEntity("Выберите ось 2", out Polyline axis2))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+                {
+                    // Получить объекты чертежа для расчёта
+                    if (!TryGetEntity("Выберите блок первой (нижней) отметки", out BlockReference mark1, ElevationMarkBlockName))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    if (!TryGetEntity("Выберите блок второй (верхней) отметки", out BlockReference mark2, ElevationMarkBlockName))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    if (!TryGetEntity("Выберите блок рассчитываемой отметки", out BlockReference markOutput, ElevationMarkBlockName))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    if (!TryGetEntity("Выберите ось 1", out Polyline axis1))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    if (!TryGetEntity("Выберите ось 2", out Polyline axis2))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
 
-                // Получить значения для расчёта
-                double red1 = double.Parse(BlockAttributeGet(mark1, RedMarkTag));
-                double red2 = double.Parse(BlockAttributeGet(mark2, RedMarkTag));
-                double l1 = axis1.Length;
-                double l2 = axis2.Length;
+                    // Получить значения для расчёта
+                    double red1 = double.Parse(BlockAttributeGet(mark1, RedMarkTag));
+                    double red2 = double.Parse(BlockAttributeGet(mark2, RedMarkTag));
+                    double l1 = axis1.Length;
+                    double l2 = axis2.Length;
 
-                // Расчёт
-                double red3 = red1 + Math.Abs(red2 - red1) * l1 / (l1 + l2);
+                    // Расчёт
+                    double red3 = red1 + Math.Abs(red2 - red1) * l1 / (l1 + l2);
 
-                // Назначить аттрибут блока
-                BlockAttributeSet(markOutput, RedMarkTag, red3.ToString("0.00"));
+                    // Назначить аттрибут блока
+                    BlockAttributeSet(markOutput, RedMarkTag, red3.ToString("0.00"));
+                    transaction.Commit();
+                }
+            }
+            finally
+            {
                 Highlighter.Unhighlight();
-                transaction.Commit();
             }
         }
 
@@ -252,82 +368,83 @@ namespace Utilities
         public static void HorizontalCalc()
         {
             Workstation.Define();
-            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            try
             {
-                if (!TryGetEntity("Выберите блок первой отметки", out BlockReference mark1, ElevationMarkBlockName))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                if (!TryGetEntity("Выберите блок второй отметки", out BlockReference mark2, ElevationMarkBlockName))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                if (!TryGetEntity("Выберите ось", out Polyline axis))
-                { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
-                //PromptDoubleResult result = Workstation.Editor.GetDistance("Укажите полуширину проезжей части");
-                //if (result.Status != PromptStatus.OK)
-                //{
-                //    Workstation.Editor.WriteMessage("Неверный ввод");
-                //    return;
-                //}
-                //double halfWidth = result.Value;
-                PromptDoubleOptions pdo = new PromptDoubleOptions($"Укажите шаг горизонталей ")
+                using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
                 {
-                    UseDefaultValue = true,
-                    DefaultValue = LastHorStep
-                };
-                PromptDoubleResult result2 = Workstation.Editor.GetDouble(pdo);
-                if (result2.Status != PromptStatus.OK)
-                {
-                    Workstation.Editor.WriteMessage("Неверный ввод");
-                    return;
+                    if (!TryGetEntity("Выберите блок первой отметки", out BlockReference mark1, ElevationMarkBlockName))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    if (!TryGetEntity("Выберите блок второй отметки", out BlockReference mark2, ElevationMarkBlockName))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    if (!TryGetEntity("Выберите ось", out Polyline axis))
+                    { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
+                    //PromptDoubleResult result = Workstation.Editor.GetDistance("Укажите полуширину проезжей части");
+                    //if (result.Status != PromptStatus.OK)
+                    //{
+                    //    Workstation.Editor.WriteMessage("Неверный ввод");
+                    //    return;
+                    //}
+                    //double halfWidth = result.Value;
+                    PromptDoubleOptions pdo = new PromptDoubleOptions($"Укажите шаг горизонталей ")
+                    {
+                        UseDefaultValue = true,
+                        DefaultValue = LastHorStep
+                    };
+                    PromptDoubleResult result2 = Workstation.Editor.GetDouble(pdo);
+                    if (result2.Status != PromptStatus.OK)
+                    {
+                        Workstation.Editor.WriteMessage("Неверный ввод");
+                        return;
+                    }
+                    double horStep = Math.Min(Math.Max(result2.Value, 0.1d), 5d);
+                    LastHorStep = horStep;
+
+                    // Получить значения для расчёта
+                    double red1 = double.Parse(BlockAttributeGet(mark1, RedMarkTag));
+                    double red2 = double.Parse(BlockAttributeGet(mark2, RedMarkTag));
+                    double l1 = axis.Length;
+
+                    bool upwards = red2 > red1;
+                    double slope = Math.Abs((red2 - red1) / l1);
+                    double axisStep = horStep / slope;
+
+                    double scaleDifference = Math.Round(red1 % 1, 2) * 100;
+                    double horStep100 = horStep * 100;
+                    scaleDifference %= horStep100;
+
+                    double levelDisplacement = upwards ? horStep100 - scaleDifference : scaleDifference;
+                    double axisDisplacement = levelDisplacement * 0.01d / slope;
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append($"\nУклон: {slope * 1000d:0}");
+                    sb.Append($"\nШаг на оси: {axisStep:0.0}");
+                    sb.Append($"\nСмещение на оси от первой отметки: {axisDisplacement:0.0}");
+                    string textContent = sb.ToString();
+
+                    Workstation.Editor.WriteMessage(textContent);
+
+                    BlockTable blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite) as BlockTable;
+                    BlockTableRecord modelSpace = transaction.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+                    double vx = mark1.Position.X - mark2.Position.X;
+                    double vy = mark1.Position.Y - mark2.Position.Y;
+                    MText mText = new MText()
+                    {
+                        BackgroundFill = false,
+                        Attachment = vx > 0 ? AttachmentPoint.TopRight : AttachmentPoint.TopLeft,
+                        Color = Color.FromRgb(0, 0, 255),
+                        TextHeight = 3.5d,
+                        Location = mark1.Position,
+                        Rotation = Math.Atan(vy / vx),
+                        Contents = textContent,
+                    };
+                    transaction.AddNewlyCreatedDBObject(mText, true);
+                    modelSpace.AppendEntity(mText);
+                    transaction.Commit();
                 }
-                double horStep = Math.Min(Math.Max(result2.Value, 0.1d), 5d);
-                LastHorStep = horStep;
-
-
-
-
-                // Получить значения для расчёта
-                double red1 = double.Parse(BlockAttributeGet(mark1, RedMarkTag));
-                double red2 = double.Parse(BlockAttributeGet(mark2, RedMarkTag));
-                double l1 = axis.Length;
-
-                bool upwards = red2 > red1;
-                double slope = Math.Abs((red2 - red1) / l1);
-                double axisStep = horStep / slope;
-
-                double scaleDifference = Math.Round(red1 % 1, 2) * 100;
-                double horStep100 = horStep * 100;
-                scaleDifference %= horStep100;
-
-                double levelDisplacement = upwards ? horStep100 - scaleDifference : scaleDifference;
-                double axisDisplacement = levelDisplacement * 0.01d / slope;
-
-                StringBuilder sb = new StringBuilder();
-                sb.Append($"\nУклон: {slope * 1000d:0}");
-                sb.Append($"\nШаг на оси: {axisStep:0.0}");
-                sb.Append($"\nСмещение на оси от первой отметки: {axisDisplacement:0.0}");
-                string textContent = sb.ToString();
-
-                Workstation.Editor.WriteMessage(textContent);
-
-                BlockTable blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite) as BlockTable;
-                BlockTableRecord modelSpace = transaction.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
-                double vx = mark1.Position.X - mark2.Position.X;
-                double vy = mark1.Position.Y - mark2.Position.Y;
-                MText mText = new MText()
-                {
-                    BackgroundFill = false,
-                    Attachment = vx > 0 ? AttachmentPoint.TopRight : AttachmentPoint.TopLeft,
-                    Color = Color.FromRgb(0, 0, 255),
-                    TextHeight = 3.5d,
-                    Location = mark1.Position,
-                    Rotation = Math.Atan(vy / vx),
-                    Contents = textContent,
-                };
-
+            }
+            finally
+            {
                 Highlighter.Unhighlight();
-
-                transaction.AddNewlyCreatedDBObject(mText, true);
-                modelSpace.AppendEntity(mText);
-                transaction.Commit();
             }
         }
 
@@ -346,15 +463,13 @@ namespace Utilities
                     return;
                 List<Entity> entities = (from ObjectId id in selectionSet.GetObjectIds()
                                          let entity = transaction.GetObject(id, OpenMode.ForWrite) as Entity
-                                         //where entity is BlockReference blockReference && blockReference.BlockName == ElevationMarkBlockName
+                                         where entity is BlockReference blockReference && blockReference.BlockTableRecordName() == ElevationMarkBlockName
                                          select entity).ToList();
                 foreach (Entity entity in entities)
                 {
-                    if (!(entity is BlockReference))
-                        continue;
-                    // НЕОБХОДИМО ПРОВЕСТИ ВАЛИДАЦИЮ ПО ИМЕНИ БЛОКА, НО КАК ЕГО ДОСТАТЬ ЧЕРЕЗ BlockReference ПОКА НЕ НАШЁЛ. КИДАЕТ ModelSpace.
-                    BlockReference btr = (BlockReference)entity;
-                    
+                    //if (!(entity is BlockReference bref) || bref.BlockTableRecordName() != ElevationMarkBlockName)
+                    //continue;
+
                     double elevation = double.Parse(BlockAttributeGet((BlockReference)entity, BlackMarkTag));
                     BlockAttributeSet((BlockReference)entity, RedMarkTag, elevation.ToString());
                 }
@@ -390,19 +505,32 @@ namespace Utilities
             if (atrref == null) return;
             atrref.TextString = value.Replace(",", ".");
         }
+    }
 
-        private static bool TryGetEntity<T>(string message, out T entity, string blockName = null) where T : Entity
+    internal static class BlockReferenceNameExtension
+    {
+        internal static string BlockTableRecordName(this BlockReference bref)
+        {
+            BlockTableRecord btr = Workstation.TransactionManager.TopTransaction.GetObject(bref.BlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+            return btr.Name;
+        }
+    }
+
+    internal static class EntitySelector
+    {
+        internal static bool TryGetEntity<T>(string message, out T entity, string blockName = null) where T : Entity
         {
             PromptEntityOptions peo = new PromptEntityOptions(message)
             { AllowNone = false };
             peo.AddAllowedClass(typeof(T), true);
+            peo.SetRejectMessage("Неверный тип объекта");
             PromptEntityResult result = Workstation.Editor.GetEntity(peo);
             if (result.Status != PromptStatus.OK)
             {
                 entity = null;
                 return false;
             }
-            entity = Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForRead) as T;
+            entity = Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForWrite) as T;
             Highlighter.Highlight(entity);
             if (blockName != null)
             {
@@ -415,20 +543,10 @@ namespace Utilities
             return true;
         }
     }
-
-    internal static class BlockReferenceNameExtension
-    {
-
-        internal static string BlockTableRecordName(this BlockReference bref)
-        {
-            BlockTableRecord btr = Workstation.TransactionManager.TopTransaction.GetObject(bref.BlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
-            return btr.Name;
-        }
-    }
-
     internal static class Highlighter
     {
         private readonly static List<Entity> _list = new List<Entity>();
+
 
         internal static void Highlight(Entity entity)
         {
@@ -443,6 +561,7 @@ namespace Utilities
             _list.Clear();
         }
     }
+
 
     internal static class Workstation
     {
