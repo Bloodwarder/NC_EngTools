@@ -32,11 +32,18 @@
                 <RowDefinition Height="50"/>
                 <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Margin="20,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="24" FontWeight="Bold" FontStyle="Italic">
+                <TextBlock.Foreground>
+                    <LinearGradientBrush EndPoint="0,0.5" StartPoint="1, 0.5">
+                        <GradientStop Color="#FF7878FF"/>
+                        <GradientStop Color="Blue" Offset="1"/>
+                    </LinearGradientBrush>
+                </TextBlock.Foreground>NC EngTools</TextBlock>
             <DockPanel Grid.Row="0" Grid.Column="3">
                 <CheckBox DockPanel.Dock="Right" Margin="10" VerticalAlignment="Top" Name="chbShowOnStartUp" IsChecked="True"/>
                 <TextBlock DockPanel.Dock="Right" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10" Text="Показывать при старте"/>
             </DockPanel>
-            <DockPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Width="Auto" LastChildFill="True" Margin="5">
+            <DockPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Width="Auto" LastChildFill="True" Margin="5" Visibility="Hidden">
                 <TextBlock DockPanel.Dock="Left" Text="Путь к файлам обновлений:" VerticalAlignment="Center"/>
                 <Button Name="bSetUpdatePath" DockPanel.Dock="Right" Height="30" Width="30" Click="SetUpdatePathButtonClick"/>
                 <TextBox Name="tbSourcePath" Height="30" Width="Auto" VerticalAlignment="Center" Margin="5" IsEnabled="False"/>
@@ -57,7 +64,7 @@
             <TextBlock Grid.Row="4" Grid.Column="3" Text="Utilities" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
 
         </Grid>
-        <ScrollViewer Grid.Row="1" Margin="3,3,3,3" Grid.ColumnSpan="4">
+        <ScrollViewer Grid.Row="1" Margin="3,3,3,3" Grid.ColumnSpan="4" BorderBrush="#FF4A4A4A" Background="Gainsboro">
             <TextBlock x:Name="tbLog" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="12" Foreground="Blue"/>
         </ScrollViewer>
     </Grid>

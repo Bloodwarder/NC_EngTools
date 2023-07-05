@@ -1364,7 +1364,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -1386,7 +1386,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -1408,7 +1408,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -1430,7 +1430,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -1452,7 +1452,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -1474,7 +1474,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -2724,7 +2724,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -2746,7 +2746,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -2768,7 +2768,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -2790,7 +2790,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -2812,7 +2812,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -2834,7 +2834,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7225,12 +7225,12 @@
         <InnerBorderBrightness>0</InnerBorderBrightness>
         <InnerHatchPattern>SOLID</InnerHatchPattern>
         <InnerHatchScale>1</InnerHatchScale>
-        <InnerHatchBrightness>0.7</InnerHatchBrightness>
+        <InnerHatchBrightness>0.75</InnerHatchBrightness>
         <InnerHatchAngle>0</InnerHatchAngle>
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7246,12 +7246,12 @@
         <InnerBorderBrightness>0</InnerBorderBrightness>
         <InnerHatchPattern>SOLID</InnerHatchPattern>
         <InnerHatchScale>1</InnerHatchScale>
-        <InnerHatchBrightness>0.7</InnerHatchBrightness>
+        <InnerHatchBrightness>0.75</InnerHatchBrightness>
         <InnerHatchAngle>0</InnerHatchAngle>
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7272,7 +7272,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7293,7 +7293,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7314,7 +7314,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7330,12 +7330,12 @@
         <InnerBorderBrightness>0</InnerBorderBrightness>
         <InnerHatchPattern>SOLID</InnerHatchPattern>
         <InnerHatchScale>1</InnerHatchScale>
-        <InnerHatchBrightness>0.7</InnerHatchBrightness>
+        <InnerHatchBrightness>0.75</InnerHatchBrightness>
         <InnerHatchAngle>0</InnerHatchAngle>
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7351,12 +7351,12 @@
         <InnerBorderBrightness>0</InnerBorderBrightness>
         <InnerHatchPattern>SOLID</InnerHatchPattern>
         <InnerHatchScale>1</InnerHatchScale>
-        <InnerHatchBrightness>0.7</InnerHatchBrightness>
+        <InnerHatchBrightness>0.75</InnerHatchBrightness>
         <InnerHatchAngle>0</InnerHatchAngle>
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1</Radius>
+        <Radius>1.5</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7372,12 +7372,12 @@
         <InnerBorderBrightness>0</InnerBorderBrightness>
         <InnerHatchPattern>SOLID</InnerHatchPattern>
         <InnerHatchScale>1</InnerHatchScale>
-        <InnerHatchBrightness>0.7</InnerHatchBrightness>
+        <InnerHatchBrightness>0.75</InnerHatchBrightness>
         <InnerHatchAngle>0</InnerHatchAngle>
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1</Radius>
+        <Radius>1.5</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7398,7 +7398,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1</Radius>
+        <Radius>1.5</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7419,7 +7419,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1</Radius>
+        <Radius>1.5</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7440,7 +7440,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1</Radius>
+        <Radius>1.5</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7456,12 +7456,12 @@
         <InnerBorderBrightness>-1</InnerBorderBrightness>
         <InnerHatchPattern>SOLID</InnerHatchPattern>
         <InnerHatchScale>1</InnerHatchScale>
-        <InnerHatchBrightness>0.7</InnerHatchBrightness>
+        <InnerHatchBrightness>0.75</InnerHatchBrightness>
         <InnerHatchAngle>0</InnerHatchAngle>
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1</Radius>
+        <Radius>1.5</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7477,12 +7477,12 @@
         <InnerBorderBrightness>0</InnerBorderBrightness>
         <InnerHatchPattern>SOLID</InnerHatchPattern>
         <InnerHatchScale>1</InnerHatchScale>
-        <InnerHatchBrightness>0.7</InnerHatchBrightness>
+        <InnerHatchBrightness>0.75</InnerHatchBrightness>
         <InnerHatchAngle>0</InnerHatchAngle>
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7498,12 +7498,12 @@
         <InnerBorderBrightness>0</InnerBorderBrightness>
         <InnerHatchPattern>SOLID</InnerHatchPattern>
         <InnerHatchScale>1</InnerHatchScale>
-        <InnerHatchBrightness>0.7</InnerHatchBrightness>
+        <InnerHatchBrightness>0.75</InnerHatchBrightness>
         <InnerHatchAngle>0</InnerHatchAngle>
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7524,7 +7524,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7545,7 +7545,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7566,7 +7566,7 @@
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -7582,12 +7582,12 @@
         <InnerBorderBrightness>0</InnerBorderBrightness>
         <InnerHatchPattern>SOLID</InnerHatchPattern>
         <InnerHatchScale>1</InnerHatchScale>
-        <InnerHatchBrightness>0.7</InnerHatchBrightness>
+        <InnerHatchBrightness>0.75</InnerHatchBrightness>
         <InnerHatchAngle>0</InnerHatchAngle>
         <OuterHatchScale>0</OuterHatchScale>
         <OuterHatchBrightness>0</OuterHatchBrightness>
         <OuterHatchAngle>0</OuterHatchAngle>
-        <Radius>1.5</Radius>
+        <Radius>3</Radius>
         <BlockXOffset>0</BlockXOffset>
         <BlockYOffset>0</BlockYOffset>
       </LegendDrawTemplate>
@@ -11847,7 +11847,7 @@
     </key>
     <value>
       <LegendDrawTemplate xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <DrawTemplate>MarkedSolidLine</DrawTemplate>
+        <DrawTemplate>SolidLine</DrawTemplate>
         <InnerBorderBrightness>0</InnerBorderBrightness>
         <InnerHatchScale>0</InnerHatchScale>
         <InnerHatchBrightness>0</InnerHatchBrightness>
