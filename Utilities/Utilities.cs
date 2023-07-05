@@ -2,6 +2,7 @@
 using HostMgd.EditorInput;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -104,11 +105,10 @@ namespace Utilities
         public void TextOrientBy2Points()
         {
             Workstation.Define();
-            try
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+                try
                 {
-
                     if (!TryGetEntity("Выберите МТекст", out MText mText))
                     { Workstation.Editor.WriteMessage("Ошибка выбора"); return; }
 
@@ -140,23 +140,24 @@ namespace Utilities
                     if (angleresult.Status != PromptStatus.OK)
                         return;
                     mText.Rotation = angleresult.Value;
-                    Highlighter.Unhighlight();
-                    transaction.Commit();
                 }
+                finally
+                {
+                    Highlighter.Unhighlight();
+                }
+                transaction.Commit();
             }
-            finally
-            {
-                Highlighter.Unhighlight();
-            }
+
+
         }
 
         [CommandMethod("ПЛТОРИЕНТ")]
         public void TextOrientByPolilineSegment()
         {
             Workstation.Define();
-            try
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+                try
                 {
                     if (!TryGetEntity("Выберите МТекст", out MText mText))
                     { Workstation.Editor.WriteMessage("Ошибка выбора"); return; }
@@ -173,13 +174,14 @@ namespace Utilities
                     Polyline polyline = Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForRead) as Polyline;
                     LineSegment2d segment = GetPolylineSegment(polyline, result.PickedPoint);
                     mText.Rotation = CalculateTextOrient(segment.Direction);
-                    transaction.Commit();
                 }
+                finally
+                {
+                    Highlighter.Unhighlight();
+                }
+                transaction.Commit();
             }
-            finally
-            {
-                Highlighter.Unhighlight();
-            }
+
         }
 
         private bool SegmentCheck(Point2d point, LineSegment2d entity)
@@ -283,9 +285,9 @@ namespace Utilities
         public static void NextMark()
         {
             Workstation.Define();
-            try
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+                try
                 {
                     // Получить объекты чертежа для расчёта
                     if (!TryGetEntity("Выберите блок первой отметки", out BlockReference mark1, ElevationMarkBlockName))
@@ -314,13 +316,12 @@ namespace Utilities
                     BlockAttributeSet(slopeBRef, SlopeTag, Math.Abs(slope).ToString("0"));
                     BlockAttributeSet(slopeBRef, DistanceTag, l1.ToString("0.0"));
                     BlockAttributeSet(markNext, RedMarkTag, redNext.ToString("0.00"));
-
-                    transaction.Commit();
                 }
-            }
-            finally
-            {
-                Highlighter.Unhighlight();
+                finally
+                {
+                    Highlighter.Unhighlight();
+                }
+                transaction.Commit();
             }
         }
 
@@ -328,9 +329,9 @@ namespace Utilities
         public static void AverageLevel()
         {
             Workstation.Define();
-            try
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+                try
                 {
                     // Получить объекты чертежа для расчёта
                     if (!TryGetEntity("Выберите блок первой (нижней) отметки", out BlockReference mark1, ElevationMarkBlockName))
@@ -355,12 +356,12 @@ namespace Utilities
 
                     // Назначить аттрибут блока
                     BlockAttributeSet(markOutput, RedMarkTag, red3.ToString("0.00"));
-                    transaction.Commit();
                 }
-            }
-            finally
-            {
-                Highlighter.Unhighlight();
+                finally
+                {
+                    Highlighter.Unhighlight();
+                }
+                transaction.Commit();
             }
         }
 
@@ -368,9 +369,9 @@ namespace Utilities
         public static void HorizontalCalc()
         {
             Workstation.Define();
-            try
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+                try
                 {
                     if (!TryGetEntity("Выберите блок первой отметки", out BlockReference mark1, ElevationMarkBlockName))
                     { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
@@ -439,20 +440,20 @@ namespace Utilities
                     };
                     transaction.AddNewlyCreatedDBObject(mText, true);
                     modelSpace.AppendEntity(mText);
-                    transaction.Commit();
                 }
+                finally
+                {
+                    Highlighter.Unhighlight();
+                }
+                transaction.Commit();
             }
-            finally
-            {
-                Highlighter.Unhighlight();
-            }
+
         }
 
         [CommandMethod("КРАСН_ЧЕРН_УРАВН", CommandFlags.Redraw)]
         public static void RedBlackEqual()
         {
             Workstation.Define();
-
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 PromptSelectionResult result = Workstation.Editor.SelectImplied();
