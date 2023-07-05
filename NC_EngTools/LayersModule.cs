@@ -68,7 +68,7 @@ namespace LayerProcessing
                 {
                     decomp[1]
                 };
-                for (int i = counter + 1; i < decomp[1].Length; i++)
+                for (int i = counter + 1; i < decomp.Length; i++)
                 {
                     if (!decomp[i - 1].EndsWith("]"))
                     { list.Add(decomp[i]); }
