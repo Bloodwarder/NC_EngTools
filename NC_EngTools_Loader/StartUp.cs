@@ -16,7 +16,7 @@ namespace StartUp
         const string LoaderCoreAssemblyName = "LoaderCore.dll";
         const string StructureXmlName = "Structure.xml";
 
-        private bool _debugAssembly = Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
+        private readonly bool _debugAssembly = Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
         private readonly FileInfo LocalStartUpAssemblyFile = new FileInfo(Assembly.GetExecutingAssembly().Location);
         private string sourceDirectory;
         private string SourceDirectory
@@ -47,15 +47,15 @@ namespace StartUp
         /// </summary>
         public void Initialize()
         {
+            Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage("Загрузка NC_EngTools");
             FileInfo localLoaderAssemblyFile = new FileInfo(Path.Combine(LocalStartUpAssemblyFile.DirectoryName, LoaderCoreDirectory, LoaderCoreAssemblyName));
             FileInfo sourceLoaderAssemblyFile = new FileInfo(Path.Combine(SourceDirectory, LoaderCoreDirectory, LoaderCoreAssemblyName));
             FileInfo localStructureXml = new FileInfo(Path.Combine(LocalStartUpAssemblyFile.DirectoryName, LoaderCoreDirectory, StructureXmlName));
             FileInfo sourceStructureXml = new FileInfo(Path.Combine(SourceDirectory, LoaderCoreDirectory, StructureXmlName));
-            bool xmlupdated;
             try
             {
                 UpdateFile(localLoaderAssemblyFile, sourceLoaderAssemblyFile, out _);
-                UpdateFile(localStructureXml, sourceStructureXml, out xmlupdated);
+                UpdateFile(localStructureXml, sourceStructureXml, out bool xmlupdated);
             }
             catch (System.Exception ex)
             {
