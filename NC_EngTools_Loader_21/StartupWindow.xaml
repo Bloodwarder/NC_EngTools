@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LoaderUI"
         mc:Ignorable="d"
-        Title="StartUpWindow" Height="500" Width="700" Closing="StartUpWindowClosing">
+        Title="StartUpWindow" Height="550" MinHeight="550" Width="700" MaxWidth="700" Closing="StartUpWindowClosing">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="245*"/>
@@ -64,7 +64,7 @@
             <TextBlock Grid.Row="4" Grid.Column="3" Text="Utilities" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
 
         </Grid>
-        <ScrollViewer Grid.Row="1" Margin="3,3,3,3" Grid.ColumnSpan="4" BorderBrush="#FF4A4A4A" Background="Gainsboro">
+        <ScrollViewer Grid.Row="1" Margin="3,5,3,3" Grid.ColumnSpan="4" BorderBrush="#FF4A4A4A" Background="Gainsboro">
             <TextBlock x:Name="tbLog" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="12" Foreground="Blue"/>
         </ScrollViewer>
     </Grid>
