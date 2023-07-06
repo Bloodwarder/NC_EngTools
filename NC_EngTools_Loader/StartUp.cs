@@ -63,6 +63,7 @@ namespace StartUp
                 return;
             }
 
+
             try
             {
                 XDocument xmldoc = XDocument.Load(localStructureXml.FullName);
@@ -91,12 +92,6 @@ namespace StartUp
 
         private void UpdateFile(FileInfo local, FileInfo source, out bool updated)
         {
-            if (_debugAssembly)
-            {
-                updated = false;
-                Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Отладочная сборка. Файл {local.Name} не обновлён");
-                return;
-            }
 
             bool localExists = local.Exists;
             bool sourceExists = source.Exists;
@@ -107,6 +102,12 @@ namespace StartUp
             }
             if (sourceExists && (!localExists || local.LastWriteTime < source.LastWriteTime))
             {
+                if (_debugAssembly)
+                {
+                    updated = false;
+                    Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Отладочная сборка. Файл {local.Name} не обновлён");
+                    return;
+                }
                 source.CopyTo(local.FullName, true);
                 Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Файл {local.Name} обновлён");
                 updated = true;

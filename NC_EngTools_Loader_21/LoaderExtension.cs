@@ -75,6 +75,8 @@ namespace Loader
         public static void ConfigureAutorun()
         {
             StartUpWindow window = new StartUpWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
+            window.bUpdateLayerWorks.IsEnabled = false;
+            window.bUpdateUtilities.IsEnabled = false;
             window.ShowDialog();
         }
     }

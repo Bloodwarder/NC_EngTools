@@ -199,7 +199,7 @@ namespace NC_EngTools
 
             PromptStringOptions pso = new PromptStringOptions($"Введите имя проекта, согласно которому отображён выбранный объект")
             {
-                AllowSpaces = false,
+                AllowSpaces = true,
                 DefaultValue = PrevExtProject,
                 UseDefaultValue = true,
             };
