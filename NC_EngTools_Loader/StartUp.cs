@@ -27,7 +27,7 @@ namespace StartUp
                 {
                     try
                     {
-                        XDocument xDocument = XDocument.Load(Path.Combine(LocalStartUpAssemblyFile.DirectoryName, StructureXmlName));
+                        XDocument xDocument = XDocument.Load(Path.Combine(LocalStartUpAssemblyFile.DirectoryName, LoaderCoreDirectory, StructureXmlName));
                         sourceDirectory = xDocument.Root.Element("basepath").Element("source").Value;
                         xDocument = null;
                         GC.Collect();
@@ -105,7 +105,7 @@ namespace StartUp
                 if (_debugAssembly)
                 {
                     updated = false;
-                    Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Отладочная сборка. Файл {local.Name} не обновлён");
+                    Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Отладочная сборка. Вывод сообщения об обновлении {local.Name}");
                     return;
                 }
                 source.CopyTo(local.FullName, true);
