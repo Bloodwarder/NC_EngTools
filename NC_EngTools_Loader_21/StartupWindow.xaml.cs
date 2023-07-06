@@ -108,5 +108,11 @@ namespace LoaderUI
         {
             tbLog.Text += $"\n{message}";
         }
+
+        private void CommandHelpClick(object sender, RoutedEventArgs e)
+        {
+            string path = PathProvider.GetPath("Команды.txt");
+            System.Diagnostics.Process.Start("notepad.exe", path);
+        }
     }
 }
