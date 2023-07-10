@@ -512,8 +512,16 @@ namespace Utilities
     {
         internal static string BlockTableRecordName(this BlockReference bref)
         {
-            BlockTableRecord btr = Workstation.TransactionManager.TopTransaction.GetObject(bref.BlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
-            return btr.Name;
+            if (bref.IsDynamicBlock)
+            {
+                BlockTableRecord btr = Workstation.TransactionManager.TopTransaction.GetObject(bref.DynamicBlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+                return btr.Name;
+            }
+            else
+            {
+                BlockTableRecord btr = Workstation.TransactionManager.TopTransaction.GetObject(bref.BlockTableRecord, OpenMode.ForRead) as BlockTableRecord;
+                return btr.Name;
+            }
         }
     }
 
