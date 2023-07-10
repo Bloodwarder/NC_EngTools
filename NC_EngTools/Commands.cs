@@ -327,18 +327,24 @@ namespace NC_EngTools
                              let ltr = (LayerTableRecord)tm.GetObject(elem, OpenMode.ForWrite, false)
                              where ltr.Name.StartsWith(LayerParser.StandartPrefix + "_")
                              select ltr;
+                int errorCount = 0;
+                int successCount = 0;
                 foreach (LayerTableRecord ltr in layers)
                 {
                     try
                     {
                         new ChapterStoreLayerParser(ltr);
+                        successCount++;
                     }
-                    catch (WrongLayerException ex)
+                    catch (WrongLayerException)
                     {
-                        editor.WriteMessage(ex.Message);
+                        //editor.WriteMessage(ex.Message);
+                        errorCount++;
                         continue;
                     }
                 }
+                Workstation.Editor.WriteMessage($"Фильтр включен для {successCount} слоёв. Число необработанных слоёв: {errorCount}");
+
                 var layerchapters = ChapterStoredRecordLayerParsers.List[doc].Where(l => l.EngType != null).Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
                 List<string> lcplus = layerchapters.Append("Сброс").ToList();
                 PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел [" + string.Join("/", lcplus) + "]", string.Join(" ", lcplus))
