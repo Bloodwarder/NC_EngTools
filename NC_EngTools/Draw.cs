@@ -301,7 +301,7 @@ namespace ModelspaceDraw
             foreach (Polyline line in lines)
             {
                 line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer, out _, true).ConstantWidth;
-                LayerChecker.CheckLinetype("ACAD_ISO02W100", out bool ltgetsuccess);
+                LayerChecker.FindLinetype("ACAD_ISO02W100", out bool ltgetsuccess);
                 if (ltgetsuccess)
                     line.Linetype = "ACAD_ISO02W100";
                 line.LinetypeScale = 0.3d;
@@ -638,8 +638,10 @@ namespace ModelspaceDraw
             }
             // Отрисовываем объект
             ObjectId btrId = _blocktable[BlockName];
-            BlockReference bref = new BlockReference(new Point3d(Basepoint.X + LegendDrawTemplate.BlockXOffset, Basepoint.Y + LegendDrawTemplate.BlockYOffset, 0d), btrId);
-            bref.Layer = Layer.BoundLayer.Name;
+            BlockReference bref = new BlockReference(new Point3d(Basepoint.X + LegendDrawTemplate.BlockXOffset, Basepoint.Y + LegendDrawTemplate.BlockYOffset, 0d), btrId)
+            {
+                Layer = Layer.BoundLayer.Name
+            };
             EntitiesList.Add(bref);
         }
 
@@ -694,7 +696,7 @@ namespace ModelspaceDraw
                     }
                     catch (System.Exception)
                     {
-                        Workstation.Editor.WriteMessage($"Ошибка импорта блоков из файла \"{file}\"\n");
+                        Workstation.Editor.WriteMessage($"\nОшибка импорта блоков из файла \"{file}\"\n");
                     }
                     finally
                     {

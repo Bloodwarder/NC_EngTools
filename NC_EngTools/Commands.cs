@@ -35,48 +35,46 @@ namespace NC_EngTools
         [CommandMethod("КАЛЬКА")]
         public void TransparentOverlayToggle()
         {
-            Database db = HostApplicationServices.WorkingDatabase;
-            Teigha.DatabaseServices.TransactionManager tm = db.TransactionManager;
+            Workstation.Define();
+            Database db = Workstation.Database;
+            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
 
             string tgtlayer = LayerParser.StandartPrefix + "_Калька";
 
-            using (Transaction myT = tm.StartTransaction())
+            using (Transaction transaction = tm.StartTransaction())
             {
-                try
+                LayerTable lt = transaction.GetObject(db.LayerTableId, OpenMode.ForWrite, false) as LayerTable;
+                if (!lt.Has(tgtlayer))
                 {
-                    LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForWrite, false);
-                    if (!lt.Has(tgtlayer))
+
+                    LayerTableRecord ltrec = new LayerTableRecord
                     {
-                        LayerTableRecord ltrec = new LayerTableRecord
-                        {
-                            Name = tgtlayer,
-                            Color = Color.FromRgb(255, 255, 255),
-                            Transparency = new Transparency(166)
-                        };
-                        lt.Add(ltrec);
-                        myT.AddNewlyCreatedDBObject(ltrec, true);
+                        Name = tgtlayer,
+                        Color = Color.FromRgb(255, 255, 255),
+                        Transparency = new Transparency(166)
+                    };
+                    lt.Add(ltrec);
+                    transaction.AddNewlyCreatedDBObject(ltrec, true);
+                }
+                else
+                {
+                    LayerTableRecord ltrec = (from ObjectId elem in lt
+                                              let ltr = (LayerTableRecord)transaction.GetObject(elem, OpenMode.ForWrite, false)
+                                              where ltr.Name == tgtlayer
+                                              select ltr)
+                                              .FirstOrDefault();
+                    if (ltrec.IsFrozen || ltrec.IsOff)
+                    {
+                        ltrec.IsOff = false;
+                        ltrec.IsFrozen = false;
                     }
                     else
                     {
-                        LayerTableRecord ltrec = (from ObjectId elem in lt
-                                                  let ltr = (LayerTableRecord)tm.GetObject(elem, OpenMode.ForWrite, false)
-                                                  where ltr.Name == tgtlayer
-                                                  select ltr)
-                                                  .FirstOrDefault();
-                        if (ltrec.IsFrozen || ltrec.IsOff)
-                        {
-                            ltrec.IsOff = false;
-                            ltrec.IsFrozen = false;
-                        }
-                        else
-                        {
-                            ltrec.IsOff = true;
-                        }
-
+                        ltrec.IsOff = true;
                     }
-                    myT.Commit();
+
                 }
-                finally { myT.Dispose(); }
+                transaction.Commit();
             }
         }
 
@@ -100,14 +98,14 @@ namespace NC_EngTools
             PromptResult res = ed.GetKeywords(pko);
             if (res.Status == PromptStatus.OK) { PrevStatus = res.StringResult; }
             StatusTextDictionary.StTxtDictionary.TryGetValue(res.StringResult, out int val);
-            using (Transaction myT = tm.StartTransaction())
+            using (Transaction transaction = tm.StartTransaction())
             {
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
                     ActiveLayerParsers.StatusSwitch((Status)val);
                     ActiveLayerParsers.Push();
-                    myT.Commit();
+                    transaction.Commit();
                 }
                 catch (WrongLayerException ex)
                 {
@@ -119,7 +117,6 @@ namespace NC_EngTools
                 }
                 finally
                 {
-                    myT.Dispose();
                     ActiveLayerParsers.Flush();
                 }
             }
@@ -135,14 +132,14 @@ namespace NC_EngTools
             Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
             Editor ed = Workstation.Editor;
 
-            using (Transaction myT = tm.StartTransaction())
+            using (Transaction transaction = tm.StartTransaction())
             {
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
                     ActiveLayerParsers.Alter();
                     ActiveLayerParsers.Push();
-                    myT.Commit();
+                    transaction.Commit();
                 }
                 catch (WrongLayerException ex)
                 {
@@ -150,7 +147,6 @@ namespace NC_EngTools
                 }
                 finally
                 {
-                    myT.Dispose();
                     ActiveLayerParsers.Flush();
                 }
             }
@@ -166,14 +162,14 @@ namespace NC_EngTools
             Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
             Editor ed = Workstation.Editor;
 
-            using (Transaction myT = tm.StartTransaction())
+            using (Transaction transaction = tm.StartTransaction())
             {
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
                     ActiveLayerParsers.ReconstrSwitch();
                     ActiveLayerParsers.Push();
-                    myT.Commit();
+                    transaction.Commit();
                 }
                 catch (WrongLayerException ex)
                 {
@@ -181,7 +177,6 @@ namespace NC_EngTools
                 }
                 finally
                 {
-                    myT.Dispose();
                     ActiveLayerParsers.Flush();
                 }
             }
@@ -230,7 +225,6 @@ namespace NC_EngTools
                 }
                 finally
                 {
-                    transaction.Dispose();
                     ActiveLayerParsers.Flush();
                 }
             }
@@ -260,13 +254,12 @@ namespace NC_EngTools
                 }
                 finally
                 {
-                    transaction.Dispose();
                     ActiveLayerParsers.Flush();
                 }
             }
 
         }
-        
+
         /// <summary>
         /// Изменение обрабатываемого префикса слоёв
         /// </summary>
@@ -322,9 +315,9 @@ namespace NC_EngTools
 
             using (Transaction transaction = tm.StartTransaction())
             {
-                LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForRead, false);
+                LayerTable lt = (LayerTable)transaction.GetObject(db.LayerTableId, OpenMode.ForRead, false);
                 var layers = from ObjectId elem in lt
-                             let ltr = (LayerTableRecord)tm.GetObject(elem, OpenMode.ForWrite, false)
+                             let ltr = tm.GetObject(elem, OpenMode.ForWrite, false) as LayerTableRecord
                              where ltr.Name.StartsWith(LayerParser.StandartPrefix + "_")
                              select ltr;
                 int errorCount = 0;
@@ -345,7 +338,7 @@ namespace NC_EngTools
                 }
                 Workstation.Editor.WriteMessage($"Фильтр включен для {successCount} слоёв. Число необработанных слоёв: {errorCount}");
 
-                var layerchapters = ChapterStoredRecordLayerParsers.List[doc].Where(l => l.EngType != null).Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
+                var layerchapters = ChapterStoredRecordLayerParsers.StoredLayerStates[doc].Where(l => l.EngType != null).Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
                 List<string> lcplus = layerchapters.Append("Сброс").ToList();
                 PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел [" + string.Join("/", lcplus) + "]", string.Join(" ", lcplus))
                 {
@@ -360,7 +353,7 @@ namespace NC_EngTools
                     ChapterStoredRecordLayerParsers.Reset();
                     if (ActiveChapterState != null)
                     {
-                        LayerChecker.LayerAdded -= NewLayerHighlight;
+                        LayerChecker.LayerAddedEvent -= NewLayerHighlight;
                         ActiveChapterState[doc] = null;
                     }
 
@@ -369,7 +362,7 @@ namespace NC_EngTools
                 {
                     ActiveChapterState[doc] = result.StringResult;
                     ChapterStoredRecordLayerParsers.Highlight(ActiveChapterState[doc]);
-                    LayerChecker.LayerAdded += NewLayerHighlight;
+                    LayerChecker.LayerAddedEvent += NewLayerHighlight;
                 }
                 transaction.Commit();
             }
@@ -382,8 +375,8 @@ namespace NC_EngTools
 
             using (Transaction transaction = tm.StartTransaction())
             {
-                ChapterStoreLayerParser rlp = new ChapterStoreLayerParser((LayerTableRecord)sender);
-                rlp.Push(ActiveChapterState[doc]);
+                ChapterStoreLayerParser cslp = new ChapterStoreLayerParser((LayerTableRecord)sender);
+                cslp.Push(ActiveChapterState[doc]);
                 transaction.Commit();
             }
 
@@ -423,9 +416,9 @@ namespace NC_EngTools
             {
                 Workstation.Database.Cecolor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
                 StringBuilder wrongLayersStringBuilder = new StringBuilder();
-                LayerTable layertable = Workstation.TransactionManager.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead) as LayerTable;
+                LayerTable layertable = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead) as LayerTable;
                 var layers = from ObjectId elem in layertable
-                             let ltr = Workstation.TransactionManager.GetObject(elem, OpenMode.ForWrite, false) as LayerTableRecord
+                             let ltr = transaction.GetObject(elem, OpenMode.ForWrite, false) as LayerTableRecord
                              where ltr.Name.StartsWith(LayerParser.StandartPrefix + "_")
                              select ltr;
                 // Создать парсеры для слоёв
@@ -523,9 +516,10 @@ namespace NC_EngTools
 
         private static void ChangerSimple(SelectionSet selectionSet)
         {
+
             foreach (Entity entity in (from ObjectId elem in selectionSet.GetObjectIds()
-                                      let ent = (Entity)Workstation.TransactionManager.GetObject(elem, OpenMode.ForWrite)
-                                      select ent).ToArray())
+                                       let ent = Workstation.TransactionManager.TopTransaction.GetObject(elem, OpenMode.ForWrite) as Entity
+                                       select ent).ToArray())
             {
                 try
                 {
@@ -542,8 +536,8 @@ namespace NC_EngTools
         {
             Dictionary<string, EntityLayerParser> dct = new Dictionary<string, EntityLayerParser>();
             foreach (var entity in (from ObjectId elem in selectionSet.GetObjectIds()
-                                   let ent = (Entity)Workstation.TransactionManager.GetObject(elem, OpenMode.ForWrite)
-                                   select ent).ToArray())
+                                    let ent = Workstation.TransactionManager.TopTransaction.GetObject(elem, OpenMode.ForWrite) as Entity
+                                    select ent).ToArray())
             {
                 if (dct.ContainsKey(entity.Layer))
                 {
@@ -566,53 +560,24 @@ namespace NC_EngTools
 
     static class LayerChecker
     {
-        internal static event System.EventHandler LayerAdded;
+        internal static event System.EventHandler LayerAddedEvent;
         internal static void Check(string layername)
         {
 
-            Database db = HostApplicationServices.WorkingDatabase;
-            Teigha.DatabaseServices.TransactionManager tm = db.TransactionManager;
-            Transaction transaction = tm.StartTransaction();
-
-            using (transaction)
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
                 {
-                    LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForWrite, false);
+                    LayerTable lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
                     if (!lt.Has(layername))
                     {
                         LayerProps lp = LayerPropertiesDictionary.GetValue(layername, out bool propsgetsuccess);
-                        LinetypeTable ltt = (LinetypeTable)tm.GetObject(db.LinetypeTableId, OpenMode.ForWrite, false);
-                        CheckLinetype(lp.LTName, out bool ltgetsuccess);
-                        ObjectId lttrId = SymbolUtilityServices.GetLinetypeContinuousId(db);
-                        if (ltgetsuccess)
-                        {
-                            var elem = from ObjectId layer in ltt
-                                       let lttr = (LinetypeTableRecord)tm.GetObject(layer, OpenMode.ForRead)
-                                       where lttr.Name.ToUpper() == lp.LTName.ToUpper()
-                                       select lttr;
-                            lttrId = elem.FirstOrDefault().Id;
-                        }
-                        else
-                        {
-                            string str = $"Не найден тип линий для слоя {layername}";
-                            Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage(str);
-                        }
-                        LayerTableRecord ltrec = new LayerTableRecord
-                        {
-                            Name = layername,
-                            Color = Teigha.Colors.Color.FromRgb(lp.Red, lp.Green, lp.Blue),
-                            LineWeight = (LineWeight)lp.LineWeight,
-                            LinetypeObjectId = lttrId
-                            //Transparency = new Teigha.Colors.Transparency(Teigha.Colors.TransparencyMethod.ByAlpha)
-                        };
-                        lt.Add(ltrec);
-                        tm.AddNewlyCreatedDBObject(ltrec, true);
-                        //Process new layer if isolated chapter visualization is active
+                        LayerTableRecord ltRecord = AddLayer(layername, lp);
 
+                        //Process new layer if isolated chapter visualization is active
                         System.EventArgs e = new System.EventArgs();
                         transaction.Commit();
-                        LayerAdded?.Invoke(ltrec, e);
+                        LayerAddedEvent?.Invoke(ltRecord, e);
 
                     }
                     else
@@ -626,11 +591,67 @@ namespace NC_EngTools
                 }
             }
         }
-        internal static void CheckLinetype(string linetypename, out bool ltgetsuccess)
+
+        internal static void Check(LayerParser layer)
+        {
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            {
+                try
+                {
+                    LayerTable lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
+                    if (!lt.Has(layer.OutputLayerName))
+                    {
+                        LayerProps lp = LayerPropertiesDictionary.GetValue(layer, out bool propsgetsuccess);
+                        LayerTableRecord ltRecord = AddLayer(layer.OutputLayerName, lp);
+
+                        //Process new layer if isolated chapter visualization is active
+                        System.EventArgs e = new System.EventArgs();
+                        transaction.Commit();
+                        LayerAddedEvent?.Invoke(ltRecord, e);
+
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                catch (NoPropertiesException)
+                {
+                    throw new NoPropertiesException("Проверка слоя не удалась");
+                }
+            }
+        }
+
+        private static LayerTableRecord AddLayer(string layername, LayerProps lp)
+        {
+            Teigha.DatabaseServices.TransactionManager manager = Workstation.TransactionManager;
+            Transaction transaction = manager.TopTransaction;
+            Database database = Workstation.Database;
+            ObjectId linetypeRecordId = FindLinetype(lp.LTName, out bool ltgetsuccess);
+            if (!ltgetsuccess)
+            {
+                string str = $"Не найден тип линий для слоя {layername}. Назначен тип линий Continious";
+                Workstation.Editor.WriteMessage(str);
+            }
+            LayerTableRecord ltRecord = new LayerTableRecord
+            {
+                Name = layername,
+                Color = Color.FromRgb(lp.Red, lp.Green, lp.Blue),
+                LineWeight = (LineWeight)lp.LineWeight,
+                LinetypeObjectId = linetypeRecordId
+                //Transparency = new Teigha.Colors.Transparency(Teigha.Colors.TransparencyMethod.ByAlpha)
+            };
+            LayerTable layerTable = transaction.GetObject(database.LayerTableId, OpenMode.ForWrite) as LayerTable;
+            layerTable.Add(ltRecord);
+            transaction.AddNewlyCreatedDBObject(ltRecord, true);
+            return ltRecord;
+        }
+
+        internal static ObjectId FindLinetype(string linetypename, out bool ltgetsuccess)
         {
             Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
             Database db = Workstation.Database;
-            LinetypeTable ltt = (LinetypeTable)tm.GetObject(db.LinetypeTableId, OpenMode.ForWrite, false);
+            LinetypeTable ltt = tm.TopTransaction.GetObject(db.LinetypeTableId, OpenMode.ForWrite, false) as LinetypeTable;
             ltgetsuccess = true;
             if (!ltt.Has(linetypename))
             {
@@ -638,12 +659,16 @@ namespace NC_EngTools
                 try
                 {
                     db.LoadLineTypeFile(linetypename, fi.FullName);
-                    return;
                 }
                 catch
-                { ltgetsuccess = false; }
+                {
+                    ltgetsuccess = false;
+                    return SymbolUtilityServices.GetLinetypeContinuousId(db);
+                }
             }
+            return ltt[linetypename];
         }
+
     }
 
     internal static class Workstation

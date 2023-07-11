@@ -168,10 +168,6 @@ namespace LayerProcessing
                 }
             }
 
-            //if (!emptyname&!(BuildStatus==Status.NSPlanned||BuildStatus==Status.NSDeconstructing||BuildStatus==Status.NSReorg))
-            //{
-            //    BuildStatus = Status.NSPlanned;
-            //} //assigning NSPlanned status when current project layer processed (non NS)
             if (extpr)
             {
                 if (!emptyname) //replacing name
@@ -226,7 +222,7 @@ namespace LayerProcessing
         private static string Clayername()
         {
             Database db = Workstation.Database;
-            LayerTableRecord ltr = (LayerTableRecord)db.TransactionManager.GetObject(db.Clayer, OpenMode.ForRead);
+            LayerTableRecord ltr = db.TransactionManager.GetObject(db.Clayer, OpenMode.ForRead) as LayerTableRecord;
             return ltr.Name;
         }
 
@@ -235,14 +231,10 @@ namespace LayerProcessing
             Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
             Database db = Workstation.Database;
 
-            LayerChecker.Check(OutputLayerName);
-            LayerTable lt = (LayerTable)tm.GetObject(db.LayerTableId, OpenMode.ForRead);
-            var elem = from ObjectId layer in lt
-                       let ltr = (LayerTableRecord)tm.GetObject(layer, OpenMode.ForRead)
-                       where ltr.Name == OutputLayerName
-                       select layer;
-            db.Clayer = elem.FirstOrDefault();
-            LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName, out bool propsgetsuccess);
+            LayerChecker.Check(this);
+            LayerTable lt = tm.TopTransaction.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
+            db.Clayer = lt[OutputLayerName];
+            LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName, out _);
             db.Celtscale = lp.LTScale;
             db.Plinewid = lp.ConstantWidth;
         }
@@ -261,7 +253,7 @@ namespace LayerProcessing
         internal List<Entity> ObjectList = new List<Entity>();
         public override void Push()
         {
-            LayerChecker.Check(OutputLayerName);
+            LayerChecker.Check(this);
             LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName, out _);
             foreach (Entity ent in ObjectList)
             {
@@ -304,6 +296,7 @@ namespace LayerProcessing
         }
         public void Reset()
         {
+            //BoundLayer = Workstation.TransactionManager.TopTransaction.GetObject(BoundLayer.Id, OpenMode.ForWrite) as LayerTableRecord;
             BoundLayer.IsOff = StoredEnabledState;
             BoundLayer.Color = StoredColor;
         }
@@ -374,27 +367,28 @@ namespace LayerProcessing
             List.Clear();
         }
     }
+
     internal static class ChapterStoredRecordLayerParsers
     {
         private static readonly Dictionary<Document, bool> _eventAssigned = new Dictionary<Document, bool>(); //должно работать только для одного документа. переделать для многих
-        internal static Dictionary<Document, List<ChapterStoreLayerParser>> List { get; } = new Dictionary<Document, List<ChapterStoreLayerParser>>();
+        internal static Dictionary<Document, List<ChapterStoreLayerParser>> StoredLayerStates { get; } = new Dictionary<Document, List<ChapterStoreLayerParser>>();
         internal static void Add(ChapterStoreLayerParser lp)
         {
             Document doc = Workstation.Document;
-            if (!List.ContainsKey(doc))
+            if (!StoredLayerStates.ContainsKey(doc))
             {
-                List[doc] = new List<ChapterStoreLayerParser>();
+                StoredLayerStates[doc] = new List<ChapterStoreLayerParser>();
                 _eventAssigned.Add(doc, false);
             }
-            if (!List[doc].Any(l => l.InputLayerName == lp.InputLayerName))
+            if (!StoredLayerStates[doc].Any(l => l.InputLayerName == lp.InputLayerName))
             {
-                List[doc].Add(lp);
+                StoredLayerStates[doc].Add(lp);
             }
         }
         internal static void Reset()
         {
             Document doc = Workstation.Document;
-            foreach (ChapterStoreLayerParser lp in List[doc]) { lp.Reset(); }
+            foreach (ChapterStoreLayerParser lp in StoredLayerStates[doc]) { lp.Reset(); }
             doc.Database.BeginSave -= Reset;
             _eventAssigned[doc] = false;
         }
@@ -404,11 +398,11 @@ namespace LayerProcessing
             Document doc = Workstation.Document;
             Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
 
-            using (Transaction myT = tm.StartTransaction())
+            using (Transaction transaction = tm.StartTransaction())
             {
-                foreach (ChapterStoreLayerParser lp in List[doc])
+                foreach (ChapterStoreLayerParser lp in StoredLayerStates[doc])
                 {
-                    LayerTableRecord ltr = (LayerTableRecord)tm.GetObject(lp.BoundLayer.Id, OpenMode.ForWrite);
+                    LayerTableRecord ltr = (LayerTableRecord)transaction.GetObject(lp.BoundLayer.Id, OpenMode.ForWrite);
                     lp.Reset();
                 }
 
@@ -416,7 +410,7 @@ namespace LayerProcessing
                 _eventAssigned[doc] = false;
                 ChapterVisualizer.ActiveChapterState[doc] = null;
                 Flush();
-                myT.Commit();
+                transaction.Commit();
             }
 
         }
@@ -428,12 +422,12 @@ namespace LayerProcessing
                 doc.Database.BeginSave += Reset;
                 _eventAssigned[doc] = true;
             }
-            foreach (ChapterStoreLayerParser lp in List[doc]) { lp.Push(engtype); }
+            foreach (ChapterStoreLayerParser lp in StoredLayerStates[doc]) { lp.Push(engtype); }
         }
         internal static void Flush()
         {
             Document doc = Workstation.Document;
-            List[doc].Clear();
+            StoredLayerStates[doc].Clear();
         }
     }
     internal class WrongLayerException : System.Exception

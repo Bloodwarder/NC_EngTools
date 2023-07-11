@@ -288,12 +288,12 @@ namespace ExternalData
             Workbook workbook = xlapp.Workbooks.Add();
             HostMgd.ApplicationServices.Document doc = HostMgd.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
             TransactionManager tm = HostApplicationServices.WorkingDatabase.TransactionManager;
-            Transaction myT = tm.StartTransaction();
-            using (myT)
+            Transaction transaction = tm.StartTransaction();
+            using (transaction)
             {
-                LayerTable lt = (LayerTable)tm.GetObject(doc.Database.LayerTableId, OpenMode.ForRead);
+                LayerTable lt = tm.TopTransaction.GetObject(doc.Database.LayerTableId, OpenMode.ForRead) as LayerTable;
                 var layers = (from ObjectId elem in lt
-                              let ltr = (LayerTableRecord)tm.GetObject(elem, OpenMode.ForRead)
+                              let ltr = (LayerTableRecord)transaction.GetObject(elem, OpenMode.ForRead)
                               select ltr).ToList();
                 int i = 1;
                 try
@@ -331,7 +331,7 @@ namespace ExternalData
                         workbook.Worksheets[1].Cells[i, 4].Value = (int)ltr.Color.Red;
                         workbook.Worksheets[1].Cells[i, 5].Value = (int)ltr.Color.Green;
                         workbook.Worksheets[1].Cells[i, 6].Value = (int)ltr.Color.Blue;
-                        LinetypeTableRecord lttr = (LinetypeTableRecord)tm.GetObject(ltr.LinetypeObjectId, OpenMode.ForRead);
+                        LinetypeTableRecord lttr = transaction.GetObject(ltr.LinetypeObjectId, OpenMode.ForRead) as LinetypeTableRecord;
                         workbook.Worksheets[1].Cells[i, 7].Value = lttr.Name;
                         workbook.Worksheets[1].Cells[i, 8].Value = ltr.LineWeight;
                         i++;

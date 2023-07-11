@@ -53,7 +53,7 @@ namespace Utilities
                     if (result.Status != PromptStatus.OK)
                         return;
                     Point3d point = pointresult.Value;
-                    Polyline polyline = (Polyline)Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForRead); ;
+                    Polyline polyline = tr.GetObject(result.ObjectId, OpenMode.ForRead) as Polyline;
 
                     Vector2d v2d = GetPolylineSegment(polyline, point).Direction;
 
@@ -171,7 +171,7 @@ namespace Utilities
                         Workstation.Editor.WriteMessage("Ошибка выбора");
                         return;
                     }
-                    Polyline polyline = Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForRead) as Polyline;
+                    Polyline polyline = transaction.GetObject(result.ObjectId, OpenMode.ForRead) as Polyline;
                     LineSegment2d segment = GetPolylineSegment(polyline, result.PickedPoint);
                     mText.Rotation = CalculateTextOrient(segment.Direction);
                 }
@@ -539,7 +539,7 @@ namespace Utilities
                 entity = null;
                 return false;
             }
-            entity = Workstation.TransactionManager.GetObject(result.ObjectId, OpenMode.ForWrite) as T;
+            entity = Workstation.TransactionManager.TopTransaction.GetObject(result.ObjectId, OpenMode.ForWrite) as T;
             Highlighter.Highlight(entity);
             if (blockName != null)
             {
