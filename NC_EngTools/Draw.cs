@@ -191,6 +191,7 @@ namespace ModelspaceDraw
     /// </summary>
     public abstract class MarkedLineDraw : LegendObjectDraw
     {
+        const double RelativeWidthLimit = 0.65d;
         internal string MarkChar => LegendDrawTemplate.MarkChar;
         private double _width;
 
@@ -223,11 +224,17 @@ namespace ModelspaceDraw
                 TextStyleId = txtstyletable["Standard"],
                 TextHeight = 4d,
                 Layer = Layer.BoundLayer.Name,
-                Color = s_byLayer
+                Color = s_byLayer,
             };
+
             mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleCenter);
             mtext.Location = new Point3d(Basepoint.X, Basepoint.Y, 0d);
             _width = mtext.ActualWidth;
+            if (mtext.ActualWidth > CellWidth*RelativeWidthLimit)
+            {
+                mtext.Contents = $"{{\\W0.8;\\T0.9;{MarkChar}}}";
+                _width = mtext.ActualWidth;
+            }
             EntitiesList.Add(mtext);
         }
         /// <summary>
