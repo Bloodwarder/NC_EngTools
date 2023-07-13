@@ -134,7 +134,7 @@ namespace ModelspaceDraw
         {
             LegendDrawTemplate = template;
         }
-/// <inheritdoc/>
+        /// <inheritdoc/>
         public override void Draw()
         {
             Polyline pl = new Polyline();
@@ -165,7 +165,7 @@ namespace ModelspaceDraw
         {
             LegendDrawTemplate = template;
         }
-/// <inheritdoc/>
+        /// <inheritdoc/>
         public override void Draw()
         {
             Polyline pl = new Polyline();
@@ -230,7 +230,7 @@ namespace ModelspaceDraw
             mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleCenter);
             mtext.Location = new Point3d(Basepoint.X, Basepoint.Y, 0d);
             _width = mtext.ActualWidth;
-            if (mtext.ActualWidth > CellWidth*RelativeWidthLimit)
+            if (mtext.ActualWidth > CellWidth * RelativeWidthLimit)
             {
                 mtext.Contents = $"{{\\W0.8;\\T0.9;{MarkChar}}}";
                 _width = mtext.ActualWidth;
@@ -278,8 +278,8 @@ namespace ModelspaceDraw
         {
             LegendDrawTemplate = template;
         }
-         /// <inheritdoc/>
-         protected sealed override void FormatLines(IEnumerable<Polyline> lines)
+        /// <inheritdoc/>
+        protected sealed override void FormatLines(IEnumerable<Polyline> lines)
         {
             foreach (Polyline line in lines)
             {
@@ -325,7 +325,7 @@ namespace ModelspaceDraw
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         public AreaDraw() { }
-                internal AreaDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal AreaDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
         internal AreaDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -410,7 +410,7 @@ namespace ModelspaceDraw
 
         internal double RectangleWidth => ParseRelativeValue(LegendDrawTemplate.Width, LegendGrid.CellWidth);
         internal double RectangleHeight => ParseRelativeValue(LegendDrawTemplate.Height, LegendGrid.CellHeight);
-/// <inheritdoc/>
+        /// <inheritdoc/>
         public override void Draw()
         {
             DrawRectangle(RectangleWidth, RectangleHeight);
@@ -455,7 +455,7 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-/// <inheritdoc/>
+        /// <inheritdoc/>
         public override void Draw()
         {
             List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight, brightnessshift: LegendDrawTemplate.InnerBorderBrightness) };
@@ -533,7 +533,7 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-/// <inheritdoc/>
+        /// <inheritdoc/>
         public override void Draw()
         {
             List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight, brightnessshift: LegendDrawTemplate.InnerBorderBrightness) };
@@ -564,7 +564,7 @@ namespace ModelspaceDraw
         {
             LegendDrawTemplate = template;
         }
-/// <inheritdoc/>
+        /// <inheritdoc/>
         public override void Draw()
         {
             List<Polyline> rectangles = new List<Polyline>
@@ -632,7 +632,7 @@ namespace ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-/// <inheritdoc/>
+        /// <inheritdoc/>
         public override void Draw()
         {
             // Перед отрисовкой первого объекта импортируем все блоки в очереди
@@ -735,7 +735,7 @@ namespace ModelspaceDraw
             _text = label;
         }
 
-/// <inheritdoc/>
+        /// <inheritdoc/>
         public override void Draw()
         {
             TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
@@ -743,7 +743,7 @@ namespace ModelspaceDraw
             LayerChecker.Check(legendTextLayer);
             MText mtext = new MText
             {
-                Contents = _text,
+                Contents = _italic ? $"{{\\fArial|b0|i1|c204|p34;{_text}}}" : _text,
                 TextStyleId = txtstyletable["Standard"],
                 TextHeight = LegendGrid.TextHeight,
                 Layer = legendTextLayer,

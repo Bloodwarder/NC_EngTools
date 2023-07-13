@@ -82,7 +82,7 @@ namespace Legend
             LegendGridRow gridLabel = new LegendGridRow
             {
                 ParentGrid = this,
-                Label = "Инженерная инфраструктура".ToUpper()   // ВРЕМЕННО, ПОТОМ ОБРАБОТАТЬ КАЖДУЮ ТАБЛИЦУ В КОМПОНОВЩИКЕ
+                Label = $"{{\\fArial|b1|i0|c204|p34;{"Инженерная инфраструктура".ToUpper()}}}"   // ВРЕМЕННО, ПОТОМ ОБРАБОТАТЬ КАЖДУЮ ТАБЛИЦУ В КОМПОНОВЩИКЕ
             };
             Rows.Insert(0, gridLabel);
 
@@ -288,7 +288,8 @@ namespace Legend
                 new Point2d(
                 ParentGrid.BasePoint.X + (ParentGrid.Width - LegendGrid.TextWidth) + LegendGrid.WidthInterval,
                 ParentGrid.BasePoint.Y - YIndex * (LegendGrid.CellHeight + LegendGrid.HeightInterval) + LegendGrid.CellHeight / 2),
-                _islabelrow ? _label : LegendData.Label);
+                _islabelrow ? _label : LegendData.Label,
+                ItalicLabel);
             List<Entity> list = new List<Entity>();
             _draw.Draw();
             list.AddRange(_draw.EntitiesList);
