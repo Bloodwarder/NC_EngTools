@@ -77,14 +77,23 @@ namespace Legend
                     ParentGrid = this,
                     Label = label
                 };
-                Rows.Insert(Rows.IndexOf(Rows.Where(r => r.LegendData.SubLabel == label).Min()), row);
+                var labeledRows = Rows.Where(r => r.LegendData.SubLabel == label).ToList();
+                int minindex = Rows.IndexOf(labeledRows.Min());
+                int maxindex = Rows.IndexOf(labeledRows.Max());
+                for (int i = minindex; i < maxindex; i++)
+                {
+                    Rows[i].IsSublabeledList = true;
+                }
+                Rows.Insert(minindex, row);
+
             }
             LegendGridRow gridLabel = new LegendGridRow
             {
                 ParentGrid = this,
                 Label = $"{{\\fArial|b1|i0|c204|p34;{"Инженерная инфраструктура".ToUpper()}}}"   // ВРЕМЕННО, ПОТОМ ОБРАБОТАТЬ КАЖДУЮ ТАБЛИЦУ В КОМПОНОВЩИКЕ
             };
-            Rows.Insert(0, gridLabel);
+            if (Rows.Count != 0)
+                Rows.Insert(0, gridLabel);
 
             // Назначить целочисленные Y координаты каждому ряду таблицы
 
@@ -155,7 +164,7 @@ namespace Legend
             SourceCells.AddRange(cells);
             _filter = filter;
         }
-        
+
         // Компоновка сеток с условными обозначениями на основе выбранных фильтров
         internal void Compose(Point3d basepoint)
         {
@@ -242,6 +251,10 @@ namespace Legend
         internal string LegendEntityChapterName { get; private set; }
         internal LegendData LegendData { get; private set; }
         internal string Label { get => _islabelrow ? _label : LegendData.Label; set => _label = value; }
+        /// <summary>
+        /// Помечает, что заголовок легенды является перечислением и в конце нужно поставить ";"
+        /// </summary>
+        internal bool IsSublabeledList { get; set; } = false;
         internal int YIndex;
         internal bool ItalicLabel = false;
         private readonly bool _islabelrow = false;
@@ -284,11 +297,12 @@ namespace Legend
         }
         public List<Entity> Draw()
         {
+            string label = _islabelrow ? _label : IsSublabeledList ? string.Concat(LegendData.Label, ";") : LegendData.Label; //переписать эту лесенку
             _draw = new LabelTextDraw(
                 new Point2d(
                 ParentGrid.BasePoint.X + (ParentGrid.Width - LegendGrid.TextWidth) + LegendGrid.WidthInterval,
                 ParentGrid.BasePoint.Y - YIndex * (LegendGrid.CellHeight + LegendGrid.HeightInterval) + LegendGrid.CellHeight / 2),
-                _islabelrow ? _label : LegendData.Label,
+                label,
                 ItalicLabel);
             List<Entity> list = new List<Entity>();
             _draw.Draw();
