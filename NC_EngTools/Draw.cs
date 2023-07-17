@@ -747,7 +747,8 @@ namespace ModelspaceDraw
                 TextStyleId = txtstyletable["Standard"],
                 TextHeight = LegendGrid.TextHeight,
                 Layer = legendTextLayer,
-                Color = s_byLayer
+                Color = s_byLayer,
+                LineSpacingFactor = 0.8d
             };
             mtext.SetAttachmentMovingLocation(AttachmentPoint.MiddleLeft);
 
