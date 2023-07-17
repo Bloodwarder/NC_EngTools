@@ -43,6 +43,17 @@ namespace LoaderUI
             chbIncludeUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Include").Value);
             chbAutoUpdateUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Update").Value);
             tbSourcePath.Text = _xmlStructure.Root.Element("basepath").Element("source").Value;
+            // Вывод данных о последнем обновлении
+            using (StreamReader reader = new StreamReader(PathProvider.GetPath("Список изменений.txt")))
+            {
+                string line;
+                Logger.WriteLog("Последние обновления:");
+                while ((line = reader.ReadLine()) != "" || reader.EndOfStream)
+                {
+                    Logger.WriteLog(line.Replace("\t",""));
+                }
+                Logger.WriteLog("\n");
+            }
         }
 
         public void IncludeCheckChanged(object sender, RoutedEventArgs e)
