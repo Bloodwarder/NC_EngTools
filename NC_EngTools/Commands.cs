@@ -16,10 +16,8 @@ using LayerProcessing;
 using ExternalData;
 using Dictionaries;
 using Teigha.Geometry;
-using System.Text.RegularExpressions;
 
 using Legend;
-using System.Data.Common;
 
 namespace NC_EngTools
 {

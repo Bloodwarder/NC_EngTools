@@ -4,15 +4,22 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
+/// <summary>
+/// Сериализуемый словарь
+/// </summary>
+/// <typeparam name="TKey">Ключ</typeparam>
+/// <typeparam name="TValue">Значение</typeparam>
 [XmlRoot("Dictionary")]
 public class XmlSerializableDictionary<TKey, TValue>
 : Dictionary<TKey, TValue>, IXmlSerializable
 {
+    /// <inheritdoc/>
     public System.Xml.Schema.XmlSchema GetSchema()
     {
         return null;
     }
 
+/// <inheritdoc/>
     public void ReadXml(System.Xml.XmlReader reader)
     {
         XmlSerializer keySerializer = new XmlSerializer(typeof(TKey));
@@ -36,7 +43,7 @@ public class XmlSerializableDictionary<TKey, TValue>
         }
         reader.ReadEndElement();
     }
-
+/// <inheritdoc/>
     public void WriteXml(System.Xml.XmlWriter writer)
     {
         XmlSerializer keySerializer = new XmlSerializer(typeof(TKey));

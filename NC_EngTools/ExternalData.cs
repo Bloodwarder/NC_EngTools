@@ -6,13 +6,11 @@ using System.Reflection;
 using System.Xml.Serialization;
 using Teigha.Runtime;
 using NC_EngTools;
-//using HostMgd.ApplicationServices;
 using Teigha.DatabaseServices;
 using LayerProcessing;
 using System;
 using Legend;
 using ModelspaceDraw;
-using System.Collections.ObjectModel;
 
 namespace ExternalData
 {
@@ -239,10 +237,14 @@ namespace ExternalData
         }
     }
 
-
-    public static class PropsReloader
+    /// <summary>
+    /// Загрузчик данных
+    /// </summary>
+    public static class ExternalDataLoader
     {
-
+        /// <summary>
+        /// Команда для перезагрузки словарей с данными
+        /// </summary>
         [CommandMethod("RELOADPROPS")]
         public static void ReloadDictionaries()
         {
@@ -252,6 +254,10 @@ namespace ExternalData
             Workstation.Editor.WriteMessage("Импорт данных завершён");
         }
 
+        /// <summary>
+        /// Перезагрузка словарей с данными
+        /// </summary>
+        /// <param name="reload">Словари к перезагрузке</param>
         public static void Reloader(ToReload reload)
         {
             if ((reload & ToReload.Properties) == ToReload.Properties)
@@ -280,6 +286,9 @@ namespace ExternalData
             }
         }
 
+        /// <summary>
+        /// Выгрузка слоёв чертежа в Excel
+        /// </summary>
         [CommandMethod("EXTRACTLAYERS")]
         public static void ExtractLayersInfoToExcel()
         {
@@ -393,7 +402,7 @@ namespace ExternalData
             }
             catch (FileNotFoundException)
             {
-                PropsReloader.Reloader(ToReload.Properties);
+                ExternalDataLoader.Reloader(ToReload.Properties);
             }
         }
 
@@ -492,7 +501,7 @@ namespace ExternalData
             }
             catch (FileNotFoundException)
             {
-                PropsReloader.Reloader(ToReload.Alter);
+                ExternalDataLoader.Reloader(ToReload.Alter);
             }
         }
 
@@ -526,7 +535,7 @@ namespace ExternalData
             }
             catch (FileNotFoundException)
             {
-                PropsReloader.Reloader(ToReload.Legend);
+                ExternalDataLoader.Reloader(ToReload.Legend);
             }
         }
         public static LegendData GetValue(string layername, out bool success)
@@ -559,7 +568,7 @@ namespace ExternalData
             }
             catch (FileNotFoundException)
             {
-                PropsReloader.Reloader(ToReload.LegendDraw);
+                ExternalDataLoader.Reloader(ToReload.LegendDraw);
             }
         }
         public static LegendDrawTemplate GetValue(string layername, out bool success)
@@ -576,24 +585,62 @@ namespace ExternalData
         }
     }
 
-
+    /// <summary>
+    /// Свойства слоя
+    /// </summary>
     public struct LayerProps
     {
+        /// <summary>
+        /// Глобальная ширина
+        /// </summary>
         public double ConstantWidth;
+        /// <summary>
+        /// Масштаб типа линий
+        /// </summary>
         public double LTScale;
+        /// <summary>
+        /// Красный
+        /// </summary>
         public byte Red;
+        /// <summary>
+        /// Зелёный
+        /// </summary>
         public byte Green;
+        /// <summary>
+        /// Синий
+        /// </summary>
         public byte Blue;
+        /// <summary>
+        /// Тип линий
+        /// </summary>
         public string LTName;
+        /// <summary>
+        /// Вес линий
+        /// </summary>
         public int LineWeight;
     }
 
+    /// <summary>
+    /// Словари к перезагрузке
+    /// </summary>
     [Flags]
     public enum ToReload
     {
+        /// <summary>
+        /// Свойства
+        /// </summary>
         Properties = 1,
+        /// <summary>
+        /// Альтернативные типы
+        /// </summary>
         Alter = 2,
+        /// <summary>
+        /// Информация для компоновки условных обозначений
+        /// </summary>
         Legend = 4,
+        /// <summary>
+        /// Информация для отрисовки условных обозначений
+        /// </summary>
         LegendDraw = 8
     }
 }
