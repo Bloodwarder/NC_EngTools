@@ -9,16 +9,46 @@ using NC_EngTools;
 
 namespace LayerProcessing
 {
+    /// <summary>
+    /// Парсер слоя, получающий информацию об объекте на основе имени
+    /// </summary>
     public abstract class LayerParser
     {
+        /// <summary>
+        /// Имя исходного слоя, переданного в конструктор 
+        /// </summary>
         public string InputLayerName { get; private set; }
+        /// <summary>
+        /// Стандартный префикс имени слоя для фильтрации слоёв, которые парсер будет пытаться обработать
+        /// </summary>
         public static string StandartPrefix { get; set; } = "ИС"; // ConfigurationManager.AppSettings.Get("defaultlayerprefix");
+        /// <summary>
+        /// Имя внешнего проекта, согласно которому нанесены объекты слоя
+        /// </summary>
         public string ExtProjectName { get; private set; }
+        /// <summary>
+        /// Тип объекта инженерной инфраструктуры
+        /// </summary>
         public string EngType { get; private set; }
+        /// <summary>
+        /// Тип геометрии
+        /// </summary>
         public string GeomType { get; private set; }
+        /// <summary>
+        /// Основное имя, отражающее конкретный тип объекта без привязки к статусу и дополнительным данным
+        /// </summary>
         public string MainName { get; private set; }
+        /// <summary>
+        /// Статус объекта
+        /// </summary>
         public Status BuildStatus { get; private set; }
+        /// <summary>
+        /// Текст статуса объекта
+        /// </summary>
         public string BuildStatusText { get { return st_txt[(int)BuildStatus]; } }
+        /// <summary>
+        /// Имя выходного слоя с учётом произведённых изменений данных
+        /// </summary>
         public string OutputLayerName
         {
             get
@@ -35,7 +65,9 @@ namespace LayerProcessing
             }
         }
 
-
+        /// <summary>
+        /// "Истинное" имя объекта с учётом статуса, но с отброшенными дополнительными данными
+        /// </summary>
         public string TrueName
         //string for props compare (type of network and it's status)
         {
@@ -46,10 +78,24 @@ namespace LayerProcessing
         }
         private static readonly string[] st_txt = new string[6] { "сущ", "дем", "пр", "ндем", "нреорг", "неутв" };
 
+        /// <summary>
+        /// Относится ли объект к переустройству существующих
+        /// </summary>
         protected bool recstatus = false;
+        /// <summary>
+        /// Относится ли объект к конкретному именованному внешнему проекту
+        /// </summary>
         protected bool extpr = false;
+        /// <summary>
+        /// Назначен ли для объекта тип геометрии
+        /// </summary>
         protected bool geomassigned = false;
 
+        /// <summary>
+        /// Конструктор класса LayerParser
+        /// </summary>
+        /// <param name="layername">Строка с именем исходного слоя</param>
+        /// <exception cref="WrongLayerException">Ошибка обработки имени слоя</exception>
         public LayerParser(string layername)
         {
             InputLayerName = layername;
@@ -112,7 +158,10 @@ namespace LayerProcessing
 
             MainName = string.Join("_", decomp.Skip(mainnamestart).Take(mainnameend - mainnamestart + 1));
         }
-
+        /// <summary>
+        /// Изменить статус объекта
+        /// </summary>
+        /// <param name="newstatus">Новый статус объекта</param>
         public void StatusSwitch(Status newstatus)
         {
             BuildStatus = newstatus;
@@ -130,6 +179,9 @@ namespace LayerProcessing
             return;
         }
 
+        /// <summary>
+        /// Пометить объект как переустраиваемый или снять отметку
+        /// </summary>
         public void ReconstrSwitch()
         {
             if (BuildStatus == Status.Planned || BuildStatus == Status.NSPlanned || BuildStatus == Status.NSReorg) //filter only planned layers
@@ -150,7 +202,10 @@ namespace LayerProcessing
             }
             return;
         }
-
+        /// <summary>
+        /// Назначить имя внешнего проекта, в соответствии с которым отображён объект слоя
+        /// </summary>
+        /// <param name="newprojname">Имя внешнего проекта</param>
         public void ExtProjNameAssign(string newprojname)
         {
             bool emptyname = newprojname == "";
@@ -186,7 +241,9 @@ namespace LayerProcessing
                 extpr = true;
             }
         }
-
+        /// <summary>
+        /// Изменить тип объекта на альтернативный (например - самотечную сеть канализации на напорную, кабельную ЛЭП на воздушную и т.п.)
+        /// </summary>
         public void Alter()
         {
             string str = LayerAlteringDictionary.GetValue(MainName, out bool success);
@@ -194,30 +251,68 @@ namespace LayerProcessing
             MainName = str;
         }
 
+        /// <summary>
+        /// Назначить выходное имя слоя связанному объекту
+        /// </summary>
         public abstract void Push();
     }
+
+    /// <summary>
+    /// Статус объекта
+    /// </summary>
     public enum Status : int
     {
+        /// <summary>
+        /// Существующий
+        /// </summary>
         Existing = 0,
+        /// <summary>
+        /// Демонтируемый
+        /// </summary>
         Deconstructing = 1,
+        /// <summary>
+        /// Планируемый
+        /// </summary>
         Planned = 2,
+        /// <summary>
+        /// Демонтируемый-неутверждаемый
+        /// </summary>
         NSDeconstructing = 3,
+        /// <summary>
+        /// Неутверждаемый-планируемый реорганизуемый
+        /// </summary>
         NSReorg = 4,
+        /// <summary>
+        /// Неутверждаемый-планируемый
+        /// </summary>
         NSPlanned = 5
     }
 
+    /// <summary>
+    /// Парсер, обрабатывающий только строки с именами без связанного объекта
+    /// </summary>
     public class SimpleLayerParser : LayerParser
     {
+        /// <inheritdoc/>
         public SimpleLayerParser(string layername) : base(layername) { }
+        /// <summary>
+        /// Не работает, так как парсер обрабатывает только строку без связанного объекта
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         public override void Push()
         {
             throw new NotImplementedException();
         }
     }
-
-    internal class CurrentLayerParser : LayerParser
+    /// <summary>
+    /// Парсер, связанный с текущим слоем
+    /// </summary>
+    public class CurrentLayerParser : LayerParser
     {
-        internal CurrentLayerParser() : base(Clayername()) { ActiveLayerParsers.Add(this); }
+        /// <summary>
+        /// Конструктор без параметров, автоматически передающий в базовый конструктор имя текущего слоя
+        /// </summary>
+        public CurrentLayerParser() : base(Clayername()) { ActiveLayerParsers.Add(this); }
 
         private static string Clayername()
         {
@@ -226,6 +321,9 @@ namespace LayerProcessing
             return ltr.Name;
         }
 
+        /// <summary>
+        /// Задаёт стандартные свойства для черчения новых объектов чертежа
+        /// </summary>
         public override void Push()
         {
             Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
@@ -239,23 +337,36 @@ namespace LayerProcessing
             db.Plinewid = lp.ConstantWidth;
         }
     }
-    internal class EntityLayerParser : LayerParser
+
+    /// <summary>
+    /// Парсер, связанный с объектом чертежа (Entity)
+    /// </summary>
+    public class EntityLayerParser : LayerParser
     {
         internal EntityLayerParser(string layername) : base(layername)
         {
             ActiveLayerParsers.Add(this);
         }
-        internal EntityLayerParser(Entity ent) : base(ent.Layer)
+        /// <summary>
+        /// Конструктор, принимающий объект чертежа
+        /// </summary>
+        /// <param name="entity"></param>
+        public EntityLayerParser(Entity entity) : base(entity.Layer)
         {
-            ObjectList.Add(ent); ActiveLayerParsers.Add(this);
+            BoundEntities.Add(entity); ActiveLayerParsers.Add(this);
         }
-
-        internal List<Entity> ObjectList = new List<Entity>();
+        /// <summary>
+        /// Коллекция связанных объектов чертежа
+        /// </summary>
+        public List<Entity> BoundEntities = new List<Entity>();
+        /// <summary>
+        /// Назначение выходного слоя и соответствующих ему свойств связанным объектам чертежа
+        /// </summary>
         public override void Push()
         {
             LayerChecker.Check(this);
             LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName, out _);
-            foreach (Entity ent in ObjectList)
+            foreach (Entity ent in BoundEntities)
             {
                 ent.Layer = OutputLayerName;
                 if (ent is Polyline pl)
@@ -266,45 +377,77 @@ namespace LayerProcessing
             }
         }
     }
-
-    internal class RecordLayerParser : LayerParser
+    /// <summary>
+    /// Парсер, связанный с объектом LayerTableRecord
+    /// </summary>
+    public class RecordLayerParser : LayerParser
     {
-        internal LayerTableRecord BoundLayer;
+        /// <summary>
+        /// Связанный слой (объект LayerTableRecord)
+        /// </summary>
+        public LayerTableRecord BoundLayer;
 
-        internal RecordLayerParser(LayerTableRecord ltr) : base(ltr.Name)
+        /// <summary>
+        /// Конструктор, принимающий объект LayerTableRecord
+        /// </summary>
+        /// <param name="ltr">Запись таблицы слоёв</param>
+        public RecordLayerParser(LayerTableRecord ltr) : base(ltr.Name)
         {
             BoundLayer = ltr;
         }
-
+        /// <summary>
+        /// Изменяет имя и свойства связанного слоя слоя
+        /// </summary>
+        /// <exception cref="NotImplementedException">Метод не реализован (пока не понадобился)</exception>
         public override void Push()
         {
             throw new NotImplementedException();
         }
     }
 
-    internal class ChapterStoreLayerParser : RecordLayerParser
+    /// <summary>
+    /// Парсер, связанный с объектом LayerTableRecord, хранящий данные об исходном цвете и видимости слоя
+    /// </summary>
+    public class ChapterStoreLayerParser : RecordLayerParser
     {
         const byte redproj = 0; const byte greenproj = 255; const byte blueproj = 255;
         const byte redns = 0; const byte greenns = 153; const byte bluens = 153;
-        internal bool StoredEnabledState;
-        internal Teigha.Colors.Color StoredColor;
-        internal ChapterStoreLayerParser(LayerTableRecord ltr) : base(ltr)
+        /// <summary>
+        /// Исходное состояние видимости слоя
+        /// </summary>
+        public bool StoredEnabledState;
+        /// <summary>
+        /// Исходный цвет слоя
+        /// </summary>
+        public Teigha.Colors.Color StoredColor;
+        /// <inheritdoc/>
+        public ChapterStoreLayerParser(LayerTableRecord ltr) : base(ltr)
         {
             StoredEnabledState = ltr.IsOff;
             StoredColor = ltr.Color;
             ChapterStoredRecordLayerParsers.Add(this);
         }
+        /// <summary>
+        /// Возврат исходного цвета и видимости слоя
+        /// </summary>
         public void Reset()
         {
             //BoundLayer = Workstation.TransactionManager.TopTransaction.GetObject(BoundLayer.Id, OpenMode.ForWrite) as LayerTableRecord;
             BoundLayer.IsOff = StoredEnabledState;
             BoundLayer.Color = StoredColor;
         }
+        /// <summary>
+        /// Возврат исходного цвета и видимости слоя
+        /// </summary>
         public override void Push()
         {
             Reset();
         }
 
+        /// <summary>
+        /// Принимает тип объектов. Если объект не относится к заданному типу - выключает его. Если относится к переустройству - задаёт яркий цвет
+        /// </summary>
+        /// <param name="engtype">Тип объекта</param>
         public void Push(string engtype)
         {
             if (engtype == null)

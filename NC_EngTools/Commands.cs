@@ -481,8 +481,6 @@ namespace NC_EngTools
                 transaction.Commit();
                 Workstation.Editor.WriteMessage(wrongLayersStringBuilder.ToString());
             }
-
-
         }
 
         /// <summary>
@@ -611,7 +609,7 @@ namespace NC_EngTools
             {
                 if (dct.ContainsKey(entity.Layer))
                 {
-                    dct[entity.Layer].ObjectList.Add(entity);
+                    dct[entity.Layer].BoundEntities.Add(entity);
                 }
                 else
                 {
