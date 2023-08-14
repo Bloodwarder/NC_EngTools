@@ -24,7 +24,7 @@ namespace NC_EngTools
     /// <summary>
     /// Класс с командами для работы с классифицированными слоями
     /// </summary>
-    public class NCLayersCommands
+    public class LayersCommands
     {
         internal static string PrevStatus = "Сущ";
         internal static string PrevExtProject = "";
@@ -337,7 +337,7 @@ namespace NC_EngTools
                 }
                 Workstation.Editor.WriteMessage($"Фильтр включен для {successCount} слоёв. Число необработанных слоёв: {errorCount}");
 
-                var layerchapters = ChapterStoredRecordLayerParsers.StoredLayerStates[doc].Where(l => l.EngType != null).Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
+                var layerchapters = ChapterStoredLayerParsers.StoredLayerStates[doc].Where(l => l.EngType != null).Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
                 List<string> lcplus = layerchapters.Append("Сброс").ToList();
                 PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел [" + string.Join("/", lcplus) + "]", string.Join(" ", lcplus))
                 {
@@ -349,7 +349,7 @@ namespace NC_EngTools
                 if (result.Status != PromptStatus.OK) { return; }
                 if (result.StringResult == "Сброс")
                 {
-                    ChapterStoredRecordLayerParsers.Reset();
+                    ChapterStoredLayerParsers.Reset();
                     if (ActiveChapterState != null)
                     {
                         LayerChecker.LayerAddedEvent -= NewLayerHighlight;
@@ -360,7 +360,7 @@ namespace NC_EngTools
                 else
                 {
                     ActiveChapterState[doc] = result.StringResult;
-                    ChapterStoredRecordLayerParsers.Highlight(ActiveChapterState[doc]);
+                    ChapterStoredLayerParsers.Highlight(ActiveChapterState[doc]);
                     LayerChecker.LayerAddedEvent += NewLayerHighlight;
                 }
                 transaction.Commit();

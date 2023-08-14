@@ -425,7 +425,7 @@ namespace LayerProcessing
         {
             StoredEnabledState = ltr.IsOff;
             StoredColor = ltr.Color;
-            ChapterStoredRecordLayerParsers.Add(this);
+            ChapterStoredLayerParsers.Add(this);
         }
         /// <summary>
         /// Возврат исходного цвета и видимости слоя
@@ -456,16 +456,16 @@ namespace LayerProcessing
                 return;
             }
 
-            if (base.EngType == engtype)
+            if (EngType == engtype)
             {
                 BoundLayer.IsOff = false;
-                if (base.recstatus)
+                if (recstatus)
                 {
-                    if (base.BuildStatus == Status.Planned)
+                    if (BuildStatus == Status.Planned)
                     {
                         BoundLayer.Color = Teigha.Colors.Color.FromRgb(redproj, greenproj, blueproj);
                     }
-                    else if (base.BuildStatus == Status.NSPlanned)
+                    else if (BuildStatus == Status.NSPlanned)
                     {
                         BoundLayer.Color = Teigha.Colors.Color.FromRgb(redns, greenns, bluens);
                     }
@@ -511,7 +511,7 @@ namespace LayerProcessing
         }
     }
 
-    internal static class ChapterStoredRecordLayerParsers
+    internal static class ChapterStoredLayerParsers
     {
         private static readonly Dictionary<Document, bool> _eventAssigned = new Dictionary<Document, bool>(); //должно работать только для одного документа. переделать для многих
         internal static Dictionary<Document, List<ChapterStoreLayerParser>> StoredLayerStates { get; } = new Dictionary<Document, List<ChapterStoreLayerParser>>();
@@ -538,21 +538,22 @@ namespace LayerProcessing
 
         internal static void Reset(object sender, EventArgs e)
         {
-            Document doc = Workstation.Document;
-            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            Database db = sender as Database;
+            Document doc = Application.DocumentManager.GetDocument(db);
+            Teigha.DatabaseServices.TransactionManager tm = db.TransactionManager; //Workstation.TransactionManager;
 
             using (Transaction transaction = tm.StartTransaction())
             {
                 foreach (ChapterStoreLayerParser lp in StoredLayerStates[doc])
                 {
-                    LayerTableRecord ltr = (LayerTableRecord)transaction.GetObject(lp.BoundLayer.Id, OpenMode.ForWrite);
+                    LayerTableRecord _ = (LayerTableRecord)transaction.GetObject(lp.BoundLayer.Id, OpenMode.ForWrite);
                     lp.Reset();
                 }
 
                 doc.Database.BeginSave -= Reset;
                 _eventAssigned[doc] = false;
                 ChapterVisualizer.ActiveChapterState[doc] = null;
-                Flush();
+                Flush(doc);
                 transaction.Commit();
             }
 
@@ -570,6 +571,15 @@ namespace LayerProcessing
         internal static void Flush()
         {
             Document doc = Workstation.Document;
+            foreach (ChapterStoreLayerParser cslp in StoredLayerStates[doc])
+                cslp.BoundLayer.Dispose();
+            StoredLayerStates[doc].Clear();
+        }
+
+        internal static void Flush(Document doc)
+        {
+            foreach (ChapterStoreLayerParser cslp in StoredLayerStates[doc])
+                cslp.BoundLayer.Dispose();
             StoredLayerStates[doc].Clear();
         }
     }

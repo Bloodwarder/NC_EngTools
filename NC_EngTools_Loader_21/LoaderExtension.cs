@@ -36,7 +36,7 @@ namespace Loader
             if (showStartUp)
             {
                 StartUpWindow window = new StartUpWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
-                window.ShowDialog();
+                Application.ShowModalWindow(window);
             }
             // Заново читаем конфиг (мог измениться)
             StartUpConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
@@ -77,7 +77,7 @@ namespace Loader
             StartUpWindow window = new StartUpWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
             window.bUpdateLayerWorks.IsEnabled = false;
             window.bUpdateUtilities.IsEnabled = false;
-            window.ShowDialog();
+            Application.ShowModalWindow(window);
         }
     }
 
