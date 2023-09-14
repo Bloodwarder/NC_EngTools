@@ -25,15 +25,15 @@ namespace LayerProcessing
         /// <summary>
         /// Имя внешнего проекта, согласно которому нанесены объекты слоя
         /// </summary>
-        public string ExtProjectName { get; private set; }
+        public string? ExtProjectName { get; private set; }
         /// <summary>
         /// Тип объекта инженерной инфраструктуры
         /// </summary>
-        public string EngType { get; private set; }
+        public string? EngType { get; private set; }
         /// <summary>
         /// Тип геометрии
         /// </summary>
-        public string GeomType { get; private set; }
+        public string? GeomType { get; private set; }
         /// <summary>
         /// Основное имя, отражающее конкретный тип объекта без привязки к статусу и дополнительным данным
         /// </summary>
@@ -53,7 +53,7 @@ namespace LayerProcessing
         {
             get
             {
-                List<string> recomp = new List<string>
+                List<string> recomp = new()
                 {
                     StandartPrefix
                 };
@@ -110,7 +110,7 @@ namespace LayerProcessing
             int counter = 1;
             if (decomp[1].StartsWith("["))
             {
-                List<string> list = new List<string>
+                List<string> list = new()
                 {
                     decomp[1]
                 };
@@ -136,7 +136,7 @@ namespace LayerProcessing
                 GeomType = decomp[counter];
                 geomassigned = true;
             }
-            if (decomp[decomp.Length - 1] == "пер")
+            if (decomp[^1] == "пер")
             {
                 recstatus = true;
                 mainnameend = decomp.Length - 3;
@@ -145,7 +145,7 @@ namespace LayerProcessing
             {
                 mainnameend = decomp.Length - 2;
             }
-            string str = recstatus ? decomp[decomp.Length - 2] : decomp[decomp.Length - 1];
+            string str = recstatus ? decomp[^2] : decomp[^1];
             bool stfound = false;
             for (int i = 0; i < st_txt.Length; i++) //searching and assigning status index (IMPROVE CODE LATER)
             {
@@ -246,9 +246,9 @@ namespace LayerProcessing
         /// </summary>
         public void Alter()
         {
-            string str = LayerAlteringDictionary.GetValue(MainName, out bool success);
+            string? str = LayerAlteringDictionary.GetValue(MainName, out bool success);
             if (!success) { return; }
-            MainName = str;
+            MainName = str!;
         }
 
         /// <summary>
@@ -317,8 +317,8 @@ namespace LayerProcessing
         private static string Clayername()
         {
             Database db = Workstation.Database;
-            LayerTableRecord ltr = db.TransactionManager.GetObject(db.Clayer, OpenMode.ForRead) as LayerTableRecord;
-            return ltr.Name;
+            LayerTableRecord? ltr = db.TransactionManager.GetObject(db.Clayer, OpenMode.ForRead) as LayerTableRecord;
+            return ltr!.Name;
         }
 
         /// <summary>
@@ -330,8 +330,8 @@ namespace LayerProcessing
             Database db = Workstation.Database;
 
             LayerChecker.Check(this);
-            LayerTable lt = tm.TopTransaction.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
-            db.Clayer = lt[OutputLayerName];
+            LayerTable? lt = tm.TopTransaction.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
+            db.Clayer = lt![OutputLayerName];
             LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName, out _);
             db.Celtscale = lp.LTScale;
             db.Plinewid = lp.ConstantWidth;
@@ -358,7 +358,7 @@ namespace LayerProcessing
         /// <summary>
         /// Коллекция связанных объектов чертежа
         /// </summary>
-        public List<Entity> BoundEntities = new List<Entity>();
+        public List<Entity> BoundEntities = new();
         /// <summary>
         /// Назначение выходного слоя и соответствующих ему свойств связанным объектам чертежа
         /// </summary>
@@ -382,10 +382,32 @@ namespace LayerProcessing
     /// </summary>
     public class RecordLayerParser : LayerParser
     {
+        private ObjectId _boundLayerId;
+        private LayerTableRecord _boundLayer;
+
         /// <summary>
         /// Связанный слой (объект LayerTableRecord)
         /// </summary>
-        public LayerTableRecord BoundLayer;
+        public LayerTableRecord BoundLayer
+        {
+            get 
+            { 
+                if (_boundLayer.IsWriteEnabled)
+                {
+                    return _boundLayer;
+                }
+                else
+                {
+                    Transaction transaction = HostApplicationServices.WorkingDatabase.TransactionManager.TopTransaction;
+                    return transaction.GetObject(_boundLayerId, OpenMode.ForWrite) as LayerTableRecord;
+                }
+            }
+            set
+            {
+                _boundLayerId = value.Id;
+                _boundLayer = value;
+            }
+        }
 
         /// <summary>
         /// Конструктор, принимающий объект LayerTableRecord
@@ -513,7 +535,7 @@ namespace LayerProcessing
 
     internal static class ChapterStoredLayerParsers
     {
-        private static readonly Dictionary<Document, bool> _eventAssigned = new Dictionary<Document, bool>(); //должно работать только для одного документа. переделать для многих
+        private static readonly Dictionary<Document, bool> _eventAssigned = new(); //должно работать только для одного документа. переделать для многих
         internal static Dictionary<Document, List<ChapterStoreLayerParser>> StoredLayerStates { get; } = new Dictionary<Document, List<ChapterStoreLayerParser>>();
         internal static void Add(ChapterStoreLayerParser lp)
         {
@@ -541,15 +563,16 @@ namespace LayerProcessing
         // восстановление состояний слоёв при вызове событием сохранения чертежа
         internal static void Reset(object sender, EventArgs e)
         {
-            Database db = sender as Database;
+            Database? db = sender as Database;
             Document doc = Application.DocumentManager.GetDocument(db);
-            Teigha.DatabaseServices.TransactionManager tm = db.TransactionManager; //Workstation.TransactionManager;
+            Teigha.DatabaseServices.TransactionManager tm = db!.TransactionManager; //Workstation.TransactionManager;
 
             using (Transaction transaction = tm.StartTransaction())
             {
                 foreach (ChapterStoreLayerParser lp in StoredLayerStates[doc])
                 {
-                    LayerTableRecord _ = (LayerTableRecord)transaction.GetObject(lp.BoundLayer.Id, OpenMode.ForWrite);
+                    lp.BoundLayer.UpgradeOpen();
+                    //LayerTableRecord _ = (LayerTableRecord)transaction.GetObject(lp.BoundLayer.Id, OpenMode.ForWrite);
                     lp.Reset();
                 }
 
@@ -573,7 +596,7 @@ namespace LayerProcessing
         }
 
         //Сбросить сохранённые состояния слоёв для текущего документа
-        internal static void Flush(Document doc = null)
+        internal static void Flush(Document? doc = null)
         {
             if (doc == null)
                 doc = Workstation.Document;

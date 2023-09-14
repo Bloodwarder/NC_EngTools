@@ -285,9 +285,11 @@ namespace Utilities
         public static void SlopeCalc()
         {
             Workstation.Define();
-            try
+
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+                try
+
                 {
                     // Получить объекты чертежа для расчёта
                     if (!TryGetEntity("Выберите блок первой отметки", out BlockReference mark1, ElevationMarkBlockName))
@@ -308,13 +310,12 @@ namespace Utilities
                     // Назначение величин блокам
                     BlockAttributeSet(slopeBRef, SlopeTag, slope.ToString("0"));
                     BlockAttributeSet(slopeBRef, DistanceTag, l1.ToString("0.0"));
-
-                    transaction.Commit();
                 }
-            }
-            finally
-            {
-                Highlighter.Unhighlight();
+                finally
+                {
+                    Highlighter.Unhighlight();
+                }
+                transaction.Commit();
             }
         }
 
@@ -461,7 +462,7 @@ namespace Utilities
 
                     Workstation.Editor.WriteMessage(textContent);
 
-                    BlockTable blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite) as BlockTable;
+                    BlockTable blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
                     BlockTableRecord modelSpace = transaction.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
                     double vx = mark1.Position.X - mark2.Position.X;
                     double vy = mark1.Position.Y - mark2.Position.Y;
@@ -475,7 +476,7 @@ namespace Utilities
                         Rotation = Math.Atan(vy / vx),
                         Contents = textContent,
                     };
-                    transaction.AddNewlyCreatedDBObject(mText, true);
+                    //transaction.AddNewlyCreatedDBObject(mText, true);
                     modelSpace.AppendEntity(mText);
                 }
                 finally
@@ -591,20 +592,26 @@ namespace Utilities
     }
     internal static class Highlighter
     {
-        private readonly static List<Entity> _list = new List<Entity>();
+        private readonly static List<DBObjectWrapper<Entity>> _list = new List<DBObjectWrapper<Entity>>();
 
 
         internal static void Highlight(Entity entity)
         {
-            _list.Add(entity);
+            _list.Add(new DBObjectWrapper<Entity>(entity, OpenMode.ForWrite));
             entity.Highlight();
         }
 
         internal static void Unhighlight()
         {
-            foreach (Entity entity in _list)
-                entity.Unhighlight();
-            _list.Clear();
+            try
+            {
+                foreach (DBObjectWrapper<Entity> entity in _list)
+                    entity.Get().Unhighlight();
+            }
+            finally
+            {
+                _list.Clear();
+            }
         }
     }
 
@@ -630,5 +637,62 @@ namespace Utilities
             editor = Document.Editor;
         }
 
+    }
+
+    internal class DBObjectWrapper<T> where T : DBObject
+    {
+        private ObjectId _id;
+        private OpenMode _openMode;
+        private T _object;
+        private Getter _getHandler;
+
+        internal DBObjectWrapper(ObjectId id, OpenMode openMode)
+        {
+            _id = id;
+            _openMode = openMode;
+            _object = OpenAndGet();
+            _object.ObjectClosed += ObjectClosedHandler;
+        }
+
+        internal DBObjectWrapper(T obj, OpenMode openMode)
+        {
+            _object = obj;
+            _id = obj.ObjectId;
+            _openMode = openMode;
+            _getHandler = DirectGet;
+            _object.ObjectClosed += ObjectClosedHandler;
+        }
+
+        internal T Get()
+        {
+            return _getHandler.Invoke();
+        }
+
+        private T DirectGet()
+        {
+            return _object;
+        }
+
+        private T OpenAndGet()
+        {
+            try
+            {
+                _getHandler = DirectGet;
+                T obj = Workstation.TransactionManager.TopTransaction.GetObject(_id, _openMode) as T;
+                return obj;
+            }
+            catch
+            {
+                _getHandler = OpenAndGet;
+                return null;
+            }
+        }
+
+        private delegate T Getter();
+
+        private void ObjectClosedHandler(object sender, ObjectClosedEventArgs e)
+        {
+            _getHandler = OpenAndGet;
+        }
     }
 }

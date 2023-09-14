@@ -12,7 +12,9 @@ using ExternalData;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using Teigha.Colors;
-using HostMgd.ApplicationServices;
+
+
+
 
 namespace ModelspaceDraw
 {
@@ -29,14 +31,14 @@ namespace ModelspaceDraw
         /// Базовая точка для вставки объектов в целевой чертёж
         /// </summary>
         public Point2d Basepoint { get; set; }
-        internal RecordLayerParser Layer { get; set; }
+        internal RecordLayerParser? Layer { get; set; }
         internal static Color s_byLayer = Color.FromColorIndex(ColorMethod.ByLayer, 256);
 
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         internal protected ObjectDraw() { }
-        internal ObjectDraw(Point2d basepoint, RecordLayerParser layer = null)
+        internal ObjectDraw(Point2d basepoint, RecordLayerParser? layer = null)
         {
             Basepoint = basepoint;
             Layer = layer;
@@ -78,15 +80,15 @@ namespace ModelspaceDraw
         /// Событие назначения объекту конкретного шаблона отрисовки.
         /// Необходимо для объектов, которые нельзя обрабатывать одномоментно и нужно поставить в очередь на обработку (например блоки, импортируемые из внешних чертежей).
         /// </summary>
-        protected event EventHandler TemplateSetEventHandler;
+        protected event EventHandler? TemplateSetEventHandler;
 
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         internal protected LegendObjectDraw() { }
-        internal LegendObjectDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
+        internal LegendObjectDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer)
         {
-            LegendDrawTemplate = LayerLegendDrawDictionary.GetValue(Layer.TrueName, out _);
+            LegendDrawTemplate = LayerLegendDrawDictionary.GetValue(Layer!.TrueName, out _);
         }
         internal LegendObjectDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
@@ -105,7 +107,7 @@ namespace ModelspaceDraw
         {
             if (value == 0)
                 return s_byLayer;
-            Color color = Layer.BoundLayer.Color;
+            Color color = Layer!.BoundLayer.Color;
             if (value > 0)
             {
                 color = Color.FromRgb((byte)(color.Red + (255 - color.Red) * value), (byte)(color.Green + (255 - color.Green) * value), (byte)(color.Blue + (255 - color.Blue) * value));
@@ -127,7 +129,7 @@ namespace ModelspaceDraw
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         public SolidLineDraw() { }
-        internal SolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal SolidLineDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer) { }
         internal SolidLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -135,10 +137,10 @@ namespace ModelspaceDraw
         /// <inheritdoc/>
         public override void Draw()
         {
-            Polyline pl = new Polyline();
+            Polyline pl = new();
             pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
             pl.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
-            pl.Layer = Layer.OutputLayerName;
+            pl.Layer = Layer!.OutputLayerName;
             LayerProps lp = LayerPropertiesDictionary.GetValue(Layer, out bool success);
             if (success)
             {
@@ -158,7 +160,7 @@ namespace ModelspaceDraw
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         public DoubleSolidLineDraw() { }
-        internal DoubleSolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal DoubleSolidLineDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer) { }
         internal DoubleSolidLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -166,18 +168,18 @@ namespace ModelspaceDraw
         /// <inheritdoc/>
         public override void Draw()
         {
-            Polyline pl = new Polyline();
+            Polyline pl = new();
             pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
             pl.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
-            pl.Layer = Layer.OutputLayerName;
-            Polyline pl2 = pl.Clone() as Polyline;
+            pl.Layer = Layer!.OutputLayerName;
+            Polyline? pl2 = pl.Clone() as Polyline;
             LayerProps lp = LayerPropertiesDictionary.GetValue(Layer, out bool success);
             if (success)
             {
                 pl.LinetypeScale = lp.LTScale;
                 pl.ConstantWidth = lp.ConstantWidth;
             }
-            pl2.ConstantWidth = double.Parse(LegendDrawTemplate.Width);  // ТОЖЕ КОСТЫЛЬ, ЧТОБЫ НЕ ДОБАВЛЯТЬ ДОП ПОЛЕ В ТАБЛИЦУ. ТАКИХ СЛОЯ ВСЕГО 3
+            pl2!.ConstantWidth = double.Parse(LegendDrawTemplate.Width);  // ТОЖЕ КОСТЫЛЬ, ЧТОБЫ НЕ ДОБАВЛЯТЬ ДОП ПОЛЕ В ТАБЛИЦУ. ТАКИХ СЛОЯ ВСЕГО 3
             pl2.Color = Color.FromRgb(0, 0, 255);   // ЗАТЫЧКА, ПОКА ТАКОЙ ОБЪЕКТ ВСЕГО ОДИН
             EntitiesList.Add(pl2);
             EntitiesList.Add(pl);
@@ -194,7 +196,7 @@ namespace ModelspaceDraw
         private double _width;
 
         internal MarkedLineDraw() { }
-        internal MarkedLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
+        internal MarkedLineDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer)
         {
         }
         internal MarkedLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
@@ -214,14 +216,14 @@ namespace ModelspaceDraw
         /// </summary>
         protected void DrawText()
         {
-            TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
+            TextStyleTable? txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
 
-            MText mtext = new MText
+            MText mtext = new()
             {
                 Contents = MarkChar,
-                TextStyleId = txtstyletable["Standard"],
+                TextStyleId = txtstyletable!["Standard"],
                 TextHeight = 4d,
-                Layer = Layer.BoundLayer.Name,
+                Layer = Layer!.BoundLayer.Name,
                 Color = s_byLayer,
             };
 
@@ -241,17 +243,17 @@ namespace ModelspaceDraw
         /// <returns> Полилинии, добавленные в список объектов для отрисовки</returns>
         protected List<Polyline> DrawLines()
         {
-            Polyline pl1 = new Polyline();
-            Polyline pl2 = new Polyline();
+            Polyline pl1 = new();
+            Polyline pl2 = new();
             pl1.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
             pl1.AddVertexAt(1, GetRelativePoint(-(_width / 2 + 0.5d), 0d), 0, 0d, 0d);
-            pl1.Layer = Layer.BoundLayer.Name;
+            pl1.Layer = Layer!.BoundLayer.Name;
 
             pl2.AddVertexAt(0, GetRelativePoint(_width / 2 + 0.5d, 0d), 0, 0d, 0d);
             pl2.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
             pl2.Layer = Layer.BoundLayer.Name;
 
-            List<Polyline> list = new List<Polyline> { pl1, pl2 };
+            List<Polyline> list = new() { pl1, pl2 };
             EntitiesList.AddRange(list);
             return list;
         }
@@ -271,7 +273,7 @@ namespace ModelspaceDraw
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         public MarkedSolidLineDraw() { }
-        internal MarkedSolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal MarkedSolidLineDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer) { }
         internal MarkedSolidLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -281,7 +283,7 @@ namespace ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer, out _, true).ConstantWidth;
+                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer!, out _, true).ConstantWidth;
                 line.LinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
             }
         }
@@ -295,7 +297,7 @@ namespace ModelspaceDraw
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         public MarkedDashedLineDraw() { }
-        internal MarkedDashedLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal MarkedDashedLineDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer) { }
         internal MarkedDashedLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -305,7 +307,7 @@ namespace ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer, out _, true).ConstantWidth;
+                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer!, out _, true).ConstantWidth;
                 LayerChecker.FindLinetype("ACAD_ISO02W100", out bool ltgetsuccess);
                 if (ltgetsuccess)
                     line.Linetype = "ACAD_ISO02W100";
@@ -323,7 +325,7 @@ namespace ModelspaceDraw
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         public AreaDraw() { }
-        internal AreaDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal AreaDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer) { }
         internal AreaDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -339,7 +341,7 @@ namespace ModelspaceDraw
         /// <param name="increasebrightness"> Изменение яркости относительно базового цвета слоя </param>
         protected void DrawHatch(IEnumerable<Polyline> borders, string patternname = "SOLID", double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8)
         {
-            Hatch hatch = new Hatch();
+            Hatch hatch = new();
             //ДИКИЙ БЛОК, ПЫТАЮЩИЙСЯ ОБРАБОТАТЬ ОШИБКИ ДЛЯ НЕПОНЯТНЫХ ШТРИХОВОК
             try
             {
@@ -364,8 +366,8 @@ namespace ModelspaceDraw
             hatch.HatchStyle = HatchStyle.Normal;
             foreach (Polyline pl in borders)
             {
-                Point2dCollection vertexCollection = new Point2dCollection(pl.NumberOfVertices);
-                DoubleCollection bulgesCollection = new DoubleCollection(pl.NumberOfVertices);
+                Point2dCollection vertexCollection = new(pl.NumberOfVertices);
+                DoubleCollection bulgesCollection = new(pl.NumberOfVertices);
                 for (int i = 0; i < pl.NumberOfVertices; i++)
                 {
                     vertexCollection.Add(pl.GetPoint2dAt(i));
@@ -384,7 +386,7 @@ namespace ModelspaceDraw
             {
                 hatch.Color = BrightnessShift(increasebrightness);
             }
-            hatch.Layer = Layer.BoundLayer.Name;
+            hatch.Layer = Layer!.BoundLayer.Name;
             ;
             EntitiesList.Add(hatch);
         }
@@ -400,7 +402,7 @@ namespace ModelspaceDraw
         /// </summary>
         public RectangleDraw() { }
 
-        internal RectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal RectangleDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer) { }
         internal RectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -414,9 +416,9 @@ namespace ModelspaceDraw
             DrawRectangle(RectangleWidth, RectangleHeight);
         }
 
-        private protected Polyline DrawRectangle(double width, double height, string layer = null, double brightnessshift = 0d)
+        private protected Polyline DrawRectangle(double width, double height, string? layer = null, double brightnessshift = 0d)
         {
-            Polyline rectangle = new Polyline();
+            Polyline rectangle = new();
             rectangle.AddVertexAt(0, GetRelativePoint(-width / 2, -height / 2), 0, 0d, 0d);
             rectangle.AddVertexAt(1, GetRelativePoint(-width / 2, height / 2), 0, 0d, 0d);
             rectangle.AddVertexAt(2, GetRelativePoint(width / 2, height / 2), 0, 0d, 0d);
@@ -424,7 +426,7 @@ namespace ModelspaceDraw
             rectangle.Closed = true;
             if (layer != null)
                 LayerChecker.Check($"{LayerParser.StandartPrefix}_{layer}"); //ПОКА ЗАВЯЗАНО НА ЧЕКЕР ИЗ ДРУГОГО МОДУЛЯ. ПРОАНАЛИЗИРОВАТЬ ВОЗМОЖНОСТИ ОПТИМИЗАЦИИ
-            rectangle.Layer = layer == null ? Layer.BoundLayer.Name : $"{LayerParser.StandartPrefix}_{layer}";
+            rectangle.Layer = layer == null ? Layer!.BoundLayer.Name : $"{LayerParser.StandartPrefix}_{layer}";
             LayerProps lp = LayerPropertiesDictionary.GetValue(rectangle.Layer, out bool success);
             if (success)
             {
@@ -447,7 +449,7 @@ namespace ModelspaceDraw
         /// </summary>
         public HatchedRectangleDraw() { }
 
-        internal HatchedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal HatchedRectangleDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer) { }
         internal HatchedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -456,7 +458,7 @@ namespace ModelspaceDraw
         /// <inheritdoc/>
         public override void Draw()
         {
-            List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight, brightnessshift: LegendDrawTemplate.InnerBorderBrightness) };
+            List<Polyline> rectangle = new() { DrawRectangle(RectangleWidth, RectangleHeight, brightnessshift: LegendDrawTemplate.InnerBorderBrightness) };
             DrawHatch(rectangle,
                 patternname: LegendDrawTemplate.InnerHatchPattern,
                 angle: LegendDrawTemplate.InnerHatchAngle,
@@ -476,7 +478,7 @@ namespace ModelspaceDraw
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         public HatchedCircleDraw() { }
-        internal HatchedCircleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal HatchedCircleDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer) { }
         internal HatchedCircleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -484,7 +486,7 @@ namespace ModelspaceDraw
         /// <inheritdoc/>
         public override void Draw()
         {
-            List<Polyline> circle = new List<Polyline> { DrawCircle(Radius) };
+            List<Polyline> circle = new() { DrawCircle(Radius) };
             DrawHatch(circle,
                 patternname: LegendDrawTemplate.InnerHatchPattern,
                 angle: LegendDrawTemplate.InnerHatchAngle,
@@ -493,14 +495,14 @@ namespace ModelspaceDraw
                 );
         }
 
-        private protected Polyline DrawCircle(double radius, string layer = null)
+        private protected Polyline DrawCircle(double radius, string? layer = null)
         {
-            Polyline circle = new Polyline();
+            Polyline circle = new();
             circle.AddVertexAt(0, GetRelativePoint(0, radius / 2), 1, 0d, 0d);
             circle.AddVertexAt(1, GetRelativePoint(0, -radius / 2), 1, 0d, 0d);
             circle.AddVertexAt(2, GetRelativePoint(0, radius / 2), 0, 0d, 0d);
             circle.Closed = true;
-            circle.Layer = layer ?? Layer.BoundLayer.Name;
+            circle.Layer = layer ?? Layer!.BoundLayer.Name;
             LayerProps lp = LayerPropertiesDictionary.GetValue(circle.Layer, out bool success);
             if (success)
             {
@@ -525,7 +527,7 @@ namespace ModelspaceDraw
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         public FencedRectangleDraw() { }
-        internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer) { }
         internal FencedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -534,7 +536,7 @@ namespace ModelspaceDraw
         /// <inheritdoc/>
         public override void Draw()
         {
-            List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight, brightnessshift: LegendDrawTemplate.InnerBorderBrightness) };
+            List<Polyline> rectangle = new() { DrawRectangle(RectangleWidth, RectangleHeight, brightnessshift: LegendDrawTemplate.InnerBorderBrightness) };
             DrawHatch(rectangle,
                 patternname: LegendDrawTemplate.InnerHatchPattern,
                 angle: LegendDrawTemplate.InnerHatchAngle,
@@ -552,12 +554,12 @@ namespace ModelspaceDraw
     {
         string FenceLayer => LegendDrawTemplate.FenceLayer;
         internal double FenceWidth => ParseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellWidth);
-        internal double FenceHeight => ParseRelativeValue(LegendDrawTemplate.FenceHeight, LegendGrid.CellHeight);
+        internal double FenceHeight => ParseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellHeight);
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         public HatchedFencedRectangleDraw() { }
-        internal HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        internal HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer) { }
         internal HatchedFencedRectangleDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -565,8 +567,8 @@ namespace ModelspaceDraw
         /// <inheritdoc/>
         public override void Draw()
         {
-            List<Polyline> rectangles = new List<Polyline>
-                {
+            List<Polyline> rectangles = new()
+            {
                 DrawRectangle
                     (
                     RectangleWidth,
@@ -603,35 +605,16 @@ namespace ModelspaceDraw
         private string FilePath => LegendDrawTemplate.BlockPath;
 
         // Списки файлов и блоков для единоразовой обработки
-        internal static HashSet<string> QueuedFiles = new HashSet<string>();
-        internal static Dictionary<string, HashSet<string>> QueuedBlocks = new Dictionary<string, HashSet<string>>();
+        internal static HashSet<string> QueuedFiles = new();
+        internal static Dictionary<string, HashSet<string>> QueuedBlocks = new();
         // Проверка, выполнен ли иморт блоков
         private static bool _blocksImported = false;
-        private static Dictionary<Document, DBObjectWrapper<BlockTable>> _blockTables = new Dictionary<Document, DBObjectWrapper<BlockTable>>();
-        private static BlockTable BoundBlockTable
-        {
-            get
-            {
-                try
-                {
-                    return _blockTables[Workstation.Document].Get();
-                }
-                catch
-                {
-                    BlockTable blockTable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite) as BlockTable;
-                    _blockTables[Workstation.Document] = new DBObjectWrapper<BlockTable>(blockTable, OpenMode.ForWrite);
-                    return blockTable;
-                }
-            }
-            set
-            {
-                _blockTables[Workstation.Document] = new DBObjectWrapper<BlockTable>(value, OpenMode.ForWrite);
-            }
-        }
+
+        private static BlockTable? _blocktable;
 
         static BlockReferenceDraw()
         {
-            BoundBlockTable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite) as BlockTable;
+            _blocktable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite) as BlockTable;
         }
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
@@ -640,7 +623,7 @@ namespace ModelspaceDraw
         {
             TemplateSetEventHandler += QueueImportBlockTableRecord;
         }
-        internal BlockReferenceDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
+        internal BlockReferenceDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer)
         {
             TemplateSetEventHandler += QueueImportBlockTableRecord;
         }
@@ -661,34 +644,34 @@ namespace ModelspaceDraw
                 _blocksImported = true;
             }
             // Отрисовываем объект
-            ObjectId btrId = BoundBlockTable[BlockName];
-            BlockReference bref = new BlockReference(new Point3d(Basepoint.X + LegendDrawTemplate.BlockXOffset, Basepoint.Y + LegendDrawTemplate.BlockYOffset, 0d), btrId)
+            ObjectId btrId = _blocktable![BlockName];
+            BlockReference bref = new(new Point3d(Basepoint.X + LegendDrawTemplate.BlockXOffset, Basepoint.Y + LegendDrawTemplate.BlockYOffset, 0d), btrId)
             {
-                Layer = Layer.BoundLayer.Name
+                Layer = Layer!.BoundLayer.Name
             };
             EntitiesList.Add(bref);
         }
 
-        private void QueueImportBlockTableRecord(object sender, System.EventArgs e)
+        private void QueueImportBlockTableRecord(object? sender, System.EventArgs e)
         {
-            if (BoundBlockTable.Has(BlockName))
+            if (_blocktable!.Has(BlockName))
                 return;
 
             if (QueuedFiles.Count == 0)
             {
                 // Обновляем таблицу блоков (по открытому чертежу)
-                BoundBlockTable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite) as BlockTable;
+                _blocktable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite) as BlockTable;
                 // Сбрасывем переменную, показывающую, что импорт для данной задачи выполнен
                 _blocksImported = false;
             }
 
             // Заполняем очереди блоков и файлов для импорта
             QueuedFiles.Add(LegendDrawTemplate.BlockPath);
-            HashSet<string> blocksQueue;
+            HashSet<string>? blocksQueue;
             bool success = QueuedBlocks.TryGetValue(FilePath, out blocksQueue);
             if (!success)
                 QueuedBlocks.Add(FilePath, blocksQueue = new HashSet<string>());
-            blocksQueue.Add(BlockName);
+            blocksQueue!.Add(BlockName);
         }
 
         private static void ImportRecords(out HashSet<string> failedBlockImports)
@@ -698,14 +681,14 @@ namespace ModelspaceDraw
             // По одному разу открываем базу данных каждого файла с блоками для условных
             foreach (string file in QueuedFiles)
             {
-                using (Database importDatabase = new Database(false, true))
+                using (Database importDatabase = new(false, true))
                 {
                     try
                     {
                         importDatabase.ReadDwgFile(file, FileOpenMode.OpenForReadAndAllShare, false, null);
                         // Ищем все нужные нам блоки
-                        BlockTable importBlockTable = transaction.GetObject(importDatabase.BlockTableId, OpenMode.ForRead) as BlockTable;
-                        var importedBlocks = (from ObjectId blockId in importBlockTable
+                        BlockTable? importBlockTable = transaction.GetObject(importDatabase.BlockTableId, OpenMode.ForRead) as BlockTable;
+                        var importedBlocks = (from ObjectId blockId in importBlockTable!
                                               let block = transaction.GetObject(blockId, OpenMode.ForRead) as BlockTableRecord
                                               where QueuedBlocks[file].Contains(block.Name)
                                               select block).ToList();
@@ -716,7 +699,7 @@ namespace ModelspaceDraw
                                 failedBlockImports.Add(block.Name);
                         }
                         // Добавляем все найденные блоки в таблицу блоков текущего чертежа
-                        importBlockTable.Database.WblockCloneObjects(new ObjectIdCollection(importedBlocks.Select(b => b.ObjectId).ToArray()), BoundBlockTable.ObjectId, new IdMapping(), DuplicateRecordCloning.Ignore, false);
+                        importBlockTable!.Database.WblockCloneObjects(new ObjectIdCollection(importedBlocks.Select(b => b.ObjectId).ToArray()), _blocktable!.ObjectId, new IdMapping(), DuplicateRecordCloning.Ignore, false);
                     }
                     catch (System.Exception)
                     {
@@ -739,7 +722,7 @@ namespace ModelspaceDraw
     public class LabelTextDraw : ObjectDraw
     {
         private readonly bool _italic = false;
-        private readonly string _text;
+        private readonly string? _text;
         static LabelTextDraw()
         {
             LayerChecker.Check(string.Concat(LayerParser.StandartPrefix, "_Условные"));
@@ -755,13 +738,13 @@ namespace ModelspaceDraw
         /// <inheritdoc/>
         public override void Draw()
         {
-            TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
+            TextStyleTable? txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
             string legendTextLayer = string.Concat(LayerParser.StandartPrefix, "_Условные");
             LayerChecker.Check(legendTextLayer);
-            MText mtext = new MText
+            MText mtext = new()
             {
                 Contents = _italic ? $"{{\\fArial|b0|i1|c204|p34;{_text}}}" : _text,
-                TextStyleId = txtstyletable["Standard"],
+                TextStyleId = txtstyletable!["Standard"],
                 TextHeight = LegendGrid.TextHeight,
                 Layer = legendTextLayer,
                 Color = s_byLayer,
@@ -869,7 +852,7 @@ namespace ModelspaceDraw
 
     internal class SimpleTestObjectDraw : LegendObjectDraw
     {
-        public SimpleTestObjectDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        public SimpleTestObjectDraw(Point2d basepoint, RecordLayerParser? layer = null) : base(basepoint, layer) { }
 
         public override void Draw()
         {
@@ -879,10 +862,10 @@ namespace ModelspaceDraw
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                BlockTable blocktable = transaction.GetObject(db.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
-                BlockTableRecord modelspace = transaction.GetObject(blocktable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                BlockTable? blocktable = transaction.GetObject(db.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
+                BlockTableRecord? modelspace = transaction.GetObject(blocktable![BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
 
-                BlockTableRecord newbtr = new BlockTableRecord
+                BlockTableRecord newbtr = new()
                 {
                     Name = "NewBlock",
                     Explodable = true
@@ -891,12 +874,12 @@ namespace ModelspaceDraw
                 transaction.AddNewlyCreatedDBObject(newbtr, true); // и в транзакцию
 
                 //отрезок
-                Line line = new Line(new Point3d(new double[3] { 0d, 0d, 0d }), new Point3d(new double[3] { 2d, 2d, 0d }));
+                Line line = new(new Point3d(new double[3] { 0d, 0d, 0d }), new Point3d(new double[3] { 2d, 2d, 0d }));
                 newbtr.AppendEntity(line); // добавляем в модельное пространство
                 transaction.AddNewlyCreatedDBObject(line, true); // и в транзакцию
 
                 //полилиния
-                Polyline pl = new Polyline();
+                Polyline pl = new();
                 pl.AddVertexAt(0, new Point2d(-5d, 0d), 0, 0.2d, 0.2d);
                 pl.AddVertexAt(1, new Point2d(-0d, 0d), 1, 0.2d, 0.2d);
                 pl.AddVertexAt(2, new Point2d(-0d, 5d), 0, 0.2d, 0.2d);
@@ -906,7 +889,7 @@ namespace ModelspaceDraw
 
 
                 //штриховка
-                Hatch hatch = new Hatch();
+                Hatch hatch = new();
                 hatch.SetHatchPattern(HatchPatternType.UserDefined, "ANSI31");
                 hatch.AppendLoop(HatchLoopTypes.Polyline, new ObjectIdCollection(new ObjectId[] { plid }));
                 hatch.PatternAngle = (double)(45 * Math.PI / 180);
@@ -921,8 +904,8 @@ namespace ModelspaceDraw
                 dro.MoveBelow(new ObjectIdCollection(new ObjectId[] { hatch.ObjectId }), plid);
 
                 //вхождение блока
-                BlockReference bref = new BlockReference(new Point3d(new double[] { 0d, 5d, 0d }), newbtr.ObjectId);
-                modelspace.AppendEntity(bref);
+                BlockReference bref = new(new Point3d(new double[] { 0d, 5d, 0d }), newbtr.ObjectId);
+                modelspace!.AppendEntity(bref);
                 transaction.AddNewlyCreatedDBObject(bref, true); // и в транзакцию
                                                                  //using (DBObjectCollection dbObjects = new DBObjectCollection())
                                                                  //{
@@ -936,13 +919,13 @@ namespace ModelspaceDraw
                                                                  //}
 
                 //многострочный текст
-                TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(db.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
-                MText mtext = new MText
+                TextStyleTable? txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(db.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
+                MText mtext = new()
                 {
                     BackgroundFill = true,
                     UseBackgroundColor = true,
                     BackgroundScaleFactor = 1.1d,
-                    TextStyleId = txtstyletable["Standard"],
+                    TextStyleId = txtstyletable!["Standard"],
                     Contents = "TEST_TEXT",
                     TextHeight = 4d
                 };
