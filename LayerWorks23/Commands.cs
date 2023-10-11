@@ -19,7 +19,7 @@ using Teigha.Geometry;
 
 using Legend;
 
-namespace NC_EngTools
+namespace LayerWorks
 {
     /// <summary>
     /// Класс с командами для работы с классифицированными слоями

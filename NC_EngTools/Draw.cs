@@ -4,15 +4,17 @@ using System.Linq;
 using System.Collections.Generic;
 
 //Modules
-using NC_EngTools;
+using LayerWorks;
 using Legend;
 using LayerProcessing;
 using ExternalData;
+using Loader.CoreUtilities;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using Teigha.Colors;
 using HostMgd.ApplicationServices;
+
 
 namespace ModelspaceDraw
 {
@@ -618,9 +620,9 @@ namespace ModelspaceDraw
                 }
                 catch
                 {
-                    BlockTable blockTable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite) as BlockTable;
-                    _blockTables[Workstation.Document] = new DBObjectWrapper<BlockTable>(blockTable, OpenMode.ForWrite);
-                    return blockTable;
+                    DBObjectWrapper<BlockTable> wrapper = new DBObjectWrapper<BlockTable>(Workstation.Database.BlockTableId, OpenMode.ForWrite);
+                    _blockTables[Workstation.Document] = wrapper;
+                    return wrapper.Get();
                 }
             }
             set

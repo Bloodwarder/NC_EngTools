@@ -1,6 +1,7 @@
 ﻿using ExternalData;
 using HostMgd.ApplicationServices;
-using NC_EngTools;
+using Loader.CoreUtilities;
+using LayerWorks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -382,10 +383,17 @@ namespace LayerProcessing
     /// </summary>
     public class RecordLayerParser : LayerParser
     {
+        private DBObjectWrapper<LayerTableRecord> _boundLayer;
+
+
         /// <summary>
         /// Связанный слой (объект LayerTableRecord)
         /// </summary>
-        public LayerTableRecord BoundLayer;
+        public LayerTableRecord BoundLayer 
+        { 
+            get => _boundLayer.Get();
+            set => _boundLayer = new DBObjectWrapper<LayerTableRecord>(value, OpenMode.ForWrite); 
+        }
 
         /// <summary>
         /// Конструктор, принимающий объект LayerTableRecord

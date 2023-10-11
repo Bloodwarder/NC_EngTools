@@ -5,6 +5,7 @@
 
 using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
+using System;
 using Teigha.DatabaseServices;
 
 
@@ -31,7 +32,8 @@ namespace Loader.CoreUtilities
             editor = Document.Editor;
         }
     }
-    public class DBObjectWrapper<T> where T : DBObject
+
+    public class DBObjectWrapper<T> : IDisposable where T : DBObject
     {
         private readonly ObjectId _id;
         private readonly OpenMode _openMode;
@@ -69,8 +71,8 @@ namespace Loader.CoreUtilities
         {
             try
             {
-                _getHandler = DirectGet;
                 T obj = Workstation.TransactionManager.TopTransaction.GetObject(_id, _openMode) as T;
+                _getHandler = DirectGet;
                 return obj;
             }
             catch
@@ -85,6 +87,11 @@ namespace Loader.CoreUtilities
         private void ObjectClosedHandler(object sender, ObjectClosedEventArgs e)
         {
             _getHandler = OpenAndGet;
+        }
+
+        public void Dispose()
+        {
+            _object.Dispose();
         }
     }
 
