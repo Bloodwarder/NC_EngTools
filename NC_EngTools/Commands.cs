@@ -18,8 +18,9 @@ using Dictionaries;
 using Teigha.Geometry;
 
 using Legend;
+using Loader.CoreUtilities;
 
-namespace NC_EngTools
+namespace LayerWorks
 {
     /// <summary>
     /// Класс с командами для работы с классифицированными слоями
@@ -738,86 +739,6 @@ namespace NC_EngTools
             return ltt[linetypename];
         }
 
-    }
-
-    internal static class Workstation
-    {
-        private static Document document;
-        private static Database database;
-        private static Teigha.DatabaseServices.TransactionManager transactionManager;
-        private static Editor editor;
-
-
-        public static Document Document => document;
-        public static Database Database => database;
-        public static Teigha.DatabaseServices.TransactionManager TransactionManager => transactionManager;
-        public static Editor Editor => editor;
-
-        public static void Define()
-        {
-            document = Application.DocumentManager.MdiActiveDocument;
-            database = HostApplicationServices.WorkingDatabase;
-            transactionManager = Database.TransactionManager;
-            editor = Document.Editor;
-        }
-
-    }
-
-    internal class DBObjectWrapper<T> where T : DBObject
-    {
-        private readonly ObjectId _id;
-        private readonly OpenMode _openMode;
-        private readonly T _object;
-        private Getter _getHandler;
-
-        internal DBObjectWrapper(ObjectId id, OpenMode openMode)
-        {
-            _id = id;
-            _openMode = openMode;
-            _object = OpenAndGet();
-            _object.ObjectClosed += ObjectClosedHandler;
-        }
-
-        internal DBObjectWrapper(T obj, OpenMode openMode)
-        {
-            _object = obj;
-            _id = obj.ObjectId;
-            _openMode = openMode;
-            _getHandler = DirectGet;
-            _object.ObjectClosed += ObjectClosedHandler;
-        }
-
-        internal T Get()
-        {
-            return _getHandler.Invoke();
-        }
-
-        private T DirectGet()
-        {
-            return _object;
-        }
-
-        private T OpenAndGet()
-        {
-            try
-            {
-                _getHandler = DirectGet;
-                T obj = Workstation.TransactionManager.TopTransaction.GetObject(_id, _openMode) as T;
-                return obj;
-            }
-            catch
-            {
-                _getHandler = OpenAndGet;
-                return null;
-            }
-        }
-
-        private delegate T Getter();
-
-        private void ObjectClosedHandler(object sender, ObjectClosedEventArgs e)
-        {
-            _getHandler = OpenAndGet;
-        }
     }
 
 }
