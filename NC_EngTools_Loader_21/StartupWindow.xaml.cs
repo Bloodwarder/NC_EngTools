@@ -42,6 +42,8 @@ namespace LoaderUI
             chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Update").Value);
             chbIncludeUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Include").Value);
             chbAutoUpdateUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Update").Value);
+            chbIncludeGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("GeoMod").Attribute("Include").Value);
+            chbAutoUpdateGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("GeoMod").Attribute("Update").Value);
             tbSourcePath.Text = _xmlStructure.Root.Element("basepath").Element("source").Value;
             // Вывод данных о последнем обновлении
             using (StreamReader reader = new StreamReader(PathProvider.GetPath("Список изменений.txt")))

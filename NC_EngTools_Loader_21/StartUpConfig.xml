@@ -4,5 +4,6 @@
 	<Modules>
 		<LayerWorks Include="true" Update="true"/>
 		<Utilities Include="true" Update="true"/>
+		<GeoMod Include="true" Update="true"/>
 	</Modules>
 </StartUp>

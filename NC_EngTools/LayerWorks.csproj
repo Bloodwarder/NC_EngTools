@@ -106,5 +106,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </AdditionalFiles>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NC_EngTools_Loader_21\LoaderCore.csproj">
+      <Project>{422e95a1-fd27-4248-b8a9-73783681c5b4}</Project>
+      <Name>LoaderCore</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
