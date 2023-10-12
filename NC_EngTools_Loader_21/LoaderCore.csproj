@@ -81,7 +81,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="StartUpConfig.xml" />
+    <Resource Include="StartUpConfig.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

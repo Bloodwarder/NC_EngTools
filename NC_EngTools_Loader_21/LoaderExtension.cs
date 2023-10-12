@@ -34,8 +34,15 @@ namespace Loader
             PathProvider.InitializeStructure(files);
 
             // Сразу обновляем список изменений и инструкцию со списком команд
-            FileUpdater.UpdateFile(files.Where(f => f.LocalFile.FullName == PathProvider.GetPath("Список изменений.txt")).FirstOrDefault());
-            FileUpdater.UpdateFile(files.Where(f => f.LocalFile.FullName == PathProvider.GetPath("Команды.txt")).FirstOrDefault());
+            //FileUpdater.UpdateFile(files.Where(f => f.LocalFile.FullName == PathProvider.GetPath(StartUpConfigName)).FirstOrDefault());
+            //FileUpdater.UpdateFile(files.Where(f => f.LocalFile.FullName == PathProvider.GetPath("Список изменений.txt")).FirstOrDefault());
+            //FileUpdater.UpdateFile(files.Where(f => f.LocalFile.FullName == PathProvider.GetPath("Команды.txt")).FirstOrDefault());
+            ComparedFiles cfiles = files.Where(f => f.LocalFile.FullName == PathProvider.GetPath(StartUpConfigName)).FirstOrDefault();
+            FileUpdater.UpdateFile(cfiles.LocalFile, cfiles.SourceFile);
+            cfiles = files.Where(f => f.LocalFile.FullName == PathProvider.GetPath("Список изменений.txt")).FirstOrDefault();
+            FileUpdater.UpdateFile(cfiles.LocalFile, cfiles.SourceFile);
+            cfiles = files.Where(f => f.LocalFile.FullName == PathProvider.GetPath("Команды.txt")).FirstOrDefault();
+            FileUpdater.UpdateFile(cfiles.LocalFile, cfiles.SourceFile);
 
             // Читаем конфигурацию на предмет необходимости отображения стартового окна и отображаем его
             XDocument StartUpConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
@@ -147,6 +154,9 @@ namespace Loader
             List<ComparedFiles> results = new List<ComparedFiles>();
             foreach (XElement childElement in element.Elements("directory"))
             {
+                string directoryPath = Path.Combine(localPath, childElement.Attribute("Name").Value);
+                if (!Directory.Exists(directoryPath))
+                    Directory.CreateDirectory(directoryPath);
                 results.AddRange(SearchStructure(
                     childElement,
                     Path.Combine(localPath, childElement.Attribute("Name").Value),
