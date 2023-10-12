@@ -20,10 +20,13 @@ using System.Text.RegularExpressions;
 
 namespace GeoMod
 {
+    /// <summary>
+    /// Класс, содержащий гео-команды и вспомогательные данные для их функционирования
+    /// </summary>
     public class GeoCommands
     {
-        internal static NtsGeometryServices GeometryServices;
-        internal static double DefaultBufferDistance { get; set; } = 1d;
+        private static NtsGeometryServices _geometryServices;
+        private static double _defaultBufferDistance { get; set; } = 1d;
 
         private static BufferParameters DefaultBufferParameters { get; } = new BufferParameters()
         {
@@ -36,6 +39,7 @@ namespace GeoMod
 
         static GeoCommands()
         {
+            // Инициализация NetTopologySuite
             NtsGeometryServices.Instance = new NtsGeometryServices( // default CoordinateSequenceFactory
                                                                     NetTopologySuite.Geometries.Implementation.CoordinateArraySequenceFactory.Instance,
                                                                     // default precision model
@@ -47,22 +51,27 @@ namespace GeoMod
                                                                     // Coordinate equality comparer to use (CoordinateEqualityComparer or PerOrdinateEqualityComparer)
                                                                     new CoordinateEqualityComparer()
                                                                    );
-            GeometryServices = NtsGeometryServices.Instance;
+            _geometryServices = NtsGeometryServices.Instance;
         }
 
+        /// <summary>
+        /// Создание WKT текста из выбранных геометрий dwg и помещение его в буфер обмена
+        /// </summary>
         [CommandMethod("ВКТТЕКСТ", CommandFlags.UsePickSet)]
         public static void WktToClipboard()
         {
             Workstation.Define();
-            var geometryFactory = GeometryServices.CreateGeometryFactory();
+            var geometryFactory = _geometryServices.CreateGeometryFactory();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
+                // получить геометрию dwg и преобразовать её в nts
                 PromptSelectionResult psr = Workstation.Editor.GetSelection();
                 if (psr.Status != PromptStatus.OK)
                     return;
                 Entity?[] entities = psr.Value.GetObjectIds().Select(id => transaction.GetObject(id, OpenMode.ForRead) as Entity).ToArray();
                 Geometry?[] geometries = TransferGeometry(entities!, geometryFactory).ToArray();
 
+                // создать райтер, преобразовать геометрию в вкт текст, поместить в буфер
                 WKTWriter writer = new()
                 {
                     OutputOrdinates = Ordinates.XY
@@ -77,10 +86,14 @@ namespace GeoMod
         public static void GeometryFromClipboardWkt()
         {
             Workstation.Define();
-            var geometryFactory = GeometryServices.CreateGeometryFactory();
+            var geometryFactory = _geometryServices.CreateGeometryFactory();
             string fromClipboard = System.Windows.Forms.Clipboard.GetText();
+
+            // отфильтровать текст, описывающий wkt геометрию
             string[] matches = Regex.Matches(fromClipboard, @"[a-zA-Z]*\s?\(.*\)").Select(m => m.Value).ToArray();
-            WKTReader reader = new(GeometryServices);
+            WKTReader reader = new(_geometryServices);
+
+            // создать геометрию, преобразовать в объекты dwg и поместить в модель
             Geometry[] geometries = matches.Select(m => reader.Read(m)).ToArray();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
@@ -103,14 +116,18 @@ namespace GeoMod
             }
         }
 
+        /// <summary>
+        /// Создать буферную зону заданной величины от выбранных объектов
+        /// </summary>
         [CommandMethod("ЗОНА", CommandFlags.UsePickSet)]
         public static void SimpleZone()
         {
             Workstation.Define();
-            var geometryFactory = GeometryServices.CreateGeometryFactory();
+            var geometryFactory = _geometryServices.CreateGeometryFactory();
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
+                // получить выбранные объекты и преобразовать в геометрию nts
                 PromptSelectionResult psr = Workstation.Editor.GetSelection();
                 if (psr.Status != PromptStatus.OK)
                     return;
@@ -119,24 +136,28 @@ namespace GeoMod
                 if (geometries.Length == 0)
                     return;
 
+                // получить размер буферной зоны
                 PromptDoubleOptions pdo = new("Введите размер буферной зоны")
                 {
                     AllowNegative = false,
                     AllowZero = false,
                     AllowNone = false,
-                    DefaultValue = DefaultBufferDistance
+                    DefaultValue = _defaultBufferDistance
                 };
                 PromptDoubleResult result = Workstation.Editor.GetDouble(pdo);
                 if (result.Status != PromptStatus.OK)
                     return;
                 double bufferDistance = result.Value;
-                DefaultBufferDistance = bufferDistance;
-                Geometry[] buffers = geometries.Select(g => g!.Buffer(bufferDistance, DefaultBufferParameters)).ToArray();
+                _defaultBufferDistance = bufferDistance;
 
+                // Создать геометрию буферных зон и объединить
+                Geometry[] buffers = geometries.Select(g => g!.Buffer(bufferDistance, DefaultBufferParameters)).ToArray();
+                Geometry union = geometryFactory.CreateGeometryCollection(buffers).Union();
+
+                // Поместить в модель
                 BlockTable? blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
                 BlockTableRecord? modelSpace = transaction.GetObject(blockTable![BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
 
-                Geometry union = geometryFactory.CreateGeometryCollection(buffers).Union();
                 foreach (Polyline pl in union.ToDWGPolylines())
                 {
                     modelSpace!.AppendEntity(pl);
@@ -145,20 +166,27 @@ namespace GeoMod
             }
         }
 
+        /// <summary>
+        /// Создать буферную зону от выбранных объектов с заданием величины для каждого слоя выбранных объектов
+        /// </summary>
         [CommandMethod("ЗОНАДИФФ", CommandFlags.UsePickSet)]
         public static void DiverseZone()
         {
             Workstation.Define();
-            var geometryFactory = GeometryServices.CreateGeometryFactory();
+            var geometryFactory = _geometryServices.CreateGeometryFactory();
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
+                // Получить выбранные объекты
                 PromptSelectionResult psr = Workstation.Editor.GetSelection();
                 if (psr.Status != PromptStatus.OK)
                     return;
                 Entity?[] entities = psr.Value.GetObjectIds().Select(id => transaction.GetObject(id, OpenMode.ForRead) as Entity).ToArray();
 
+                // Получить слои выбранных объектов
                 string[] layerNames = entities.Select(e => e!.Layer).Distinct().ToArray();
+
+                // Получить ввод пользователя - размер буферной зоны для каждого слоя, и сохранить в словаре
                 Dictionary<string, double> bufferSizes = new();
                 foreach (string layer in layerNames)
                 {
@@ -176,6 +204,7 @@ namespace GeoMod
                     bufferSizes[layer] = result.Value;
                 }
 
+                // Создать геометрию буферных зон и объединить
                 var buffers = (from Entity entity in entities
                                where entity is Polyline
                                let pl = entity as Polyline
@@ -185,6 +214,7 @@ namespace GeoMod
                     return;
                 Geometry union = geometryFactory.CreateGeometryCollection(buffers).Union();
 
+                // Поместить в модель
                 BlockTable? blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
                 BlockTableRecord? modelSpace = transaction.GetObject(blockTable![BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
 
@@ -200,10 +230,11 @@ namespace GeoMod
         public static void ZoneJoin()
         {
             Workstation.Define();
-            var geometryFactory = GeometryServices.CreateGeometryFactory();
+            var geometryFactory = _geometryServices.CreateGeometryFactory();
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
+                // Получить выбранные объекты, отфильтровать замкнутые полилинии и создать из них nts полигоны
                 PromptSelectionResult psr = Workstation.Editor.GetSelection();
                 if (psr.Status != PromptStatus.OK)
                     return;
@@ -212,24 +243,29 @@ namespace GeoMod
                                        let entity = transaction.GetObject(id, OpenMode.ForWrite) as Entity
                                        where entity is Polyline pl && pl.Closed
                                        select entity as Polyline).ToArray();
+                // Вывести предупреждения о необработанных объектах
                 if (closedPolylines.Length == 0)
                 {
                     Workstation.Editor.WriteMessage("Нет подходящих замкнутых полилиний в наборе");
                     return;
                 }
-
                 if (closedPolylines.Length < entitiesIds.Length)
                     Workstation.Editor.WriteMessage($"Не обработано {entitiesIds.Length - closedPolylines.Length} объектов, не являющихся замкнутыми полилиниями");
 
+                // Провести валидацию геометрии
                 Polygon?[] polygons = closedPolylines.Select(pl => pl.ToNTSGeometry(geometryFactory) as Polygon).ToArray();
                 Geometry?[] fixedPolygons = polygons.Select(g => g!.IsValid ? g : NetTopologySuite.Geometries.Utilities.GeometryFixer.Fix(g)).ToArray();
+
+                // Удалить исходные полилинии
+                foreach (Polyline pl in closedPolylines)
+                    pl.Erase();
+
+                // Объединить геометрию, создать из неё полилинии и поместить в модель
+                Geometry union = geometryFactory.CreateGeometryCollection(fixedPolygons).Union();
 
                 BlockTable? blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
                 BlockTableRecord? modelSpace = transaction.GetObject(blockTable![BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
 
-                foreach (Polyline pl in closedPolylines)
-                    pl.Erase();
-                Geometry union = geometryFactory.CreateGeometryCollection(fixedPolygons).Union();
                 foreach (Polyline pl in union.ToDWGPolylines())
                 {
                     modelSpace!.AppendEntity(pl);
@@ -239,7 +275,13 @@ namespace GeoMod
             }
         }
 
-        internal static IEnumerable<Geometry> TransferGeometry(IEnumerable<Entity> entities, GeometryFactory geometryFactory)
+        /// <summary>
+        /// Преобразовать коллекцию dwg геометрии в коллекцию nts геометрии
+        /// </summary>
+        /// <param name="entities"></param>
+        /// <param name="geometryFactory"></param>
+        /// <returns></returns>
+        private static IEnumerable<Geometry> TransferGeometry(IEnumerable<Entity> entities, GeometryFactory geometryFactory)
         {
             List<Geometry> geometries = new();
             bool warningShow = false;
@@ -265,7 +307,13 @@ namespace GeoMod
             return geometries;
         }
 
-        internal static Geometry? TransferGeometry(Entity entity, GeometryFactory geometryFactory)
+        /// <summary>
+        /// Преобразовать dwg геометрию в nts геометрию
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="geometryFactory"></param>
+        /// <returns></returns>
+        private static Geometry? TransferGeometry(Entity entity, GeometryFactory geometryFactory)
         {
             if (entity is Polyline pl)
             {
@@ -282,11 +330,13 @@ namespace GeoMod
         }
     }
 
-    // Методы расширения для геометрий (и DWG, и NetTopology)
+    // Методы расширения для DWG геометрий
 
-    public static class PolylineExtension
+    // Предполагаю, что это можно было сделать изящнее, но реализовать интерфейс и переопределения для объектов закрытых сборок не умею
+
+    internal static class PolylineExtension
     {
-        public static Geometry ToNTSGeometry(this Polyline polyline, GeometryFactory geometryFactory)
+        internal static Geometry ToNTSGeometry(this Polyline polyline, GeometryFactory geometryFactory)
         {
             Coordinate[] coordinates = new Coordinate[polyline.NumberOfVertices];
             for (int i = 0; i < polyline.NumberOfVertices; i++)
@@ -296,7 +346,7 @@ namespace GeoMod
             }
             if (polyline.Closed)
             {
-                if (coordinates[0].Equals(coordinates[coordinates.Length - 1]))
+                if (coordinates[0].Equals(coordinates[^1]))
                 {
                     return geometryFactory.CreatePolygon(coordinates);
                 }
@@ -314,18 +364,19 @@ namespace GeoMod
         }
     }
 
-    public static class BlockReferenceExtension
+    internal static class BlockReferenceExtension
     {
-        public static Point ToNTSGeometry(this BlockReference blockRef, GeometryFactory geometryFactory)
+        internal static Point ToNTSGeometry(this BlockReference blockRef, GeometryFactory geometryFactory)
         {
             Point point = geometryFactory.CreatePoint(new Coordinate(blockRef.Position.X, blockRef.Position.Y));
             return point;
         }
     }
 
-    public static class LineStringExtension
+    // Методы расширения для NTS геометрий
+    internal static class LineStringExtension
     {
-        public static Polyline ToDWGPolyline(this LineString lineString)
+        internal static Polyline ToDWGPolyline(this LineString lineString)
         {
             return ProcessGeometry(lineString);
         }
@@ -346,16 +397,16 @@ namespace GeoMod
 
     }
 
-    public static class ClosedGeometryExtension
+    internal static class ClosedGeometryExtension
     {
-        public static Polyline ToDWGPolyline(this LinearRing linearRing)
+        internal static Polyline ToDWGPolyline(this LinearRing linearRing)
         {
             Polyline polyline = LineStringExtension.ProcessGeometry(linearRing);
             polyline.Closed = true;
             return polyline;
         }
 
-        public static IEnumerable<Polyline> ToDWGPolylines(this Polygon polygon)
+        internal static IEnumerable<Polyline> ToDWGPolylines(this Polygon polygon)
         {
             List<Polyline> polylines = new();
             LinearRing? exteriorRing = polygon.ExteriorRing as LinearRing;
@@ -367,7 +418,7 @@ namespace GeoMod
             return polylines;
         }
 
-        public static IEnumerable<Polyline> ToDWGPolylines(this MultiPolygon mPolygon)
+        internal static IEnumerable<Polyline> ToDWGPolylines(this MultiPolygon mPolygon)
         {
             List<Polyline> polylines = new();
 
@@ -377,7 +428,7 @@ namespace GeoMod
             }
             return polylines;
         }
-        public static IEnumerable<Polyline> ToDWGPolylines(this MultiLineString mLinestring)
+        internal static IEnumerable<Polyline> ToDWGPolylines(this MultiLineString mLinestring)
         {
             List<Polyline> polylines = new();
 
@@ -388,7 +439,7 @@ namespace GeoMod
             return polylines;
         }
 
-        public static IEnumerable<Polyline> ToDWGPolylines(this Geometry geometry)
+        internal static IEnumerable<Polyline> ToDWGPolylines(this Geometry geometry)
         {
             Type type = geometry.GetType();
             List<Polyline> polylines = new();
