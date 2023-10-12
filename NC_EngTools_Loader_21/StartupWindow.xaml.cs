@@ -103,6 +103,8 @@ namespace LoaderUI
             _xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Update").Value = XmlConvert.ToString((bool)chbAutoUpdateLayerWorks.IsChecked);
             _xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Include").Value = XmlConvert.ToString((bool)chbIncludeUtilities.IsChecked);
             _xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Update").Value = XmlConvert.ToString((bool)chbAutoUpdateUtilities.IsChecked);
+            _xmlConfig.Root.Element("Modules").Element("GeoMod").Attribute("Include").Value = XmlConvert.ToString((bool)chbIncludeGeoMod.IsChecked);
+            _xmlConfig.Root.Element("Modules").Element("GeoMod").Attribute("Update").Value = XmlConvert.ToString((bool)chbAutoUpdateGeoMod.IsChecked);
             _xmlConfig.Save(_xmlConfigPath);
             DirectoryInfo checkdir = new DirectoryInfo(tbSourcePath.Text);
             if (checkdir.Exists)
