@@ -24,12 +24,19 @@ namespace Loader
         public static void Initialize()
         {
             Logger.WriteLog += Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage;
+
             // Получаем директорию выполняемой сборки и xml файл со структурой папок приложения
             DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
             XDocument structureXml = XDocument.Load(Path.Combine(dir.FullName, StructureXmlName));
+
             // Получить наборы файлов для сопоставления (локальный, источник и тег модуля) и создать словарь путей для обращения
             List<ComparedFiles> files = StructureComparer.GetFiles(structureXml);
             PathProvider.InitializeStructure(files);
+
+            // Сразу обновляем список изменений и инструкцию со списком команд
+            FileUpdater.UpdateFile(files.Where(f => f.LocalFile.FullName == PathProvider.GetPath("Список изменений.txt")).FirstOrDefault());
+            FileUpdater.UpdateFile(files.Where(f => f.LocalFile.FullName == PathProvider.GetPath("Команды.txt")).FirstOrDefault());
+
             // Читаем конфигурацию на предмет необходимости отображения стартового окна и отображаем его
             XDocument StartUpConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
             bool showStartUp = XmlConvert.ToBoolean(StartUpConfig.Root.Element("StartUpShow").Attribute("Enabled").Value);
@@ -38,8 +45,10 @@ namespace Loader
                 StartUpWindow window = new StartUpWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
                 Application.ShowModalWindow(window);
             }
+
             // Заново читаем конфиг (мог измениться)
             StartUpConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
+
             // Получаем из конфига теги обновляемых модулей и обновляем все необходимые файлы, помеченные указанными тегами
             List<string> updatedModules = StartUpConfig
                 .Root
@@ -50,6 +59,7 @@ namespace Loader
                 .ToList();
             FileUpdater.UpdatedModules.UnionWith(updatedModules);
             FileUpdater.UpdateRange(files);
+
             // Аналогичная процедура с загружаемыми сборками
             List<string> loadedModules = StartUpConfig
                 .Root
@@ -77,6 +87,7 @@ namespace Loader
             StartUpWindow window = new StartUpWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
             window.bUpdateLayerWorks.IsEnabled = false;
             window.bUpdateUtilities.IsEnabled = false;
+            window.bUpdateGeoMod.IsEnabled = false;
             Application.ShowModalWindow(window);
         }
     }
@@ -220,7 +231,6 @@ namespace Loader
                     UpdateFile(fileSet.LocalFile, fileSet.SourceFile);
             }
         }
-
     }
 
     internal static class Logger

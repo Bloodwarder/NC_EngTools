@@ -26,8 +26,8 @@
 			<file Name="NetTopologySuite.dll" Module="GeoMod"/>
 		</directory>
 		<file Name="Известные проблемы.txt" Module="General"/>
-		<file Name="Команды.txt" Module="General"/>
-		<file Name="Список изменений.txt" Module="General"/>
+		<file Name="Команды.txt" Module="PreUpdated"/>
+		<file Name="Список изменений.txt" Module="PreUpdated"/>
 		<file Name="NC_EngTools_StartUp.dll" Module="PreUpdated"/>
 	</innerpath>
 </structure>
