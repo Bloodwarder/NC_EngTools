@@ -33,17 +33,23 @@ namespace LoaderUI
         {
             _xmlConfigPath = xmlConfigPath;
             _xmlConfig = XDocument.Load(xmlConfigPath);
+
             _xmlStructurePath = xmlStructurePath;
             _xmlStructure = XDocument.Load(xmlStructurePath);
+
             InitializeComponent();
+
             Logger.WriteLog += LogWindow;
+
             chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value);
+
             chbIncludeLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Include").Value);
             chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Update").Value);
             chbIncludeUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Include").Value);
             chbAutoUpdateUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Update").Value);
             chbIncludeGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("GeoMod").Attribute("Include").Value);
             chbAutoUpdateGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("GeoMod").Attribute("Update").Value);
+
             tbSourcePath.Text = _xmlStructure.Root.Element("basepath").Element("source").Value;
             // Вывод данных о последнем обновлении
             using (StreamReader reader = new StreamReader(PathProvider.GetPath("Список изменений.txt")))
@@ -99,13 +105,16 @@ namespace LoaderUI
         private void StartUpWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value = XmlConvert.ToString((bool)chbShowOnStartUp.IsChecked);
+
             _xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Include").Value = XmlConvert.ToString((bool)chbIncludeLayerWorks.IsChecked);
             _xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Update").Value = XmlConvert.ToString((bool)chbAutoUpdateLayerWorks.IsChecked);
             _xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Include").Value = XmlConvert.ToString((bool)chbIncludeUtilities.IsChecked);
             _xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Update").Value = XmlConvert.ToString((bool)chbAutoUpdateUtilities.IsChecked);
             _xmlConfig.Root.Element("Modules").Element("GeoMod").Attribute("Include").Value = XmlConvert.ToString((bool)chbIncludeGeoMod.IsChecked);
             _xmlConfig.Root.Element("Modules").Element("GeoMod").Attribute("Update").Value = XmlConvert.ToString((bool)chbAutoUpdateGeoMod.IsChecked);
+
             _xmlConfig.Save(_xmlConfigPath);
+
             DirectoryInfo checkdir = new DirectoryInfo(tbSourcePath.Text);
             if (checkdir.Exists)
                 _xmlStructure.Root.Element("basepath").Element("source").Value = tbSourcePath.Text;
