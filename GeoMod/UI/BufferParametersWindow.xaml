@@ -1,0 +1,73 @@
+﻿<Window x:Class="GeoMod.UI.BufferParametersWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GeoMod.UI"
+        mc:Ignorable="d"
+        x:Name="bufferParametersWindow"
+        Title="Конфигурация буферной зоны" Height="400" Width="400"
+        d:DataContext="d:DesignInstance local:BufferParametersViewModel, IsDesignTimeCreatable=True">
+    <Window.Resources>
+        <Style TargetType="TextBlock" x:Key="generalText">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="30 5 5 5"/>
+        </Style>
+        <Style TargetType="Control" x:Key="generalContol">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        <Style x:Key="BorderNormal" TargetType="Border">
+            <Setter Property="BorderBrush" Value="DarkGray"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="numberInput" TargetType="TextBox">
+            <Setter Property="MaxHeight" Value="30"/>
+            <Setter Property="Width" Value="50"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Margin" Value="7"/>
+        </Style>
+        <!--<ControlTemplate TargetType="TextBox" x:Key="numberInput">
+            <Border x:Name="textBoxBorder"
+                CornerRadius="3"
+                MaxHeight="30"
+                Width="50"
+                HorizontalAlignment="Right"
+                Margin="7"
+                Style="{StaticResource BorderNormal}">
+                <ContentControl 
+                    VerticalAlignment="Center" 
+                    HorizontalAlignment="Right"
+                    Content="{TemplateBinding Text}"/>
+            </Border>
+        </ControlTemplate>-->
+    </Window.Resources>
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.4*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource generalText}" Text="Стиль торцов"/>
+        <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource generalText}" Text="Стиль сопряжения"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource generalText}" Text="Отрезков на квадрант"/>
+        <TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource generalText}" Text="Фактор упрощения"/>
+        <TextBlock Grid.Row="4" Grid.Column="0" Style="{StaticResource generalText}" Text="Односторонний"/>
+        <TextBlock Grid.Row="5" Grid.Column="0" Style="{StaticResource generalText}" Text="Предел острия"/>
+        <ComboBox Grid.Row="0" Grid.Column="1" Name="cbEndCap" Style="{StaticResource generalContol}" SelectedValue="{Binding Path=EndCapStyle}"/>
+        <ComboBox Grid.Row="1" Grid.Column="1" Name="cbJoinStyle" Style="{StaticResource generalContol}" SelectedValue="{Binding Path=JoinStyle}"/>
+        <TextBox Grid.Row="2" Grid.Column="1" Name="tbQuadrantSegments" Style="{StaticResource numberInput}" Text="{Binding Path=QuadrantSegments}"/>
+        <TextBox Grid.Row="3" Grid.Column="1" Name="tbSimplifyFactor" Style="{StaticResource numberInput}" Text="{Binding Path=SimplifyFactor}"/>
+        <CheckBox Grid.Row="4" Grid.Column="1" Name="chbIsSingleSided" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0" IsChecked="{Binding Path=IsSingleSided}"/>
+        <TextBox Grid.Row="5" Grid.Column="1" Name="tbMitreLimit" Style="{StaticResource numberInput}" Text="{Binding Path=MitreLimit}"/>
+    </Grid></Window>
