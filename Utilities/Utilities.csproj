@@ -52,5 +52,11 @@
     <Compile Include="Utilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NC_EngTools_Loader_21\LoaderCore.csproj">
+      <Project>{422e95a1-fd27-4248-b8a9-73783681c5b4}</Project>
+      <Name>LoaderCore</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

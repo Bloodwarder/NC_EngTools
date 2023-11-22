@@ -1,16 +1,18 @@
-﻿using HostMgd.ApplicationServices;
-using HostMgd.EditorInput;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+
+using HostMgd.EditorInput;
+
 using Teigha.Colors;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using Teigha.Runtime;
+
+using Loader.CoreUtilities;
 
 using static Utilities.EntitySelector;
 
@@ -264,6 +266,90 @@ namespace Utilities
                 // Пока работает только на целиком отформатированный текст
             }
         }
+    }
+
+    public class EntityPointPolylineTracer
+    {
+        [CommandMethod("ОБЪЕКТСОЕД")]
+        public void TracePolyline()
+        {
+            Workstation.Define();
+            ObjectId polylineId;
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            {
+                Polyline polyline = new Polyline();
+                polyline.LayerId = Workstation.Database.Clayer;
+                for (int i = 0; i < 2; i++)
+                {
+                    try
+                    {
+                        Point2d p = GetEntityBasePoint();
+                        polyline.AddVertexAt(polyline.NumberOfVertices, p, 0, 0d, 0d);
+                    }
+                    catch (CancelledByUserException)
+                    {
+                        transaction.Abort();
+                        return;
+                    }
+                }
+                BlockTable blocktable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead, false) as BlockTable;
+                BlockTableRecord modelspace = transaction.GetObject(blocktable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                modelspace.AppendEntity(polyline);
+                polylineId = polyline.Id;
+                transaction.Commit();
+            }
+
+            while (true)
+            {
+                try
+                {
+                    using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+                    {
+                        Polyline polyline = transaction.GetObject(polylineId, OpenMode.ForWrite) as Polyline;
+                        Point2d p = GetEntityBasePoint();
+                        polyline.AddVertexAt(polyline.NumberOfVertices, p, 0, 0d, 0d);
+                        transaction.Commit();
+                    }
+                }
+                catch (CancelledByUserException)
+                {
+                    break;
+                }
+            }
+        }
+
+        private Point2d GetEntityBasePoint()
+        {
+            PromptEntityOptions peo = new PromptEntityOptions("Выберите объект");
+            peo.AddAllowedClass(typeof(BlockReference), true);
+            peo.AddAllowedClass(typeof(Circle), true);
+
+            PromptEntityResult result = Workstation.Editor.GetEntity(peo);
+            if (result.Status != PromptStatus.OK)
+                throw new CancelledByUserException();
+            Entity entity = Workstation.TransactionManager.TopTransaction.GetObject(result.ObjectId, OpenMode.ForRead) as Entity;
+
+            if (entity is BlockReference bref)
+            {
+                Point3d p = bref.Position;
+                return new Point2d(p.X, p.Y);
+            }
+            else if (entity is Circle circle)
+            {
+                Point3d p = circle.Center;
+                return new Point2d(p.X, p.Y);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        internal class CancelledByUserException : System.Exception
+        {
+        }
+
+
     }
 
     /// <summary>
@@ -615,84 +701,4 @@ namespace Utilities
         }
     }
 
-
-    internal static class Workstation
-    {
-        private static Document document;
-        private static Database database;
-        private static Teigha.DatabaseServices.TransactionManager transactionManager;
-        private static Editor editor;
-
-
-        public static Document Document => document;
-        public static Database Database => database;
-        public static Teigha.DatabaseServices.TransactionManager TransactionManager => transactionManager;
-        public static Editor Editor => editor;
-
-        public static void Define()
-        {
-            document = Application.DocumentManager.MdiActiveDocument;
-            database = HostApplicationServices.WorkingDatabase;
-            transactionManager = Database.TransactionManager;
-            editor = Document.Editor;
-        }
-
-    }
-
-    internal class DBObjectWrapper<T> where T : DBObject
-    {
-        private ObjectId _id;
-        private OpenMode _openMode;
-        private T _object;
-        private Getter _getHandler;
-
-        internal DBObjectWrapper(ObjectId id, OpenMode openMode)
-        {
-            _id = id;
-            _openMode = openMode;
-            _object = OpenAndGet();
-            _object.ObjectClosed += ObjectClosedHandler;
-        }
-
-        internal DBObjectWrapper(T obj, OpenMode openMode)
-        {
-            _object = obj;
-            _id = obj.ObjectId;
-            _openMode = openMode;
-            _getHandler = DirectGet;
-            _object.ObjectClosed += ObjectClosedHandler;
-        }
-
-        internal T Get()
-        {
-            return _getHandler.Invoke();
-        }
-
-        private T DirectGet()
-        {
-            return _object;
-        }
-
-        private T OpenAndGet()
-        {
-            try
-            {
-                _getHandler = DirectGet;
-                T obj = Workstation.TransactionManager.TopTransaction.GetObject(_id, _openMode) as T;
-                return obj;
-            }
-            catch
-            {
-                _getHandler = OpenAndGet;
-                return null;
-            }
-        }
-
-        private delegate T Getter();
-
-        private void ObjectClosedHandler(object sender, ObjectClosedEventArgs e)
-        {
-            _getHandler = OpenAndGet;
-        }
-    }
 }
