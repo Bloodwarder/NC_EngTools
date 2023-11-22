@@ -138,5 +138,15 @@ namespace LoaderUI
             string path = PathProvider.GetPath("Команды.txt");
             System.Diagnostics.Process.Start("notepad.exe", path);
         }
+        private void UpdateLogClick(object sender, RoutedEventArgs e)
+        {
+            string path = PathProvider.GetPath("Список изменений.txt");
+            System.Diagnostics.Process.Start("notepad.exe", path);
+        }
+        private void KnownIssuesClick(object sender, RoutedEventArgs e)
+        {
+            string path = PathProvider.GetPath("Известные проблемы.txt");
+            System.Diagnostics.Process.Start("notepad.exe", path);
+        }
     }
 }

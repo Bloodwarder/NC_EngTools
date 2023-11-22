@@ -202,7 +202,7 @@ namespace Loader
                 throw new System.Exception($"\nОтсутствует локальный файл {local.Name} и нет доступа к файлам обновления");
             }
             // Если доступен источник, сравниваем даты обновления и при необходимости перезаписываем локальный файл. Если нет - работаем с локальным без обновления
-            if (sourceExists && (!localExists || local.LastWriteTime != source.LastWriteTime))
+            if (sourceExists && (!localExists || local.LastWriteTime < source.LastWriteTime))
             {
                 if (_testRun)
                 {
