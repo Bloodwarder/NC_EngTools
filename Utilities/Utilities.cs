@@ -258,9 +258,14 @@ namespace Utilities
                 Regex regex = new Regex(@"(?<=(^{(\\.*;)+\b)).+(?=(\b}$))");
                 foreach (var text in texts)
                 {
-                    var match = regex.Match(text.Contents);
-                    if (match.Success)
-                        text.Contents = match.Value;
+                    var matches = regex.Matches(text.Contents);
+                    if (matches.Count > 0)
+                    {
+                        foreach (Match match in matches)
+                        {
+                            match.Result(match.Value);
+                        }
+                    }
                 }
                 transaction.Commit();
                 // Пока работает только на целиком отформатированный текст
@@ -274,11 +279,15 @@ namespace Utilities
         public void TracePolyline()
         {
             Workstation.Define();
+            // Объявить переменную для сохранения id создаваемой полилинии
             ObjectId polylineId;
+            // Получаем первые 2 объекта и создаём полилинию из двух точек
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                Polyline polyline = new Polyline();
-                polyline.LayerId = Workstation.Database.Clayer;
+                Polyline polyline = new Polyline
+                {
+                    LayerId = Workstation.Database.Clayer
+                };
                 for (int i = 0; i < 2; i++)
                 {
                     try
@@ -299,6 +308,7 @@ namespace Utilities
                 transaction.Commit();
             }
 
+            // Получаем от пользователя объекты и добавляем по ним точки в полилинию до завершения команды
             while (true)
             {
                 try
@@ -318,6 +328,11 @@ namespace Utilities
             }
         }
 
+        /// <summary>
+        /// Получает характерную точку объекта
+        /// </summary>
+        /// <returns>Характерная точка объекта (как правило, центр или точка вставки)</returns>
+        /// <exception cref="CancelledByUserException">Срабатывает когда пользователь завершает команду</exception>
         private Point2d GetEntityBasePoint()
         {
             PromptEntityOptions peo = new PromptEntityOptions("Выберите объект");
@@ -348,10 +363,58 @@ namespace Utilities
         internal class CancelledByUserException : System.Exception
         {
         }
-
-
     }
 
+    /// <summary>
+    /// Конвертер мультилиний в полилинии
+    /// </summary>
+    public class MultilineConverter
+    {
+        /// <summary>
+        /// Получить мультилинии с чертежа и конвертировать их в полилинии
+        /// </summary>
+        [CommandMethod("МЛИНВПЛИН", CommandFlags.UsePickSet)]
+        public void ConvertMultilineToPolyline()
+        {
+            Workstation.Define();
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            {
+                // Получить объекты и отфильтровать мультилинии
+                PromptSelectionResult psr = Workstation.Editor.GetSelection();
+                if (psr.Status != PromptStatus.OK)
+                    return;
+                List<Mline> mlines = (from ObjectId id in psr.Value.GetObjectIds()
+                                      let entity = transaction.GetObject(id, OpenMode.ForWrite) as Entity
+                                      where entity is Mline ml
+                                      select entity).Select(e => e as Mline).ToList();
+                // Создать построить полилинии по вершинам каждой мультилинии и добавить в новую коллекцию
+                List<Polyline> polylines = new List<Polyline>();
+                foreach (Mline multiline in mlines)
+                {
+                    Polyline polyline = new Polyline
+                    {
+                        Layer = multiline.Layer
+                    };
+                    for (int i = 0; i < multiline.NumberOfVertices; i++)
+                    {
+                        Point3d p = multiline.VertexAt(i);
+                        polyline.AddVertexAt(i, new Point2d(p.X, p.Y), 0, 0d, 0d);
+                    }
+                    polylines.Add(polyline);
+                }
+
+                // Добавить в чертёж полилинии и удалить мультилинии
+                BlockTable blocktable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead, false) as BlockTable;
+                BlockTableRecord modelspace = transaction.GetObject(blocktable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+
+                foreach(Polyline polyline in polylines)
+                    modelspace.AppendEntity(polyline);
+                foreach (Mline multiline in mlines)
+                    multiline.Erase();
+                transaction.Commit();
+            }
+        }
+    }
     /// <summary>
     /// Класс команд для вертикальной планировки
     /// </summary>
