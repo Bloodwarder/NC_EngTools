@@ -19,7 +19,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Util
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayerWorks23", "LayerWorks23\LayerWorks23.csproj", "{034CF531-F41E-4C83-B823-7F4A365FCC9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoMod", "GeoMod\GeoMod.csproj", "{AFCD98C8-3AA4-4393-83D7-7EDFB9C1407A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeoMod", "GeoMod\GeoMod.csproj", "{AFCD98C8-3AA4-4393-83D7-7EDFB9C1407A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LayersDatabase", "LayersDatabase\LayersDatabase.csproj", "{7DBC9A8B-8A60-456C-8F2D-1C08041F1007}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{AFCD98C8-3AA4-4393-83D7-7EDFB9C1407A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFCD98C8-3AA4-4393-83D7-7EDFB9C1407A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFCD98C8-3AA4-4393-83D7-7EDFB9C1407A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DBC9A8B-8A60-456C-8F2D-1C08041F1007}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DBC9A8B-8A60-456C-8F2D-1C08041F1007}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DBC9A8B-8A60-456C-8F2D-1C08041F1007}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DBC9A8B-8A60-456C-8F2D-1C08041F1007}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

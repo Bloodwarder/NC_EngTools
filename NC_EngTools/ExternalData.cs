@@ -394,12 +394,12 @@ namespace ExternalData
             {
                 InstanceDictionary = new XmlDictionaryDataProvider<string, LayerProps>(PathOrganizer.GetPath("Props")).GetDictionary();
 
-                defaultLayerProps.Add("сущ", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LTName = "Continuous", LineWeight = -3 });
-                defaultLayerProps.Add("дем", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LTName = "Continuous", LineWeight = -3, Red = 107, Green = 107, Blue = 107 });
-                defaultLayerProps.Add("пр", new LayerProps { ConstantWidth = 0.6, LTScale = 0.8, LTName = "Continuous", LineWeight = -3 });
-                defaultLayerProps.Add("неутв", new LayerProps { ConstantWidth = 0.6, LTScale = 0.8, LTName = "Continuous", LineWeight = -3 });
-                defaultLayerProps.Add("ндем", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LTName = "Continuous", LineWeight = -3, Red = 192, Green = 168, Blue = 110 });
-                defaultLayerProps.Add("нреорг", new LayerProps { ConstantWidth = 0.6, LTScale = 0.8, LTName = "Continuous", LineWeight = -3, Red = 107, Green = 107, Blue = 107 });
+                defaultLayerProps.Add("сущ", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 });
+                defaultLayerProps.Add("дем", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3, Red = 107, Green = 107, Blue = 107 });
+                defaultLayerProps.Add("пр", new LayerProps { ConstantWidth = 0.6, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 });
+                defaultLayerProps.Add("неутв", new LayerProps { ConstantWidth = 0.6, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 });
+                defaultLayerProps.Add("ндем", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3, Red = 192, Green = 168, Blue = 110 });
+                defaultLayerProps.Add("нреорг", new LayerProps { ConstantWidth = 0.6, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3, Red = 107, Green = 107, Blue = 107 });
             }
             catch (FileNotFoundException)
             {
@@ -420,7 +420,7 @@ namespace ExternalData
                 if (enabledefaults)
                 {
                     success = true;
-                    return new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LTName = "Continuous", LineWeight = -3 };
+                    return new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 };
                 }
                 else
                 {
@@ -614,7 +614,7 @@ namespace ExternalData
         /// <summary>
         /// Тип линий
         /// </summary>
-        public string LTName;
+        public string LineTypeName;
         /// <summary>
         /// Вес линий
         /// </summary>
