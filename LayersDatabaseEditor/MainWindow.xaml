@@ -1,0 +1,63 @@
+﻿<Window x:Class="LayersDatabaseEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LayersDatabaseEditor"
+        mc:Ignorable="d"
+        Title="Редактор слоёв" Height="500" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="5*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+            <MenuItem Header="Программа">
+                <MenuItem Header="Запуск тестовой команды"/>
+                <Separator/>
+                <MenuItem Header="Выход"/>
+            </MenuItem>
+            <MenuItem Header="База данных">
+                <MenuItem Header="Подключиться к SQLite"/>
+                <MenuItem Header="Подключиться к PostgreSQL"/>
+            </MenuItem>
+            <MenuItem Header="Слои">
+                <MenuItem Header="Добавить слой"/>
+                <Separator/>
+                <MenuItem Header="Импортировать слои из Excel"/>
+            </MenuItem>
+        </Menu>
+        <ScrollViewer Grid.Row="1" Grid.Column="0" Grid.RowSpan="3">
+            <TreeView Margin="3">
+                <TextBlock Text="Слои"/>
+            </TreeView>
+        </ScrollViewer>
+
+
+        <DockPanel Grid.Row="2" Grid.Column="1" Margin="3">
+            <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Left" Text="Группа слоёв (заменить на привязку)"></TextBlock>
+            <ScrollViewer>
+
+            </ScrollViewer>
+        </DockPanel>
+        <DockPanel Grid.Row="3" Grid.Column="1" Margin="3">
+            <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Left" Text="Слой (заменить на привязку)"/>
+            <TabControl>
+                <TabItem Header="Свойства" Width="140">
+                    <StackPanel Margin="5 15 5 5">
+                        <Control Template="{StaticResource numericInputLine}" Tag="template"/>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Легенда" Width="140">
+
+                </TabItem>
+            </TabControl>
+        </DockPanel>
+    </Grid>
+</Window>

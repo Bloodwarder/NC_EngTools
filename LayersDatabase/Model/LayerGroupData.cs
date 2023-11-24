@@ -8,6 +8,9 @@ namespace LayersDatabase.Model
 {
     public class LayerGroupData
     {
+
+        public int Id { get; set; }
+
         public string MainName { get; set; }
 
         public string MainNameAlter { get; set; }
