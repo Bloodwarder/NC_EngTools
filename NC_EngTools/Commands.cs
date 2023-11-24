@@ -697,7 +697,7 @@ namespace LayerWorks
             Teigha.DatabaseServices.TransactionManager manager = Workstation.TransactionManager;
             Transaction transaction = manager.TopTransaction;
             Database database = Workstation.Database;
-            ObjectId linetypeRecordId = FindLinetype(lp.LTName, out bool ltgetsuccess);
+            ObjectId linetypeRecordId = FindLinetype(lp.LineTypeName, out bool ltgetsuccess);
             if (!ltgetsuccess)
             {
                 string str = $"Не найден тип линий для слоя {layername}. Назначен тип линий Continious";
