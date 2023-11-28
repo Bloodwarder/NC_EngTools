@@ -103,7 +103,7 @@ namespace Utilities
             }
         }
 
-        [CommandMethod("ТОРИЕНТ")]
+        [CommandMethod("ТОРИЕНТ", CommandFlags.UsePickSet)]
         public void TextOrientBy2Points()
         {
             Workstation.Define();
@@ -153,7 +153,7 @@ namespace Utilities
 
         }
 
-        [CommandMethod("ПЛТОРИЕНТ")]
+        [CommandMethod("ПЛТОРИЕНТ", CommandFlags.UsePickSet)]
         public void TextOrientByPolilineSegment()
         {
             Workstation.Define();
