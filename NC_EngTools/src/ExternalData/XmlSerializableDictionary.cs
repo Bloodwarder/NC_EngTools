@@ -1,10 +1,8 @@
-﻿// код взят с ropox.ru
-
-
+﻿
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace LayerWorks.Dictionaries
+namespace LayerWorks.ExternalData
 {
 
     /// <summary>
