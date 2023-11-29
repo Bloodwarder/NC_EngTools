@@ -78,7 +78,7 @@
     <Compile Include="src\Commands\LayersCommands.cs" />
     <Compile Include="src\Commands\LegendAssembler.cs" />
     <Compile Include="src\Dictionaries\StatusTextDictionary.cs" />
-    <Compile Include="src\Dictionaries\XmlSerializableDictionary.cs" />
+    <Compile Include="src\ExternalData\XmlSerializableDictionary.cs" />
     <Compile Include="src\Legend\CellTableIndex.cs" />
     <Compile Include="src\Legend\GridsComposer.cs" />
     <Compile Include="src\Legend\TableFilter.cs" />
@@ -94,7 +94,6 @@
     <Compile Include="src\ExternalData\ExcelDictionaryDataProvider.cs" />
     <Compile Include="src\ExternalData\ExcelSimpleDictionaryDataProvider.cs" />
     <Compile Include="src\ExternalData\ExcelStructDictionaryDataProvider.cs" />
-    <Compile Include="src\ExternalData\ExcelStructIO.cs" />
     <Compile Include="src\ExternalData\ToReload.cs" />
     <Compile Include="src\ExternalData\ExternalDataLoader.cs" />
     <Compile Include="src\ExternalData\ExternalDictionary.cs" />
