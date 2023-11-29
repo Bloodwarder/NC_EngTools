@@ -60,7 +60,7 @@ namespace GeoMod
         /// <summary>
         /// Создание WKT текста из выбранных геометрий dwg и помещение его в буфер обмена
         /// </summary>
-        [CommandMethod("ВКТТЕКСТ", CommandFlags.UsePickSet)]
+        [CommandMethod("ВКТЭКСПОРТ", CommandFlags.UsePickSet)]
         public static void WktToClipboard()
         {
             Workstation.Define();
@@ -85,7 +85,7 @@ namespace GeoMod
             }
         }
 
-        [CommandMethod("ИЗВКТ")]
+        [CommandMethod("ВКТИМПОРТ")]
         public static void GeometryFromClipboardWkt()
         {
             Workstation.Define();
