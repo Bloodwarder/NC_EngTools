@@ -158,6 +158,10 @@
     </AdditionalFiles>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\LayersDatabase\LayersDatabase.csproj">
+      <Project>{7dbc9a8b-8a60-456c-8f2d-1c08041f1007}</Project>
+      <Name>LayersDatabase</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NC_EngTools_Loader_21\LoaderCore.csproj">
       <Project>{422e95a1-fd27-4248-b8a9-73783681c5b4}</Project>
       <Name>LoaderCore</Name>
