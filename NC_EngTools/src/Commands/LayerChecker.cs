@@ -30,9 +30,8 @@ namespace LayerWorks.Commands
                         LayerTableRecord ltRecord = AddLayer(layername, lp);
 
                         //Process new layer if isolated chapter visualization is active
-                        EventArgs e = new EventArgs();
                         transaction.Commit();
-                        LayerAddedEvent?.Invoke(ltRecord, e);
+                        LayerAddedEvent?.Invoke(ltRecord, new EventArgs());
 
                     }
                     else
