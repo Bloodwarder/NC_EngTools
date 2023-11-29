@@ -250,25 +250,34 @@ namespace Utilities
                 PromptSelectionResult result = Workstation.Editor.GetSelection(pso);
                 if (result.Status != PromptStatus.OK)
                     return;
-                var texts = from ObjectId id in result.Value.GetObjectIds()
+                var entities = from ObjectId id in result.Value.GetObjectIds()
                             let entity = transaction.GetObject(id, OpenMode.ForWrite) as Entity
-                            where entity is MText
-                            select entity as MText;
-                // если текст заключен в шаблон для форматирования ({/ ... ; ТЕКСТ }), оставить только чистый текст (ТЕКСТ)
-                Regex regex = new Regex(@"(?<=(^{(\\.*;)+\b)).+(?=(\b}$))");
-                foreach (var text in texts)
+                            where entity is MText || entity is MLeader
+                            select entity;
+
+                // удалить форматирование из текста
+                foreach (var entity in entities)
                 {
-                    var matches = regex.Matches(text.Contents);
-                    if (matches.Count > 0)
+                    if (entity is MText)
                     {
-                        foreach (Match match in matches)
-                        {
-                            match.Result(match.Value);
-                        }
+                        MText text = entity as MText;
+                        text.Contents = text.Text;
                     }
+                    else if(entity is MLeader)
+                    {
+                        // Мультивыноска требует создать для этого новый МТекст
+                        MLeader leader = entity as MLeader;
+                        string sourceText = leader.MText.Text;
+                        MText newText = leader.MText.Clone() as MText;
+                        newText.Contents = sourceText;
+                        leader.MText = newText;
+                    }
+                    else
+                    {
+                        continue;
+                    }    
                 }
                 transaction.Commit();
-                // Пока работает только на целиком отформатированный текст
             }
         }
     }
