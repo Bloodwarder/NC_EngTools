@@ -1,8 +1,7 @@
-﻿
+﻿using System.Collections.Generic;
 
-namespace Dictionaries
+namespace LayerWorks.Dictionaries
 {
-    using System.Collections.Generic;
     static class StatusTextDictionary
     {
         internal static Dictionary<string, int> StTxtDictionary { get; private set; }
