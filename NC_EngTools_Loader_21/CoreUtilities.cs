@@ -11,6 +11,9 @@ using Teigha.DatabaseServices;
 
 namespace Loader.CoreUtilities
 {
+    /// <summary>
+    /// Предоставляет централизованный доступ к основным элементам управления nanoCAD: Document, Database, TransactionManager, Editor
+    /// </summary>
     public static class Workstation
     {
         private static Document document;
@@ -24,6 +27,9 @@ namespace Loader.CoreUtilities
         public static Teigha.DatabaseServices.TransactionManager TransactionManager => transactionManager;
         public static Editor Editor => editor;
 
+        /// <summary>
+        /// Определяет основные элементы управления для открытого активного чертежа
+        /// </summary>
         public static void Define()
         {
             document = Application.DocumentManager.MdiActiveDocument;
@@ -33,6 +39,10 @@ namespace Loader.CoreUtilities
         }
     }
 
+    /// <summary>
+    /// Предоставляет доступ к объекту базы данных чертежа, если необходимо, чтобы объект запоминался между транзакциями
+    /// </summary>
+    /// <typeparam name="T">Объект базы данных чертежа DBObject</typeparam>
     public class DBObjectWrapper<T> : IDisposable where T : DBObject
     {
         private readonly ObjectId _id;
@@ -57,6 +67,10 @@ namespace Loader.CoreUtilities
             _object.ObjectClosed += ObjectClosedHandler;
         }
 
+        /// <summary>
+        /// Получить объект из обёртки. В зависимости от предыдущих действий получает его напрямую или добавляет в текущую транзакцию по ObjectId
+        /// </summary>
+        /// <returns>Объект</returns>
         public T Get()
         {
             return _getHandler.Invoke();
@@ -89,6 +103,7 @@ namespace Loader.CoreUtilities
             _getHandler = OpenAndGet;
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             _object.Dispose();
