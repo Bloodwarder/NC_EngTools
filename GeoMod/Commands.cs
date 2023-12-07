@@ -81,6 +81,7 @@ namespace GeoMod
                 };
                 string outputWkt = string.Join("\n", geometries.Select(g => writer.Write(g)).ToArray());
                 System.Windows.Clipboard.SetText(outputWkt);
+                Workstation.Editor.WriteMessage($"{geometries.Length} объектов копировано в буфер обмена как текст WKT");
                 transaction.Commit();
             }
         }
@@ -115,6 +116,7 @@ namespace GeoMod
                         modelSpace!.AppendEntity(polyline);
                     }
                 }
+                Workstation.Editor.WriteMessage($"{polylines.Count} объектов добавлено в чертёж");
                 transaction.Commit();
             }
         }
@@ -219,7 +221,7 @@ namespace GeoMod
                         pdo.Message = $"Введите размер буферной зоны для слоя {layer}:";
                         result = Workstation.Editor.GetDouble(pdo);
                     }
-                    if (result.Status != PromptStatus.OK || result.Value == 0)
+                    if (result.Status != PromptStatus.OK | result.Value == 0)
                         continue;
                     bufferSizes[layer] = result.Value;
                 }
