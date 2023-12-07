@@ -131,7 +131,7 @@ namespace LayerWorks.LayerProcessing
                 GeomType = decomp[counter];
                 geomassigned = true;
             }
-            if (decomp[decomp.Length - 1] == "пер")
+            if (decomp[^1] == "пер")
             {
                 recstatus = true;
                 mainnameend = decomp.Length - 3;
@@ -140,7 +140,7 @@ namespace LayerWorks.LayerProcessing
             {
                 mainnameend = decomp.Length - 2;
             }
-            string str = recstatus ? decomp[decomp.Length - 2] : decomp[decomp.Length - 1];
+            string str = recstatus ? decomp[^2] : decomp[^1];
             bool stfound = false;
             for (int i = 0; i < st_txt.Length; i++) //searching and assigning status index (IMPROVE CODE LATER)
             {

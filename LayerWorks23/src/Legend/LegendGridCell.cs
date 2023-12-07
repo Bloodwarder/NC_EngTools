@@ -44,8 +44,8 @@ namespace LayerWorks.Legend
 
             lod.LegendDrawTemplate = _template;
             lod.Layer = Layer;
-            double x = ParentGrid.BasePoint.X + TableIndex.X * (LegendGrid.CellWidth + LegendGrid.WidthInterval) + LegendGrid.CellWidth / 2;
-            double y = ParentGrid.BasePoint.Y - TableIndex.Y * (LegendGrid.CellHeight + LegendGrid.HeightInterval) + LegendGrid.CellHeight / 2;
+            double x = ParentGrid.BasePoint.X + TableIndex.X * (ParentGrid.CellWidth + ParentGrid.WidthInterval) + ParentGrid.CellWidth / 2;
+            double y = ParentGrid.BasePoint.Y - TableIndex.Y * (ParentGrid.CellHeight + ParentGrid.HeightInterval) + ParentGrid.CellHeight / 2;
             lod.Basepoint = new Point2d(x, y);
             _draw.Add(lod);
         }

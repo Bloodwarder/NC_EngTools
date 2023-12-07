@@ -5,14 +5,16 @@ using Teigha.Geometry;
 
 namespace LayerWorks.Legend
 {
-    class LegendGrid
+    internal class LegendGrid
     {
-        internal static double CellWidth { get; } = 30;
-        internal static double CellHeight { get; } = 9;
-        internal static double WidthInterval { get; } = 5;
-        internal static double HeightInterval { get; } = 5;
-        internal static double TextWidth { get; } = 150;
-        internal static double TextHeight { get; } = 4;
+        
+        internal static LegendGridParameters LegendGridParameters { get; set; } = new LegendGridParameters();
+        internal double CellWidth => LegendGridParameters.CellWidth;
+        internal double CellHeight => LegendGridParameters.CellHeight;
+        internal double WidthInterval => LegendGridParameters.WidthInterval;
+        internal double HeightInterval => LegendGridParameters.HeightInterval;
+        internal double TextWidth => LegendGridParameters.TextWidth;
+        internal double TextHeight => LegendGridParameters.TextHeight;
 
 
         internal List<LegendGridRow> Rows = new List<LegendGridRow>();
@@ -26,6 +28,12 @@ namespace LayerWorks.Legend
             AddCells(cells);
             BasePoint = basepoint;
         }
+
+        internal LegendGrid(IEnumerable<LegendGridCell> cells, Point3d basepoint, LegendGridParameters parameters) : this(cells, basepoint)
+        {
+            LegendGridParameters = parameters;
+        }
+
         private void AddRow(LegendGridRow row)
         {
             row.ParentGrid = this;
@@ -128,7 +136,7 @@ namespace LayerWorks.Legend
             get
             {
                 var rows = Rows.Where(r => r.LegendEntityClassName == mainname);
-                if (rows.Count() > 0)
+                if (rows.Any())
                 {
                     return rows.FirstOrDefault();
                 }
