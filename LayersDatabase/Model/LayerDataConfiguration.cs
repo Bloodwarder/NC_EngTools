@@ -9,13 +9,16 @@ using System.Threading.Tasks;
 
 namespace LayersDatabase.Model
 {
-    internal class LayerDataConfiguration : IEntityTypeConfiguration<LayerData>
+    public class LayerDataConfiguration : IEntityTypeConfiguration<LayerData>
     {
         public void Configure(EntityTypeBuilder<LayerData> builder)
         {
             builder.HasKey(ld => ld.Id).HasName("LayerDataPrimaryKey");
             builder.HasAlternateKey(ld => ld.Name).HasName("LayerDataAlternateKey");
             builder.Property(ld => ld.Id).ValueGeneratedOnAdd();
+
+            builder.HasOne(ld => ld.LayerPropertiesData).WithOne(lpd => lpd.LayerData).HasForeignKey<LayerPropertiesData>(lpd => lpd.LayerDataId);
+            builder.HasOne(ld => ld.LayerDrawTemplateData).WithOne(ldtd => ldtd.LayerData).HasForeignKey<LayerDrawTemplateData>(ldtd => ldtd.LayerDataId);
         }
     }
 }

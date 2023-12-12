@@ -13,23 +13,11 @@ namespace LayersDatabase.Model
 
         public string MainName { get; set; }
 
-        public string MainNameAlter { get; set; }
+        public int LayerLegendDataId { get; set; }
+        public LayerLegendData LayerLegendData { get; set; }
 
-        /// <summary>
-        /// Ранг. Меньше - отображается выше
-        /// </summary>
-        public int Rank { get; set; }
-        /// <summary>
-        /// Текст в легенде
-        /// </summary>
-        public string Label { get; set; }
-        /// <summary>
-        /// Текст в легенде для подраздела
-        /// </summary>
-        public string SubLabel { get; set; }
-        /// <summary>
-        /// Показывает, нужно ли компоновщику игнорировать указанный слой
-        /// </summary>
-        public bool IgnoreLayer { get; set; }
+        public List<LayerGroupData> AlternateLayers { get; set; }
+
+
     }
 }
