@@ -16,8 +16,8 @@ namespace LayerWorks.ModelspaceDraw
     public class FencedRectangleDraw : RectangleDraw
     {
         string FenceLayer => LegendDrawTemplate.FenceLayer;
-        internal double FenceWidth => ParseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.CellWidth);
-        internal double FenceHeight => ParseRelativeValue(LegendDrawTemplate.FenceHeight, LegendGrid.CellHeight);
+        internal double FenceWidth => ParseRelativeValue(LegendDrawTemplate.FenceWidth, LegendGrid.LegendGridParameters.CellWidth);
+        internal double FenceHeight => ParseRelativeValue(LegendDrawTemplate.FenceHeight, LegendGrid.LegendGridParameters.CellHeight);
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>

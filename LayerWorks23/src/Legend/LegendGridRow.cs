@@ -63,8 +63,8 @@ namespace LayerWorks.Legend
             string label = _islabelrow ? _label : IsSublabeledList ? string.Concat(LegendData.Label, ";") : LegendData.Label; //переписать эту лесенку
             _draw = new LabelTextDraw(
                 new Point2d(
-                ParentGrid.BasePoint.X + (ParentGrid.Width - LegendGrid.TextWidth) + LegendGrid.WidthInterval,
-                ParentGrid.BasePoint.Y - YIndex * (LegendGrid.CellHeight + LegendGrid.HeightInterval) + LegendGrid.CellHeight / 2),
+                ParentGrid.BasePoint.X + (ParentGrid.Width - ParentGrid.TextWidth) + ParentGrid.WidthInterval,
+                ParentGrid.BasePoint.Y - YIndex * (ParentGrid.CellHeight + ParentGrid.HeightInterval) + ParentGrid.CellHeight / 2),
                 label,
                 ItalicLabel);
             List<Entity> list = new List<Entity>();
