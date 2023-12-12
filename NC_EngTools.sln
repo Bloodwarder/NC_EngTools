@@ -18,14 +18,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Util
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayerWorks23", "LayerWorks23\LayerWorks23.csproj", "{034CF531-F41E-4C83-B823-7F4A365FCC9A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{422E95A1-FD27-4248-B8A9-73783681C5B4} = {422E95A1-FD27-4248-B8A9-73783681C5B4}
-		{7DBC9A8B-8A60-456C-8F2D-1C08041F1007} = {7DBC9A8B-8A60-456C-8F2D-1C08041F1007}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeoMod", "GeoMod\GeoMod.csproj", "{AFCD98C8-3AA4-4393-83D7-7EDFB9C1407A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{422E95A1-FD27-4248-B8A9-73783681C5B4} = {422E95A1-FD27-4248-B8A9-73783681C5B4}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayersDatabase", "LayersDatabase\LayersDatabase.csproj", "{7DBC9A8B-8A60-456C-8F2D-1C08041F1007}"
+	ProjectSection(ProjectDependencies) = postProject
+		{034CF531-F41E-4C83-B823-7F4A365FCC9A} = {034CF531-F41E-4C83-B823-7F4A365FCC9A}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayersDatabaseEditor", "LayersDatabaseEditor\LayersDatabaseEditor.csproj", "{CF17117F-D8E6-494A-8F3A-397879C882AF}"
 EndProject

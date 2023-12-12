@@ -27,8 +27,8 @@ namespace LayerWorks.ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-        internal double RectangleWidth => ParseRelativeValue(LegendDrawTemplate.Width, LegendGrid.CellWidth);
-        internal double RectangleHeight => ParseRelativeValue(LegendDrawTemplate.Height, LegendGrid.CellHeight);
+        internal double RectangleWidth => ParseRelativeValue(LegendDrawTemplate.Width, LegendGrid.LegendGridParameters.CellWidth);
+        internal double RectangleHeight => ParseRelativeValue(LegendDrawTemplate.Height, LegendGrid.LegendGridParameters.CellHeight);
         /// <inheritdoc/>
         public override void Draw()
         {
