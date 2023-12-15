@@ -15,9 +15,10 @@ using System.Windows.Shapes;
 using System.Xml.Linq;
 using System.Xml;
 using System.IO;
-using Loader;
+using Loader.CoreUtilities;
+using Loader.Integrity;
 
-namespace LoaderUI
+namespace Loader.UI
 {
     /// <summary>
     /// Логика взаимодействия для StartUpWindow.xaml

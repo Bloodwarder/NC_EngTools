@@ -12,9 +12,6 @@ namespace LayersDatabase.Model
     {
         public void Configure(EntityTypeBuilder<LayerDrawTemplateData> builder)
         {
-            builder.HasKey(ldt => ldt.Id).HasName("LayerDrawTemplateDataPrimaryKey");
-            builder.Property(ldt => ldt.Id).ValueGeneratedOnAdd();
-
             builder.Property(ldt => ldt.DrawTemplate).IsRequired();
         }
     }
