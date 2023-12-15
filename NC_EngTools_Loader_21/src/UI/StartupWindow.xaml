@@ -1,9 +1,9 @@
-﻿<Window x:Class="LoaderUI.StartUpWindow"
+﻿<Window x:Class="Loader.UI.StartUpWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:LoaderUI"
+        xmlns:local="clr-namespace:Loader.UI"
         mc:Ignorable="d"
         Title="Автозапуск NC EngTools" Height="600" MinHeight="550" Width="700" MaxWidth="700" Closing="StartUpWindowClosing">
     <Grid>

@@ -1,6 +1,7 @@
 ﻿
 using LayersDatabase.Model;
 using LayerWorks.ExternalData;
+using LayerWorks.Legend;
 using LayerWorks.ModelspaceDraw;
 using Nelibur.ObjectMapper;
 
@@ -10,8 +11,9 @@ namespace LayersDatabase.DataTransfer
     {
         static TinyMapperConfigurer() 
         {
-            TinyMapper.Bind<LayerData, LayerProps>();
-            TinyMapper.Bind<LayerData, LegendDrawTemplate>();
+            TinyMapper.Bind<LayerPropertiesData, LayerProps>();
+            TinyMapper.Bind<LayerDrawTemplateData, LegendDrawTemplate>();
+            TinyMapper.Bind<LayerLegendData, LegendData>();
         }
     }
 }

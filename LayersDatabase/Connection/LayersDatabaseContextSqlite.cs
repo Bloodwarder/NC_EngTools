@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using LayersDatabase.Model;
+using System.Reflection;
 
 namespace LayersDatabase.Connection
 {
@@ -23,8 +24,7 @@ namespace LayersDatabase.Connection
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new LayerDataConfiguration());
-            modelBuilder.ApplyConfiguration(new LayerGroupDataConfiguration());
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
 }

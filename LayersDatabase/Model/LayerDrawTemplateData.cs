@@ -8,11 +8,6 @@ namespace LayersDatabase.Model
 {
     public class LayerDrawTemplateData
     {
-        public int Id { get; set; }
-
-        public int LayerDataId { get; set; }
-        public LayerData LayerData { get; set; }
-        
         /// <summary>
         /// Имя шаблона
         /// </summary>

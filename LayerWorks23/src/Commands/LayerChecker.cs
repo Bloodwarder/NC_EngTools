@@ -78,8 +78,7 @@ namespace LayerWorks.Commands
 
         private static LayerTableRecord AddLayer(string layername, LayerProps lp)
         {
-            Teigha.DatabaseServices.TransactionManager manager = Workstation.TransactionManager;
-            Transaction transaction = manager.TopTransaction;
+            Transaction transaction = Workstation.TransactionManager.TopTransaction;
             Database database = Workstation.Database;
             ObjectId linetypeRecordId = FindLinetype(lp.LineTypeName, out bool ltgetsuccess);
             if (!ltgetsuccess)
@@ -103,13 +102,13 @@ namespace LayerWorks.Commands
 
         internal static ObjectId FindLinetype(string linetypename, out bool ltgetsuccess)
         {
-            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            TransactionManager tm = Workstation.TransactionManager;
             Database db = Workstation.Database;
             LinetypeTable ltt = tm.TopTransaction.GetObject(db.LinetypeTableId, OpenMode.ForWrite, false) as LinetypeTable;
             ltgetsuccess = true;
             if (!ltt.Has(linetypename))
             {
-                FileInfo fi = new FileInfo(PathOrganizer.GetPath("Linetypes"));
+                FileInfo fi = new FileInfo(PathProvider.GetPath("STANDARD1.lin"));
                 try
                 {
                     db.LoadLineTypeFile(linetypename, fi.FullName);

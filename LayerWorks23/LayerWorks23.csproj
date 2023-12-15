@@ -27,7 +27,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\NC_EngTools_Loader_21\LoaderCore.csproj" />
+		<ProjectReference Include="..\NC_EngTools_Loader_21\LoaderCore.csproj">
+		  <Private>False</Private>
+		  <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+		</ProjectReference>
 	</ItemGroup>
 
 	<ItemGroup>

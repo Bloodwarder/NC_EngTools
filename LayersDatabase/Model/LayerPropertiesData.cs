@@ -12,10 +12,6 @@ namespace LayersDatabase.Model
     /// </summary>
     public class LayerPropertiesData
     {
-        public int Id { get; set; }
-
-        public int LayerDataId { get; set; }
-        public LayerData LayerData { get; set; }
         /// <summary>
         /// Глобальная ширина
         /// </summary>

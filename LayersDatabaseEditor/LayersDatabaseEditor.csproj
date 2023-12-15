@@ -1,24 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<PlatformTarget>x64</PlatformTarget>
+		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="NPOI" Version="2.6.2" />
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<Deterministic>True</Deterministic>
+		<OutputPath>C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\Debug\Editor</OutputPath>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="DatabaseInteraction\" />
-    <Folder Include="IOExcel\" />
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<Deterministic>True</Deterministic>
+		<OutputPath>D:\Обмен - Коновалов\NC_EngTools\Editor\</OutputPath>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\LayersDatabase\LayersDatabase.csproj" />
-  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="NPOI" Version="2.6.2" />
+		<PackageReference Include="Npoi.Mapper" Version="6.2.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\LayersDatabase\LayersDatabase.csproj">
+		  <Private>False</Private>
+		  <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+		</ProjectReference>
+		<ProjectReference Include="..\LayerWorks23\LayerWorks23.csproj">
+		  <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+		  <Private>False</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\NC_EngTools_Loader_21\LoaderCore.csproj">
+		  <Private>False</Private>
+		  <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+		</ProjectReference>
+	</ItemGroup>
 
 </Project>

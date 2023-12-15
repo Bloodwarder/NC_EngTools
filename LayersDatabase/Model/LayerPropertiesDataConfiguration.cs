@@ -12,8 +12,6 @@ namespace LayersDatabase.Model
     {
         public void Configure(EntityTypeBuilder<LayerPropertiesData> builder)
         {
-            builder.HasKey(l => l.Id).HasName("LayerPropertiesDataPrimaryKey");
-            builder.Property(l => l.Id).ValueGeneratedOnAdd();
         }
     }
 }
