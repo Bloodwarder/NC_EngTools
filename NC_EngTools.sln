@@ -25,9 +25,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeoMod", "GeoMod\GeoMod.csp
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayersDatabase", "LayersDatabase\LayersDatabase.csproj", "{7DBC9A8B-8A60-456C-8F2D-1C08041F1007}"
-	ProjectSection(ProjectDependencies) = postProject
-		{034CF531-F41E-4C83-B823-7F4A365FCC9A} = {034CF531-F41E-4C83-B823-7F4A365FCC9A}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayersDatabaseEditor", "LayersDatabaseEditor\LayersDatabaseEditor.csproj", "{CF17117F-D8E6-494A-8F3A-397879C882AF}"
 EndProject
