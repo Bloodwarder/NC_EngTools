@@ -1,5 +1,4 @@
 ﻿//System
-using System;
 using System.IO;
 //nanoCAD
 using Teigha.DatabaseServices;

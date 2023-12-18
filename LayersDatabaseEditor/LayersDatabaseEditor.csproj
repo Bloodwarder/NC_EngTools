@@ -6,40 +6,53 @@
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 		<PlatformTarget>x64</PlatformTarget>
-		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	<PropertyGroup>
 		<Deterministic>True</Deterministic>
-		<OutputPath>C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\Debug\Editor</OutputPath>
+		<OutputPath>C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\$(Configuration)\Editor</OutputPath>
+		<SignAssembly>False</SignAssembly>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<Deterministic>True</Deterministic>
-		<OutputPath>D:\Обмен - Коновалов\NC_EngTools\Editor\</OutputPath>
+	<PropertyGroup>
+		<ReferencePath>
+			C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\$(Configuration)\ExtensionLibraries;
+			C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\$(Configuration)\ExtensionLibraries23;
+			C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\$(Configuration)\Database;
+			$(ReferencePath)
+		</ReferencePath>
 	</PropertyGroup>
-
-
+	
 	<ItemGroup>
 		<PackageReference Include="NPOI" Version="2.6.2" />
 		<PackageReference Include="Npoi.Mapper" Version="6.2.1" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<Page Include="App.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\LayersDatabase\LayersDatabase.csproj">
-		  <Private>False</Private>
-		  <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+			<Private>False</Private>
+			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+			<HintPath>..\Database\LayersDatabase.dll</HintPath>
 		</ProjectReference>
 		<ProjectReference Include="..\LayerWorks23\LayerWorks23.csproj">
-		  <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
-		  <Private>False</Private>
+			<Private>False</Private>
+			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
+			<HintPath>..\ExtensionLibraries23\LayerWorks23.dll</HintPath>
 		</ProjectReference>
 		<ProjectReference Include="..\NC_EngTools_Loader_21\LoaderCore.csproj">
-		  <Private>False</Private>
-		  <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+			<Private>False</Private>
+			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
+			<HintPath>..\ExtensionLibraries\LoaderCore.dll</HintPath>
 		</ProjectReference>
 	</ItemGroup>
 

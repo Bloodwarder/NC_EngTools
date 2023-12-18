@@ -1,7 +1,4 @@
-﻿//System
-using System.Linq;
-using System.Collections.Generic;
-//nanoCAD
+﻿//nanoCAD
 using HostMgd.EditorInput;
 using Teigha.DatabaseServices;
 

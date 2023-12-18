@@ -11,15 +11,12 @@
 		
 	</PropertyGroup>
 	
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	<PropertyGroup>
 		<Deterministic>True</Deterministic>
 		<OutputPath>C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\Debug\ExtensionLibraries23</OutputPath>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<Deterministic>True</Deterministic>
-		<OutputPath>D:\Обмен - Коновалов\NC_EngTools\ExtensionLibraries23</OutputPath>
-	</PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\NC_EngTools_Loader_21\LoaderCore.csproj">
       <Private>False</Private>

@@ -76,6 +76,11 @@ namespace Loader
         private static List<ComparedFiles> InitializeFileStructure(bool preUpdate = true)
         {
             // Получаем директорию выполняемой сборки и xml файл со структурой папок приложения
+            //DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            Assembly assembly2 = Assembly.GetCallingAssembly();
+            Assembly assembly3 = Assembly.GetEntryAssembly();
+            Assembly assembly4 = Assembly.GetAssembly(typeof(LoaderExtension));
             DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
             string structurePath = Path.Combine(dir.FullName, StructureXmlName);
             XDocument structureXml = XDocument.Load(structurePath);
