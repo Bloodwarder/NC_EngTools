@@ -1,5 +1,5 @@
 ﻿using LayersDatabase.Model;
-using Loader.CoreUtilities;
+using LoaderCore.Utilities;
 using Npoi.Mapper;
 
 namespace LayersDatabaseEditor.DatabaseInteraction

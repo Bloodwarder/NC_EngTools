@@ -2,17 +2,17 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<OutputType>Library</OutputType>
+		<RootNamespace>LoaderCore</RootNamespace>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<AssemblyTitle>Utilities</AssemblyTitle>
-		<Product>Utilities</Product>
-		<Copyright>Copyright ©  2023</Copyright>
-		<AssemblyVersion>1.0.0.0</AssemblyVersion>
-		<FileVersion>1.0.0.0</FileVersion>
+		<UseWPF>true</UseWPF>
+		<ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	</PropertyGroup>
+	
 	<PropertyGroup>
 		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\</OutputPath>
+		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -26,10 +26,16 @@
 		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+		<None Update="Structure.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\NC_EngTools_Loader_21\LoaderCore.csproj" />
+		<Resource Include="StartUpConfig.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Resource>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
 	</ItemGroup>
 </Project>

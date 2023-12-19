@@ -3,7 +3,7 @@ using HostMgd.EditorInput;
 using Teigha.DatabaseServices;
 
 //internal modules
-using Loader.CoreUtilities;
+using LoaderCore.Utilities;
 using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.Commands

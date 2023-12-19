@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Loader.Integrity
+namespace LoaderCore.Integrity
 {
     internal struct ComparedFiles
     {

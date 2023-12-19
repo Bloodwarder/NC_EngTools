@@ -2,7 +2,7 @@
 using System.Linq;
 using Teigha.Runtime;
 using Teigha.DatabaseServices;
-using Loader.CoreUtilities;
+using LoaderCore.Utilities;
 using LayerWorks.ModelspaceDraw;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;

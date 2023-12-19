@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LayerWorks", "NC_EngTools\L
 		{422E95A1-FD27-4248-B8A9-73783681C5B4} = {422E95A1-FD27-4248-B8A9-73783681C5B4}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoaderCore", "NC_EngTools_Loader_21\LoaderCore.csproj", "{422E95A1-FD27-4248-B8A9-73783681C5B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoaderCore", "LoaderCore\LoaderCore.csproj", "{422E95A1-FD27-4248-B8A9-73783681C5B4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NC_EngTools_StartUp", "NC_EngTools_Loader\NC_EngTools_StartUp.csproj", "{AE5B4650-D8D9-4B12-AA8D-3334834D1EE4}"
 EndProject

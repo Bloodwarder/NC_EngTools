@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 //Modules
 using LayerWorks.LayerProcessing;
-using Loader.CoreUtilities;
+using LoaderCore.Utilities;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;

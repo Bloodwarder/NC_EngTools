@@ -9,7 +9,7 @@ using Teigha.DatabaseServices;
 using Teigha.Runtime;
 
 //internal modules
-using Loader.CoreUtilities;
+using LoaderCore.Utilities;
 using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.Commands

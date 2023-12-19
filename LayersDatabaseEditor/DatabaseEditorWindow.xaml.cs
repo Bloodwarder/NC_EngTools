@@ -1,8 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-using Loader;
-using Loader.CoreUtilities;
+using LoaderCore;
+using LoaderCore.Utilities;
 
 using LayersDatabaseEditor.DatabaseInteraction;
 

@@ -12,20 +12,21 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 
+	<Target Name="BeforeResolveReferences">
+		<Message Text="$(AssemblySearchPaths)"/>
+		<CreateProperty
+			Value="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries;$(AssemblySearchPaths)">
+			<Output TaskParameter="Value"
+				PropertyName="AssemblySearchPaths" />
+		</CreateProperty>
+	</Target>
+	
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
-		<OutputPath>C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\$(Configuration)\Editor</OutputPath>
+		<OutputPath>..\NC_EngTools\bin\$(Configuration)\Editor</OutputPath>
 		<SignAssembly>False</SignAssembly>
 	</PropertyGroup>
 
-	<PropertyGroup>
-		<ReferencePath>
-			C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\$(Configuration)\ExtensionLibraries;
-			C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\$(Configuration)\ExtensionLibraries23;
-			C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\$(Configuration)\Database;
-			$(ReferencePath)
-		</ReferencePath>
-	</PropertyGroup>
 	
 	<ItemGroup>
 		<PackageReference Include="NPOI" Version="2.6.2" />
@@ -40,20 +41,22 @@
 		<ProjectReference Include="..\LayersDatabase\LayersDatabase.csproj">
 			<Private>False</Private>
 			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
 			<HintPath>..\Database\LayersDatabase.dll</HintPath>
 		</ProjectReference>
 		<ProjectReference Include="..\LayerWorks23\LayerWorks23.csproj">
 			<Private>False</Private>
 			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
-			<HintPath>..\ExtensionLibraries23\LayerWorks23.dll</HintPath>
+			<HintPath>..\ExtensionLibraries\LayerWorks23.dll</HintPath>
 		</ProjectReference>
-		<ProjectReference Include="..\NC_EngTools_Loader_21\LoaderCore.csproj">
-			<Private>False</Private>
-			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
-			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
-			<HintPath>..\ExtensionLibraries\LoaderCore.dll</HintPath>
+		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
+		  <Private>False</Private>
 		</ProjectReference>
 	</ItemGroup>
 
+	<Target Name="AfterBuild">
+		<Message Text="LDBE Build Completed" Importance="high"></Message>
+	</Target>
+	
 </Project>

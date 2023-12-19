@@ -14,17 +14,17 @@
 
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
-		<OutputPath>C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\$(Configuration)\ExtensionLibraries23</OutputPath>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<ReferencePath>
-			C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\$(Configuration)\ExtensionLibraries;
-			$(ReferencePath)</ReferencePath>
+		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries</OutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
+	    <Private>False</Private>
+	  </ProjectReference>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -57,14 +57,6 @@
 		<None Update="LayersData\STANDARD1.lin">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\NC_EngTools_Loader_21\LoaderCore.csproj">
-	    <Private>False</Private>
-	    <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
-	    <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
-	  </ProjectReference>
 	</ItemGroup>
 
 </Project>

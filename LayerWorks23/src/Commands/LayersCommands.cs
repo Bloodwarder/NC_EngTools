@@ -7,7 +7,7 @@ using Teigha.Runtime;
 using Teigha.Colors;
 
 //internal modules
-using Loader.CoreUtilities;
+using LoaderCore.Utilities;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Dictionaries;
 
