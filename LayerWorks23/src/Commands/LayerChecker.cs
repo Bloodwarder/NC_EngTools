@@ -5,7 +5,7 @@ using Teigha.DatabaseServices;
 using Teigha.Colors;
 
 //internal modules
-using Loader.CoreUtilities;
+using LoaderCore.Utilities;
 using LayerWorks.ExternalData;
 using LayerWorks.LayerProcessing;
 

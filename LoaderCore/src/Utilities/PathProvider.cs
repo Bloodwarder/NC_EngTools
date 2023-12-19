@@ -1,8 +1,8 @@
-﻿using Loader.Integrity;
+﻿using LoaderCore.Integrity;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Loader.CoreUtilities
+namespace LoaderCore.Utilities
 {
     public static class PathProvider
     {

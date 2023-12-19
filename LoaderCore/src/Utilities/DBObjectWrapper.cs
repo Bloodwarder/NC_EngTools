@@ -2,7 +2,7 @@
 using Teigha.DatabaseServices;
 
 
-namespace Loader.CoreUtilities
+namespace LoaderCore.Utilities
 {
 
     /// <summary>

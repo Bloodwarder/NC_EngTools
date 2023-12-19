@@ -1,4 +1,4 @@
-﻿namespace Loader.CoreUtilities
+﻿namespace LoaderCore.Utilities
 {
     public static class Logger
     {

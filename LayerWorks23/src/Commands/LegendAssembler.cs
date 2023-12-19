@@ -11,7 +11,7 @@ using Teigha.Colors;
 
 //internal modules
 using Teigha.Geometry;
-using Loader.CoreUtilities;
+using LoaderCore.Utilities;
 using LayerWorks.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;

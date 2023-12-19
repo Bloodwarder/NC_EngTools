@@ -1,7 +1,7 @@
 ﻿using HostMgd.ApplicationServices;
-using Loader.CoreUtilities;
-using Loader.Integrity;
-using Loader.UI;
+using LoaderCore.Utilities;
+using LoaderCore.Integrity;
+using LoaderCore.UI;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Teigha.Runtime;
 
-namespace Loader
+namespace LoaderCore
 {
     /// <summary>
     /// Загрузчик сборок с окном конфигурации

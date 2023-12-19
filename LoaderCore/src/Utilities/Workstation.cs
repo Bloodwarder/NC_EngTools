@@ -5,7 +5,7 @@ using HostMgd.EditorInput;
 using Teigha.DatabaseServices;
 
 
-namespace Loader.CoreUtilities
+namespace LoaderCore.Utilities
 {
     /// <summary>
     /// Предоставляет централизованный доступ к основным элементам управления nanoCAD: Document, Database, TransactionManager, Editor

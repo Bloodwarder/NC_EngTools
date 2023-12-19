@@ -1,4 +1,4 @@
-﻿using Loader.CoreUtilities;
+﻿using LoaderCore.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Loader.Integrity
+namespace LoaderCore.Integrity
 {
     internal static class FileUpdater
     {

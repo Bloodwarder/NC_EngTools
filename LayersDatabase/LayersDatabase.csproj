@@ -12,15 +12,7 @@
 
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
-		<OutputPath>C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\$(Configuration)\Database</OutputPath>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<ReferencePath>
-			C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\$(Configuration)\ExtensionLibraries;
-			C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\NC_EngTools\bin\$(Configuration)\ExtensionLibraries23;
-			$(ReferencePath)
-		</ReferencePath>
+		<OutputPath>..\NC_EngTools\bin\$(Configuration)\Database</OutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -37,11 +29,7 @@
 			<Private>False</Private>
 			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 		</ProjectReference>
-		<ProjectReference Include="..\NC_EngTools_Loader_21\LoaderCore.csproj">
-			<Private>False</Private>
-			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
-			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
-		</ProjectReference>
+		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj" />
 	</ItemGroup>
 
 </Project>
