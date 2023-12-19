@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32516.85
@@ -8,11 +8,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LayerWorks", "NC_EngTools\L
 		{422E95A1-FD27-4248-B8A9-73783681C5B4} = {422E95A1-FD27-4248-B8A9-73783681C5B4}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoaderCore", "NC_EngTools_Loader_21\LoaderCore.csproj", "{422E95A1-FD27-4248-B8A9-73783681C5B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoaderCore", "NC_EngTools_Loader_21\LoaderCore.csproj", "{422E95A1-FD27-4248-B8A9-73783681C5B4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NC_EngTools_StartUp", "NC_EngTools_Loader\NC_EngTools_StartUp.csproj", "{AE5B4650-D8D9-4B12-AA8D-3334834D1EE4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Utilities.csproj", "{BC37020E-E998-40FE-952F-133E841045B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utilities", "Utilities\Utilities.csproj", "{BC37020E-E998-40FE-952F-133E841045B7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{422E95A1-FD27-4248-B8A9-73783681C5B4} = {422E95A1-FD27-4248-B8A9-73783681C5B4}
 	EndProjectSection
