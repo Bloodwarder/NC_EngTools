@@ -14,7 +14,8 @@
 
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
-		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries</OutputPath>
+		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
+		<OutputPath>$(RootOutputPath)\ExtensionLibraries</OutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
