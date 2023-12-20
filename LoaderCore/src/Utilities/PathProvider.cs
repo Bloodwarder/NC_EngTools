@@ -21,5 +21,10 @@ namespace LoaderCore.Utilities
         {
             return PathDictionary[name];
         }
+
+        public static bool TryGetPath(string name, out string path)
+        {
+            return PathDictionary.TryGetValue(name, out path);
+        }
     }
 }

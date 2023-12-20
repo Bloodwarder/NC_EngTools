@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 using Teigha.Runtime;
+using System;
 
 namespace LoaderCore
 {
@@ -20,6 +21,7 @@ namespace LoaderCore
         const string StructureXmlName = "Structure.xml";
         const string StartUpConfigName = "StartUpConfig.xml";
 
+        static List<FileInfo>? LibraryFiles { get; } = SearchDirectoryForDlls(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent).ToList();
         // Поиск обновлений и настройка загрузки и обновления сборок
         public static void Initialize()
         {
@@ -71,25 +73,21 @@ namespace LoaderCore
         public static void InitializeAsLibrary()
         {
             _ = InitializeFileStructure(false);
+            AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
         }
 
         private static List<ComparedFiles> InitializeFileStructure(bool preUpdate = true)
         {
             // Получаем директорию выполняемой сборки и xml файл со структурой папок приложения
-            //DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            Assembly assembly2 = Assembly.GetCallingAssembly();
-            Assembly assembly3 = Assembly.GetEntryAssembly();
-            Assembly assembly4 = Assembly.GetAssembly(typeof(LoaderExtension));
-            DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
+            DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!;
             string structurePath = Path.Combine(dir.FullName, StructureXmlName);
             XDocument structureXml = XDocument.Load(structurePath);
 
             // Если локальный путь пуст (у только что скачанного xml со структурой), прописать его
-            XElement xmlLocalPath = structureXml.Element("basepath").Element("local");
-            if (xmlLocalPath.IsEmpty)
+            XElement xmlLocalPath = structureXml.Root!.Element("basepath")!.Element("local")!;
+            if (xmlLocalPath.Value == string.Empty || xmlLocalPath.IsEmpty)
             {
-                xmlLocalPath.Add(dir.Parent.FullName);
+                xmlLocalPath.Add(dir.Parent!.FullName);
                 structureXml.Save(structurePath);
             }
 
@@ -108,9 +106,43 @@ namespace LoaderCore
                 FileUpdater.UpdateFile(cfiles.LocalFile, cfiles.SourceFile);
             }
             return files;
+
+
+        }
+        private static Assembly? AssemblyResolve(object? sender, ResolveEventArgs args)
+        {
+            try
+            {
+                string filename = string.Concat(args.Name.Split(", ")[0], ".dll");
+                bool getAssembly = PathProvider.TryGetPath(filename, out string? assemblyPath);
+                if (getAssembly)
+                    return Assembly.LoadFrom(assemblyPath);
+                assemblyPath = (from FileInfo info in LibraryFiles
+                               where info.Name == filename
+                               select info.FullName).FirstOrDefault();
+                //assemblyPath = SearchDirectoryForDlls(directory).Select(f => f.Name).Where(fn => fn == filename).FirstOrDefault();
+                if (assemblyPath != null)
+                    return Assembly.LoadFrom(assemblyPath);
+            }
+            catch
+            {
+                return null;
+            }
+            return null;
         }
 
-
+        private static IEnumerable<FileInfo>? SearchDirectoryForDlls(DirectoryInfo directory)
+        {
+            List<FileInfo> fileList = directory.GetFiles().Where(fi => fi.Extension == ".dll").ToList();
+            DirectoryInfo[] dirList = directory.GetDirectories();
+            foreach (DirectoryInfo dir in dirList)
+            {
+                IEnumerable<FileInfo>? fi = SearchDirectoryForDlls(dir);
+                if (fi.Any())
+                    fileList.AddRange(fi);
+            }
+            return fileList;
+        }
 
 
 

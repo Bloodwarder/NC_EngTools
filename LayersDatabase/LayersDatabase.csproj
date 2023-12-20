@@ -12,6 +12,7 @@
 
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
+		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
 		<OutputPath>..\NC_EngTools\bin\$(Configuration)\Database</OutputPath>
 	</PropertyGroup>
 
@@ -28,8 +29,12 @@
 		<ProjectReference Include="..\LayerWorks23\LayerWorks23.csproj">
 			<Private>False</Private>
 			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+			<HintPath>$(RootOutputPath)\ExtensionLibraries\LayerWorks23.dll</HintPath>
 		</ProjectReference>
-		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj" />
+		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
+			<Private>False</Private>
+			<HintPath>$(RootOutputPath)\ExtensionLibraries\LoaderCore.dll</HintPath>
+		</ProjectReference>
 	</ItemGroup>
 
 </Project>

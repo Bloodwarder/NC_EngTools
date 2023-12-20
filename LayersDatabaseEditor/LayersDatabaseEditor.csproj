@@ -12,22 +12,14 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 
-	<Target Name="BeforeResolveReferences">
-		<Message Text="$(AssemblySearchPaths)"/>
-		<CreateProperty
-			Value="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries;$(AssemblySearchPaths)">
-			<Output TaskParameter="Value"
-				PropertyName="AssemblySearchPaths" />
-		</CreateProperty>
-	</Target>
-	
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
-		<OutputPath>..\NC_EngTools\bin\$(Configuration)\Editor</OutputPath>
+		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
+		<OutputPath>$(RootOutputPath)\Editor</OutputPath>
 		<SignAssembly>False</SignAssembly>
 	</PropertyGroup>
 
-	
+
 	<ItemGroup>
 		<PackageReference Include="NPOI" Version="2.6.2" />
 		<PackageReference Include="Npoi.Mapper" Version="6.2.1" />
@@ -42,21 +34,18 @@
 			<Private>False</Private>
 			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
-			<HintPath>..\Database\LayersDatabase.dll</HintPath>
+			<HintPath>$(RootOutputPath)\Database\LayersDatabase.dll</HintPath>
 		</ProjectReference>
 		<ProjectReference Include="..\LayerWorks23\LayerWorks23.csproj">
 			<Private>False</Private>
 			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
-			<HintPath>..\ExtensionLibraries\LayerWorks23.dll</HintPath>
+			<HintPath>$(RootOutputPath)\ExtensionLibraries\LayerWorks23.dll</HintPath>
 		</ProjectReference>
 		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
-		  <Private>False</Private>
+			<Private>False</Private>
+			<HintPath>$(RootOutputPath)\ExtensionLibraries\LoaderCore.dll</HintPath>
 		</ProjectReference>
 	</ItemGroup>
 
-	<Target Name="AfterBuild">
-		<Message Text="LDBE Build Completed" Importance="high"></Message>
-	</Target>
-	
 </Project>
