@@ -3,10 +3,12 @@ using System.Collections.Generic;
 
 //Modules
 using LoaderCore.Utilities;
+using LayersIO.DataTransfer;
+using LayersIO.ExternalData;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-using LayerWorks.ExternalData;
+
 using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.ModelspaceDraw
@@ -30,7 +32,7 @@ namespace LayerWorks.ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer, out _, true).ConstantWidth;
+                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer.TrueName, out _, true).ConstantWidth;
                 line.LinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
             }
         }

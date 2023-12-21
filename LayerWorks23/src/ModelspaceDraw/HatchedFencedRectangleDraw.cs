@@ -7,6 +7,7 @@ using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
+using LayersIO.DataTransfer;
 
 namespace LayerWorks.ModelspaceDraw
 {

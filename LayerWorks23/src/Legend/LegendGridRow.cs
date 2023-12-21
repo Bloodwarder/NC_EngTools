@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using LayerWorks.ExternalData;
-using LayerWorks.LayerProcessing;
+﻿using LayerWorks.LayerProcessing;
 using LayerWorks.ModelspaceDraw;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
+using LayersIO.DataTransfer;
+using LayersIO.ExternalData;
 
 namespace LayerWorks.Legend
 {

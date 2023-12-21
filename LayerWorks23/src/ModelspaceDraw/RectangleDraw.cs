@@ -4,7 +4,8 @@
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-using LayerWorks.ExternalData;
+using LayersIO.DataTransfer;
+using LayersIO.ExternalData;
 using LayerWorks.Commands;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;

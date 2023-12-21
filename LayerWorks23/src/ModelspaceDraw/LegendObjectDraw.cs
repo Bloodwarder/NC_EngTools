@@ -5,7 +5,8 @@ using System;
 //nanoCAD
 using Teigha.Geometry;
 using Teigha.Colors;
-using LayerWorks.ExternalData;
+using LayersIO.DataTransfer;
+using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
 

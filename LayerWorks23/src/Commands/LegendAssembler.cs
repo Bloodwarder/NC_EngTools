@@ -12,9 +12,9 @@ using Teigha.Colors;
 //internal modules
 using Teigha.Geometry;
 using LoaderCore.Utilities;
-using LayerWorks.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
+using LayersIO.ExternalData;
 
 namespace LayerWorks.Commands
 {

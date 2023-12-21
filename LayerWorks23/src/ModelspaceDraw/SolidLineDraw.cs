@@ -1,10 +1,12 @@
 ﻿//System
 
 //Modules
+using LayersIO.DataTransfer;
+using LayersIO.ExternalData;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-using LayerWorks.ExternalData;
+
 using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.ModelspaceDraw
@@ -30,7 +32,7 @@ namespace LayerWorks.ModelspaceDraw
             pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
             pl.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
             pl.Layer = Layer.OutputLayerName;
-            LayerProps lp = LayerPropertiesDictionary.GetValue(Layer, out bool success);
+            LayerProps lp = LayerPropertiesDictionary.GetValue(Layer.TrueName, out bool success);
             if (success)
             {
                 pl.LinetypeScale = lp.LTScale;

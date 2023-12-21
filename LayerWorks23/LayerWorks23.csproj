@@ -19,10 +19,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001" />
-	</ItemGroup>
-
-	<ItemGroup>
+	  <ProjectReference Include="..\LayersDatabase\LayersIO.csproj" />
 	  <ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
 	    <Private>False</Private>
 	  </ProjectReference>

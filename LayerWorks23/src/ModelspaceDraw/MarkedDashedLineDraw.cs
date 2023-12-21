@@ -5,7 +5,8 @@ using System.Collections.Generic;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-using LayerWorks.ExternalData;
+using LayersIO.DataTransfer;
+using LayersIO.ExternalData;
 using LayerWorks.Commands;
 using LayerWorks.LayerProcessing;
 
@@ -30,7 +31,7 @@ namespace LayerWorks.ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer, out _, true).ConstantWidth;
+                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer.TrueName, out _, true).ConstantWidth;
                 LayerChecker.FindLinetype("ACAD_ISO02W100", out bool ltgetsuccess);
                 if (ltgetsuccess)
                     line.Linetype = "ACAD_ISO02W100";
