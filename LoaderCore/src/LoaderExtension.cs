@@ -21,10 +21,11 @@ namespace LoaderCore
         const string StructureXmlName = "Structure.xml";
         const string StartUpConfigName = "StartUpConfig.xml";
 
-        static List<FileInfo>? LibraryFiles { get; } = SearchDirectoryForDlls(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent).ToList();
+        static Dictionary<string, string>? LibraryFiles { get; } = SearchDirectoryForDlls(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent).ToDictionary(fi => fi.Name, fi => fi.FullName);
         // Поиск обновлений и настройка загрузки и обновления сборок
         public static void Initialize()
         {
+
             Logger.WriteLog += Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage;
 
             List<ComparedFiles> files = InitializeFileStructure();
@@ -114,14 +115,8 @@ namespace LoaderCore
             try
             {
                 string filename = string.Concat(args.Name.Split(", ")[0], ".dll");
-                bool getAssembly = PathProvider.TryGetPath(filename, out string? assemblyPath);
-                if (getAssembly)
-                    return Assembly.LoadFrom(assemblyPath);
-                assemblyPath = (from FileInfo info in LibraryFiles
-                               where info.Name == filename
-                               select info.FullName).FirstOrDefault();
-                //assemblyPath = SearchDirectoryForDlls(directory).Select(f => f.Name).Where(fn => fn == filename).FirstOrDefault();
-                if (assemblyPath != null)
+                bool getAssemblySuccess = LibraryFiles!.TryGetValue(filename, out string? assemblyPath);
+                if (getAssemblySuccess)
                     return Assembly.LoadFrom(assemblyPath);
             }
             catch

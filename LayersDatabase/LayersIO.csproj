@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PlatformTarget>x64</PlatformTarget>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Deterministic>True</Deterministic>
+		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
+		<OutputPath>..\NC_EngTools\bin\$(Configuration)\Database</OutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="UnusedCode\ExcelDictionaryDataProvider.cs" />
+	  <Compile Remove="UnusedCode\ExcelSimpleDictionaryDataProvider.cs" />
+	  <Compile Remove="UnusedCode\ExcelStructDictionaryDataProvider.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.14" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.14">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="NPOI" Version="2.6.2" />
+		<PackageReference Include="Npoi.Mapper" Version="6.2.1" />
+		<PackageReference Include="TinyMapper" Version="3.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
+			<Private>False</Private>
+			<HintPath>$(RootOutputPath)\ExtensionLibraries\LoaderCore.dll</HintPath>
+		</ProjectReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="UnusedCode\ExcelDictionaryDataProvider.cs" />
+	  <None Include="UnusedCode\ExcelSimpleDictionaryDataProvider.cs" />
+	  <None Include="UnusedCode\ExcelStructDictionaryDataProvider.cs" />
+	</ItemGroup>
+
+</Project>
