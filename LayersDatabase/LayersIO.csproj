@@ -17,9 +17,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="UnusedCode %28Interop.Excel%29\ExcelDictionaryDataProvider.cs" />
-	  <Compile Remove="UnusedCode %28Interop.Excel%29\ExcelSimpleDictionaryDataProvider.cs" />
-	  <Compile Remove="UnusedCode %28Interop.Excel%29\ExcelStructDictionaryDataProvider.cs" />
+	  <Compile Remove="UnusedCode\ExcelDictionaryDataProvider.cs" />
+	  <Compile Remove="UnusedCode\ExcelSimpleDictionaryDataProvider.cs" />
+	  <Compile Remove="UnusedCode\ExcelStructDictionaryDataProvider.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -41,9 +41,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Include="UnusedCode %28Interop.Excel%29\ExcelDictionaryDataProvider.cs" />
-	  <None Include="UnusedCode %28Interop.Excel%29\ExcelSimpleDictionaryDataProvider.cs" />
-	  <None Include="UnusedCode %28Interop.Excel%29\ExcelStructDictionaryDataProvider.cs" />
+	  <None Include="UnusedCode\ExcelDictionaryDataProvider.cs" />
+	  <None Include="UnusedCode\ExcelSimpleDictionaryDataProvider.cs" />
+	  <None Include="UnusedCode\ExcelStructDictionaryDataProvider.cs" />
 	</ItemGroup>
 
 </Project>
