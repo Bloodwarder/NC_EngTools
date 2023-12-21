@@ -22,7 +22,7 @@ namespace LayersIO.ExternalData
             }
             catch (FileNotFoundException)
             {
-                //ExternalDataLoader.Reloader(ToReload.LegendDraw);
+                ExternalDataLoader.Reloader(ToReload.LegendDraw);
             }
         }
         public static LegendDrawTemplate GetValue(string layername, out bool success)

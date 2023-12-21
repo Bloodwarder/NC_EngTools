@@ -2,10 +2,11 @@
 using System.Linq;
 using Teigha.Runtime;
 using Teigha.DatabaseServices;
-using Loader.CoreUtilities;
+using LoaderCore.Utilities;
 using LayerWorks.ModelspaceDraw;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace LayerWorks.ExternalData
 {
@@ -103,18 +104,18 @@ namespace LayerWorks.ExternalData
                         }
 
                         //bool lpsuccess = LayerProperties._dictionary.TryGetValue(checkedname, out LayerProps lp);
-                        workbook.Worksheets[1].Cells[i, 1].Value = checkedname != "" ? checkedname : ltr.Name;
+                        ((Excel.Range)((Excel.Range)workbook.Worksheets[1]).Cells[i, 1]).Value = checkedname != "" ? checkedname : ltr.Name;
                         if (lpsuccess)
                         {
-                            workbook.Worksheets[1].Cells[i, 2].Value = lp.ConstantWidth;
-                            workbook.Worksheets[1].Cells[i, 3].Value = lp.LTScale;
+                            ((Excel.Range)((Excel.Range)workbook.Worksheets[1]).Cells[i, 2]).Value = lp.ConstantWidth;
+                            ((Excel.Range)((Excel.Range)workbook.Worksheets[1]).Cells[i, 3]).Value = lp.LTScale;
                         }
-                        workbook.Worksheets[1].Cells[i, 4].Value = (int)ltr.Color.Red;
-                        workbook.Worksheets[1].Cells[i, 5].Value = (int)ltr.Color.Green;
-                        workbook.Worksheets[1].Cells[i, 6].Value = (int)ltr.Color.Blue;
+                        ((Excel.Range)((Excel.Range)workbook.Worksheets[1]).Cells[i, 4]).Value = (int)ltr.Color.Red;
+                        ((Excel.Range)((Excel.Range)workbook.Worksheets[1]).Cells[i, 5]).Value = (int)ltr.Color.Green;
+                        ((Excel.Range)((Excel.Range)workbook.Worksheets[1]).Cells[i, 6]).Value = (int)ltr.Color.Blue;
                         LinetypeTableRecord lttr = transaction.GetObject(ltr.LinetypeObjectId, OpenMode.ForRead) as LinetypeTableRecord;
-                        workbook.Worksheets[1].Cells[i, 7].Value = lttr.Name;
-                        workbook.Worksheets[1].Cells[i, 8].Value = ltr.LineWeight;
+                        ((Excel.Range)((Excel.Range)workbook.Worksheets[1]).Cells[i, 7]).Value = lttr.Name;
+                        ((Excel.Range)((Excel.Range)workbook.Worksheets[1]).Cells[i, 8]).Value = ltr.LineWeight;
                         i++;
                     }
                 }
