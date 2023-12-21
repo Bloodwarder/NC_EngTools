@@ -19,18 +19,12 @@
 		<SignAssembly>False</SignAssembly>
 	</PropertyGroup>
 
-
-	<ItemGroup>
-		<PackageReference Include="NPOI" Version="2.6.2" />
-		<PackageReference Include="Npoi.Mapper" Version="6.2.1" />
-	</ItemGroup>
-
 	<ItemGroup>
 		<Page Include="App.xaml" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\LayersDatabase\LayersDatabase.csproj">
+		<ProjectReference Include="..\LayersDatabase\LayersIO.csproj">
 			<Private>False</Private>
 			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>

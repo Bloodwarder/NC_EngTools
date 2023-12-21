@@ -6,8 +6,9 @@ using Teigha.Colors;
 
 //internal modules
 using LoaderCore.Utilities;
-using LayerWorks.ExternalData;
 using LayerWorks.LayerProcessing;
+using LayersIO.DataTransfer;
+using LayersIO.ExternalData;
 
 namespace LayerWorks.Commands
 {
@@ -54,7 +55,7 @@ namespace LayerWorks.Commands
                     LayerTable lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
                     if (!lt.Has(layer.OutputLayerName))
                     {
-                        LayerProps lp = LayerPropertiesDictionary.GetValue(layer, out bool propsgetsuccess);
+                        LayerProps lp = LayerPropertiesDictionary.GetValue(layer.TrueName, out bool propsgetsuccess);
                         LayerTableRecord ltRecord = AddLayer(layer.OutputLayerName, lp);
 
                         //Process new layer if isolated chapter visualization is active
