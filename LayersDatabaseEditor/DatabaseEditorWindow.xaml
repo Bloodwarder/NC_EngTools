@@ -30,7 +30,7 @@
             <MenuItem Header="Слои">
                 <MenuItem Header="Добавить слой"/>
                 <Separator/>
-                <MenuItem Header="Импортировать слои из Excel"/>
+                <MenuItem Header="Импортировать слои из Excel" Click="miExportLayersFromExcel_Click"/>
             </MenuItem>
         </Menu>
         <ScrollViewer Grid.Row="1" Grid.Column="0" Grid.RowSpan="3">

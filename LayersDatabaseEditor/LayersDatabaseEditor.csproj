@@ -42,4 +42,8 @@
 		</ProjectReference>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="src\DatabaseInteraction\" />
+	</ItemGroup>
+
 </Project>
