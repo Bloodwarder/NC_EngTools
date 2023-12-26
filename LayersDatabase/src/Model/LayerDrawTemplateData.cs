@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 
 namespace LayersIO.Model
 {
+    /// <summary>
+    /// Сбоственный тип LayerData, содержащий информацию об отрисовке в таблице условных обозначений
+    /// </summary>
     public class LayerDrawTemplateData
     {
         /// <summary>
         /// Имя шаблона
         /// </summary>
-        public string DrawTemplate { get; set; }
+        public string? DrawTemplate { get; set; }
         /// <summary>
         /// Символ для вставки посередине линии
         /// </summary>

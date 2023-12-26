@@ -13,7 +13,6 @@ namespace LayersIO.Model
 
         public string MainName { get; set; }
 
-        public int LayerLegendDataId { get; set; }
         public LayerLegendData LayerLegendData { get; set; }
 
         public List<LayerGroupData> AlternateLayers { get; set; }

@@ -3,8 +3,7 @@ using System.Windows.Controls;
 
 using LoaderCore;
 using LoaderCore.Utilities;
-
-using LayersDatabaseEditor.DatabaseInteraction;
+using LayersIO.Excel;
 
 namespace LayersDatabaseEditor
 {
@@ -22,7 +21,7 @@ namespace LayersDatabaseEditor
 
         private void miTestRun_Click(object sender, RoutedEventArgs e)
         {
-            TestRun.RunTest(this);
+
         }
 
         private void expLog_Collapsed(object sender, RoutedEventArgs e)
@@ -45,6 +44,11 @@ namespace LayersDatabaseEditor
         private void LogClear(string message) 
         {
             tbLog.Text = "";
+        }
+
+        private void miExportLayersFromExcel_Click(object sender, RoutedEventArgs e)
+        {
+            ExcelLayerReader.ReadWorkbook(PathProvider.GetPath("Layer_Props.xlsm"));
         }
     }
 }

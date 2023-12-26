@@ -2,16 +2,19 @@
 using LayersIO.DataTransfer;
 using LayersIO.Model;
 using LoaderCore.Utilities;
+using Microsoft.EntityFrameworkCore;
 using Nelibur.ObjectMapper;
 using Npoi.Mapper;
+using System.Diagnostics;
 
-namespace LayersDatabaseEditor.DatabaseInteraction
+namespace LayersIO.Excel
 {
-    internal class TestRun
+    public class ExcelLayerReader
     {
-        public static void RunTest(DatabaseEditorWindow parentWindow)
+        public static void ReadWorkbook(string workbookPath)
         {
-            Mapper mapper = new Mapper(PathProvider.GetPath("Layer_Props.xlsm"));
+            Stopwatch sw = Stopwatch.StartNew();
+            Mapper mapper = new Mapper(workbookPath);
             var propsLayerNames = mapper.Take<NameTransition>("Props").Select(m => m.Value.TrueName).ToList();
             var props = mapper.Take<LayerPropertiesData>("Props").ToList();
             Dictionary<string, LayerPropertiesData> propsDictionary = new();
@@ -20,7 +23,7 @@ namespace LayersDatabaseEditor.DatabaseInteraction
                 propsDictionary[propsLayerNames[i]!] = props[i].Value;
             }
 
-            var legendDrawNames = mapper.Take<NameTransition>("LegendDraw").Select(m => m.Value?.TrueName).ToList();
+            var legendDrawNames = mapper.Take<NameTransition>("LegendDraw").Select(m => m.Value.TrueName).ToList();
             var legendDrawTemplates = mapper.Take<LayerDrawTemplateData>("LegendDraw").ToList();
             Dictionary<string, LayerDrawTemplateData> legendDrawDictionary = new();
             for (int i = 0; i < legendDrawNames.Count; i++)
@@ -30,7 +33,7 @@ namespace LayersDatabaseEditor.DatabaseInteraction
 
             List<LayerData> layers = new List<LayerData>();
             List<string> layerNames = propsLayerNames.Union(legendDrawNames).ToList();
-            foreach (var layer in propsLayerNames)
+            foreach (var layer in layerNames)
             {
                 LayerData layerData = new LayerData()
                 {
@@ -55,11 +58,34 @@ namespace LayersDatabaseEditor.DatabaseInteraction
                 }
                 layers.Add(layerData);
             }
-            using(TestLayersDatabaseContextSqlite db = new("Test.db"))
+            using (TestLayersDatabaseContextSqlite db = new("C:\\Users\\konovalove\\source\\repos\\Bloodwarder\\NC_EngTools\\NC_EngTools\\bin\\Debug\\testdb.db"))
             {
-                db.AddRange(layers);
-                db.SaveChanges();
+                int successCounter = 0;
+                int failureCounter = 0;
+                foreach (var layer in layers)
+                {
+                    try
+                    {
+                        db.LayerData.Add(layer);
+                        db.SaveChanges();
+                        successCounter++;
+                    }
+                    catch (DbUpdateException ex)
+                    {
+                        Logger.WriteLog($"Ошибка при экспорте слоя {layer.Name}");
+                        Logger.WriteLog(ex.InnerException!.Message);
+                        failureCounter++;
+                        continue;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.WriteLog($"Ошибка при экспорте слоя {layer.Name}.\n{ex.Message}");
+                        continue;
+                    }
+                }
+                Logger.WriteLog($"Импорт завершён. Успешно импортированно {successCounter} слоёв. Ошибок - {failureCounter}. Операция заняла {sw.Elapsed.TotalSeconds} секунд");
             }
+
         }
 
         class NameTransition

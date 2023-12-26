@@ -6,29 +6,26 @@ using System.Threading.Tasks;
 
 namespace LayersIO.Model
 {
+    /// <summary>
+    /// Собственнный тип LayerGroupData, содержащий информацию для сборки легенды
+    /// </summary>
     public class LayerLegendData
     {
-        public int Id { get; set; }
-
-        public int LayerGroupDataId { get; set; }
-        public LayerGroupData LayerGroupData { get; set; }
-
-
         /// <summary>
         /// Ранг. Меньше - отображается выше
         /// </summary>
-        public int Rank;
+        public int Rank { get; set; }
         /// <summary>
         /// Текст в легенде
         /// </summary>
-        public string Label;
+        public string Label { get; set; }
         /// <summary>
         /// Текст в легенде для подраздела
         /// </summary>
-        public string? SubLabel;
+        public string? SubLabel { get; set; }
         /// <summary>
         /// Показывает, нужно ли компоновщику игнорировать указанный слой
         /// </summary>
-        public bool IgnoreLayer;
+        public bool IgnoreLayer { get; set; } = false;
     }
 }

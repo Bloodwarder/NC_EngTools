@@ -7,6 +7,7 @@ namespace LayersIO.Model
     {
         public void Configure(EntityTypeBuilder<LayerData> builder)
         {
+            builder.ToTable("LayerData");
             builder.HasKey(ld => ld.Id).HasName("LayerDataPrimaryKey");
             builder.HasAlternateKey(ld => ld.Name).HasName("LayerDataAlternateKey");
             builder.Property(ld => ld.Id).ValueGeneratedOnAdd();

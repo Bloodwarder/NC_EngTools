@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace LayersIO.Model
 {
     /// <summary>
-    /// Свойства слоя
+    /// Собственный тип LayerData, содержащий стандартные свойства объектов
     /// </summary>
     public class LayerPropertiesData
     {
@@ -41,7 +41,7 @@ namespace LayersIO.Model
         /// Тип линий
         /// </summary>
         [Required]
-        public string LineTypeName { get; set; }
+        public string LinetypeName { get; set; }
         /// <summary>
         /// Вес линий
         /// </summary>

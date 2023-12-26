@@ -21,8 +21,19 @@ namespace LoaderCore
         const string StructureXmlName = "Structure.xml";
         const string StartUpConfigName = "StartUpConfig.xml";
 
-        static Dictionary<string, string>? LibraryFiles { get; } = SearchDirectoryForDlls(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent).ToDictionary(fi => fi.Name, fi => fi.FullName);
+        static Dictionary<string, string>? LibraryFiles { get; } = new();
         // Поиск обновлений и настройка загрузки и обновления сборок
+        static LoaderExtension()
+        {
+            DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent;
+            IEnumerable<FileInfo> files = SearchDirectoryForDlls(dir);
+            foreach (FileInfo fi in files)
+            {
+                LibraryFiles[fi.Name] = fi.FullName;
+            }
+        }
+
+        
         public static void Initialize()
         {
 
