@@ -15,8 +15,10 @@ namespace LayersIO.Model
 
         public LayerLegendData LayerLegendData { get; set; }
 
-        public List<LayerGroupData> AlternateLayers { get; set; }
+        //public int? AlternateLayerId { get; set; }
+        //public LayerGroupData? AlternateLayer { get; set; }
 
+        public List<LayerData> Layers { get; } = new();
 
     }
 }
