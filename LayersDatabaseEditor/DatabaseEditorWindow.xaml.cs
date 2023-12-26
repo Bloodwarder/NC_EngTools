@@ -21,7 +21,7 @@ namespace LayersDatabaseEditor
 
         private void miTestRun_Click(object sender, RoutedEventArgs e)
         {
-
+            Logger.WriteLog("Запущена тестовая команда");
         }
 
         private void expLog_Collapsed(object sender, RoutedEventArgs e)
@@ -38,7 +38,7 @@ namespace LayersDatabaseEditor
 
         private void LogWrite(string message)
         {
-            tbLog.Text += $"\n{message}";
+            tbLog.Text += $"{message}\n";
         }
 
         private void LogClear(string message) 

@@ -14,7 +14,8 @@ namespace LayersIO.Model
             builder.Property(lgd => lgd.Id).ValueGeneratedOnAdd();
 
             builder.OwnsOne(ld => ld.LayerLegendData);
-            builder.HasMany(lgd => lgd.AlternateLayers);
+            builder.HasMany(ld => ld.Layers).WithOne(l => l.LayerGroup).HasPrincipalKey(l => l.MainName);
+            //builder.HasOne(lgd => lgd.AlternateLayer).WithOne(lgd => lgd.AlternateLayer).HasForeignKey<LayerGroupData>(lgd => lgd.AlternateLayerId);
         }
     }
 }

@@ -13,6 +13,7 @@
 				<file Name="Layer_Legend.xml" Module="LayerWorks"/>
 				<file Name="Layer_LegendDraw.xml" Module="LayerWorks"/>
 				<file Name="Layer_Props.xlsm" Module="LayerWorks"/>
+				<file Name="Layer_Props_Template.xlsm" Module="LayerWorks"/>
 				<file Name="STANDARD1.lin" Module="LayerWorks"/>
 			</directory>
 			<file Name="LoaderCore.dll" Module="PreUpdated"/>

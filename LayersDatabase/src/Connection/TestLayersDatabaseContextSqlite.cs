@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
+using LoaderCore.Utilities;
 using LayersIO.Model;
 using System.Reflection;
 
@@ -17,6 +17,12 @@ namespace LayersIO.Connection
             _dataSource = dataSource;
             Database.EnsureDeleted();
             Database.EnsureCreated();
+        }
+
+        public override int SaveChanges()
+        {
+            Logger.WriteLog("Сохранение данных");
+            return base.SaveChanges();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
