@@ -2,32 +2,32 @@
 
 namespace LayerWorks.LayerProcessing
 {
-    internal static class ActiveLayerParsers
+    internal static class ActiveLayerWrappers
     {
-        private static List<LayerParser> List { get; set; } = new List<LayerParser>();
+        private static List<LayerWrapper> List { get; set; } = new List<LayerWrapper>();
         internal static void StatusSwitch(Status status)
         {
-            foreach (LayerParser lp in List) { lp.StatusSwitch(status); };
+            foreach (LayerWrapper lp in List) { lp.StatusSwitch(status); };
         }
         internal static void Alter()
         {
-            foreach (LayerParser lp in List) { lp.Alter(); }
+            foreach (LayerWrapper lp in List) { lp.Alter(); }
         }
         internal static void ReconstrSwitch()
         {
-            foreach (LayerParser lp in List) { lp.ReconstrSwitch(); }
+            foreach (LayerWrapper lp in List) { lp.ReconstrSwitch(); }
         }
         internal static void ExtProjNameAssign(string extprojname)
         {
-            foreach (LayerParser lp in List) { lp.ExtProjNameAssign(extprojname); }
+            foreach (LayerWrapper lp in List) { lp.ExtProjNameAssign(extprojname); }
         }
-        internal static void Add(LayerParser lp)
+        internal static void Add(LayerWrapper lp)
         {
             List.Add(lp);
         }
         internal static void Push()
         {
-            foreach (LayerParser lp in List) { lp.Push(); }
+            foreach (LayerWrapper lp in List) { lp.Push(); }
         }
         internal static void Flush()
         {

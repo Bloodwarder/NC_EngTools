@@ -15,6 +15,7 @@ using LoaderCore.Utilities;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
 using LayersIO.ExternalData;
+using LayerWorks23.src.LayerProcessing;
 
 namespace LayerWorks.Commands
 {
@@ -33,7 +34,7 @@ namespace LayerWorks.Commands
         public void Assemble()
         {
             Workstation.Define();
-            LayerChecker.Check(string.Concat(LayerParser.StandartPrefix, "_Условные"));
+            LayerChecker.Check(string.Concat(LayerWrapper.StandartPrefix, "_Условные"));
 
             //получить точку вставки
             PromptPointOptions ppo = new PromptPointOptions("Укажите точку вставки")
@@ -74,7 +75,7 @@ namespace LayerWorks.Commands
                         RecordLayerParser rlp = new RecordLayerParser(ltr);
                         if (!LayerLegendDictionary.CheckKey(rlp.MainName))
                         {
-                            wrongLayersStringBuilder.AppendLine($"Нет данных для слоя {string.Concat(LayerParser.StandartPrefix, "_", rlp.MainName)}");
+                            wrongLayersStringBuilder.AppendLine($"Нет данных для слоя {string.Concat(LayerWrapper.StandartPrefix, "_", rlp.MainName)}");
                             continue;
                         }
                         layersList.Add(rlp);
@@ -129,7 +130,7 @@ namespace LayerWorks.Commands
             LayerTable layertable = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead) as LayerTable;
             var layers = from ObjectId elem in layertable
                          let ltr = transaction.GetObject(elem, OpenMode.ForWrite, false) as LayerTableRecord
-                         where ltr.Name.StartsWith(LayerParser.StandartPrefix + "_")
+                         where ltr.Name.StartsWith(LayerWrapper.StandartPrefix + "_")
                          select ltr;
             return layers;
         }
@@ -159,7 +160,7 @@ namespace LayerWorks.Commands
                 points.Add(pl.GetPoint3dAt(i).TransformBy(Workstation.Editor.CurrentUserCoordinateSystem));
             // Создание фильтра слоёв, выбирающего объекты только со стандартным префиксом
             TypedValue[] tValues = new TypedValue[1];
-            tValues.SetValue(new TypedValue((int)DxfCode.LayerName, $"{LayerParser.StandartPrefix}_*"), 0);
+            tValues.SetValue(new TypedValue((int)DxfCode.LayerName, $"{LayerWrapper.StandartPrefix}_*"), 0);
             SelectionFilter selectionFilter = new SelectionFilter(tValues);
             // Выбор объектов в полигоне
             PromptSelectionResult psResult = Workstation.Editor.SelectCrossingPolygon(points, selectionFilter);

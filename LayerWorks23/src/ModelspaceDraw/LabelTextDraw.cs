@@ -5,9 +5,9 @@ using LoaderCore.Utilities;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-using LayerWorks.Commands;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
+using LayerWorks23.src.LayerProcessing;
 
 namespace LayerWorks.ModelspaceDraw
 {
@@ -20,7 +20,7 @@ namespace LayerWorks.ModelspaceDraw
         private readonly string _text;
         static LabelTextDraw()
         {
-            LayerChecker.Check(string.Concat(LayerParser.StandartPrefix, "_Условные"));
+            LayerChecker.Check(string.Concat(LayerWrapper.StandartPrefix, "_Условные"));
         }
         internal LabelTextDraw() { }
         internal LabelTextDraw(Point2d basepoint, string label, bool italic = false) : base()
@@ -34,7 +34,7 @@ namespace LayerWorks.ModelspaceDraw
         public override void Draw()
         {
             TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
-            string legendTextLayer = string.Concat(LayerParser.StandartPrefix, "_Условные");
+            string legendTextLayer = string.Concat(LayerWrapper.StandartPrefix, "_Условные");
             LayerChecker.Check(legendTextLayer);
             MText mtext = new MText
             {

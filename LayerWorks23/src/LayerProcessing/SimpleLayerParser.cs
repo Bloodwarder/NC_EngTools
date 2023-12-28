@@ -5,7 +5,7 @@ namespace LayerWorks.LayerProcessing
     /// <summary>
     /// Парсер, обрабатывающий только строки с именами без связанного объекта
     /// </summary>
-    public class SimpleLayerParser : LayerParser
+    public class SimpleLayerParser : LayerWrapper
     {
         /// <inheritdoc/>
         public SimpleLayerParser(string layername) : base(layername) { }

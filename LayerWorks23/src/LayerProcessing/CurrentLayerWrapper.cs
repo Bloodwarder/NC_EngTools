@@ -1,20 +1,20 @@
 ﻿using LoaderCore.Utilities;
 using Teigha.DatabaseServices;
-using LayerWorks.Commands;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
+using LayerWorks23.LayerProcessing;
 
 namespace LayerWorks.LayerProcessing
 {
     /// <summary>
     /// Парсер, связанный с текущим слоем
     /// </summary>
-    public class CurrentLayerParser : LayerParser
+    public class CurrentLayerWrapper : LayerWrapper
     {
         /// <summary>
         /// Конструктор без параметров, автоматически передающий в базовый конструктор имя текущего слоя
         /// </summary>
-        public CurrentLayerParser() : base(Clayername()) { ActiveLayerParsers.Add(this); }
+        public CurrentLayerWrapper() : base(Clayername()) { ActiveLayerWrappers.Add(this); }
 
         private static string Clayername()
         {

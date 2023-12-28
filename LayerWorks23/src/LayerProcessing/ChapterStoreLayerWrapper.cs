@@ -5,7 +5,7 @@ namespace LayerWorks.LayerProcessing
     /// <summary>
     /// Парсер, связанный с объектом LayerTableRecord, хранящий данные об исходном цвете и видимости слоя
     /// </summary>
-    public class ChapterStoreLayerParser : RecordLayerParser
+    public class ChapterStoreLayerWrapper : RecordLayerParser
     {
         const byte redproj = 0; const byte greenproj = 255; const byte blueproj = 255;
         const byte redns = 0; const byte greenns = 153; const byte bluens = 153;
@@ -18,11 +18,11 @@ namespace LayerWorks.LayerProcessing
         /// </summary>
         public Teigha.Colors.Color StoredColor;
         /// <inheritdoc/>
-        public ChapterStoreLayerParser(LayerTableRecord ltr) : base(ltr)
+        public ChapterStoreLayerWrapper(LayerTableRecord ltr) : base(ltr)
         {
             StoredEnabledState = ltr.IsOff;
             StoredColor = ltr.Color;
-            ChapterStoredLayerParsers.Add(this);
+            ChapterStoredLayerWrappers.Add(this);
         }
         /// <summary>
         /// Возврат исходного цвета и видимости слоя

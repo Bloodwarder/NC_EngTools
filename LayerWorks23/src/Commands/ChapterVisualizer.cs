@@ -11,6 +11,7 @@ using Teigha.Runtime;
 //internal modules
 using LoaderCore.Utilities;
 using LayerWorks.LayerProcessing;
+using LayerWorks23.src.LayerProcessing;
 
 namespace LayerWorks.Commands
 {
@@ -51,7 +52,7 @@ namespace LayerWorks.Commands
                 LayerTable lt = (LayerTable)transaction.GetObject(db.LayerTableId, OpenMode.ForRead, false);
                 var layers = from ObjectId elem in lt
                              let ltr = tm.GetObject(elem, OpenMode.ForWrite, false) as LayerTableRecord
-                             where ltr.Name.StartsWith(LayerParser.StandartPrefix + "_")
+                             where ltr.Name.StartsWith(LayerWrapper.StandartPrefix + "_")
                              select ltr;
                 int errorCount = 0;
                 int successCount = 0;
@@ -59,7 +60,7 @@ namespace LayerWorks.Commands
                 {
                     try
                     {
-                        new ChapterStoreLayerParser(ltr);
+                        new ChapterStoreLayerWrapper(ltr);
                         successCount++;
                     }
                     catch (WrongLayerException)
@@ -71,7 +72,7 @@ namespace LayerWorks.Commands
                 }
                 Workstation.Editor.WriteMessage($"Фильтр включен для {successCount} слоёв. Число необработанных слоёв: {errorCount}");
 
-                var layerchapters = ChapterStoredLayerParsers.StoredLayerStates[doc].Where(l => l.EngType != null).Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
+                var layerchapters = ChapterStoredLayerWrappers.StoredLayerStates[doc].Where(l => l.EngType != null).Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
                 List<string> lcplus = layerchapters.Append("Сброс").ToList();
                 PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел [" + string.Join("/", lcplus) + "]", string.Join(" ", lcplus))
                 {
@@ -83,7 +84,7 @@ namespace LayerWorks.Commands
                 if (result.Status != PromptStatus.OK) { return; }
                 if (result.StringResult == "Сброс")
                 {
-                    ChapterStoredLayerParsers.Reset();
+                    ChapterStoredLayerWrappers.Reset();
                     if (ActiveChapterState != null)
                     {
                         LayerChecker.LayerAddedEvent -= NewLayerHighlight;
@@ -94,7 +95,7 @@ namespace LayerWorks.Commands
                 else
                 {
                     ActiveChapterState[doc] = result.StringResult;
-                    ChapterStoredLayerParsers.Highlight(ActiveChapterState[doc]);
+                    ChapterStoredLayerWrappers.Highlight(ActiveChapterState[doc]);
                     LayerChecker.LayerAddedEvent += NewLayerHighlight;
                 }
                 transaction.Commit();
@@ -108,7 +109,7 @@ namespace LayerWorks.Commands
 
             using (Transaction transaction = tm.StartTransaction())
             {
-                ChapterStoreLayerParser cslp = new ChapterStoreLayerParser((LayerTableRecord)sender);
+                ChapterStoreLayerWrapper cslp = new ChapterStoreLayerWrapper((LayerTableRecord)sender);
                 cslp.Push(ActiveChapterState[doc]);
                 transaction.Commit();
             }

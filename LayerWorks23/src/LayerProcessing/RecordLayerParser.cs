@@ -7,7 +7,7 @@ namespace LayerWorks.LayerProcessing
     /// <summary>
     /// Парсер, связанный с объектом LayerTableRecord
     /// </summary>
-    public class RecordLayerParser : LayerParser
+    public class RecordLayerParser : LayerWrapper
     {
         private DBObjectWrapper<LayerTableRecord> _boundLayer;
 

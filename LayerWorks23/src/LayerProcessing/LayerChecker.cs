@@ -10,7 +10,7 @@ using LayerWorks.LayerProcessing;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 
-namespace LayerWorks.Commands
+namespace LayerWorks23.LayerProcessing
 {
 
     static class LayerChecker
@@ -46,7 +46,7 @@ namespace LayerWorks.Commands
             }
         }
 
-        internal static void Check(LayerParser layer)
+        internal static void Check(LayerWrapper layer)
         {
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {

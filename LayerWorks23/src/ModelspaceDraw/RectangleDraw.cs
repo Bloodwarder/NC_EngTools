@@ -6,9 +6,9 @@ using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
-using LayerWorks.Commands;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
+using LayerWorks23.src.LayerProcessing;
 
 namespace LayerWorks.ModelspaceDraw
 {
@@ -45,8 +45,8 @@ namespace LayerWorks.ModelspaceDraw
             rectangle.AddVertexAt(3, GetRelativePoint(width / 2, -height / 2), 0, 0d, 0d);
             rectangle.Closed = true;
             if (layer != null)
-                LayerChecker.Check($"{LayerParser.StandartPrefix}_{layer}"); //ПОКА ЗАВЯЗАНО НА ЧЕКЕР ИЗ ДРУГОГО МОДУЛЯ. ПРОАНАЛИЗИРОВАТЬ ВОЗМОЖНОСТИ ОПТИМИЗАЦИИ
-            rectangle.Layer = layer == null ? Layer.BoundLayer.Name : $"{LayerParser.StandartPrefix}_{layer}";
+                LayerChecker.Check($"{LayerWrapper.StandartPrefix}_{layer}"); //ПОКА ЗАВЯЗАНО НА ЧЕКЕР ИЗ ДРУГОГО МОДУЛЯ. ПРОАНАЛИЗИРОВАТЬ ВОЗМОЖНОСТИ ОПТИМИЗАЦИИ
+            rectangle.Layer = layer == null ? Layer.BoundLayer.Name : $"{LayerWrapper.StandartPrefix}_{layer}";
             LayerProps lp = LayerPropertiesDictionary.GetValue(rectangle.Layer, out bool success);
             if (success)
             {
