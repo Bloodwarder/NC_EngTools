@@ -16,6 +16,7 @@
 			<Chapter Value="ЖД" Description="Инфраструктура железнодорожного транспорта"/>
 		</PrimaryClassifier>
 		<AuxilaryData Name="ExternalProject" Brackets="\[\]">
+			<!--Неправомерные статусы позволяют изменить статус на правомерный-->
 			<ValidStatuses>
 				<StatusReference Value="ндем">
 					<StatusReference Value="дем"/>
@@ -27,8 +28,23 @@
 				<StatusReference Value="нреорг"/>
 			</ValidStatuses>
 		</AuxilaryData>
-		<AuxilaryData Name="Diameter" Brackets="\{\}"/>
-		<AuxilaryClassifier>
+		<AuxilaryData Name="Diameter" Brackets="\{\}">
+			<!--Неправомерные основные и дополнительные классификаторы запрещают записывать дополнительную информацию с указанным ключом-->
+			<ValidPrimary>
+				<ChapterReference Value="ВО"/>
+				<ChapterReference Value="ВС"/>
+				<ChapterReference Value="ГС"/>
+				<ChapterReference Value="ДК"/>
+				<ChapterReference Value="ТС"/>
+				<ChapterReference Value="ТТ"/>
+				<ChapterReference Value="ЖД"/>
+			</ValidPrimary>
+			<ValidAuxilary>
+				<ClassifierReference Value="л"/>
+			</ValidAuxilary>
+		</AuxilaryData>
+		<!--Только друг за другом-->
+		<AuxilaryClassifier> 
 			<Classifier Value ="л" Description="Линейный"/>
 			<Classifier Value ="п" Description="Площадной"/>
 			<Classifier Value ="т" Description="Точечный"/>
