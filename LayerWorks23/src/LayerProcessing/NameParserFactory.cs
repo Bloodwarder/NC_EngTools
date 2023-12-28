@@ -21,22 +21,22 @@ namespace LayerWorks23.LayerProcessing
             // Для каждого классификатора вызываем соответствующий метод инициализации из словаря
             foreach (XElement classifier in classifiers.Elements())
             {
-                Classifiers c = Enum.Parse<Classifiers>(classifier.Name.ToString());
+                Classifier c = Enum.Parse<Classifier>(classifier.Name.ToString());
                 InitializingDictionary[c](classifier);
             }
 
             return _parser;
         }
 
-        private static Dictionary<Classifiers, Action<XElement>> InitializingDictionary { get; } = new()
+        private static Dictionary<Classifier, Action<XElement>> InitializingDictionary { get; } = new()
         {
-            [Classifiers.Prefix] = InitializePrefix,
-            [Classifiers.PrimaryClassifier] = InitializePrimaryClassifier,
-            [Classifiers.AuxilaryClassifier] = InitializeAuxilaryClassifier,
-            [Classifiers.AuxilaryClassifier] = InitializeAuxilaryData,
-            [Classifiers.SecondaryClassifiers] = InitializeSecondaryClassifiers,
-            [Classifiers.StatusClassifier] = InitializeStatusClassifier,
-            [Classifiers.BooleanSuffix] = InitializeBooleanSuffix
+            [Classifier.Prefix] = InitializePrefix,
+            [Classifier.PrimaryClassifier] = InitializePrimaryClassifier,
+            [Classifier.AuxilaryClassifier] = InitializeAuxilaryClassifier,
+            [Classifier.AuxilaryClassifier] = InitializeAuxilaryData,
+            [Classifier.SecondaryClassifiers] = InitializeSecondaryClassifiers,
+            [Classifier.StatusClassifier] = InitializeStatusClassifier,
+            [Classifier.BooleanSuffix] = InitializeBooleanSuffix
         };
 
         private static void InitializePrefix(XElement element)
@@ -57,7 +57,7 @@ namespace LayerWorks23.LayerProcessing
             // Задаём префикс парсеру
             _parser.Prefix = prefixValue;
             // Добавляем в очередь обработки строки соответствующий метод
-            Classifiers с = Enum.Parse<Classifiers>(element.Name.ToString());
+            Classifier с = Enum.Parse<Classifier>(element.Name.ToString());
             _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[с]);
             // Указываем, что префикс инициализирован
             _parser.IsPrefixInitialized = true;
@@ -72,7 +72,7 @@ namespace LayerWorks23.LayerProcessing
             }
 
             // Добавляем в очередь обработки строки соответствующий метод
-            Classifiers c = Enum.Parse<Classifiers>(element.Name.ToString());
+            Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
             _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[c]);
             // Указываем, что основной классификатор инициализирован
             _parser.IsPrimaryInitialized = true;
@@ -86,7 +86,7 @@ namespace LayerWorks23.LayerProcessing
                 dict.Add(auxilary.Attribute("Value").Value, auxilary.Attribute("Description").Value);
             _parser.AuxilaryClassifiers.Add(dict);
             // Добавляем в очередь обработки строки соответствующий метод
-            Classifiers c = Enum.Parse<Classifiers>(element.Name.ToString());
+            Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
             _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[c]);
         }
 
@@ -148,7 +148,7 @@ namespace LayerWorks23.LayerProcessing
             // (обработка дополнительной информации идёт только один раз)
             if (!_parser.IsAuxilaryDataInitialized)
             {
-                Classifiers c = Enum.Parse<Classifiers>(element.Name.ToString());
+                Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
                 _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[c]);
                 _parser.IsAuxilaryDataInitialized = true;
             }
@@ -157,7 +157,7 @@ namespace LayerWorks23.LayerProcessing
         private static void InitializeSecondaryClassifiers(XElement element)
         {
             // Добавляем в очередь обработки строки соответствующий метод
-            Classifiers c = Enum.Parse<Classifiers>(element.Name.ToString());
+            Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
             _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[c]);
             // Указываем, что вторичные классификаторы инициализированы
             _parser.IsSecondaryInitialized = true;
@@ -176,7 +176,7 @@ namespace LayerWorks23.LayerProcessing
             {
                 _parser.StatusClassifiers.Add(classifier.Value, classifier.Attribute("Description").Value);
             }
-            Classifiers c = Enum.Parse<Classifiers>(element.Name.ToString());
+            Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
             _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[c]);
             _parser.IsStatusInitialized = true;
         }
@@ -184,7 +184,7 @@ namespace LayerWorks23.LayerProcessing
         public static void InitializeBooleanSuffix(XElement element)
         {
             _parser.Suffix = element.Attribute("Value").Value;
-            Classifiers c = Enum.Parse<Classifiers>(element.Name.ToString());
+            Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
             _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[c]);
         }
     }
@@ -194,20 +194,20 @@ namespace LayerWorks23.LayerProcessing
     public class NameParser
     {
         public static Dictionary<string, NameParser> LoadedParsers { get; } = new();
-        internal Dictionary<Classifiers, Func<string[], LayerInfo, int, int>> ProcessingDictionary { get; }
+        internal Dictionary<Classifier, Func<string[], LayerInfo, int, int>> ProcessingDictionary { get; }
 
 
         internal NameParser()
         {
             ProcessingDictionary = new()
             {
-                [Classifiers.Prefix] = ProcessPrefix,
-                [Classifiers.PrimaryClassifier] = ProcessPrimaryClassifier,
-                [Classifiers.AuxilaryClassifier] = ProcessAuxilaryClassifier,
-                [Classifiers.AuxilaryData] = ProcessAuxilaryData,
-                [Classifiers.SecondaryClassifiers] = ProcessSecondaryClassifiers,
-                [Classifiers.StatusClassifier] = ProcessStatusClassifier,
-                [Classifiers.BooleanSuffix] = ProcessBooleanSuffix
+                [Classifier.Prefix] = ProcessPrefix,
+                [Classifier.PrimaryClassifier] = ProcessPrimaryClassifier,
+                [Classifier.AuxilaryClassifier] = ProcessAuxilaryClassifier,
+                [Classifier.AuxilaryData] = ProcessAuxilaryData,
+                [Classifier.SecondaryClassifiers] = ProcessSecondaryClassifiers,
+                [Classifier.StatusClassifier] = ProcessStatusClassifier,
+                [Classifier.BooleanSuffix] = ProcessBooleanSuffix
             };
         }
 
@@ -381,11 +381,12 @@ namespace LayerWorks23.LayerProcessing
             }
             if (ParentParser.StatusTransformations[key].ContainsKey(Status))
                 Status = ParentParser.StatusTransformations[key][Status];
+            AuxilaryData[key] = value;
         }
 
     }
 
-    internal enum Classifiers
+    internal enum Classifier
     {
         Prefix,
         PrimaryClassifier,

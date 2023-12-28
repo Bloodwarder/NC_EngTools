@@ -1,4 +1,6 @@
 ﻿using LayersIO.ExternalData;
+using LayerWorks23.LayerProcessing;
+using System.Text.RegularExpressions;
 
 namespace LayerWorks.LayerProcessing
 {
@@ -247,6 +249,19 @@ namespace LayerWorks.LayerProcessing
         /// <summary>
         /// Назначить выходное имя слоя связанному объекту
         /// </summary>
+        public abstract void Push();
+    }
+
+    public abstract class LayerWrapperNew
+    {
+        public LayerInfo LayerInfo { get; private set; }
+        public LayerWrapperNew(string layerName)
+        {
+            // Поиск префикса по любому возможному разделителю
+            string prefix = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])").Value;
+            LayerInfo = NameParser.LoadedParsers[prefix].GetLayerInfo(layerName);
+
+        }
         public abstract void Push();
     }
 }
