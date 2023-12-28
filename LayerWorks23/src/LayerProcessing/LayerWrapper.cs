@@ -5,7 +5,7 @@ namespace LayerWorks.LayerProcessing
     /// <summary>
     /// Парсер слоя, получающий информацию об объекте на основе имени
     /// </summary>
-    public abstract class LayerParser
+    public abstract class LayerWrapper
     {
         /// <summary>
         /// Имя исходного слоя, переданного в конструктор 
@@ -14,7 +14,7 @@ namespace LayerWorks.LayerProcessing
         /// <summary>
         /// Стандартный префикс имени слоя для фильтрации слоёв, которые парсер будет пытаться обработать
         /// </summary>
-        public static string StandartPrefix { get; set; } = "ИС"; // ConfigurationManager.AppSettings.Get("defaultlayerprefix");
+        public static string StandartPrefix { get; set; } = "ИС";
         /// <summary>
         /// Имя внешнего проекта, согласно которому нанесены объекты слоя
         /// </summary>
@@ -89,7 +89,7 @@ namespace LayerWorks.LayerProcessing
         /// </summary>
         /// <param name="layername">Строка с именем исходного слоя</param>
         /// <exception cref="WrongLayerException">Ошибка обработки имени слоя</exception>
-        public LayerParser(string layername)
+        public LayerWrapper(string layername)
         {
             InputLayerName = layername;
             if (!layername.StartsWith(StandartPrefix))

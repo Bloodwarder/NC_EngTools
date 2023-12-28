@@ -10,6 +10,7 @@ using Teigha.Colors;
 using LoaderCore.Utilities;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Dictionaries;
+using LayerWorks23.src.LayerProcessing;
 
 namespace LayerWorks.Commands
 {
@@ -30,7 +31,7 @@ namespace LayerWorks.Commands
             Database db = Workstation.Database;
             Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
 
-            string tgtlayer = LayerParser.StandartPrefix + "_Калька";
+            string tgtlayer = LayerWrapper.StandartPrefix + "_Калька";
 
             using (Transaction transaction = tm.StartTransaction())
             {
@@ -94,8 +95,8 @@ namespace LayerWorks.Commands
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
-                    ActiveLayerParsers.StatusSwitch((Status)val);
-                    ActiveLayerParsers.Push();
+                    ActiveLayerWrappers.StatusSwitch((Status)val);
+                    ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -108,7 +109,7 @@ namespace LayerWorks.Commands
                 }
                 finally
                 {
-                    ActiveLayerParsers.Flush();
+                    ActiveLayerWrappers.Flush();
                 }
             }
         }
@@ -128,8 +129,8 @@ namespace LayerWorks.Commands
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
-                    ActiveLayerParsers.Alter();
-                    ActiveLayerParsers.Push();
+                    ActiveLayerWrappers.Alter();
+                    ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -138,7 +139,7 @@ namespace LayerWorks.Commands
                 }
                 finally
                 {
-                    ActiveLayerParsers.Flush();
+                    ActiveLayerWrappers.Flush();
                 }
             }
         }
@@ -158,8 +159,8 @@ namespace LayerWorks.Commands
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
-                    ActiveLayerParsers.ReconstrSwitch();
-                    ActiveLayerParsers.Push();
+                    ActiveLayerWrappers.ReconstrSwitch();
+                    ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -168,7 +169,7 @@ namespace LayerWorks.Commands
                 }
                 finally
                 {
-                    ActiveLayerParsers.Flush();
+                    ActiveLayerWrappers.Flush();
                 }
             }
         }
@@ -206,8 +207,8 @@ namespace LayerWorks.Commands
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
-                    ActiveLayerParsers.ExtProjNameAssign(extProjectName);
-                    ActiveLayerParsers.Push();
+                    ActiveLayerWrappers.ExtProjNameAssign(extProjectName);
+                    ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -216,7 +217,7 @@ namespace LayerWorks.Commands
                 }
                 finally
                 {
-                    ActiveLayerParsers.Flush();
+                    ActiveLayerWrappers.Flush();
                 }
             }
         }
@@ -236,7 +237,7 @@ namespace LayerWorks.Commands
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
-                    ActiveLayerParsers.Push();
+                    ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -245,7 +246,7 @@ namespace LayerWorks.Commands
                 }
                 finally
                 {
-                    ActiveLayerParsers.Flush();
+                    ActiveLayerWrappers.Flush();
                 }
             }
 
@@ -259,14 +260,14 @@ namespace LayerWorks.Commands
         {
             Workstation.Define();
             Editor ed = Workstation.Editor;
-            PromptStringOptions pso = new PromptStringOptions($"Введите новый префикс обрабатываемых слоёв <{LayerParser.StandartPrefix}>")
+            PromptStringOptions pso = new PromptStringOptions($"Введите новый префикс обрабатываемых слоёв <{LayerWrapper.StandartPrefix}>")
             {
                 AllowSpaces = false
             };
             string newprefix = ed.GetString(pso).StringResult;
             if (!string.IsNullOrEmpty(newprefix))
             {
-                LayerParser.StandartPrefix = newprefix;
+                LayerWrapper.StandartPrefix = newprefix;
             }
 
         }

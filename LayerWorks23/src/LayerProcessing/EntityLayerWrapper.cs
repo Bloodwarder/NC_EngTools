@@ -1,27 +1,27 @@
 ﻿using System.Collections.Generic;
 using Teigha.DatabaseServices;
-using LayerWorks.Commands;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
+using LayerWorks23.LayerProcessing;
 
 namespace LayerWorks.LayerProcessing
 {
     /// <summary>
     /// Парсер, связанный с объектом чертежа (Entity)
     /// </summary>
-    public class EntityLayerParser : LayerParser
+    public class EntityLayerWrapper : LayerWrapper
     {
-        internal EntityLayerParser(string layername) : base(layername)
+        internal EntityLayerWrapper(string layername) : base(layername)
         {
-            ActiveLayerParsers.Add(this);
+            ActiveLayerWrappers.Add(this);
         }
         /// <summary>
         /// Конструктор, принимающий объект чертежа
         /// </summary>
         /// <param name="entity"></param>
-        public EntityLayerParser(Entity entity) : base(entity.Layer)
+        public EntityLayerWrapper(Entity entity) : base(entity.Layer)
         {
-            BoundEntities.Add(entity); ActiveLayerParsers.Add(this);
+            BoundEntities.Add(entity); ActiveLayerWrappers.Add(this);
         }
         /// <summary>
         /// Коллекция связанных объектов чертежа

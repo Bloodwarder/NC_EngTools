@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <LayerParser>
+	<Title>Инженерная инфраструктура</Title>
 	<Separator Value="_"/>
 	<Classifiers>
 		<Prefix Value="ИС"/>
@@ -12,9 +13,21 @@
 			<Chapter Value="ТТ" Description="Трубопроводный транспорт"/>
 			<Chapter Value="СС" Description="Связь"/>
 			<Chapter Value="ЭС" Description="Электроснабжение"/>
+			<Chapter Value="ЖД" Description="Инфраструктура железнодорожного транспорта"/>
 		</PrimaryClassifier>
-		<AuxilaryData Name="ExternalProject" Brackets="\[\]"/>
-		<AuxilartData Name="Diameter" Brackets="\{\}"/>
+		<AuxilaryData Name="ExternalProject" Brackets="\[\]">
+			<ValidStatuses>
+				<StatusReference Value="ндем">
+					<StatusReference Value="дем"/>
+				</StatusReference>
+				<StatusReference Value="неутв">
+					<StatusReference Value="сущ"/>
+					<StatusReference Value="проект"/>
+				</StatusReference>
+				<StatusReference Value="нреорг"/>
+			</ValidStatuses>
+		</AuxilaryData>
+		<AuxilaryData Name="Diameter" Brackets="\{\}"/>
 		<AuxilaryClassifier>
 			<Classifier Value ="л" Description="Линейный"/>
 			<Classifier Value ="п" Description="Площадной"/>
@@ -29,7 +42,7 @@
 			<Status Value="неутв"/>
 			<Status Value="нреорг"/>
 		</StatusClassifier>
-		<BooleanPostfix Value="пер"/>
+		<BooleanSuffix Value="пер"/>
 	</Classifiers>
 	<SharedProperties>
 		<Property Name="ConstantWidth">

@@ -6,7 +6,7 @@ using Teigha.DatabaseServices;
 using LoaderCore.Utilities;
 using LayerWorks.LayerProcessing;
 
-namespace LayerWorks.Commands
+namespace LayerWorks23.LayerProcessing
 {
     internal static class LayerChanger
     {
@@ -30,7 +30,7 @@ namespace LayerWorks.Commands
             }
             else
             {
-                new CurrentLayerParser();
+                new CurrentLayerWrapper();
             }
         }
 
@@ -43,7 +43,7 @@ namespace LayerWorks.Commands
             {
                 try
                 {
-                    EntityLayerParser entlp = new EntityLayerParser(entity);
+                    EntityLayerWrapper entlp = new EntityLayerWrapper(entity);
                 }
                 catch (WrongLayerException)
                 {
@@ -54,7 +54,7 @@ namespace LayerWorks.Commands
 
         private static void ChangerBig(SelectionSet selectionSet)
         {
-            Dictionary<string, EntityLayerParser> dct = new Dictionary<string, EntityLayerParser>();
+            Dictionary<string, EntityLayerWrapper> dct = new Dictionary<string, EntityLayerWrapper>();
             foreach (var entity in (from ObjectId elem in selectionSet.GetObjectIds()
                                     let ent = Workstation.TransactionManager.TopTransaction.GetObject(elem, OpenMode.ForWrite) as Entity
                                     select ent).ToArray())
@@ -67,7 +67,7 @@ namespace LayerWorks.Commands
                 {
                     try
                     {
-                        dct.Add(entity.Layer, new EntityLayerParser(entity));
+                        dct.Add(entity.Layer, new EntityLayerWrapper(entity));
                     }
                     catch (WrongLayerException)
                     {
