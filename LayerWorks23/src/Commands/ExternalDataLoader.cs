@@ -1,18 +1,11 @@
 ﻿using System.Linq;
 using Teigha.Runtime;
 using Teigha.DatabaseServices;
-<<<<<<< HEAD:NC_EngTools/src/ExternalData/ExternalDataLoader.cs
-using Loader.CoreUtilities;
-using LayerWorks.ModelspaceDraw;
-using LayerWorks.LayerProcessing;
-using LayerWorks.Legend;
-=======
 using LoaderCore.Utilities;
 using LayerWorks.LayerProcessing;
 using LayersIO.DataTransfer;
 using LayersIO.Excel;
 using LayersIO.Xml;
->>>>>>> Пространство имён ExternalData перемещено в LayersIO. InteropExcel и соответствующий код заменён на NPOI:LayerWorks23/src/Commands/ExternalDataLoader.cs
 
 namespace LayersIO.ExternalData
 {
@@ -92,45 +85,7 @@ namespace LayersIO.ExternalData
                     // Попытка распарсить имя слоя для поиска существующих сохранённых свойств
                     try
                     {
-<<<<<<< HEAD:NC_EngTools/src/ExternalData/ExternalDataLoader.cs
-                        string checkedname = "";
-                        LayerProps lp = new LayerProps();
-                        // Попытка распарсить имя слоя для поиска существующих сохранённых свойств
-                        try
-                        {
-                            checkedname = new SimpleLayerParser(ltr.Name).TrueName;
-                        }
-                        catch (WrongLayerException ex)
-                        {
-                            doc.Editor.WriteMessage(ex.Message);
-                        }
-                        bool lpsuccess = true;
-                        try
-                        {
-                            lp = LayerPropertiesDictionary.GetValue(checkedname, out lpsuccess, false);
-                        }
-                        catch (NoPropertiesException)
-                        {
-                            lpsuccess = false;
-                        }
-
-                        //bool lpsuccess = LayerProperties._dictionary.TryGetValue(checkedname, out LayerProps lp);
-                        workbook.Worksheets[1].Cells[i, 1].Value = checkedname != "" ? checkedname : ltr.Name;
-                        if (lpsuccess)
-                        {
-                            workbook.Worksheets[1].Cells[i, 2].Value = lp.ConstantWidth;
-                            workbook.Worksheets[1].Cells[i, 3].Value = lp.LTScale;
-                        }
-                        workbook.Worksheets[1].Cells[i, 4].Value = (int)ltr.Color.Red;
-                        workbook.Worksheets[1].Cells[i, 5].Value = (int)ltr.Color.Green;
-                        workbook.Worksheets[1].Cells[i, 6].Value = (int)ltr.Color.Blue;
-                        LinetypeTableRecord lttr = transaction.GetObject(ltr.LinetypeObjectId, OpenMode.ForRead) as LinetypeTableRecord;
-                        workbook.Worksheets[1].Cells[i, 7].Value = lttr.Name;
-                        workbook.Worksheets[1].Cells[i, 8].Value = ltr.LineWeight;
-                        i++;
-=======
-                        checkedname = new SimpleLayerParser(ltr.Name).TrueName;
->>>>>>> Пространство имён ExternalData перемещено в LayersIO. InteropExcel и соответствующий код заменён на NPOI:LayerWorks23/src/Commands/ExternalDataLoader.cs
+                        checkedname = new SimpleLayerParser(ltr.Name).LayerInfo.TrueName;
                     }
                     catch (WrongLayerException ex)
                     {

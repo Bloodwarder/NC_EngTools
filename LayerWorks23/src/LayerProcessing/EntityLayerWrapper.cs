@@ -33,10 +33,10 @@ namespace LayerWorks.LayerProcessing
         public override void Push()
         {
             LayerChecker.Check(this);
-            LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName, out _);
+            LayerProps lp = LayerPropertiesDictionary.GetValue(LayerInfo.Name, out _);
             foreach (Entity ent in BoundEntities)
             {
-                ent.Layer = OutputLayerName;
+                ent.Layer = LayerInfo.Name;
                 if (ent is Polyline pl)
                 {
                     pl.LinetypeScale = lp.LTScale;

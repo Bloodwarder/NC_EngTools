@@ -33,8 +33,8 @@ namespace LayerWorks.LayerProcessing
 
             LayerChecker.Check(this);
             LayerTable lt = tm.TopTransaction.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
-            db.Clayer = lt[OutputLayerName];
-            LayerProps lp = LayerPropertiesDictionary.GetValue(OutputLayerName, out _);
+            db.Clayer = lt[LayerInfo.Name];
+            LayerProps lp = LayerPropertiesDictionary.GetValue(LayerInfo.Name, out _);
             db.Celtscale = lp.LTScale;
             db.Plinewid = lp.ConstantWidth;
         }

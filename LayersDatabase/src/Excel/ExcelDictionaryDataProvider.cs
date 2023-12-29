@@ -8,7 +8,7 @@ using System.IO;
 
 namespace LayersIO.Excel
 {
-    abstract public class ExcelDictionaryDataProvider<TKey, TValue> : DictionaryDataProvider<TKey, TValue> //where TValue : struct
+    abstract public class ExcelDictionaryDataProvider<TKey, TValue> : DictionaryDataProvider<TKey, TValue> where TKey : notnull//where TValue : struct
     {
         internal string Path { get; set; }
         private protected string sheetname;
