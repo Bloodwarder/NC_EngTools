@@ -15,7 +15,7 @@ namespace LoaderCore.Integrity
         /// </summary>
         internal static HashSet<string> UpdatedModules { get; } = new HashSet<string>() { "General" };
 
-        internal static event EventHandler FileUpdatedEvent;
+        internal static event EventHandler? FileUpdatedEvent;
 
         /// <summary>
         /// Выключить для реального обновления файлов
@@ -28,7 +28,7 @@ namespace LoaderCore.Integrity
             // Если нет ни локального файла, ни источника, выдаем ошибку
             if (!localExists && !sourceExists)
             {
-                throw new Exception($"\nОтсутствует локальный файл {local.Name} и нет доступа к файлам обновления");
+                throw new FileNotFoundException($"\nОтсутствует локальный файл {local.Name} и нет доступа к файлам обновления");
             }
             // Если доступен источник, сравниваем даты обновления и при необходимости перезаписываем локальный файл. Если нет - работаем с локальным без обновления
             if (sourceExists && (!localExists || local.LastWriteTime < source.LastWriteTime))
@@ -51,7 +51,7 @@ namespace LoaderCore.Integrity
                 UpdateFile(comparedFiles.LocalFile, comparedFiles.SourceFile);
         }
 
-        internal static void UpdateRange(IEnumerable<ComparedFiles> comparedFiles, string singleTagUpdate = null)
+        internal static void UpdateRange(IEnumerable<ComparedFiles> comparedFiles, string? singleTagUpdate = null)
         {
             // Если не задан конкретный тег - заранее фильтрует набор по нему и обновляет с пропуском стандартной проверки
             // Если задан - сразу передаёт в метод со стандартной проверкой на содержание тега в наборе обновляемых модулей
@@ -59,7 +59,7 @@ namespace LoaderCore.Integrity
             {
                 foreach (ComparedFiles fileSet in comparedFiles)
                 {
-                    if (!fileSet.LocalFile.Directory.Exists)
+                    if (!fileSet.LocalFile.Directory!.Exists)
                         fileSet.LocalFile.Directory.Create();
                     UpdateFile(fileSet);
                 }

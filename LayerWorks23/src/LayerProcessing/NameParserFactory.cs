@@ -1,7 +1,4 @@
-﻿using LayerWorks.LayerProcessing;
-using System.Text.RegularExpressions;
-using System.Windows.Controls;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 
 namespace LayerWorks23.LayerProcessing
 {
@@ -22,6 +19,7 @@ namespace LayerWorks23.LayerProcessing
             foreach (XElement classifier in classifiers.Elements())
             {
                 Classifier c = Enum.Parse<Classifier>(classifier.Name.ToString());
+                
                 InitializingDictionary[c](classifier);
             }
 
@@ -33,7 +31,7 @@ namespace LayerWorks23.LayerProcessing
             [Classifier.Prefix] = InitializePrefix,
             [Classifier.PrimaryClassifier] = InitializePrimaryClassifier,
             [Classifier.AuxilaryClassifier] = InitializeAuxilaryClassifier,
-            [Classifier.AuxilaryClassifier] = InitializeAuxilaryData,
+            [Classifier.AuxilaryData] = InitializeAuxilaryData,
             [Classifier.SecondaryClassifiers] = InitializeSecondaryClassifiers,
             [Classifier.StatusClassifier] = InitializeStatusClassifier,
             [Classifier.BooleanSuffix] = InitializeBooleanSuffix
@@ -57,8 +55,9 @@ namespace LayerWorks23.LayerProcessing
             // Задаём префикс парсеру
             _parser.Prefix = prefixValue;
             // Добавляем в очередь обработки строки соответствующий метод
-            Classifier с = Enum.Parse<Classifier>(element.Name.ToString());
-            _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[с]);
+            Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
+            _parser.AssembleOrder.Add(c);
+            _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[c]);
             // Указываем, что префикс инициализирован
             _parser.IsPrefixInitialized = true;
         }
@@ -73,6 +72,7 @@ namespace LayerWorks23.LayerProcessing
 
             // Добавляем в очередь обработки строки соответствующий метод
             Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
+            _parser.AssembleOrder.Add(c);
             _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[c]);
             // Указываем, что основной классификатор инициализирован
             _parser.IsPrimaryInitialized = true;
@@ -87,6 +87,7 @@ namespace LayerWorks23.LayerProcessing
             _parser.AuxilaryClassifiers.Add(dict);
             // Добавляем в очередь обработки строки соответствующий метод
             Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
+            _parser.AssembleOrder.Add(c);
             _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[c]);
         }
 
@@ -144,11 +145,12 @@ namespace LayerWorks23.LayerProcessing
                 _parser.ValidPrimary[key] = validSet;
             }
 
+            Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
+            _parser.AssembleOrder.Add(c);
             // Добавляем в очередь обработки строки соответствующий метод, если он уже не был добавлен
             // (обработка дополнительной информации идёт только один раз)
             if (!_parser.IsAuxilaryDataInitialized)
             {
-                Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
                 _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[c]);
                 _parser.IsAuxilaryDataInitialized = true;
             }
@@ -158,6 +160,7 @@ namespace LayerWorks23.LayerProcessing
         {
             // Добавляем в очередь обработки строки соответствующий метод
             Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
+            _parser.AssembleOrder.Add(c);
             _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[c]);
             // Указываем, что вторичные классификаторы инициализированы
             _parser.IsSecondaryInitialized = true;
@@ -172,12 +175,16 @@ namespace LayerWorks23.LayerProcessing
                 _parser.ErrorMessages.Add("Статус задан более одного раза");
                 return;
             }
+            // Заполняем словарь
             foreach (XElement classifier in element.Elements())
             {
                 _parser.StatusClassifiers.Add(classifier.Value, classifier.Attribute("Description").Value);
             }
+            // Добавляем в очередь обработки строки соответствующий метод
             Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
             _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[c]);
+            _parser.AssembleOrder.Add(c);
+            // Указываем, что статус инициализирован
             _parser.IsStatusInitialized = true;
         }
 
@@ -185,215 +192,8 @@ namespace LayerWorks23.LayerProcessing
         {
             _parser.Suffix = element.Attribute("Value").Value;
             Classifier c = Enum.Parse<Classifier>(element.Name.ToString());
+            _parser.AssembleOrder.Add(c);
             _parser.ProcessingQueue.Add(_parser.ProcessingDictionary[c]);
         }
-    }
-
-
-
-    public class NameParser
-    {
-        public static Dictionary<string, NameParser> LoadedParsers { get; } = new();
-        internal Dictionary<Classifier, Func<string[], LayerInfo, int, int>> ProcessingDictionary { get; }
-
-
-        internal NameParser()
-        {
-            ProcessingDictionary = new()
-            {
-                [Classifier.Prefix] = ProcessPrefix,
-                [Classifier.PrimaryClassifier] = ProcessPrimaryClassifier,
-                [Classifier.AuxilaryClassifier] = ProcessAuxilaryClassifier,
-                [Classifier.AuxilaryData] = ProcessAuxilaryData,
-                [Classifier.SecondaryClassifiers] = ProcessSecondaryClassifiers,
-                [Classifier.StatusClassifier] = ProcessStatusClassifier,
-                [Classifier.BooleanSuffix] = ProcessBooleanSuffix
-            };
-        }
-
-
-        internal List<Func<string[], LayerInfo, int, int>> ProcessingQueue { get; } = new();
-        internal Dictionary<string, string> PrimaryClassifiers { get; } = new();
-        internal Dictionary<string, string> StatusClassifiers { get; } = new();
-        internal List<Dictionary<string, string>> AuxilaryClassifiers { get; } = new();
-        internal List<string> AuxilaryDataKeys { get; } = new();
-        internal List<char[]> AuxilaryDataBrackets { get; } = new();
-        internal Dictionary<string, Dictionary<string, string>> StatusTransformations { get; } = new();
-        internal Dictionary<string, HashSet<string>> ValidPrimary { get; } = new();
-        internal Dictionary<string, HashSet<string>> ValidAuxilary { get; } = new();
-        internal string Prefix { get; set; }
-        internal string Suffix { get; set; }
-        internal string Separator { get; set; }
-
-        internal bool IsPrefixInitialized = false;
-        internal bool IsPrimaryInitialized = false;
-        internal bool IsAuxilaryDataInitialized = false;
-        internal bool IsSecondaryInitialized = false;
-        internal bool IsStatusInitialized = false;
-        internal bool InitializedWithErrors = false;
-        internal List<string> ErrorMessages { get; } = new();
-
-
-        public LayerInfo GetLayerInfo(string layerName)
-        {
-            LayerInfo layerInfo = new(this);
-            string[] decomposition = layerName.Split(Separator);
-
-            int pointer = 0;
-            foreach (Func<string[], LayerInfo, int, int> func in ProcessingQueue)
-            {
-                pointer = func(decomposition, layerInfo, pointer);
-            }
-            return layerInfo;
-        }
-
-        public int ProcessPrefix(string[] str, LayerInfo layerInfo, int pointer)
-        {
-            if (str[pointer] != layerInfo.ParentParser.Prefix)
-                throw new WrongLayerException("Не совпадает префикс");
-            layerInfo.Prefix = layerInfo.ParentParser.Prefix;
-            pointer++;
-            return pointer;
-        }
-
-        public int ProcessPrimaryClassifier(string[] str, LayerInfo layerInfo, int pointer)
-        {
-            layerInfo.PrimaryClassifier = str[pointer];
-            pointer++;
-            return pointer;
-        }
-
-        public int ProcessAuxilaryClassifier(string[] str, LayerInfo layerInfo, int pointer)
-        {
-            if (AuxilaryClassifiers[0].ContainsKey(str[pointer]))
-                layerInfo.AuxilaryClassifiers.Add(str[pointer]);
-            pointer++;
-            return pointer;
-        }
-
-        public int ProcessAuxilaryData(string[] str, LayerInfo layerInfo, int pointer)
-        {
-            for (int i = 0; i < AuxilaryDataBrackets.Count; i++)
-            {
-                // Проверить строку на 
-                if (!str[pointer].StartsWith(AuxilaryDataBrackets[i][0]))
-                {
-                    layerInfo.AuxilaryData[AuxilaryDataKeys[i]] = null;
-                    continue;
-                }
-                int elementsCounter = 1;
-                while (!str[pointer].EndsWith(AuxilaryDataBrackets[i][1]))
-                {
-                    elementsCounter++;
-                }
-                string auxData = string.Join(Separator, str.Skip(pointer - 1).Take(elementsCounter).ToArray());
-                string formattedAuxData = auxData.Replace(AuxilaryDataBrackets[i][0].ToString(), "").Replace(AuxilaryDataBrackets[i][1].ToString(), "");
-                layerInfo.AuxilaryData[AuxilaryDataKeys[i]] = formattedAuxData;
-                pointer += elementsCounter;
-            }
-            return pointer;
-        }
-
-        public int ProcessSecondaryClassifiers(string[] str, LayerInfo layerInfo, int pointer)
-        {
-            int elementsCounter = 0;
-            while (!StatusClassifiers.ContainsKey(str[pointer]))
-            {
-                elementsCounter++;
-            }
-            string secondary = string.Join(Separator, str.Skip(pointer - 1).Take(elementsCounter).ToArray());
-            pointer += elementsCounter;
-            layerInfo.SecondaryClassifiers = secondary;
-            return pointer;
-        }
-
-        public int ProcessStatusClassifier(string[] str, LayerInfo layerInfo, int pointer)
-        {
-            if (!StatusClassifiers.ContainsKey(str[pointer]))
-                throw new WrongLayerException("Не найден статус");
-            layerInfo.Status = str[pointer];
-            pointer++;
-            return pointer;
-        }
-
-        public int ProcessBooleanSuffix(string[] str, LayerInfo layerInfo, int pointer)
-        {
-            try
-            {
-                layerInfo.SuffixTagged = str[pointer] == Suffix;
-            }
-            catch
-            { }
-            pointer++;
-            return pointer;
-        }
-
-    }
-
-    public class LayerInfo
-    {
-        public NameParser ParentParser { get; }
-
-        public string Prefix { get; internal set; }
-        public string PrimaryClassifier { get; internal set; }
-        public List<string> AuxilaryClassifiers { get; } = new();
-        public Dictionary<string, string> AuxilaryData { get; }
-        public string SecondaryClassifiers { get; set; }
-        public string Status { get; set; }
-        public bool SuffixTagged { get; set; }
-
-        public string MainName => string.Concat(PrimaryClassifier,
-                                                ParentParser.Separator,
-                                                AuxilaryClassifiers,
-                                                ParentParser.Separator,
-                                                SecondaryClassifiers);
-        public string TrueName => string.Concat(PrimaryClassifier,
-                                                ParentParser.Separator,
-                                                AuxilaryClassifiers,
-                                                ParentParser.Separator,
-                                                SecondaryClassifiers,
-                                                ParentParser.Separator,
-                                                Status);
-        public LayerInfo(NameParser parser)
-        {
-            ParentParser = parser;
-        }
-
-        public void SwitchStatus(string newStatus)
-        {
-            if (ParentParser.StatusClassifiers.ContainsKey(newStatus))
-                Status = newStatus;
-        }
-        public void ChangeAuxilaryData(string key, string value)
-        {
-            if (!ParentParser.ValidPrimary[key].Contains(PrimaryClassifier))
-                throw new Exception($"Нельзя назначить {key} для объекта типа \"{ParentParser.PrimaryClassifiers[PrimaryClassifier]}\"");
-            bool validAuxilary = false;
-            foreach (string aux in AuxilaryClassifiers)
-                if (ParentParser.ValidAuxilary[key].Contains(aux))
-                {
-                    validAuxilary = true;
-                    break;
-                }
-            if (!validAuxilary)
-            {
-                throw new Exception($"Нельзя назначить {key}. Дополнительного классификатора нет в списке допустимых");
-            }
-            if (ParentParser.StatusTransformations[key].ContainsKey(Status))
-                Status = ParentParser.StatusTransformations[key][Status];
-            AuxilaryData[key] = value;
-        }
-
-    }
-
-    internal enum Classifier
-    {
-        Prefix,
-        PrimaryClassifier,
-        AuxilaryClassifier,
-        SecondaryClassifiers,
-        AuxilaryData,
-        StatusClassifier,
-        BooleanSuffix
     }
 }

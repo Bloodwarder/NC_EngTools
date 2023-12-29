@@ -6,11 +6,8 @@ using NPOI.SS.Util;
 
 namespace LayersIO.Excel
 {
-    public class ExcelSimpleDictionaryDataProvider<TKey, TValue> : ExcelDictionaryDataProvider<TKey, TValue>
+    public class ExcelSimpleDictionaryDataProvider<TKey, TValue> : ExcelDictionaryDataProvider<TKey, TValue> where TKey : notnull
     {
-        private string _keyName;
-        private string _valueName;
-
         public ExcelSimpleDictionaryDataProvider(string path, string sheetname) : base(path, sheetname) 
         {
         }

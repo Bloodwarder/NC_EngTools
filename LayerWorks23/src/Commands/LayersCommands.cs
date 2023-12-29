@@ -10,7 +10,8 @@ using Teigha.Colors;
 using LoaderCore.Utilities;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Dictionaries;
-using LayerWorks23.src.LayerProcessing;
+using LayerWorks23.LayerProcessing;
+using LayersIO.ExternalData;
 
 namespace LayerWorks.Commands
 {
@@ -19,6 +20,7 @@ namespace LayerWorks.Commands
     /// </summary>
     public class LayersCommands
     {
+        private const string ExtProjectAuxDataKey = "ExternalProject";
         internal static string PrevStatus = "Сущ";
         internal static string PrevExtProject = "";
         /// <summary>
@@ -95,7 +97,8 @@ namespace LayerWorks.Commands
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
-                    ActiveLayerWrappers.StatusSwitch((Status)val);
+                    ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info => info.SwitchStatus(val.ToString())));
+                    //ActiveLayerWrappers.StatusSwitch((Status)val);
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
@@ -121,21 +124,29 @@ namespace LayerWorks.Commands
         public void LayerAlter()
         {
             Workstation.Define();
-            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
-            Editor ed = Workstation.Editor;
 
-            using (Transaction transaction = tm.StartTransaction())
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
+                //string str = LayerAlteringDictionary.GetValue(MainName, out bool success);
+                //if (!success) { return; }
+                //MainName = str;
+
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
-                    ActiveLayerWrappers.Alter();
+                    ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info =>
+                    {
+                        string name = LayerAlteringDictionary.GetValue(info.MainName, out bool success);
+                        if (success)
+                            info.AlterSecondaryClassifier(name);
+                        return;
+                    }));
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
                 {
-                    ed.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                    Workstation.Editor.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
                 }
                 finally
                 {
@@ -159,7 +170,7 @@ namespace LayerWorks.Commands
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
-                    ActiveLayerWrappers.ReconstrSwitch();
+                    ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged = !info.SuffixTagged; }));
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
@@ -207,7 +218,8 @@ namespace LayerWorks.Commands
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
-                    ActiveLayerWrappers.ExtProjNameAssign(extProjectName);
+                    ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info => info.ChangeAuxilaryData(ExtProjectAuxDataKey, extProjectName)));
+                    //ActiveLayerWrappers.ExtProjNameAssign(extProjectName);
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
@@ -259,17 +271,44 @@ namespace LayerWorks.Commands
         public void ChangePrefix()
         {
             Workstation.Define();
-            Editor ed = Workstation.Editor;
-            PromptStringOptions pso = new PromptStringOptions($"Введите новый префикс обрабатываемых слоёв <{LayerWrapper.StandartPrefix}>")
+            List<string> additionalOptions = new List<string>()
             {
-                AllowSpaces = false
+                "Переопределить",
+                "Загрузить"
             };
-            string newprefix = ed.GetString(pso).StringResult;
-            if (!string.IsNullOrEmpty(newprefix))
-            {
-                LayerWrapper.StandartPrefix = newprefix;
-            }
+            List<string> prefixes = NameParser.LoadedParsers.Keys.OrderBy(k => k).Concat(additionalOptions).ToList();
 
+            PromptKeywordOptions pko = new($"Выберите префикс обрабатываемых слоёв <{LayerWrapper.StandartPrefix}> [{string.Join("/", prefixes)}", string.Join(" ", prefixes))
+            {
+                AppendKeywordsToMessage = true,
+                AllowNone = false,
+                AllowArbitraryInput = false
+            };
+            PromptResult result = Workstation.Editor.GetKeywords(pko);
+            if (result.Status != PromptStatus.OK)
+                return;
+            if (result.StringResult == "Переопределить")
+            {
+                RedefinePrefix();
+                return;
+            }
+            if (result.StringResult == "Загрузить")
+            {
+                LoadNewParser();
+                return;
+            }
+            string newprefix = result.StringResult;
+            LayerWrapper.StandartPrefix = newprefix;
+        }
+
+        private void RedefinePrefix()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void LoadNewParser()
+        {
+            throw new NotImplementedException();
         }
     }
 

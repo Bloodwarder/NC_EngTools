@@ -1,8 +1,5 @@
 ﻿using HostMgd.ApplicationServices;
 using LoaderCore.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Teigha.DatabaseServices;
 using LayerWorks.Commands;
 
@@ -21,7 +18,7 @@ namespace LayerWorks.LayerProcessing
                 StoredLayerStates[doc] = new List<ChapterStoreLayerWrapper>();
                 _eventAssigned.Add(doc, false);
             }
-            if (!StoredLayerStates[doc].Any(l => l.InputLayerName == lp.InputLayerName))
+            if (!StoredLayerStates[doc].Any(l => l.LayerInfo.Name == lp.LayerInfo.Name))
             {
                 StoredLayerStates[doc].Add(lp);
             }

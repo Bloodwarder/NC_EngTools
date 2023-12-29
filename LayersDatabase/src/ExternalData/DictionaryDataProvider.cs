@@ -2,7 +2,7 @@
 
 namespace LayersIO.ExternalData
 {
-    public abstract class DictionaryDataProvider<TKey, TValue>
+    public abstract class DictionaryDataProvider<TKey, TValue> where TKey : notnull
     {
 
         public abstract Dictionary<TKey, TValue> GetDictionary();

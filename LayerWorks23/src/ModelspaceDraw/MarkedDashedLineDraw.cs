@@ -8,7 +8,7 @@ using Teigha.Geometry;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
-using LayerWorks23.src.LayerProcessing;
+using LayerWorks23.LayerProcessing;
 
 namespace LayerWorks.ModelspaceDraw
 {
@@ -31,7 +31,7 @@ namespace LayerWorks.ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer.TrueName, out _, true).ConstantWidth;
+                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer.LayerInfo.TrueName, out _, true).ConstantWidth;
                 LayerChecker.FindLinetype("ACAD_ISO02W100", out bool ltgetsuccess);
                 if (ltgetsuccess)
                     line.Linetype = "ACAD_ISO02W100";

@@ -1,13 +1,14 @@
 ﻿using LayersIO.ExternalData;
 using LayerWorks23.LayerProcessing;
 using System.Text.RegularExpressions;
+using System.Windows.Controls;
 
 namespace LayerWorks.LayerProcessing
 {
     /// <summary>
     /// Парсер слоя, получающий информацию об объекте на основе имени
     /// </summary>
-    public abstract class LayerWrapper
+    public abstract class LayerWrapperOld
     {
         /// <summary>
         /// Имя исходного слоя, переданного в конструктор 
@@ -91,7 +92,7 @@ namespace LayerWorks.LayerProcessing
         /// </summary>
         /// <param name="layername">Строка с именем исходного слоя</param>
         /// <exception cref="WrongLayerException">Ошибка обработки имени слоя</exception>
-        public LayerWrapper(string layername)
+        public LayerWrapperOld(string layername)
         {
             InputLayerName = layername;
             if (!layername.StartsWith(StandartPrefix))
@@ -252,16 +253,30 @@ namespace LayerWorks.LayerProcessing
         public abstract void Push();
     }
 
-    public abstract class LayerWrapperNew
+    public abstract class LayerWrapper
     {
         public LayerInfo LayerInfo { get; private set; }
-        public LayerWrapperNew(string layerName)
+        public static string StandartPrefix { get; set; }
+        public LayerWrapper(string layerName)
         {
             // Поиск префикса по любому возможному разделителю
             string prefix = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])").Value;
             LayerInfo = NameParser.LoadedParsers[prefix].GetLayerInfo(layerName);
-
         }
+
+        public void AlterLayerInfo(Action<LayerInfo, string> action, string value)
+        {
+            action(LayerInfo, value);
+        }
+        public void AlterLayerInfo(Action<LayerInfo, string, string> action, string key, string value)
+        {
+            action(LayerInfo, key, value);
+        }
+        public void AlterLayerInfo(Action<LayerInfo> action)
+        {
+            action(LayerInfo);
+        }
+
         public abstract void Push();
     }
 }

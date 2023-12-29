@@ -11,7 +11,7 @@ using Teigha.Runtime;
 //internal modules
 using LoaderCore.Utilities;
 using LayerWorks.LayerProcessing;
-using LayerWorks23.src.LayerProcessing;
+using LayerWorks23.LayerProcessing;
 
 namespace LayerWorks.Commands
 {
@@ -45,14 +45,12 @@ namespace LayerWorks.Commands
             Document doc = Workstation.Document;
             Database db = Workstation.Database;
 
-
-
             using (Transaction transaction = tm.StartTransaction())
             {
                 LayerTable lt = (LayerTable)transaction.GetObject(db.LayerTableId, OpenMode.ForRead, false);
                 var layers = from ObjectId elem in lt
                              let ltr = tm.GetObject(elem, OpenMode.ForWrite, false) as LayerTableRecord
-                             where ltr.Name.StartsWith(LayerWrapper.StandartPrefix + "_")
+                             where ltr.Name.StartsWith(LayerWrapper.StandartPrefix + NameParser.LoadedParsers[LayerWrapper.StandartPrefix].Separator)
                              select ltr;
                 int errorCount = 0;
                 int successCount = 0;
@@ -72,7 +70,12 @@ namespace LayerWorks.Commands
                 }
                 Workstation.Editor.WriteMessage($"Фильтр включен для {successCount} слоёв. Число необработанных слоёв: {errorCount}");
 
-                var layerchapters = ChapterStoredLayerWrappers.StoredLayerStates[doc].Where(l => l.EngType != null).Select(l => l.EngType).Distinct().OrderBy(l => l).ToList();
+                var layerchapters = ChapterStoredLayerWrappers.StoredLayerStates[doc]
+                    .Where(l => l.LayerInfo.PrimaryClassifier != null)
+                    .Select(l => l.LayerInfo.PrimaryClassifier)
+                    .Distinct()
+                    .OrderBy(l => l)
+                    .ToList();
                 List<string> lcplus = layerchapters.Append("Сброс").ToList();
                 PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел [" + string.Join("/", lcplus) + "]", string.Join(" ", lcplus))
                 {

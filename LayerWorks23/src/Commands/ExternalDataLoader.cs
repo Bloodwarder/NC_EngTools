@@ -85,7 +85,7 @@ namespace LayersIO.ExternalData
                     // Попытка распарсить имя слоя для поиска существующих сохранённых свойств
                     try
                     {
-                        checkedname = new SimpleLayerParser(ltr.Name).TrueName;
+                        checkedname = new SimpleLayerParser(ltr.Name).LayerInfo.TrueName;
                     }
                     catch (WrongLayerException ex)
                     {
