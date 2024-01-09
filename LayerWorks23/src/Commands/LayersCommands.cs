@@ -79,9 +79,6 @@ namespace LayerWorks.Commands
         public void LayerStatusChange()
         {
             Workstation.Define();
-            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
-            Editor ed = Workstation.Editor;
-
 
             PromptKeywordOptions pko = new PromptKeywordOptions($"Укажите статус объекта <{PrevStatus}> [Сущ/Демонтаж/Проект/Неутв/Неутв_демонтаж/Неутв_реорганизация]", "Сущ Демонтаж Проект Неутв Неутв_демонтаж Неутв_реорганизация")
             {
@@ -89,10 +86,10 @@ namespace LayerWorks.Commands
                 AllowNone = false,
                 AllowArbitraryInput = false
             };
-            PromptResult res = ed.GetKeywords(pko);
+            PromptResult res = Workstation.Editor.GetKeywords(pko);
             if (res.Status == PromptStatus.OK) { PrevStatus = res.StringResult; }
             StatusTextDictionary.StTxtDictionary.TryGetValue(res.StringResult, out int val);
-            using (Transaction transaction = tm.StartTransaction())
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
                 {
@@ -104,11 +101,11 @@ namespace LayerWorks.Commands
                 }
                 catch (WrongLayerException ex)
                 {
-                    ed.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                    Workstation.Editor.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
                 }
                 catch (System.Exception ex)
                 {
-                    ed.WriteMessage(ex.Message);
+                    Workstation.Editor.WriteMessage(ex.Message);
                 }
                 finally
                 {

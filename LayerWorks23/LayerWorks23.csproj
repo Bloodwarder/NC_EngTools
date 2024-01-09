@@ -19,6 +19,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="src\LayerProcessing\Status.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="src\LayerProcessing\Status.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <ProjectReference Include="..\LayersDatabase\LayersIO.csproj" />
 	  <ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
 	    <Private>False</Private>

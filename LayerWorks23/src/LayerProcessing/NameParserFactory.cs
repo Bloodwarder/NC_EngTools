@@ -51,7 +51,7 @@ namespace LayerWorks23.LayerProcessing
             // Проверяем, не было ли уже указанного префикса в словаре парсеров
             bool successAdd = NameParser.LoadedParsers.TryAdd(prefixValue, _parser);
             if (!successAdd)
-                throw new Exception("NameParser с указанным префиксом уже существует");
+                throw new NameParserInitializeException("NameParser с указанным префиксом уже существует");
             // Задаём префикс парсеру
             _parser.Prefix = prefixValue;
             // Добавляем в очередь обработки строки соответствующий метод

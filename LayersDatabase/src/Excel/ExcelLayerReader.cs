@@ -14,7 +14,7 @@ namespace LayersIO.Excel
         public static void ReadWorkbook(string workbookPath)
         {
             Stopwatch sw = Stopwatch.StartNew();
-            Mapper mapper = new Mapper(workbookPath);
+            Mapper mapper = new(workbookPath);
 
             List<LayerGroupData> groups = ExtractLayerGroupsData(mapper);
             List<LayerData> layers = ExtractLayersData(mapper, groups);
@@ -33,39 +33,39 @@ namespace LayersIO.Excel
         private static List<LayerGroupData> ExtractLayerGroupsData(Mapper mapper)
         {
             Dictionary<string, LayerLegendData> legendDataDictionary =
-                ExtractToDictionary<LayerLegendData, NameTransition>(mapper, "Legend", n => n.Value.Name);
-            var alterDictionary = mapper.Take<NameTransition>("Alter").ToDictionary(n => n.Value.MainNameSource, n => n.Value.MainNameAlter);
+                ExtractToDictionary<LayerLegendData, NameTransition>(mapper, "Legend", n => n.Value.Name!);
+            var alterDictionary = mapper.Take<NameTransition>("Alter").ToDictionary(n => n.Value.MainNameSource!, n => n.Value.MainNameAlter);
             List<LayerGroupData> list = new();
             foreach (var layerGroup in legendDataDictionary.Keys)
             {
-                LayerGroupData layerGroupData = new LayerGroupData()
+                LayerGroupData layerGroupData = new()
                 {
-                    MainName = layerGroup
+                    MainName = layerGroup,
+                    LayerLegendData = legendDataDictionary[layerGroup]
                 };
-                layerGroupData.LayerLegendData = legendDataDictionary[layerGroup];
                 list.Add(layerGroupData);
             }
-            //foreach (var layerGroup in list)
-            //{
-            //    if (alterDictionary.ContainsKey(layerGroup.MainName))
-            //        layerGroup.AlternateLayer = list.Where(lg => lg.MainName == alterDictionary[layerGroup.MainName]).FirstOrDefault();
-            //}
+            foreach (var layerGroup in list)
+            {
+                if (alterDictionary.ContainsKey(layerGroup.MainName))
+                    layerGroup.AlternateLayer = alterDictionary[layerGroup.MainName];
+            }
             return list;
         }
         private static List<LayerData> ExtractLayersData(Mapper mapper, IEnumerable<LayerGroupData> layerGroups)
         {
             Dictionary<string, LayerPropertiesData> propsDictionary =
-                ExtractToDictionary<LayerPropertiesData, NameTransition>(mapper, "Props", n => n.Value.Name);
+                ExtractToDictionary<LayerPropertiesData, NameTransition>(mapper, "Props", n => n.Value.Name!);
             Dictionary<string, LayerDrawTemplateData> legendDrawDictionary =
-                ExtractToDictionary<LayerDrawTemplateData, NameTransition>(mapper, "LegendDraw", n => n.Value.Name);
+                ExtractToDictionary<LayerDrawTemplateData, NameTransition>(mapper, "LegendDraw", n => n.Value.Name!);
 
             Dictionary<string, LayerGroupData> groupDictionary = layerGroups.ToDictionary(lg => lg.MainName, lg => lg);
 
-            List<LayerData> layers = new List<LayerData>();
+            List<LayerData> layers = new();
             List<string> layerNames = propsDictionary.Select(n => n.Key).Union(legendDrawDictionary.Select(n => n.Key)).ToList();
             foreach (var layer in layerNames)
             {
-                LayerData layerData = new LayerData()
+                LayerData layerData = new()
                 {
                     Name = layer,
                 };
@@ -86,9 +86,9 @@ namespace LayersIO.Excel
                 {
                     layerData.LayerDrawTemplateData = new();
                 }
-                bool success = groupDictionary.TryGetValue(layerData.MainName, out LayerGroupData lgd);
+                bool success = groupDictionary.TryGetValue(layerData.MainName, out LayerGroupData? lgd);
                 if (success)
-                    lgd.Layers.Add(layerData);
+                    lgd!.Layers.Add(layerData);
                 layers.Add(layerData);
             }
             return layers;

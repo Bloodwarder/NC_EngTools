@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LayersIO.Model
+﻿namespace LayersIO.Model
 {
     public class LayerGroupData
     {
 
         public int Id { get; set; }
 
-        public string MainName { get; set; }
+        public string MainName { get; set; } = null!;
 
-        public LayerLegendData LayerLegendData { get; set; }
+        public LayerLegendData LayerLegendData { get; set; } = null!;
 
         //public int? AlternateLayerId { get; set; }
-        //public LayerGroupData? AlternateLayer { get; set; }
+        public string? AlternateLayer { get; set; }
 
         public List<LayerData> Layers { get; } = new();
 
