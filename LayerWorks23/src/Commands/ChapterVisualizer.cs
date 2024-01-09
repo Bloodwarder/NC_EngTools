@@ -113,7 +113,7 @@ namespace LayerWorks.Commands
             using (Transaction transaction = tm.StartTransaction())
             {
                 ChapterStoreLayerWrapper cslp = new ChapterStoreLayerWrapper((LayerTableRecord)sender);
-                cslp.Push(ActiveChapterState[doc]);
+                cslp.Push(ActiveChapterState[doc], new() { "пр", "неутв" });
                 transaction.Commit();
             }
 

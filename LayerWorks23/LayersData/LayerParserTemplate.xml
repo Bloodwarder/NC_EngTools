@@ -60,6 +60,22 @@
 		</StatusClassifier>
 		<BooleanSuffix Value="пер"/>
 	</Classifiers>
+	<HighlightMode>
+		<StatusReference Value="пр">
+			<Color>
+				<Red>0</Red>
+				<Green>255</Green>
+				<Blue>255</Blue>
+			</Color>
+		</StatusReference>
+		<StatusReference Value="неутв">
+			<Color>
+				<Red>0</Red>
+				<Green>153</Green>
+				<Blue>153</Blue>
+			</Color>
+		</StatusReference>
+	</HighlightMode>
 	<SharedProperties>
 		<Property Name="ConstantWidth">
 			<StatusGroup>
@@ -82,30 +98,30 @@
 			<StatusGroup>
 				<StatusReference Value="дем"/>
 				<StatusReference Value="нреорг"/>
-				<DefaultValue>
+				<DefaultColor>
 					<Red>107</Red>
 					<Green>107</Green>
 					<Blue>107</Blue>
-				</DefaultValue>
+				</DefaultColor>
 			</StatusGroup>
 			<StatusGroup>
 				<StatusReference Value="проект"/>
 			</StatusGroup>
 			<StatusGroup>
 				<StatusReference Value="ндем"/>
-				<DefaultValue>
+				<DefaultColor>
 					<Red>192</Red>
 					<Green>168</Green>
 					<Blue>110</Blue>
-				</DefaultValue>
+				</DefaultColor>
 			</StatusGroup>
 			<StatusGroup>
 				<StatusReference Value="неутв"/>
-				<DefaultValue>
+				<DefaultColor>
 					<Red>0</Red>
 					<Green>0</Green>
 					<Blue>0</Blue>
-				</DefaultValue>
+				</DefaultColor>
 			</StatusGroup>
 		</Property>
 		<Property Name="LinetypeName">

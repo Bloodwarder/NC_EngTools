@@ -44,16 +44,16 @@ namespace LayerWorks.LayerProcessing
         /// <summary>
         /// Принимает тип объектов. Если объект не относится к заданному типу - выключает его. Если относится к переустройству - задаёт яркий цвет
         /// </summary>
-        /// <param name="engtype">Тип объекта</param>
-        public void Push(string engtype)
+        /// <param name="primaryClassifier">Тип объекта</param>
+        public void Push(string primaryClassifier)
         {
-            if (engtype == null)
+            if (primaryClassifier == null)
             {
                 Reset();
                 return;
             }
 
-            if (EngType == engtype)
+            if (LayerInfo.PrimaryClassifier == primaryClassifier)
             {
                 BoundLayer.IsOff = false;
                 if (recstatus)

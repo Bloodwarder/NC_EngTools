@@ -55,7 +55,7 @@ namespace LayerWorks.LayerProcessing
             }
 
         }
-        internal static void Highlight(string engtype)
+        internal static void Highlight(string primaryClassifier)
         {
             Document doc = Workstation.Document;
             if (!_eventAssigned[doc])
@@ -63,7 +63,7 @@ namespace LayerWorks.LayerProcessing
                 doc.Database.BeginSave += Reset;
                 _eventAssigned[doc] = true;
             }
-            foreach (ChapterStoreLayerWrapper lp in StoredLayerStates[doc]) { lp.Push(engtype); }
+            foreach (ChapterStoreLayerWrapper lp in StoredLayerStates[doc]) { lp.Push(primaryClassifier, "пр", "неутв"); }
         }
 
         //Сбросить сохранённые состояния слоёв для текущего документа
