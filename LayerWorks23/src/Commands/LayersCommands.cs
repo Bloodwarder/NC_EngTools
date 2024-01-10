@@ -31,7 +31,7 @@ namespace LayerWorks.Commands
         {
             Workstation.Define();
             Database db = Workstation.Database;
-            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            TransactionManager tm = Workstation.TransactionManager;
 
             string tgtlayer = LayerWrapper.StandartPrefix + "_Калька";
 
@@ -40,12 +40,13 @@ namespace LayerWorks.Commands
                 LayerTable lt = transaction.GetObject(db.LayerTableId, OpenMode.ForWrite, false) as LayerTable;
                 if (!lt.Has(tgtlayer))
                 {
-
+                    System.Drawing.Color color = System.Drawing.Color.FromArgb(166, 255, 255, 255);
                     LayerTableRecord ltrec = new LayerTableRecord
                     {
                         Name = tgtlayer,
-                        Color = Color.FromRgb(255, 255, 255),
-                        Transparency = new Transparency(166)
+                        Color = Color.FromColor(color),
+                        //Color = Color.FromRgb(255, 255, 255),
+                        //Transparency = new Transparency(166)
                     };
                     lt.Add(ltrec);
                     transaction.AddNewlyCreatedDBObject(ltrec, true);

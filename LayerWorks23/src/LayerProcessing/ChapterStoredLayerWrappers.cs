@@ -33,10 +33,12 @@ namespace LayerWorks.LayerProcessing
         }
 
         // восстановление состояний слоёв при вызове событием сохранения чертежа
-        internal static void Reset(object sender, EventArgs e)
+        internal static void Reset(object sender, DatabaseIOEventArgs e)
         {
             Database db = sender as Database;
             Document doc = Application.DocumentManager.GetDocument(db);
+            if (e.FileName != doc.Name)
+                return;
             Teigha.DatabaseServices.TransactionManager tm = db.TransactionManager; //Workstation.TransactionManager;
 
             using (Transaction transaction = tm.StartTransaction())
@@ -63,7 +65,7 @@ namespace LayerWorks.LayerProcessing
                 doc.Database.BeginSave += Reset;
                 _eventAssigned[doc] = true;
             }
-            foreach (ChapterStoreLayerWrapper lp in StoredLayerStates[doc]) { lp.Push(primaryClassifier, "пр", "неутв"); }
+            foreach (ChapterStoreLayerWrapper lp in StoredLayerStates[doc]) { lp.Push(primaryClassifier, new() { "пр", "неутв" }); }
         }
 
         //Сбросить сохранённые состояния слоёв для текущего документа
