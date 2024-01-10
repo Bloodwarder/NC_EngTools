@@ -44,8 +44,8 @@ namespace LayerWorks.LayerProcessing
         /// <summary>
         /// Принимает тип объектов. Если объект не относится к заданному типу - выключает его. Если относится к переустройству - задаёт яркий цвет
         /// </summary>
-        /// <param name="primaryClassifier">Тип объекта</param>
-        public void Push(string primaryClassifier)
+        /// <param name="primaryClassifier">Тип объекта по основному классификатору</param>
+        public void Push(string primaryClassifier, List<string> highlitedStatusList)
         {
             if (primaryClassifier == null)
             {
@@ -56,13 +56,13 @@ namespace LayerWorks.LayerProcessing
             if (LayerInfo.PrimaryClassifier == primaryClassifier)
             {
                 BoundLayer.IsOff = false;
-                if (recstatus)
+                if (LayerInfo.SuffixTagged)
                 {
-                    if (BuildStatus == Status.Planned)
+                    if (LayerInfo.Status == highlitedStatusList[0])
                     {
                         BoundLayer.Color = Teigha.Colors.Color.FromRgb(redproj, greenproj, blueproj);
                     }
-                    else if (BuildStatus == Status.NSPlanned)
+                    else if (LayerInfo.Status == highlitedStatusList[1])
                     {
                         BoundLayer.Color = Teigha.Colors.Color.FromRgb(redns, greenns, bluens);
                     }

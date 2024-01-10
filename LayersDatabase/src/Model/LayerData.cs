@@ -1,7 +1,4 @@
-﻿
-using System.Windows.Controls;
-
-namespace LayersIO.Model
+﻿namespace LayersIO.Model
 {
     /// <summary>
     /// Model containing data for layer with exact status
@@ -10,7 +7,7 @@ namespace LayersIO.Model
     public class LayerData
     {
         public int Id { get; set; }
-        public string Separator = "_";
+        public string Separator = "_"; // TODO: Заменить на универсальную конструкцию. Брать из xml или из сборки LayerWorks. Или устанавливать из LayersDatabaseEditor
         public string MainName { get; set; } = null!;
         public string StatusName { get; set; } = null!;
 
