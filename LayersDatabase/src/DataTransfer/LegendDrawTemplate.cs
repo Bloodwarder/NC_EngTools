@@ -1,9 +1,11 @@
-﻿namespace LayersIO.DataTransfer
+﻿using LayersIO.Model;
+
+namespace LayersIO.DataTransfer
 {
     /// <summary>
     /// Данные для отрисовки шаблона легенды
     /// </summary>
-    public struct LegendDrawTemplate
+    public class LegendDrawTemplate
     {
         /// <summary>
         /// Имя шаблона

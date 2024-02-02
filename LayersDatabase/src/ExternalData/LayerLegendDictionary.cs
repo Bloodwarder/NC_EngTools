@@ -19,7 +19,7 @@ namespace LayersIO.ExternalData
         {
             try
             {
-                InstanceDictionary = new XmlDictionaryDataProvider<string, LegendData>(PathProvider.GetPath(XmlLegendName)).GetDictionary();
+                InstanceDictionary = new XmlLayerDataProvider<string, LegendData>(PathProvider.GetPath(XmlLegendName)).GetData();
             }
             catch (FileNotFoundException)
             {
@@ -30,7 +30,7 @@ namespace LayersIO.ExternalData
         {
             return instance.GetInstanceValue(layername, out success);
         }
-        public static void Reload(DictionaryDataProvider<string, LegendData> primary, DictionaryDataProvider<string, LegendData> secondary)
+        public static void Reload(LayerDataProvider<string, LegendData> primary, LayerDataProvider<string, LegendData> secondary)
         {
             instance.ReloadInstance(primary, secondary);
         }

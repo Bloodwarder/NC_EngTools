@@ -4,9 +4,9 @@ using NPOI.SS.UserModel;
 
 namespace LayersIO.Excel
 {
-    public class ExcelStructDictionaryDataProvider<TKey, TValue> : ExcelDictionaryDataProvider<TKey, TValue> where TValue : struct
+    public class ExcelStructLayerDataProvider<TKey, TValue> : ExcelLayerDataProvider<TKey, TValue> where TValue : struct
     {
-        public ExcelStructDictionaryDataProvider(string path, string sheetname) : base(path, sheetname) { }
+        public ExcelStructLayerDataProvider(string path, string sheetname) : base(path, sheetname) { }
         private protected override TValue CellsExtract(ICell rng)
         {
             return StructRead<TValue>(rng);

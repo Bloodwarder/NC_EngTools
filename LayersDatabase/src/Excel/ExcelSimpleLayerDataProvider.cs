@@ -6,9 +6,9 @@ using NPOI.SS.Util;
 
 namespace LayersIO.Excel
 {
-    public class ExcelSimpleDictionaryDataProvider<TKey, TValue> : ExcelDictionaryDataProvider<TKey, TValue> where TKey : notnull
+    public class ExcelSimpleLayerDataProvider<TKey, TValue> : ExcelLayerDataProvider<TKey, TValue> where TKey : class where TValue : class
     {
-        public ExcelSimpleDictionaryDataProvider(string path, string sheetname) : base(path, sheetname) 
+        public ExcelSimpleLayerDataProvider(string path, string sheetname) : base(path, sheetname) 
         {
         }
         private protected override TValue CellsExtract(ICell rng)

@@ -1,9 +1,12 @@
-﻿namespace LayersIO.DataTransfer
+﻿using LayersIO.Model;
+
+namespace LayersIO.DataTransfer
 {
+
     /// <summary>
     /// Свойства слоя
     /// </summary>
-    public struct LayerProps
+    public class LayerProps
     {
         /// <summary>
         /// Глобальная ширина
@@ -33,5 +36,6 @@
         /// Вес линий
         /// </summary>
         public int LineWeight;
+
     }
 }
