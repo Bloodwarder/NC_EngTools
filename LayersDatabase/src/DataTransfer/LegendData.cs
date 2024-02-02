@@ -1,9 +1,11 @@
-﻿namespace LayersIO.DataTransfer
+﻿using LayersIO.Model;
+
+namespace LayersIO.DataTransfer
 {
     /// <summary>
     /// Данные слоя для компоновки легенды
     /// </summary>
-    public struct LegendData
+    public class LegendData
     {
         /// <summary>
         /// Ранг. Меньше - отображается выше
@@ -21,5 +23,6 @@
         /// Показывает, нужно ли компоновщику игнорировать указанный слой
         /// </summary>
         public bool IgnoreLayer;
+
     }
 }

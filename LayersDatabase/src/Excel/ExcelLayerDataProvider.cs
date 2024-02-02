@@ -8,7 +8,7 @@ using System.IO;
 
 namespace LayersIO.Excel
 {
-    abstract public class ExcelDictionaryDataProvider<TKey, TValue> : DictionaryDataProvider<TKey, TValue> where TKey : notnull//where TValue : struct
+    abstract public class ExcelLayerDataProvider<TKey, TValue> : LayerDataProvider<TKey, TValue> where TKey : class//where TValue : struct
     {
         internal string Path { get; set; }
         private protected string sheetname;
@@ -25,7 +25,7 @@ namespace LayersIO.Excel
             [typeof(DateTime)] = c => c.DateCellValue,
         };
 
-        internal ExcelDictionaryDataProvider(string path, string sheetname)
+        internal ExcelLayerDataProvider(string path, string sheetname)
         {
             Path = path;
             _fileInfo = new FileInfo(Path);
@@ -33,7 +33,7 @@ namespace LayersIO.Excel
             this.sheetname = sheetname;
         }
 
-        public override Dictionary<TKey, TValue> GetDictionary()
+        public override Dictionary<TKey, TValue> GetData()
         {
 
             IWorkbook xlwb = WorkbookFactory.Create(_fileInfo.FullName, null, true);

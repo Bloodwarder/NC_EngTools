@@ -34,26 +34,26 @@ namespace LayersIO.ExternalData
         {
             if ((reload & ToReload.Properties) == ToReload.Properties)
             {
-                ExcelStructDictionaryDataProvider<string, LayerProps> xlpropsprovider = new ExcelStructDictionaryDataProvider<string, LayerProps>(PathProvider.GetPath("Layer_Props.xlsm"), "Props");
-                XmlDictionaryDataProvider<string, LayerProps> xmlpropsprovider = new XmlDictionaryDataProvider<string, LayerProps>(PathProvider.GetPath("Layer_Props.xml"));
+                ExcelComplexLayerDataProvider<string, LayerProps> xlpropsprovider = new ExcelComplexLayerDataProvider<string, LayerProps>(PathProvider.GetPath("Layer_Props.xlsm"), "Props");
+                XmlLayerDataProvider<string, LayerProps> xmlpropsprovider = new XmlLayerDataProvider<string, LayerProps>(PathProvider.GetPath("Layer_Props.xml"));
                 LayerPropertiesDictionary.Reload(xmlpropsprovider, xlpropsprovider);
             }
             if ((reload & ToReload.Alter) == ToReload.Alter)
             {
-                ExcelSimpleDictionaryDataProvider<string, string> xlalterprovider = new ExcelSimpleDictionaryDataProvider<string, string>(PathProvider.GetPath("Layer_Props.xlsm"), "Alter");
-                XmlDictionaryDataProvider<string, string> xmlalterprovider = new XmlDictionaryDataProvider<string, string>(PathProvider.GetPath("Layer_Alter.xml"));
+                ExcelSimpleLayerDataProvider<string, string> xlalterprovider = new ExcelSimpleLayerDataProvider<string, string>(PathProvider.GetPath("Layer_Props.xlsm"), "Alter");
+                XmlLayerDataProvider<string, string> xmlalterprovider = new XmlLayerDataProvider<string, string>(PathProvider.GetPath("Layer_Alter.xml"));
                 LayerAlteringDictionary.Reload(xmlalterprovider, xlalterprovider);
             }
             if ((reload & ToReload.Legend) == ToReload.Legend)
             {
-                ExcelStructDictionaryDataProvider<string, LegendData> xllegendprovider = new ExcelStructDictionaryDataProvider<string, LegendData>(PathProvider.GetPath("Layer_Props.xlsm"), "Legend");
-                XmlDictionaryDataProvider<string, LegendData> xmllegendprovider = new XmlDictionaryDataProvider<string, LegendData>(PathProvider.GetPath("Layer_Legend.xml"));
+                ExcelComplexLayerDataProvider<string, LegendData> xllegendprovider = new ExcelComplexLayerDataProvider<string, LegendData>(PathProvider.GetPath("Layer_Props.xlsm"), "Legend");
+                XmlLayerDataProvider<string, LegendData> xmllegendprovider = new XmlLayerDataProvider<string, LegendData>(PathProvider.GetPath("Layer_Legend.xml"));
                 LayerLegendDictionary.Reload(xmllegendprovider, xllegendprovider);
             }
             if ((reload & ToReload.LegendDraw) == ToReload.LegendDraw)
             {
-                ExcelStructDictionaryDataProvider<string, LegendDrawTemplate> xllegenddrawprovider = new ExcelStructDictionaryDataProvider<string, LegendDrawTemplate>(PathProvider.GetPath("Layer_Props.xlsm"), "LegendDraw");
-                XmlDictionaryDataProvider<string, LegendDrawTemplate> xmllegenddrawprovider = new XmlDictionaryDataProvider<string, LegendDrawTemplate>(PathProvider.GetPath("Layer_LegendDraw.xml"));
+                ExcelComplexLayerDataProvider<string, LegendDrawTemplate> xllegenddrawprovider = new ExcelComplexLayerDataProvider<string, LegendDrawTemplate>(PathProvider.GetPath("Layer_Props.xlsm"), "LegendDraw");
+                XmlLayerDataProvider<string, LegendDrawTemplate> xmllegenddrawprovider = new XmlLayerDataProvider<string, LegendDrawTemplate>(PathProvider.GetPath("Layer_LegendDraw.xml"));
                 LayerLegendDrawDictionary.Reload(xmllegenddrawprovider, xllegenddrawprovider);
             }
         }

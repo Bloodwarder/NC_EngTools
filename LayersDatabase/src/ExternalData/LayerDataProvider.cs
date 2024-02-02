@@ -2,10 +2,10 @@
 
 namespace LayersIO.ExternalData
 {
-    public abstract class DictionaryDataProvider<TKey, TValue> where TKey : notnull
+    public abstract class LayerDataProvider<TKey, TValue> where  TKey : class
     {
 
-        public abstract Dictionary<TKey, TValue> GetDictionary();
+        public abstract Dictionary<TKey, TValue> GetData();
         public abstract void OverwriteSource(Dictionary<TKey, TValue> dictionary);
 
     }

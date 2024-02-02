@@ -2,6 +2,7 @@
 
 using LayersIO.Model;
 using System.Reflection;
+using LoaderCore.Utilities;
 
 namespace LayersIO.Connection
 {
@@ -15,6 +16,12 @@ namespace LayersIO.Connection
         {
             Database.EnsureCreated();
             _dataSource = dataSource;
+        }
+
+        public override int SaveChanges()
+        {
+            Logger.WriteLog("Сохранение данных");
+            return base.SaveChanges();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

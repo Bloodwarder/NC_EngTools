@@ -27,7 +27,7 @@ namespace LayerWorks.Commands
         /// Переключение кальки, при необходимости добавление её в чертёж
         /// </summary>
         [CommandMethod("КАЛЬКА")]
-        public void TransparentOverlayToggle()
+        public static void TransparentOverlayToggle()
         {
             Workstation.Define();
             Database db = Workstation.Database;
@@ -41,7 +41,7 @@ namespace LayerWorks.Commands
                 if (!lt.Has(tgtlayer))
                 {
                     System.Drawing.Color color = System.Drawing.Color.FromArgb(166, 255, 255, 255);
-                    LayerTableRecord ltrec = new LayerTableRecord
+                    LayerTableRecord ltrec = new()
                     {
                         Name = tgtlayer,
                         Color = Color.FromColor(color),
@@ -77,11 +77,11 @@ namespace LayerWorks.Commands
         /// Изменение статуса объекта в соответствии с данными LayerParser
         /// </summary>
         [CommandMethod("ИЗМСТАТУС", CommandFlags.Redraw)]
-        public void LayerStatusChange()
+        public static void LayerStatusChange()
         {
             Workstation.Define();
 
-            PromptKeywordOptions pko = new PromptKeywordOptions($"Укажите статус объекта <{PrevStatus}> [Сущ/Демонтаж/Проект/Неутв/Неутв_демонтаж/Неутв_реорганизация]", "Сущ Демонтаж Проект Неутв Неутв_демонтаж Неутв_реорганизация")
+            PromptKeywordOptions pko = new($"Укажите статус объекта <{PrevStatus}> [Сущ/Демонтаж/Проект/Неутв/Неутв_демонтаж/Неутв_реорганизация]", "Сущ Демонтаж Проект Неутв Неутв_демонтаж Неутв_реорганизация")
             {
                 AppendKeywordsToMessage = true,
                 AllowNone = false,
@@ -119,7 +119,7 @@ namespace LayerWorks.Commands
         /// Изменение типа объекта на альтернативный в соответствии с таблицей
         /// </summary>
         [CommandMethod("АЛЬТЕРНАТИВНЫЙ", CommandFlags.Redraw)]
-        public void LayerAlter()
+        public static void LayerAlter()
         {
             Workstation.Define();
 
@@ -157,7 +157,7 @@ namespace LayerWorks.Commands
         /// Назначение объекту/слою приписки, обозначающей переустройство
         /// </summary>
         [CommandMethod("ПЕРЕУСТРОЙСТВО", CommandFlags.Redraw)]
-        public void LayerReconstruction()
+        public static void LayerReconstruction()
         {
             Workstation.Define();
             Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
@@ -187,13 +187,13 @@ namespace LayerWorks.Commands
         /// Назначение объекту/слою имени внешнего проекта (неутверждаемого)
         /// </summary>
         [CommandMethod("ВНЕШПРОЕКТ", CommandFlags.Redraw)]
-        public void ExtAssign()
+        public static void ExtAssign()
         {
             Workstation.Define();
             Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
             Editor editor = Workstation.Editor;
 
-            PromptStringOptions pso = new PromptStringOptions($"Введите имя проекта, согласно которому отображён выбранный объект")
+            PromptStringOptions pso = new($"Введите имя проекта, согласно которому отображён выбранный объект")
             {
                 AllowSpaces = true,
                 DefaultValue = PrevExtProject,
@@ -236,10 +236,10 @@ namespace LayerWorks.Commands
         /// Приведение свойств объекта или текущих переменных чертежа к стандарту (ширина и масштаб типов линий)
         /// </summary>
         [CommandMethod("СВС", CommandFlags.Redraw)]
-        public void StandartLayerValues()
+        public static void StandartLayerValues()
         {
             Workstation.Define();
-            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            TransactionManager tm = Workstation.TransactionManager;
             Editor editor = Workstation.Editor;
 
             using (Transaction transaction = tm.StartTransaction())
@@ -269,7 +269,7 @@ namespace LayerWorks.Commands
         public void ChangePrefix()
         {
             Workstation.Define();
-            List<string> additionalOptions = new List<string>()
+            List<string> additionalOptions = new()
             {
                 "Переопределить",
                 "Загрузить"

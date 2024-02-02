@@ -22,7 +22,7 @@ namespace LayersIO.ExternalData
         {
             try
             {
-                InstanceDictionary = new XmlDictionaryDataProvider<string, LayerProps>(PathProvider.GetPath(XmlPropsName)).GetDictionary();
+                InstanceDictionary = new XmlLayerDataProvider<string, LayerProps>(PathProvider.GetPath(XmlPropsName)).GetData();
 
                 defaultLayerProps.Add("сущ", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 });
                 defaultLayerProps.Add("дем", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3, Red = 107, Green = 107, Blue = 107 });
@@ -64,7 +64,7 @@ namespace LayersIO.ExternalData
         {
             return instance.GetInstanceValue(layername, out success, enabledefaults);
         }
-        public static void Reload(DictionaryDataProvider<string, LayerProps> primary, DictionaryDataProvider<string, LayerProps> secondary)
+        public static void Reload(LayerDataProvider<string, LayerProps> primary, LayerDataProvider<string, LayerProps> secondary)
         {
             instance.ReloadInstance(primary, secondary);
         }
