@@ -32,9 +32,9 @@ namespace LayerWorks.ModelspaceDraw
             Polyline pl = new Polyline();
             pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
             pl.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
-            pl.Layer = Layer.OutputLayerName;
+            pl.Layer = Layer.LayerInfo.Name;
             Polyline pl2 = pl.Clone() as Polyline;
-            LayerProps lp = LayerPropertiesDictionary.GetValue(Layer.TrueName, out bool success);
+            LayerProps lp = LayerPropertiesDictionary.GetValue(Layer.LayerInfo.TrueName, out bool success);
             if (success)
             {
                 pl.LinetypeScale = lp.LTScale;

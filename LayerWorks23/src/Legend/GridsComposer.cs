@@ -25,36 +25,41 @@ namespace LayerWorks.Legend
         // Компоновка сеток с условными обозначениями на основе выбранных фильтров
         internal void Compose(Point3d basepoint)
         {
+            // Починено под изначальный парсер чтобы компилировалось и работало
+            // Сделать пользовательский выбор для конкретного парсера, данные взять из xml
             _basepoint = basepoint;
             switch (_filter)
             {
                 case TableFilter.ExistingOnly:
                     // Сетка только с сущом
-                    AddGrid(c => c.Layer.BuildStatus == Status.Existing);
+                    AddGrid(c => c.Layer.LayerInfo.Status == "сущ");
                     break;
 
                 case TableFilter.InternalOnly:
                     // Сетка с сущом, проектом и утверждаемым демонтажом
-                    AddGrid(c => new Status[] { Status.Existing, Status.Deconstructing, Status.Planned }.Contains(c.Layer.BuildStatus));
+                    AddGrid(c => new string[] { "сущ", "дем", "пр"}.Contains(c.Layer.LayerInfo.Status));
                     break;
 
                 case TableFilter.InternalAndExternal:
                     // Сетка с сущом, проектом и утверждаемым демонтажом
-                    AddGrid(c => new Status[] { Status.Existing, Status.Deconstructing, Status.Planned }.Contains(c.Layer.BuildStatus));
+                    AddGrid(c => new string[] { "сущ", "дем", "пр" }.Contains(c.Layer.LayerInfo.Status));
                     // Сетка с неутв и неутв демонтажом
-                    AddGrid(c => new Status[] { Status.NSDeconstructing, Status.NSPlanned }.Contains(c.Layer.BuildStatus));
+                    AddGrid(c => new string[] { "ндем", "неутв"}.Contains(c.Layer.LayerInfo.Status));
 
                     break;
 
                 case TableFilter.InternalAndSeparatedExternal:
                     // Сетка с сущом и проектом
-                    AddGrid(c => new Status[] { Status.Existing, Status.Deconstructing, Status.Planned }.Contains(c.Layer.BuildStatus));
+                    AddGrid(c => new string[] { "сущ", "дем", "пр" }.Contains(c.Layer.LayerInfo.Status));
                     // Сетка с неутв и неутв демонтажом без метки конкретного внешнего проекта
-                    AddGrid(c => new Status[] { Status.NSDeconstructing, Status.NSPlanned }.Contains(c.Layer.BuildStatus) && c.Layer.ExtProjectName == null);
+                    AddGrid(c => new string[] { "ндем", "неутв" }.Contains(c.Layer.LayerInfo.Status) && c.Layer.LayerInfo.AuxilaryData["ExternalProject"] == null);
                     // Сетки с неутв и неутв демонтажом для кадого конкретного внешнего проекта
-                    List<string> extprojects = SourceCells.Where(c => c.Layer.ExtProjectName != null).Select(c => c.Layer.ExtProjectName).Distinct().ToList();
+                    List<string> extprojects = SourceCells
+                        .Where(c => c.Layer.LayerInfo.AuxilaryData["ExternalProject"] != null)
+                        .Select(c => c.Layer.LayerInfo.AuxilaryData["ExternalProject"])
+                        .Distinct().ToList();
                     foreach (string extproject in extprojects)
-                        AddGrid(c => c.Layer.ExtProjectName == extproject);
+                        AddGrid(c => c.Layer.LayerInfo.AuxilaryData["ExternalProject"] == extproject);
                     break;
 
                 case TableFilter.Full:

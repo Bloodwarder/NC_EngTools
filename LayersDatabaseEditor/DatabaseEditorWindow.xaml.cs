@@ -4,6 +4,8 @@ using System.Windows.Controls;
 using LoaderCore;
 using LoaderCore.Utilities;
 using LayersIO.Excel;
+using System.Windows.Documents;
+using System.Diagnostics;
 
 namespace LayersDatabaseEditor
 {
@@ -36,14 +38,18 @@ namespace LayersDatabaseEditor
             this.Height += 175d;
         }
 
+        private async Task LogWriteAsync(string message)
+        {
+            await Task.Run(() => fdLog.Blocks.Add(new Paragraph(new Run(message))));
+        }
         private void LogWrite(string message)
         {
-            tbLog.Text += $"{message}\n";
+            fdLog.Blocks.Add(new Paragraph(new Run(message)));
         }
 
-        private void LogClear(string message) 
+        private void LogClear(string message)
         {
-            tbLog.Text = "";
+            fdLog.Blocks.Clear();
         }
 
         private void miExportLayersFromExcel_Click(object sender, RoutedEventArgs e)

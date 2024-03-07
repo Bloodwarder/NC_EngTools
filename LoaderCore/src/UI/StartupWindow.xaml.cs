@@ -59,7 +59,7 @@ namespace LoaderCore.UI
                 Logger.WriteLog("Последние обновления:");
                 while ((line = reader.ReadLine()) != "" || reader.EndOfStream)
                 {
-                    Logger.WriteLog(line.Replace("\t",""));
+                    Logger.WriteLog(line.Replace("\t", ""));
                 }
                 Logger.WriteLog("\n");
             }
@@ -131,7 +131,8 @@ namespace LoaderCore.UI
 
         private void LogWindow(string message)
         {
-            tbLog.Text += $"\n{message}";
+            fdLog.Blocks.Add(new Paragraph(new Run($"{message}\n")));
+            //tbLog.Text += $"\n{message}";
         }
 
         private void CommandHelpClick(object sender, RoutedEventArgs e)

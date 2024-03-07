@@ -42,7 +42,7 @@ namespace LayerWorks.ModelspaceDraw
         internal protected LegendObjectDraw() { }
         internal LegendObjectDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
         {
-            LegendDrawTemplate = LayerLegendDrawDictionary.GetValue(Layer.TrueName, out _);
+            LegendDrawTemplate = LayerLegendDrawDictionary.GetValue(Layer.LayerInfo.TrueName, out _);
         }
         internal LegendObjectDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
         {

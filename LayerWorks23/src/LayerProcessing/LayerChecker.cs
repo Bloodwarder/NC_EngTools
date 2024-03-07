@@ -53,10 +53,10 @@ namespace LayerWorks23.LayerProcessing
                 try
                 {
                     LayerTable lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
-                    if (!lt.Has(layer.OutputLayerName))
+                    if (!lt.Has(layer.LayerInfo.Name))
                     {
-                        LayerProps lp = LayerPropertiesDictionary.GetValue(layer.TrueName, out bool propsgetsuccess);
-                        LayerTableRecord ltRecord = AddLayer(layer.OutputLayerName, lp);
+                        LayerProps lp = LayerPropertiesDictionary.GetValue(layer.LayerInfo.TrueName, out bool propsgetsuccess);
+                        LayerTableRecord ltRecord = AddLayer(layer.LayerInfo.Name, lp);
 
                         //Process new layer if isolated chapter visualization is active
                         EventArgs e = new EventArgs();
