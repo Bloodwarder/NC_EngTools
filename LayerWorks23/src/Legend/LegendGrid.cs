@@ -42,7 +42,7 @@ namespace LayerWorks.Legend
 
         private void AddCells(LegendGridCell cell)
         {
-            this[cell.Layer.MainName].AddCell(cell);
+            this[cell.Layer.LayerInfo.MainName].AddCell(cell);
             if (cell.ParentRow.LegendData.IgnoreLayer)
                 return;
             cell.ParentGrid = this;
@@ -106,12 +106,12 @@ namespace LayerWorks.Legend
         private void ProcessColumns()
         {
             // Назначить целочисленные X координаты ячейкам таблицы на основе их статусов
-            List<Status> statuses = Cells.Select(c => c.Layer.BuildStatus).Distinct().ToList();
+            List<string> statuses = Cells.Select(c => c.Layer.LayerInfo.Status).Distinct().ToList();
             _columns = statuses.Count;
             statuses.Sort();
             for (int i = 0; i < statuses.Count; i++)
             {
-                foreach (LegendGridCell cell in Cells.Where(c => c.Layer.BuildStatus == statuses[i]))
+                foreach (LegendGridCell cell in Cells.Where(c => c.Layer.LayerInfo.Status == statuses[i]))
                     cell.AssignX(i);
             }
         }

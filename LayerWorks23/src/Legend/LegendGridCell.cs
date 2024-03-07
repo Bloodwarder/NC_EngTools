@@ -18,7 +18,7 @@ namespace LayerWorks.Legend
         internal LegendGridCell(RecordLayerParser layer)
         {
             Layer = layer;
-            _template = LayerLegendDrawDictionary.GetValue(layer.TrueName, out _);
+            _template = LayerLegendDrawDictionary.GetValue(layer.LayerInfo.TrueName, out _);
         }
 
         internal LegendGrid ParentGrid { get; set; }

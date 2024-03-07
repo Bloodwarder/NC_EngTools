@@ -6331,7 +6331,7 @@
         <Red>51</Red>
         <Green>51</Green>
         <Blue>51</Blue>
-        <LTName>НПП</LTName>
+        <LTName>НПП--</LTName>
         <LineWeight>15</LineWeight>
       </LayerProps>
     </value>
@@ -6347,7 +6347,7 @@
         <Red>107</Red>
         <Green>107</Green>
         <Blue>107</Blue>
-        <LTName>НПП</LTName>
+        <LTName>НПП--</LTName>
         <LineWeight>15</LineWeight>
       </LayerProps>
     </value>
@@ -6363,7 +6363,7 @@
         <Red>76</Red>
         <Green>0</Green>
         <Blue>153</Blue>
-        <LTName>НПП</LTName>
+        <LTName>НПП--</LTName>
         <LineWeight>15</LineWeight>
       </LayerProps>
     </value>

@@ -29,8 +29,8 @@ namespace LayerWorks.Legend
         }
         internal LegendGridRow(LegendGridCell cell)
         {
-            LegendEntityClassName = cell.Layer.MainName;
-            LegendEntityChapterName = cell.Layer.EngType;
+            LegendEntityClassName = cell.Layer.LayerInfo.MainName;
+            LegendEntityChapterName = cell.Layer.LayerInfo.PrimaryClassifier;
         }
         internal LegendGridRow(string mainname)
         {
@@ -48,7 +48,7 @@ namespace LayerWorks.Legend
             legendGridCell.ParentRow = this;
             if (LegendEntityChapterName != null)
                 return;
-            LegendEntityChapterName = legendGridCell.Layer.EngType;
+            LegendEntityChapterName = legendGridCell.Layer.LayerInfo.PrimaryClassifier;
         }
 
         internal void AssignY(int y)

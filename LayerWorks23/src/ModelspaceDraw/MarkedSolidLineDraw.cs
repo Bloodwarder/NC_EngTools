@@ -32,7 +32,7 @@ namespace LayerWorks.ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer.TrueName, out _, true).ConstantWidth;
+                line.ConstantWidth = LayerPropertiesDictionary.GetValue(Layer.LayerInfo.TrueName, out _, true).ConstantWidth;
                 line.LinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
             }
         }

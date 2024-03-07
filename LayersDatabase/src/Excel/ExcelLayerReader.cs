@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Nelibur.ObjectMapper;
 using Npoi.Mapper;
 using System.Diagnostics;
+using System.Windows.Threading;
 
 namespace LayersIO.Excel
 {
@@ -25,15 +26,15 @@ namespace LayersIO.Excel
                 db.SaveChanges();
                 //ExportEntities(groups, db, lg => lg.MainName);
                 //ExportEntities(layers, db, lg => lg.Name);
-                Logger.WriteLog($"Время операции - {Math.Round(sw.Elapsed.TotalSeconds, 2)}");
+                //Logger.WriteLog($"Время операции - {Math.Round(sw.Elapsed.TotalSeconds, 2)}");
             }
-
+            Logger.WriteLog($"Операция завершена. Время операции - {Math.Round(sw.Elapsed.TotalSeconds, 2)}");
         }
 
         private static List<LayerGroupData> ExtractLayerGroupsData(Mapper mapper)
         {
             Dictionary<string, LayerLegendData> legendDataDictionary =
-                ExtractToDictionary<LayerLegendData, NameTransition>(mapper, "Legend", n => n.Value.Name!);
+                ExtractToDictionary<LayerLegendData, NameTransition>(mapper, "Legend", n => n.Value.MainName!);
             var alterDictionary = mapper.Take<NameTransition>("Alter").ToDictionary(n => n.Value.MainNameSource!, n => n.Value.MainNameAlter);
             List<LayerGroupData> list = new();
             foreach (var layerGroup in legendDataDictionary.Keys)
@@ -55,9 +56,9 @@ namespace LayersIO.Excel
         private static List<LayerData> ExtractLayersData(Mapper mapper, IEnumerable<LayerGroupData> layerGroups)
         {
             Dictionary<string, LayerPropertiesData> propsDictionary =
-                ExtractToDictionary<LayerPropertiesData, NameTransition>(mapper, "Props", n => n.Value.Name!);
+                ExtractToDictionary<LayerPropertiesData, NameTransition>(mapper, "Props", n => n.Value.TrueName!);
             Dictionary<string, LayerDrawTemplateData> legendDrawDictionary =
-                ExtractToDictionary<LayerDrawTemplateData, NameTransition>(mapper, "LegendDraw", n => n.Value.Name!);
+                ExtractToDictionary<LayerDrawTemplateData, NameTransition>(mapper, "LegendDraw", n => n.Value.TrueName!);
 
             Dictionary<string, LayerGroupData> groupDictionary = layerGroups.ToDictionary(lg => lg.MainName, lg => lg);
 
@@ -94,18 +95,19 @@ namespace LayersIO.Excel
             return layers;
         }
 
-        private static Dictionary<string, T> ExtractToDictionary<T, N>(Mapper mapper, string sheetname, Func<RowInfo<N>, string> nameExpression)
+        private static Dictionary<string, T>ExtractToDictionary<T, N>(Mapper mapper, string sheetname, Func<RowInfo<N>, string> nameExpression)
             where T : class
             where N : class
         {
-            var mappedNames = mapper.Take<N>(sheetname).Select(nameExpression).ToList();
-            var mappedData = mapper.Take<T>(sheetname).ToList();
-            Dictionary<string, T> mappedDataDictionary = new();
-            for (int i = 0; i < mappedNames.Count; i++)
-            {
-                mappedDataDictionary[mappedNames[i]!] = mappedData[i].Value;
-            }
-            return mappedDataDictionary;
+                var mappedNames = mapper.Take<N>(sheetname).Select(nameExpression).ToList();
+                var mappedData = mapper.Take<T>(sheetname).ToList();
+                Dictionary<string, T> mappedDataDictionary = new();
+                for (int i = 0; i < mappedNames.Count; i++)
+                {
+                    mappedDataDictionary[mappedNames[i]!] = mappedData[i].Value;
+                }
+                return mappedDataDictionary;
+            ;
         }
 
         private static void ExportEntities<T>(IEnumerable<T> entities, DbContext db, Func<T, string> entityNamesExpression) where T : class
@@ -139,7 +141,7 @@ namespace LayersIO.Excel
 
         class NameTransition
         {
-            public string? Name { get; set; }
+            public string? MainName { get; set; }
             public string? TrueName { get; set; }
             public string? MainNameSource { get; set; }
             public string? MainNameAlter { get; set; }
