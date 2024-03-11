@@ -61,7 +61,7 @@
         </DockPanel>
         <Expander Name="expLog" Grid.Row="4" Grid.ColumnSpan="2" Height="25" Collapsed="expLog_Collapsed" Expanded="expLog_Expanded" >
             <ScrollViewer Grid.Row="5" Grid.ColumnSpan="2" Margin="3,5,3,3" BorderBrush="#FF4A4A4A" Background="Gainsboro">
-                <FlowDocument x:Name="fdLog" FontSize="12" Foreground="Blue"/>
+                <FlowDocument x:Name="fdLog" FontSize="12" FontFamily="SegoeUI" Foreground="Blue" LineHeight="16" LineStackingStrategy="BlockLineHeight"/>
                 <!--<TextBlock x:Name="tbLog" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="12" Foreground="Blue" TextWrapping="Wrap"/>-->
             </ScrollViewer>
         </Expander>
