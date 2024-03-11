@@ -31,6 +31,28 @@ namespace LayersIO.Excel
             Logger.WriteLog($"Операция завершена. Время операции - {Math.Round(sw.Elapsed.TotalSeconds, 2)}");
         }
 
+        public async static Task<string> ReadWorkbookAsync(string workbookPath)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            await Task.Run(() =>
+            {
+                Mapper mapper = new(workbookPath);
+
+                List<LayerGroupData> groups = ExtractLayerGroupsData(mapper);
+                List<LayerData> layers = ExtractLayersData(mapper, groups);
+                using (TestLayersDatabaseContextSqlite db = new("C:\\Users\\konovalove\\source\\repos\\Bloodwarder\\NC_EngTools\\NC_EngTools\\bin\\Debug\\testdb.db"))
+                {
+                    db.LayerGroupData.AddRange(groups);
+                    db.LayerData.AddRange(layers);
+                    db.SaveChangesAsync();
+                    //ExportEntities(groups, db, lg => lg.MainName);
+                    //ExportEntities(layers, db, lg => lg.Name);
+                    //Logger.WriteLog($"Время операции - {Math.Round(sw.Elapsed.TotalSeconds, 2)}");
+                }
+            });
+            return $"Операция импорта слоёв из Excel завершена. Время операции - {Math.Round(sw.Elapsed.TotalSeconds, 2)}";
+        }
+
         private static List<LayerGroupData> ExtractLayerGroupsData(Mapper mapper)
         {
             Dictionary<string, LayerLegendData> legendDataDictionary =

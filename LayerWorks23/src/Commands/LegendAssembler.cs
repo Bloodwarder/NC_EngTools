@@ -37,7 +37,7 @@ namespace LayerWorks.Commands
             LayerChecker.Check(string.Concat(LayerWrapper.StandartPrefix, "_Условные"));
 
             //получить точку вставки
-            PromptPointOptions ppo = new PromptPointOptions("Укажите точку вставки")
+            PromptPointOptions ppo = new("Укажите точку вставки")
             {
                 UseBasePoint = false,
                 AllowNone = false
@@ -66,7 +66,7 @@ namespace LayerWorks.Commands
                         break;
                 }
                 // Создать парсеры для слоёв
-                StringBuilder wrongLayersStringBuilder = new StringBuilder();
+                StringBuilder wrongLayersStringBuilder = new();
                 List<RecordLayerParser> layersList = new List<RecordLayerParser>();
                 foreach (LayerTableRecord ltr in layers)
                 {

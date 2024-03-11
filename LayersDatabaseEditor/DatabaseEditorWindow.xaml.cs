@@ -6,6 +6,8 @@ using LoaderCore.Utilities;
 using LayersIO.Excel;
 using System.Windows.Documents;
 using System.Diagnostics;
+using System.Windows.Data;
+using System.ComponentModel;
 
 namespace LayersDatabaseEditor
 {
@@ -21,9 +23,18 @@ namespace LayersDatabaseEditor
             Logger.WriteLog += LogWrite;
         }
 
-        private void miTestRun_Click(object sender, RoutedEventArgs e)
+        private async void miTestRun_Click(object sender, RoutedEventArgs e)
         {
             Logger.WriteLog("Запущена тестовая команда");
+            Task<string> task = TestMethod1Async();
+            await LogWriteAsync(task);
+
+        }
+
+        private async Task<string> TestMethod1Async()
+        {
+            await Task.Delay(3000);
+            return "Test1 completed";
         }
 
         private void expLog_Collapsed(object sender, RoutedEventArgs e)
@@ -38,13 +49,17 @@ namespace LayersDatabaseEditor
             this.Height += 175d;
         }
 
-        private async Task LogWriteAsync(string message)
+        private async Task LogWriteAsync(Task<string> task)
         {
-            await Task.Run(() => fdLog.Blocks.Add(new Paragraph(new Run(message))));
+            Run run = new Run();
+            fdLog.Blocks.Add(new Paragraph(run) { Margin = new(0d) });
+            await LogBuffer.Instance.Message(run, task);
+
+            //await Task.Run(() => fdLog.Blocks.Add(new Paragraph(new Run(message))));
         }
         private void LogWrite(string message)
         {
-            fdLog.Blocks.Add(new Paragraph(new Run(message)));
+            fdLog.Blocks.Add(new Paragraph(new Run(message)) { Margin = new(0d) });
         }
 
         private void LogClear(string message)
@@ -52,9 +67,42 @@ namespace LayersDatabaseEditor
             fdLog.Blocks.Clear();
         }
 
-        private void miExportLayersFromExcel_Click(object sender, RoutedEventArgs e)
+        private async void miExportLayersFromExcel_Click(object sender, RoutedEventArgs e)
         {
-            ExcelLayerReader.ReadWorkbook(PathProvider.GetPath("Layer_Props.xlsm"));
+            LogWrite("Запущен импорт слоёв из Excel");
+            Task<string> task = ExcelLayerReader.ReadWorkbookAsync(PathProvider.GetPath("Layer_Props.xlsm"));
+            await LogWriteAsync(task);
+            //ExcelLayerReader.ReadWorkbook(PathProvider.GetPath("Layer_Props.xlsm"));
+        }
+
+        public class LogBuffer : INotifyPropertyChanged
+        {
+            private string? messageContent;
+            public event PropertyChangedEventHandler? PropertyChanged;
+            private static LogBuffer _instance;
+            public static LogBuffer Instance => _instance ?? (_instance = new LogBuffer());
+
+            private LogBuffer() { }
+            public string MessageContent
+            {
+                get => messageContent;
+                set
+                {
+                    messageContent = value;
+                    PropertyChanged(_instance, new(nameof(MessageContent)));
+                }
+            }
+
+            public async Task Message(Run run, Task<string> task)
+            {
+                Binding binding = new();
+                binding.Source = this;
+                binding.Path = new(nameof(MessageContent));
+                binding.Mode = BindingMode.OneTime;
+                run.SetBinding(Run.TextProperty, binding);
+                await task;
+                run.Text = task.Result;
+            }
         }
     }
 }
