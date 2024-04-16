@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LayerWorks23.LayerProcessing
+namespace NameClassifiers
 {
     internal class NameParserInitializeException : Exception
     {

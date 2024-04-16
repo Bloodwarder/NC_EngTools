@@ -1,7 +1,5 @@
 ﻿//System
-using System;
-using System.Linq;
-using System.Collections.Generic;
+
 //nanoCAD
 using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
@@ -9,7 +7,8 @@ using Teigha.DatabaseServices;
 using Teigha.Runtime;
 
 //internal modules
-using LoaderCore.Utilities;
+using NanocadUtilities;
+using NameClassifiers;
 using LayerWorks.LayerProcessing;
 using LayerWorks23.LayerProcessing;
 

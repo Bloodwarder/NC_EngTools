@@ -1,13 +1,14 @@
-﻿using LoaderCore.Utilities;
-using System;
+﻿
 using Teigha.DatabaseServices;
+using NameClassifiers;
+using NanocadUtilities;
 
 namespace LayerWorks.LayerProcessing
 {
     /// <summary>
     /// Парсер, связанный с объектом LayerTableRecord
     /// </summary>
-    public class RecordLayerParser : LayerWrapper
+    public class RecordLayerWrapper : LayerWrapper
     {
         private DBObjectWrapper<LayerTableRecord> _boundLayer;
 
@@ -25,7 +26,7 @@ namespace LayerWorks.LayerProcessing
         /// Конструктор, принимающий объект LayerTableRecord
         /// </summary>
         /// <param name="ltr">Запись таблицы слоёв</param>
-        public RecordLayerParser(LayerTableRecord ltr) : base(ltr.Name)
+        public RecordLayerWrapper(LayerTableRecord ltr) : base(ltr.Name)
         {
             BoundLayer = ltr;
         }

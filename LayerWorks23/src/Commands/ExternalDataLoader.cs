@@ -3,9 +3,11 @@ using Teigha.Runtime;
 using Teigha.DatabaseServices;
 using LoaderCore.Utilities;
 using LayerWorks.LayerProcessing;
+using NanocadUtilities;
 using LayersIO.DataTransfer;
 using LayersIO.Excel;
 using LayersIO.Xml;
+using NameClassifiers;
 
 namespace LayersIO.ExternalData
 {
@@ -83,13 +85,14 @@ namespace LayersIO.ExternalData
                     string checkedname = "";
                     LayerProps lp = new LayerProps();
                     // Попытка распарсить имя слоя для поиска существующих сохранённых свойств
-                    try
+                    LayerInfo checkinfo = LayerWrapper.GetInfoFromString(ltr.Name, out string? exceptionMessage);
+                    if (checkinfo != null)
                     {
-                        checkedname = new SimpleLayerParser(ltr.Name).LayerInfo.TrueName;
+                        checkedname = checkinfo.TrueName;
                     }
-                    catch (WrongLayerException ex)
+                    else
                     {
-                        doc.Editor.WriteMessage(ex.Message);
+                        doc.Editor.WriteMessage(exceptionMessage);
                     }
                     bool lpsuccess = true;
                     try
@@ -102,7 +105,7 @@ namespace LayersIO.ExternalData
                     }
                     props.Add(lp);
 
-
+                    throw new NotImplementedException();
                     //((Excel.Range)((Excel.Range)workbook.Worksheets[1]).Cells[i, 1]).Value = checkedname != "" ? checkedname : ltr.Name;
                     //if (lpsuccess)
                     //{

@@ -3,7 +3,8 @@ using HostMgd.EditorInput;
 using Teigha.DatabaseServices;
 
 //internal modules
-using LoaderCore.Utilities;
+using NanocadUtilities;
+using NameClassifiers;
 using LayerWorks.LayerProcessing;
 
 namespace LayerWorks23.LayerProcessing

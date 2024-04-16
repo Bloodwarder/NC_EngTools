@@ -1,6 +1,6 @@
 ﻿using System.Xml.Linq;
 
-namespace LayerWorks23.LayerProcessing
+namespace NameClassifiers
 {
     internal static class NameParserFactory
     {

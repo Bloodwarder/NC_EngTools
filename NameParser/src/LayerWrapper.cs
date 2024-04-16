@@ -1,8 +1,8 @@
-﻿using LayerWorks23.LayerProcessing;
+﻿
 using System.Text.RegularExpressions;
-using System.Windows.Controls;
 
-namespace LayerWorks.LayerProcessing
+
+namespace NameClassifiers
 {
 
     public abstract class LayerWrapper
@@ -30,6 +30,23 @@ namespace LayerWorks.LayerProcessing
         }
 
         public abstract void Push();
+
+        public static LayerInfo? GetInfoFromString(string layerName, out string? exceptionMessage)
+        {
+            string prefix = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])").Value;
+            LayerInfo? info = null;
+            try
+            {
+                info = NameParser.LoadedParsers[prefix].GetLayerInfo(layerName);
+            }
+            catch (WrongLayerException e)
+            {
+                exceptionMessage = e.Message;
+                return info;
+            }
+            exceptionMessage = null;
+            return info;
+        }
     }
 }
 

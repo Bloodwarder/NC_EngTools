@@ -23,14 +23,14 @@ namespace LayerWorks.ModelspaceDraw
         /// Базовая точка для вставки объектов в целевой чертёж
         /// </summary>
         public Point2d Basepoint { get; set; }
-        internal RecordLayerParser Layer { get; set; }
+        internal RecordLayerWrapper Layer { get; set; }
         internal static Color s_byLayer = Color.FromColorIndex(ColorMethod.ByLayer, 256);
 
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         internal protected ObjectDraw() { }
-        internal ObjectDraw(Point2d basepoint, RecordLayerParser layer = null)
+        internal ObjectDraw(Point2d basepoint, RecordLayerWrapper layer = null)
         {
             Basepoint = basepoint;
             Layer = layer;

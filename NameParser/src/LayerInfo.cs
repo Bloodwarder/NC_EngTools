@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace LayerWorks23.LayerProcessing
+namespace NameClassifiers
 {
     public class LayerInfo
     {

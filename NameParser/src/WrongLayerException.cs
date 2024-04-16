@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace LayerWorks.LayerProcessing
+namespace NameClassifiers
 {
-    internal class WrongLayerException : Exception
+    public class WrongLayerException : Exception
     {
         public WrongLayerException(string message) : base(message) { }
     }

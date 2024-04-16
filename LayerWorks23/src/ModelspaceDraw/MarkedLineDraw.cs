@@ -21,10 +21,10 @@ namespace LayerWorks.ModelspaceDraw
         private double _width;
 
         internal MarkedLineDraw() { }
-        internal MarkedLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
+        internal MarkedLineDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer)
         {
         }
-        internal MarkedLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        internal MarkedLineDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }

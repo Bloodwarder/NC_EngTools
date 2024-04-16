@@ -67,12 +67,12 @@ namespace LayerWorks.Commands
                 }
                 // Создать парсеры для слоёв
                 StringBuilder wrongLayersStringBuilder = new();
-                List<RecordLayerParser> layersList = new List<RecordLayerParser>();
+                List<RecordLayerWrapper> layersList = new List<RecordLayerWrapper>();
                 foreach (LayerTableRecord ltr in layers)
                 {
                     try
                     {
-                        RecordLayerParser rlp = new RecordLayerParser(ltr);
+                        RecordLayerWrapper rlp = new RecordLayerWrapper(ltr);
                         if (!LayerLegendDictionary.CheckKey(rlp.LayerInfo.MainName))
                         {
                             wrongLayersStringBuilder.AppendLine($"Нет данных для слоя {rlp.LayerInfo.Prefix}{rlp.LayerInfo.ParentParser.Separator}{rlp.LayerInfo.MainName}");
@@ -88,7 +88,7 @@ namespace LayerWorks.Commands
                 }
                 // Создать шаблон ячейки для каждого успешно обработанного слоя
                 List<LegendGridCell> cells = new List<LegendGridCell>();
-                foreach (RecordLayerParser rlp in layersList)
+                foreach (RecordLayerWrapper rlp in layersList)
                 {
                     cells.Add(new LegendGridCell(rlp));
                 }
@@ -112,7 +112,7 @@ namespace LayerWorks.Commands
                 DrawOrderTable drawOrderTable = (DrawOrderTable)transaction.GetObject(modelspace.DrawOrderTableId, OpenMode.ForWrite);
                 drawOrderTable.MoveToTop(new ObjectIdCollection(entitiesList.Where(e => !(e is Hatch)).Select(e => e.ObjectId).ToArray()));
                 // Уничтожить парсеры
-                foreach (RecordLayerParser rlp in layersList)
+                foreach (RecordLayerWrapper rlp in layersList)
                     rlp.BoundLayer.Dispose();
                 // Завершить транзакцию и вывести список необработанных слоёв в консоль
                 transaction.Commit();
