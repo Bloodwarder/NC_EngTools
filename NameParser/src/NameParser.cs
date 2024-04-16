@@ -1,6 +1,6 @@
-﻿using LayerWorks.LayerProcessing;
+﻿
 
-namespace LayerWorks23.LayerProcessing
+namespace NameClassifiers
 {
     public class NameParser
     {
@@ -33,9 +33,9 @@ namespace LayerWorks23.LayerProcessing
         internal Dictionary<string, Dictionary<string, string>> StatusTransformations { get; } = new();
         internal Dictionary<string, HashSet<string>> ValidPrimary { get; } = new();
         internal Dictionary<string, HashSet<string>> ValidAuxilary { get; } = new();
-        internal string Prefix { get; set; }
-        internal string Suffix { get; set; }
-        internal string Separator { get; set; }
+        public string Prefix { get; set; }
+        public string Suffix { get; set; }
+        public string Separator { get; set; }
 
         internal bool IsPrefixInitialized { get; set; } = false;
         internal bool IsPrimaryInitialized { get; set; } = false;

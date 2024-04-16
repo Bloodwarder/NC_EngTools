@@ -15,7 +15,7 @@ namespace LayerWorks.Legend
         List<LegendObjectDraw> _draw = new List<LegendObjectDraw>();
         private LegendDrawTemplate _template;
 
-        internal LegendGridCell(RecordLayerParser layer)
+        internal LegendGridCell(RecordLayerWrapper layer)
         {
             Layer = layer;
             _template = LayerLegendDrawDictionary.GetValue(layer.LayerInfo.TrueName, out _);
@@ -23,7 +23,7 @@ namespace LayerWorks.Legend
 
         internal LegendGrid ParentGrid { get; set; }
         internal LegendGridRow ParentRow { get; set; }
-        internal RecordLayerParser Layer { get; set; }
+        internal RecordLayerWrapper Layer { get; set; }
         internal CellTableIndex TableIndex = new CellTableIndex();
 
         internal void AssignX(int x)

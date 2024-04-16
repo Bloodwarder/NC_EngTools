@@ -30,12 +30,6 @@
 			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
 			<HintPath>$(RootOutputPath)\Database\LayersDatabase.dll</HintPath>
 		</ProjectReference>
-		<ProjectReference Include="..\LayerWorks23\LayerWorks23.csproj">
-			<Private>False</Private>
-			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
-			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
-			<HintPath>$(RootOutputPath)\ExtensionLibraries\LayerWorks23.dll</HintPath>
-		</ProjectReference>
 		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
 			<Private>False</Private>
 			<HintPath>$(RootOutputPath)\ExtensionLibraries\LoaderCore.dll</HintPath>

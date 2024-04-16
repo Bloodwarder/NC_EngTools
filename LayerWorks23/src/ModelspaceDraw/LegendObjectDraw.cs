@@ -40,11 +40,11 @@ namespace LayerWorks.ModelspaceDraw
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         internal protected LegendObjectDraw() { }
-        internal LegendObjectDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
+        internal LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer)
         {
             LegendDrawTemplate = LayerLegendDrawDictionary.GetValue(Layer.LayerInfo.TrueName, out _);
         }
-        internal LegendObjectDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        internal LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }

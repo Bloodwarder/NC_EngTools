@@ -5,7 +5,7 @@ namespace LayerWorks.LayerProcessing
     /// <summary>
     /// Парсер, связанный с объектом LayerTableRecord, хранящий данные об исходном цвете и видимости слоя
     /// </summary>
-    public class ChapterStoreLayerWrapper : RecordLayerParser
+    public class ChapterStoreLayerWrapper : RecordLayerWrapper
     {
         const byte redproj = 0; const byte greenproj = 255; const byte blueproj = 255;
         const byte redns = 0; const byte greenns = 153; const byte bluens = 153;

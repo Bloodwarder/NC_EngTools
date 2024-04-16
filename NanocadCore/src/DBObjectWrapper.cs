@@ -2,7 +2,7 @@
 using Teigha.DatabaseServices;
 
 
-namespace LoaderCore.Utilities
+namespace NanocadUtilities
 {
 
     /// <summary>

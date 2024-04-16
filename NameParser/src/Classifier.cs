@@ -1,4 +1,4 @@
-﻿namespace LayerWorks23.LayerProcessing
+﻿namespace NameClassifiers
 {
     internal enum Classifier
     {

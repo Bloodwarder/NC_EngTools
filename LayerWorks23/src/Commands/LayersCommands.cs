@@ -7,7 +7,8 @@ using Teigha.Runtime;
 using Teigha.Colors;
 
 //internal modules
-using LoaderCore.Utilities;
+using NanocadUtilities;
+using NameClassifiers;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Dictionaries;
 using LayerWorks23.LayerProcessing;
@@ -160,21 +161,22 @@ namespace LayerWorks.Commands
         public static void LayerReconstruction()
         {
             Workstation.Define();
-            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
-            Editor ed = Workstation.Editor;
 
-            using (Transaction transaction = tm.StartTransaction())
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
                 {
                     LayerChanger.UpdateActiveLayerParsers();
+                    
+                    int notTagged = ActiveLayerWrappers.List.Where(w => w.LayerInfo.SuffixTagged == false).Count();
+                    bool targetValue = ActiveLayerWrappers.List.Count - notTagged <= notTagged;
                     ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged = !info.SuffixTagged; }));
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
                 {
-                    ed.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                    Workstation.Editor.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
                 }
                 finally
                 {

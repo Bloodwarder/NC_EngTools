@@ -20,8 +20,8 @@ namespace LayerWorks.ModelspaceDraw
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         public SolidLineDraw() { }
-        internal SolidLineDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
-        internal SolidLineDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        internal SolidLineDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer) { }
+        internal SolidLineDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }

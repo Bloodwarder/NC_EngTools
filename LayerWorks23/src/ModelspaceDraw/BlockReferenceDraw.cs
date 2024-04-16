@@ -60,11 +60,11 @@ namespace LayerWorks.ModelspaceDraw
         {
             TemplateSetEventHandler += QueueImportBlockTableRecord;
         }
-        internal BlockReferenceDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer)
+        internal BlockReferenceDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer)
         {
             TemplateSetEventHandler += QueueImportBlockTableRecord;
         }
-        internal BlockReferenceDraw(Point2d basepoint, RecordLayerParser layer, LegendDrawTemplate template) : base(basepoint, layer)
+        internal BlockReferenceDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }

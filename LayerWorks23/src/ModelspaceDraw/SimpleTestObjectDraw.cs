@@ -13,7 +13,7 @@ namespace LayerWorks.ModelspaceDraw
 {
     internal class SimpleTestObjectDraw : LegendObjectDraw
     {
-        public SimpleTestObjectDraw(Point2d basepoint, RecordLayerParser layer = null) : base(basepoint, layer) { }
+        public SimpleTestObjectDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer) { }
 
         public override void Draw()
         {

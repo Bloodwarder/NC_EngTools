@@ -1,8 +1,9 @@
-﻿using LoaderCore.Utilities;
-using Teigha.DatabaseServices;
+﻿using Teigha.DatabaseServices;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 using LayerWorks23.LayerProcessing;
+using NanocadUtilities;
+using NameClassifiers;
 
 namespace LayerWorks.LayerProcessing
 {

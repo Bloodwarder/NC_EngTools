@@ -9,6 +9,8 @@ using LoaderCore.Utilities;
 using LayerWorks.LayerProcessing;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
+using NameClassifiers;
+using NanocadUtilities;
 
 namespace LayerWorks23.LayerProcessing
 {

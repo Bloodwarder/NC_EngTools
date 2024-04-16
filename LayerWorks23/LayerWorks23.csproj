@@ -33,17 +33,17 @@
 	  <ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
 	    <Private>False</Private>
 	  </ProjectReference>
+	  <ProjectReference Include="..\NameParser\NameClassifiers.csproj" />
+	  <ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="hostdbmgd">
-			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostdbmgd.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="hostmgd">
-			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostmgd.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
+	  <Reference Include="hostdbmgd">
+	    <HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostdbmgd.dll</HintPath>
+	  </Reference>
+	  <Reference Include="hostmgd">
+	    <HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostmgd.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 
 	<ItemGroup>
