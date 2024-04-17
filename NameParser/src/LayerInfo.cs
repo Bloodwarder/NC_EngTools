@@ -8,11 +8,11 @@ namespace NameClassifiers
 
         public string Prefix { get; internal set; }
         public string PrimaryClassifier { get; internal set; }
-        public List<string> AuxilaryClassifiers { get; } = new();
-        public Dictionary<string, string> AuxilaryData { get; }
+        public List<string?> AuxilaryClassifiers { get; } = new();
+        public Dictionary<string, string?> AuxilaryData { get; }
         public string SecondaryClassifiers { get; internal set; }
         public string Status { get; internal set; }
-        public bool SuffixTagged { get; internal set; }
+        public bool SuffixTagged { get; set; }
 
         public string MainName => string.Concat(PrimaryClassifier,
                                                 ParentParser.Separator,
@@ -30,19 +30,9 @@ namespace NameClassifiers
         {
             get
             {
-                string sep = ParentParser.Separator;
                 List<string> members = new();
-                members.Add(Prefix);
-                members.Add(PrimaryClassifier);
-                members.AddRange(AuxilaryClassifiers.Where(c => c!=null).ToArray());
-                for (int i = 0; i < ParentParser.AuxilaryDataBrackets.Count; i++)
-                {
-                    members.Add($"{ParentParser.AuxilaryDataBrackets[i][0]}{AuxilaryData.Values.ElementAt(i)}{ParentParser.AuxilaryDataBrackets[i][1]}");
-                }
-                members.Add(SecondaryClassifiers);
-                members.Add(Status);
-                if (SuffixTagged)
-                    members.Add(ParentParser.Suffix);
+                ParentParser.Processor!.ComposeName(members, this);
+                string sep = ParentParser.Separator;
                 return string.Join(sep, members);
             }
         }

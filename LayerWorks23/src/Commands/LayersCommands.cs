@@ -168,9 +168,8 @@ namespace LayerWorks.Commands
                 {
                     LayerChanger.UpdateActiveLayerParsers();
                     
-                    int notTagged = ActiveLayerWrappers.List.Where(w => w.LayerInfo.SuffixTagged == false).Count();
-                    bool targetValue = ActiveLayerWrappers.List.Count - notTagged <= notTagged;
-                    ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged = !info.SuffixTagged; }));
+                    bool targetValue = !ActiveLayerWrappers.List.FirstOrDefault().LayerInfo.SuffixTagged;
+                    ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged = targetValue; }));
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
