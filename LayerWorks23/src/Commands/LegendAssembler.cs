@@ -1,7 +1,4 @@
 ﻿//System
-using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Text;
 //nanoCAD
 using HostMgd.EditorInput;
@@ -11,11 +8,12 @@ using Teigha.Colors;
 
 //internal modules
 using Teigha.Geometry;
-using LoaderCore.Utilities;
+using NameClassifiers;
+using NanocadUtilities;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
 using LayersIO.ExternalData;
-using LayerWorks23.LayerProcessing;
+using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.Commands
 {

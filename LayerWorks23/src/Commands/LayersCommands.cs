@@ -11,7 +11,7 @@ using NanocadUtilities;
 using NameClassifiers;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Dictionaries;
-using LayerWorks23.LayerProcessing;
+using LayerWorks.LayerProcessing;
 using LayersIO.ExternalData;
 
 namespace LayerWorks.Commands

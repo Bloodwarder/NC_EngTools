@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 
 namespace LayersIO.Xml
 {
-    public class XmlLayerDataProvider<TKey, TValue> : LayerDataProvider<TKey, TValue> 
+    public class XmlLayerDataProvider<TKey, TValue> : ILayerDataProvider<TKey, TValue>
         where TKey : class
         where TValue : class
     {
@@ -18,7 +18,7 @@ namespace LayersIO.Xml
             _fileInfo = new FileInfo(FilePath);
         }
 
-        public override Dictionary<TKey, TValue> GetData()
+        public Dictionary<TKey, TValue> GetData()
         {
             if (!_fileInfo.Exists) { throw new System.Exception("Файл не существует"); }
             XmlSerializer xs = new(typeof(XmlSerializableDictionary<TKey, TValue>));
@@ -26,15 +26,6 @@ namespace LayersIO.Xml
             {
                 XmlSerializableDictionary<TKey, TValue> dct = xs.Deserialize(fs) as XmlSerializableDictionary<TKey, TValue>;
                 return dct!;
-            }
-        }
-
-        public override void OverwriteSource(Dictionary<TKey, TValue> dictionary)
-        {
-            XmlSerializer xs = new(typeof(XmlSerializableDictionary<TKey, TValue>));
-            using (FileStream fs = new(FilePath, FileMode.Create))
-            {
-                xs.Serialize(fs, dictionary as XmlSerializableDictionary<TKey, TValue>);
             }
         }
     }

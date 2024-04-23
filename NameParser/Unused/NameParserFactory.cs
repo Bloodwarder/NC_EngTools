@@ -1,6 +1,6 @@
 ﻿using System.Xml.Linq;
 
-namespace NameClassifiers
+namespace NameClassifiersOld
 {
     internal static class NameParserFactory
     {

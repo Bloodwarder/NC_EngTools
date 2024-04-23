@@ -26,11 +26,11 @@ namespace LayersIO.ExternalData
             }
         }
 
-        public static string GetValue(string layername, out bool success)
+        public static bool TryGetValue(string layername, out string? success)
         {
-            return instance.GetInstanceValue(layername, out success);
+            return instance.TryGetInstanceValue(layername, out success);
         }
-        public static void Reload(LayerDataProvider<string, string> primary, LayerDataProvider<string, string> secondary)
+        public static void Reload(ILayerDataWriter<string, string> primary, ILayerDataProvider<string, string> secondary)
         {
             instance.ReloadInstance(primary, secondary);
         }

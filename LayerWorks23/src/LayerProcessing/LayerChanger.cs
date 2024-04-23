@@ -7,7 +7,7 @@ using NanocadUtilities;
 using NameClassifiers;
 using LayerWorks.LayerProcessing;
 
-namespace LayerWorks23.LayerProcessing
+namespace LayerWorks.LayerProcessing
 {
     internal static class LayerChanger
     {

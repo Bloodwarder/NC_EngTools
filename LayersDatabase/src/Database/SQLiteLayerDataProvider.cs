@@ -7,7 +7,7 @@ using Nelibur.ObjectMapper;
 
 namespace LayersIO.Database
 {
-    internal class SQLiteLayerDataProvider<TKey, TValue> : LayerDataProvider<TKey, TValue> where TKey : class where TValue : class
+    internal class SQLiteLayerDataProvider<TKey, TValue> : ILayerDataProvider<TKey, TValue> where TKey : class where TValue : class
     {
         FileInfo _database { get; init; }
 
@@ -18,7 +18,7 @@ namespace LayersIO.Database
                 throw new Exception("Файл базы данных не найден");
         }
 
-        public override Dictionary<TKey, TValue> GetData()
+        public Dictionary<TKey, TValue> GetData()
         {
             if (typeof(TKey) == typeof(string))
             {
@@ -37,11 +37,6 @@ namespace LayersIO.Database
             {
                 throw new Exception();
             }
-        }
-
-        public override void OverwriteSource(Dictionary<TKey, TValue> dictionary)
-        {
-            throw new NotImplementedException();
         }
 
         private Dictionary<TKey, TValue> GetLayerProps()
@@ -109,23 +104,5 @@ namespace LayersIO.Database
                 }
             }
         }
-
-        private void OverwriteLayerProps()
-        {
-
-        }
-        private void OverwriteLegendData()
-        {
-
-        }
-        private void OverwriteLegendDrawTemplate()
-        {
-
-        }
-        private void OverwriteAlternateLayers()
-        {
-
-        }
-
     }
 }

@@ -1,18 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PlatformTarget>x64</PlatformTarget>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="src\NameParserOld.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="src\NameParserFactory.cs" />
+		<Compile Remove="src\NameParserOld.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="src\NameParserOld.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="Unused\NameParserFactory.cs" />
+		<None Include="Unused\NameParserOld.cs" />
+	</ItemGroup>
 
 </Project>

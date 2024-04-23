@@ -7,7 +7,7 @@ using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
-using LayerWorks23.LayerProcessing;
+using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.ModelspaceDraw
 {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using LayerWorks.LayerProcessing;
+using NameClassifiers;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
 

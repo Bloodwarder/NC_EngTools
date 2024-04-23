@@ -4,17 +4,6 @@
 	<Separator Value="_"/>
 	<Classifiers>
 		<Prefix Value="ИС"/>
-		<PrimaryClassifier>
-			<Chapter Value="ВО" Description="Водоотведение"/>
-			<Chapter Value="ВС" Description="Водоснабжение"/>
-			<Chapter Value="ГС" Description="Газоснабжение"/>
-			<Chapter Value="ДК" Description="Дождевая канализация"/>
-			<Chapter Value="ТС" Description="Теплоснабжение"/>
-			<Chapter Value="ТТ" Description="Трубопроводный транспорт"/>
-			<Chapter Value="СС" Description="Связь"/>
-			<Chapter Value="ЭС" Description="Электроснабжение"/>
-			<Chapter Value="ЖД" Description="Инфраструктура железнодорожного транспорта"/>
-		</PrimaryClassifier>
 		<AuxilaryData Name="ExternalProject" Brackets="\[\]" Description="Внешний проект">
 			<!--Неправомерные статусы позволяют изменить статус на правомерный-->
 			<ValidStatuses>
@@ -28,6 +17,17 @@
 				<StatusReference Value="нреорг"/>
 			</ValidStatuses>
 		</AuxilaryData>
+		<PrimaryClassifier>
+			<Chapter Value="ВО" Description="Водоотведение"/>
+			<Chapter Value="ВС" Description="Водоснабжение"/>
+			<Chapter Value="ГС" Description="Газоснабжение"/>
+			<Chapter Value="ДК" Description="Дождевая канализация"/>
+			<Chapter Value="ТС" Description="Теплоснабжение"/>
+			<Chapter Value="ТТ" Description="Трубопроводный транспорт"/>
+			<Chapter Value="СС" Description="Связь"/>
+			<Chapter Value="ЭС" Description="Электроснабжение"/>
+			<Chapter Value="ЖД" Description="Инфраструктура железнодорожного транспорта"/>
+		</PrimaryClassifier>
 		<AuxilaryData Name="Diameter" Brackets="\{\}" Description="Диаметр">
 			<!--Неправомерные основные и дополнительные классификаторы запрещают записывать дополнительную информацию с указанным ключом-->
 			<ValidPrimary>
@@ -44,7 +44,7 @@
 			</ValidAuxilary>
 		</AuxilaryData>
 		<!--Только друг за другом-->
-		<AuxilaryClassifier> 
+		<AuxilaryClassifier Name ="Geometry">
 			<Classifier Value ="л" Description="Линейный"/>
 			<Classifier Value ="п" Description="Площадной"/>
 			<Classifier Value ="т" Description="Точечный"/>
