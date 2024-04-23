@@ -2,7 +2,7 @@
 using Teigha.DatabaseServices;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
-using LayerWorks23.LayerProcessing;
+using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.LayerProcessing
 {
@@ -33,7 +33,7 @@ namespace LayerWorks.LayerProcessing
         public override void Push()
         {
             LayerChecker.Check(this);
-            LayerProps lp = LayerPropertiesDictionary.GetValue(LayerInfo.Name, out _);
+            LayerProps lp = LayerPropertiesDictionary.TryGetValue(LayerInfo.Name, out _);
             foreach (Entity ent in BoundEntities)
             {
                 ent.Layer = LayerInfo.Name;

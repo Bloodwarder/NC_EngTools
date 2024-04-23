@@ -35,7 +35,7 @@ namespace LayerWorks.Legend
         internal LegendGridRow(string mainname)
         {
             LegendEntityClassName = mainname;
-            LegendData = LayerLegendDictionary.GetValue(mainname, out bool success);
+            LegendData = LayerLegendDictionary.TryGetValue(mainname, out bool success);
             if (!success)
                 throw new Exception($"Нет данных для слоя {string.Concat(LayerWrapper.StandartPrefix, mainname)}");
         }

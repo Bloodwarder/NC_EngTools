@@ -8,7 +8,7 @@ namespace NameClassifiers
 
         public string Prefix { get; internal set; }
         public string PrimaryClassifier { get; internal set; }
-        public List<string?> AuxilaryClassifiers { get; } = new();
+        public Dictionary<string, string> AuxilaryClassifiers { get; } = new();
         public Dictionary<string, string?> AuxilaryData { get; }
         public string SecondaryClassifiers { get; internal set; }
         public string Status { get; internal set; }
@@ -44,7 +44,7 @@ namespace NameClassifiers
 
         public void SwitchStatus(string newStatus)
         {
-            if (ParentParser.StatusClassifiers.ContainsKey(newStatus))
+            if (ParentParser.Status.ValidateString(newStatus))
                 Status = newStatus;
             else
                 throw new Exception("Неверный статус");
@@ -52,7 +52,7 @@ namespace NameClassifiers
         public void ChangeAuxilaryData(string key, string value)
         {
             if (!ParentParser.ValidPrimary[key].Contains(PrimaryClassifier))
-                throw new Exception($"Нельзя назначить {key} для объекта типа \"{ParentParser.PrimaryClassifiers[PrimaryClassifier]}\"");
+                throw new Exception($"Нельзя назначить {key} для объекта типа \"{PrimaryClassifier}\"");
             bool validAuxilary = false;
             foreach (string aux in AuxilaryClassifiers)
                 if (ParentParser.ValidAuxilary[key].Contains(aux))
@@ -75,7 +75,7 @@ namespace NameClassifiers
             int counter = 0;
             if (decomp[0] == PrimaryClassifier)
                 counter++;
-            counter += AuxilaryClassifiers.Where(c => c != null).Count();
+            counter += AuxilaryClassifiers.Count();
             SecondaryClassifiers = string.Join(ParentParser.Separator, decomp.Skip(counter));
         }
                 

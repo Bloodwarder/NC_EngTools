@@ -1,12 +1,9 @@
 ﻿using LayersIO.Connection;
-using LayersIO.DataTransfer;
 using LayersIO.Model;
 using LoaderCore.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Nelibur.ObjectMapper;
 using Npoi.Mapper;
 using System.Diagnostics;
-using System.Windows.Threading;
 
 namespace LayersIO.Excel
 {
@@ -129,7 +126,6 @@ namespace LayersIO.Excel
                     mappedDataDictionary[mappedNames[i]!] = mappedData[i].Value;
                 }
                 return mappedDataDictionary;
-            ;
         }
 
         private static void ExportEntities<T>(IEnumerable<T> entities, DbContext db, Func<T, string> entityNamesExpression) where T : class

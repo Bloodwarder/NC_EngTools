@@ -12,7 +12,7 @@ using LayersIO.ExternalData;
 using NameClassifiers;
 using NanocadUtilities;
 
-namespace LayerWorks23.LayerProcessing
+namespace LayerWorks.LayerProcessing
 {
 
     static class LayerChecker

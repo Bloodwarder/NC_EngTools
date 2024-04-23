@@ -1,6 +1,5 @@
 ﻿
-
-namespace NameClassifiers
+namespace NameClassifiersOld
 {
     public class NameParser
     {

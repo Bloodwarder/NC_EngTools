@@ -8,7 +8,7 @@ using System.IO;
 
 namespace LayersIO.Excel
 {
-    abstract public class ExcelLayerDataProvider<TKey, TValue> : LayerDataProvider<TKey, TValue> where TKey : class//where TValue : struct
+    abstract public class ExcelLayerDataProvider<TKey, TValue> : ILayerDataProvider<TKey, TValue> where TKey : class//where TValue : struct
     {
         internal string Path { get; set; }
         private protected string sheetname;
@@ -33,7 +33,7 @@ namespace LayersIO.Excel
             this.sheetname = sheetname;
         }
 
-        public override Dictionary<TKey, TValue> GetData()
+        public Dictionary<TKey, TValue> GetData()
         {
 
             IWorkbook xlwb = WorkbookFactory.Create(_fileInfo.FullName, null, true);
@@ -62,23 +62,7 @@ namespace LayersIO.Excel
             return dct;
         }
 
-        public override void OverwriteSource(Dictionary<TKey, TValue> dictionary)
-        {
-
-
-            IWorkbook xlwb = WorkbookFactory.Create(_fileInfo.FullName, null, false);
-            try
-            {
-                CellsImport(xlwb, dictionary);
-            }
-            finally
-            {
-                xlwb.Close();
-            }
-        }
-
-
         abstract private protected TValue CellsExtract(ICell rng);
-        abstract private protected void CellsImport(IWorkbook xlwb, Dictionary<TKey, TValue> importeddictionary);
+        //abstract private protected void CellsImport(IWorkbook xlwb, Dictionary<TKey, TValue> importeddictionary);
     }
 }

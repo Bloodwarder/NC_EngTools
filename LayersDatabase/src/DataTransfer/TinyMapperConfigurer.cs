@@ -8,17 +8,30 @@ namespace LayersIO.DataTransfer
     internal static class TinyMapperConfigurer
     {
         private static bool _isConfigured { get; set; }
-        internal static void Configure() 
+        private static Dictionary<Type, Type> _mappedTypes = new();
+        internal static void Configure()
         {
             if (_isConfigured)
                 return;
-            TinyMapper.Bind<LayerPropertiesData, LayerProps>();
-            TinyMapper.Bind<LayerDrawTemplateData, LegendDrawTemplate>();
-            TinyMapper.Bind<LayerLegendData, LegendData>();
-            TinyMapper.Bind<LayerProps, LayerPropertiesData>();
-            TinyMapper.Bind<LegendDrawTemplate, LayerDrawTemplateData>();
-            TinyMapper.Bind<LegendData, LayerLegendData>();
+            MapTypes<LayerPropertiesData, LayerProps>();
+            MapTypes<LayerDrawTemplateData, LegendDrawTemplate>();
+            MapTypes<LayerLegendData, LegendData>();
             _isConfigured = true;
         }
+
+        internal static Type? GetMappedType(Type type)
+        {
+            return _mappedTypes.TryGetValue(type, out var mappedType) ? mappedType : null;
+        }
+
+        private static void MapTypes<T1,T2>()
+        {
+            TinyMapper.Bind(typeof(T1), typeof(T2));
+            _mappedTypes[typeof(T1)] = typeof(T2);
+            TinyMapper.Bind(typeof(T2), typeof(T1));
+            _mappedTypes[typeof(T2)] = typeof(T1);
+        }
     }
+
+
 }

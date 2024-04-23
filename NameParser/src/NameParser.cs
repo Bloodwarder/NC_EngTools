@@ -56,10 +56,13 @@ namespace NameClassifiers
 
         public string Prefix { get; internal set; } = null!;
         public string? Suffix { get; internal set; }
-        public string Separator { get; internal set; } = null!;
+        public string Separator { get; internal set; }
         public static Dictionary<string, NameParser> LoadedParsers { get; } = new();
 
+        internal PrimaryClassifierSection PrimaryClassifier { get; set; }
+        internal Dictionary<string, AuxilaryClassifierSection> AuxilaryClassifiers = new();
         internal Dictionary<string, AuxilaryDataSection> AuxilaryData = new();
+        internal StatusSection Status { get; set; }
         internal ParserSection? Processor { get; set; }
 
         public LayerInfo GetLayerInfo(string layerName)

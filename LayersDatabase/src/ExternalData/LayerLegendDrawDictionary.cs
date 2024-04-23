@@ -25,11 +25,11 @@ namespace LayersIO.ExternalData
                 ExternalDataLoader.Reloader(ToReload.LegendDraw);
             }
         }
-        public static LegendDrawTemplate GetValue(string layername, out bool success)
+        public static LegendDrawTemplate TryGetValue(string layername, out LegendDrawTemplate value)
         {
-            return instance.GetInstanceValue(layername, out success);
+            return instance.TryGetInstanceValue(layername, out value);
         }
-        public static void Reload(LayerDataProvider<string, LegendDrawTemplate> primary, LayerDataProvider<string, LegendDrawTemplate> secondary)
+        public static void Reload(ILayerDataWriter<string, LegendDrawTemplate> primary, ILayerDataProvider<string, LegendDrawTemplate> secondary)
         {
             instance.ReloadInstance(primary, secondary);
         }

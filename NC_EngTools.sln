@@ -2,11 +2,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LayerWorks", "NC_EngTools\LayerWorks.csproj", "{9346FF2C-1290-41EA-AEB2-C59463E2B325}"
-	ProjectSection(ProjectDependencies) = postProject
-		{422E95A1-FD27-4248-B8A9-73783681C5B4} = {422E95A1-FD27-4248-B8A9-73783681C5B4}
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoaderCore", "LoaderCore\LoaderCore.csproj", "{422E95A1-FD27-4248-B8A9-73783681C5B4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NC_EngTools_StartUp", "NC_EngTools_Loader\NC_EngTools_StartUp.csproj", "{AE5B4650-D8D9-4B12-AA8D-3334834D1EE4}"
@@ -16,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utilities", "Utilities\Util
 		{422E95A1-FD27-4248-B8A9-73783681C5B4} = {422E95A1-FD27-4248-B8A9-73783681C5B4}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayerWorks23", "LayerWorks23\LayerWorks23.csproj", "{034CF531-F41E-4C83-B823-7F4A365FCC9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayerWorks", "LayerWorks23\LayerWorks.csproj", "{034CF531-F41E-4C83-B823-7F4A365FCC9A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeoMod", "GeoMod\GeoMod.csproj", "{AFCD98C8-3AA4-4393-83D7-7EDFB9C1407A}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -27,9 +22,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayersIO", "LayersDatabase\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayersDatabaseEditor", "LayersDatabaseEditor\LayersDatabaseEditor.csproj", "{CF17117F-D8E6-494A-8F3A-397879C882AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NameClassifiers", "NameParser\NameClassifiers.csproj", "{6BFDF9FE-8188-4474-8F26-D052F35EB5DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NameClassifiers", "NameParser\NameClassifiers.csproj", "{6BFDF9FE-8188-4474-8F26-D052F35EB5DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NanocadUtilities", "NanocadCore\NanocadUtilities.csproj", "{D9AE3E95-472C-498B-8DC8-03438D8FDB22}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NanocadUtilities", "NanocadCore\NanocadUtilities.csproj", "{D9AE3E95-472C-498B-8DC8-03438D8FDB22}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,10 +32,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9346FF2C-1290-41EA-AEB2-C59463E2B325}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9346FF2C-1290-41EA-AEB2-C59463E2B325}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9346FF2C-1290-41EA-AEB2-C59463E2B325}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9346FF2C-1290-41EA-AEB2-C59463E2B325}.Release|Any CPU.Build.0 = Release|Any CPU
 		{422E95A1-FD27-4248-B8A9-73783681C5B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{422E95A1-FD27-4248-B8A9-73783681C5B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{422E95A1-FD27-4248-B8A9-73783681C5B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
