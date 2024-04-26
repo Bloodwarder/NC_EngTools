@@ -6,16 +6,39 @@
 		<Prefix Value="ИС"/>
 		<AuxilaryData Name="ExternalProject" Brackets="\[\]" Description="Внешний проект">
 			<!--Неправомерные статусы позволяют изменить статус на правомерный-->
-			<ValidStatuses>
-				<StatusReference Value="ндем">
-					<StatusReference Value="дем"/>
-				</StatusReference>
-				<StatusReference Value="неутв">
-					<StatusReference Value="сущ"/>
-					<StatusReference Value="проект"/>
-				</StatusReference>
-				<StatusReference Value="нреорг"/>
-			</ValidStatuses>
+			<Validation>
+				<ValidStatuses>
+					<StatusReference Value="ндем"/>
+					<StatusReference Value="неутв"/>
+					<StatusReference Value="нреорг"/>
+					<Transformations>
+						<Transformation>
+							<Source>
+								<StatusReference Value ="сущ"/>
+							</Source>
+							<Output>
+								<StatusReference Value="неутв"/>
+							</Output>
+						</Transformation>
+						<Transformation>
+							<Source>
+								<StatusReference Value ="проект"/>
+							</Source>
+							<Output>
+								<StatusReference Value="неутв"/>
+							</Output>
+						</Transformation>
+						<Transformation>
+							<Source>
+								<StatusReference Value ="дем"/>
+							</Source>
+							<Output>
+								<StatusReference Value="ндем"/>
+							</Output>
+						</Transformation>
+					</Transformations>
+				</ValidStatuses>
+			</Validation>
 		</AuxilaryData>
 		<PrimaryClassifier>
 			<Chapter Value="ВО" Description="Водоотведение"/>
@@ -30,18 +53,22 @@
 		</PrimaryClassifier>
 		<AuxilaryData Name="Diameter" Brackets="\{\}" Description="Диаметр">
 			<!--Неправомерные основные и дополнительные классификаторы запрещают записывать дополнительную информацию с указанным ключом-->
-			<ValidPrimary>
-				<ChapterReference Value="ВО"/>
-				<ChapterReference Value="ВС"/>
-				<ChapterReference Value="ГС"/>
-				<ChapterReference Value="ДК"/>
-				<ChapterReference Value="ТС"/>
-				<ChapterReference Value="ТТ"/>
-				<ChapterReference Value="ЖД"/>
-			</ValidPrimary>
-			<ValidAuxilary>
-				<ClassifierReference Value="л"/>
-			</ValidAuxilary>
+			<Validation>
+				<ValidPrimary>
+					<ChapterReference Value="ВО"/>
+					<ChapterReference Value="ВС"/>
+					<ChapterReference Value="ГС"/>
+					<ChapterReference Value="ДК"/>
+					<ChapterReference Value="ТС"/>
+					<ChapterReference Value="ТТ"/>
+					<ChapterReference Value="ЖД"/>
+				</ValidPrimary>
+				<ValidAuxilary>
+					<ClassifierReference Name ="Geometry">
+						<ClassifierValue Value="л"/>
+					</ClassifierReference>
+				</ValidAuxilary>
+			</Validation>
 		</AuxilaryData>
 		<!--Только друг за другом-->
 		<AuxilaryClassifier Name ="Geometry">

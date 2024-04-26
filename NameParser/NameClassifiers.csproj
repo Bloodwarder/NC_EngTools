@@ -10,8 +10,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="src\NameParserFactory.cs" />
-		<Compile Remove="src\NameParserOld.cs" />
+		<Compile Remove="Unused\NameParserFactory.cs" />
+		<Compile Remove="Unused\NameParserOld.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

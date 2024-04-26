@@ -7,11 +7,16 @@ namespace NameClassifiers.Sections
         internal char[] Brackets { get; init; }
         internal string Name { get; init; }
         internal string Description { get; init; }
+        internal AuxilaryDataValidation? Validation { get; init; }
+
         public AuxilaryDataSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
             XAttribute nameAttr = xElement.Attribute("Name") ?? throw new NameParserInitializeException("Отсутствует ключ для дополнительных данных");
             XAttribute bracketsAttr = xElement.Attribute("Brackets") ?? throw new NameParserInitializeException("Отсутствуют скобки для дополнительных данных");
             XAttribute descriptionAttr = xElement.Attribute("Description") ?? throw new NameParserInitializeException("Отсутcтвует описание дополнительных данных");
+            XElement? validationElement = xElement.Element("Validation");
+            if (validationElement != null)
+                Validation = new AuxilaryDataValidation(validationElement);
             Name = nameAttr.Value;
             Description = descriptionAttr.Value;
             Brackets = new[] { bracketsAttr.Value[0], bracketsAttr.Value[1] };

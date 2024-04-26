@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 //Modules
-using LoaderCore.Utilities;
+using NanocadUtilities;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 //nanoCAD
@@ -32,7 +32,10 @@ namespace LayerWorks.ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-                line.ConstantWidth = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out _, true).ConstantWidth;
+
+                bool success = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps lp, true);
+                if (success)
+                    line.ConstantWidth = lp.ConstantWidth;
                 line.LinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
             }
         }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 
 //Modules
-using LoaderCore.Utilities;
+using NanocadUtilities;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;

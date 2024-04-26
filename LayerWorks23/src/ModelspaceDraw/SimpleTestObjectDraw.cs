@@ -2,7 +2,7 @@
 using System;
 
 //Modules
-using LoaderCore.Utilities;
+using NanocadUtilities;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;

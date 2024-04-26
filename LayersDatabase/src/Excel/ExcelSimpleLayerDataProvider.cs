@@ -16,5 +16,4 @@ namespace LayersIO.Excel
             return (TValue)_valueHandler[typeof(TValue)](rng);
         }
     }
-
 }

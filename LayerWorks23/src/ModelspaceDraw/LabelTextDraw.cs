@@ -1,13 +1,13 @@
 ﻿//System
 
 //Modules
-using LoaderCore.Utilities;
+using NanocadUtilities;
+using NameClassifiers;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
-using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.ModelspaceDraw
 {

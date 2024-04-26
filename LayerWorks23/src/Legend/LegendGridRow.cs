@@ -1,9 +1,9 @@
-﻿using LayerWorks.LayerProcessing;
-using LayerWorks.ModelspaceDraw;
+﻿using LayerWorks.ModelspaceDraw;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
+using NameClassifiers;
 
 namespace LayerWorks.Legend
 {
@@ -35,9 +35,12 @@ namespace LayerWorks.Legend
         internal LegendGridRow(string mainname)
         {
             LegendEntityClassName = mainname;
-            LegendData = LayerLegendDictionary.TryGetValue(mainname, out bool success);
-            if (!success)
+            bool success = LayerLegendDictionary.TryGetValue(mainname, out LegendData ld);
+            if (success)
+                LegendData = ld;
+            else
                 throw new Exception($"Нет данных для слоя {string.Concat(LayerWrapper.StandartPrefix, mainname)}");
+
         }
         internal List<LegendGridCell> Cells { get; set; } = new List<LegendGridCell>();
         internal LegendGrid ParentGrid { get; set; }

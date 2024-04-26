@@ -10,7 +10,6 @@ using Teigha.Runtime;
 using NanocadUtilities;
 using NameClassifiers;
 using LayerWorks.LayerProcessing;
-using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.Commands
 {

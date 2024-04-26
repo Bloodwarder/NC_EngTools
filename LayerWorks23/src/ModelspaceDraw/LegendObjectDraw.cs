@@ -42,7 +42,8 @@ namespace LayerWorks.ModelspaceDraw
         internal protected LegendObjectDraw() { }
         internal LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer)
         {
-            LegendDrawTemplate = LayerLegendDrawDictionary.TryGetValue(Layer.LayerInfo.TrueName, out _);
+            bool success = LayerLegendDrawDictionary.TryGetValue(Layer.LayerInfo.TrueName, out var legendDrawTemplate);
+            LegendDrawTemplate = legendDrawTemplate;
         }
         internal LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
