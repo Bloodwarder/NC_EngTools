@@ -25,7 +25,7 @@ namespace LayersIO.ExternalData
                 //ExternalDataLoader.Reloader(ToReload.LegendDraw);
             }
         }
-        public static LegendDrawTemplate TryGetValue(string layername, out LegendDrawTemplate value)
+        public static bool TryGetValue(string layername, out LegendDrawTemplate? value)
         {
             return instance.TryGetInstanceValue(layername, out value);
         }

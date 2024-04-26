@@ -2,9 +2,11 @@
 
 namespace NameClassifiers.Sections
 {
+    /// <summary>
+    /// Сборный классификатор, собирающий все значения, не вошедшие в остальные классификаторы
+    /// </summary>
     internal class SecondaryClassifierSection : ParserSection
     {
-        internal string Name { get; init; }
         public SecondaryClassifierSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
         }
@@ -28,12 +30,13 @@ namespace NameClassifiers.Sections
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo)
         {
             inputList.Add(layerInfo.SecondaryClassifiers);
-                NextSection?.ComposeName(inputList, layerInfo);
+            NextSection?.ComposeName(inputList, layerInfo);
         }
 
         internal override bool ValidateString(string str)
         {
-            throw new NotImplementedException();
+            // если значение не является подходящим для следующей секции, значит подходит для этой, собирающейся по остаточному принципу
+            return !(NextSection?.ValidateString(str) ?? true);
         }
     }
 }

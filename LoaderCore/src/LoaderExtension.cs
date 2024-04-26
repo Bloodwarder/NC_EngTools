@@ -26,7 +26,7 @@ namespace LoaderCore
         static LoaderExtension()
         {
             DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent;
-            IEnumerable<FileInfo> files = SearchDirectoryForDlls(dir);
+            IEnumerable<FileInfo>? files = SearchDirectoryForDlls(dir!);
             foreach (FileInfo fi in files)
             {
                 LibraryFiles[fi.Name] = fi.FullName;
@@ -128,7 +128,7 @@ namespace LoaderCore
                 string filename = string.Concat(args.Name.Split(", ")[0], ".dll");
                 bool getAssemblySuccess = LibraryFiles!.TryGetValue(filename, out string? assemblyPath);
                 if (getAssemblySuccess)
-                    return Assembly.LoadFrom(assemblyPath);
+                    return Assembly.LoadFrom(assemblyPath!);
             }
             catch
             {

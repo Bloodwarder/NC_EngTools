@@ -18,7 +18,12 @@ namespace LayerWorks.Legend
         internal LegendGridCell(RecordLayerWrapper layer)
         {
             Layer = layer;
-            _template = LayerLegendDrawDictionary.TryGetValue(layer.LayerInfo.TrueName, out _);
+
+            bool success = LayerLegendDrawDictionary.TryGetValue(layer.LayerInfo.TrueName, out LegendDrawTemplate ldt);
+            if (success)
+                _template = ldt;
+            else
+                throw new Exception("Нет шаблона для отрисовки");
         }
 
         internal LegendGrid ParentGrid { get; set; }

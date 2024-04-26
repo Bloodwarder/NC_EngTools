@@ -47,7 +47,7 @@ namespace LayerWorks.ModelspaceDraw
             circle.AddVertexAt(2, GetRelativePoint(0, radius / 2), 0, 0d, 0d);
             circle.Closed = true;
             circle.Layer = layer ?? Layer.BoundLayer.Name;
-            LayerProps lp = LayerPropertiesDictionary.GetValue(circle.Layer, out bool success);
+            bool success = LayerPropertiesDictionary.TryGetValue(circle.Layer, out LayerProps lp);
             if (success)
             {
                 circle.LinetypeScale = lp.LTScale;

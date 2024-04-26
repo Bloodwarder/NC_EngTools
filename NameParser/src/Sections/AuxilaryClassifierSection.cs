@@ -46,7 +46,7 @@ namespace NameClassifiers.Sections
         }
         internal override bool ValidateString(string str)
         {
-            throw new NotImplementedException();
+            return _descriptionDict.ContainsKey(str);
         }
     }
 }

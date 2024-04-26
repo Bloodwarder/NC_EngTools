@@ -1,7 +1,6 @@
 ﻿using Teigha.DatabaseServices;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
-using LayerWorks.LayerProcessing;
 using NanocadUtilities;
 using NameClassifiers;
 
@@ -35,9 +34,12 @@ namespace LayerWorks.LayerProcessing
             LayerChecker.Check(this);
             LayerTable lt = tm.TopTransaction.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
             db.Clayer = lt[LayerInfo.Name];
-            LayerProps lp = LayerPropertiesDictionary.TryGetValue(LayerInfo.Name, out _);
-            db.Celtscale = lp.LTScale;
-            db.Plinewid = lp.ConstantWidth;
+            bool success = LayerPropertiesDictionary.TryGetValue(LayerInfo.Name, out LayerProps lp);
+            if (success)
+            {
+                db.Celtscale = lp.LTScale;
+                db.Plinewid = lp.ConstantWidth;
+            }
         }
     }
 }

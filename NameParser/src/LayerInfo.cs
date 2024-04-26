@@ -51,21 +51,8 @@ namespace NameClassifiers
         }
         public void ChangeAuxilaryData(string key, string value)
         {
-            if (!ParentParser.ValidPrimary[key].Contains(PrimaryClassifier))
-                throw new Exception($"Нельзя назначить {key} для объекта типа \"{PrimaryClassifier}\"");
-            bool validAuxilary = false;
-            foreach (string aux in AuxilaryClassifiers)
-                if (ParentParser.ValidAuxilary[key].Contains(aux))
-                {
-                    validAuxilary = true;
-                    break;
-                }
-            if (!validAuxilary)
-            {
-                throw new Exception($"Нельзя назначить {key}. Дополнительного классификатора нет в списке допустимых");
-            }
-            if (ParentParser.StatusTransformations[key].ContainsKey(Status))
-                Status = ParentParser.StatusTransformations[key][Status];
+            if(!ParentParser.AuxilaryData[key].Validation.TryValidateAndTransform(this))
+                throw new Exception($"Нельзя назначить {key} для указанного объекта");
             AuxilaryData[key] = value;
         }
 

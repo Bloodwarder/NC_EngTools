@@ -8,7 +8,7 @@ using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
-using LayerWorks.LayerProcessing;
+using NameClassifiers;
 
 namespace LayerWorks.ModelspaceDraw
 {
@@ -48,7 +48,7 @@ namespace LayerWorks.ModelspaceDraw
             if (layer != null)
                 LayerChecker.Check($"{LayerWrapper.StandartPrefix}{separator}{layer}"); //ПОКА ЗАВЯЗАНО НА ЧЕКЕР ИЗ ДРУГОГО МОДУЛЯ. ПРОАНАЛИЗИРОВАТЬ ВОЗМОЖНОСТИ ОПТИМИЗАЦИИ
             rectangle.Layer = layer == null ? Layer.BoundLayer.Name : $"{LayerWrapper.StandartPrefix}{separator}{layer}";
-            LayerProps lp = LayerPropertiesDictionary.GetValue(rectangle.Layer, out bool success);
+            bool success = LayerPropertiesDictionary.TryGetValue(rectangle.Layer, out LayerProps lp);
             if (success)
             {
                 rectangle.LinetypeScale = lp.LTScale;

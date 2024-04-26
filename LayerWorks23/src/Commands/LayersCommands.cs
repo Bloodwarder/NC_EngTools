@@ -11,7 +11,6 @@ using NanocadUtilities;
 using NameClassifiers;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Dictionaries;
-using LayerWorks.LayerProcessing;
 using LayersIO.ExternalData;
 
 namespace LayerWorks.Commands
@@ -135,7 +134,7 @@ namespace LayerWorks.Commands
                     LayerChanger.UpdateActiveLayerParsers();
                     ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info =>
                     {
-                        string name = LayerAlteringDictionary.GetValue(info.MainName, out bool success);
+                        bool success = LayerAlteringDictionary.TryGetValue(info.MainName, out string name);
                         if (success)
                             info.AlterSecondaryClassifier(name);
                         return;

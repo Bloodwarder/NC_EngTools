@@ -28,7 +28,7 @@ namespace LayerWorks.LayerProcessing
                     LayerTable lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
                     if (!lt.Has(layername))
                     {
-                        LayerProps lp = LayerPropertiesDictionary.GetValue(layername, out bool propsgetsuccess);
+                        bool propsgetsuccess = LayerPropertiesDictionary.TryGetValue(layername, out LayerProps lp);
                         LayerTableRecord ltRecord = AddLayer(layername, lp);
 
                         //Process new layer if isolated chapter visualization is active
@@ -57,7 +57,7 @@ namespace LayerWorks.LayerProcessing
                     LayerTable lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
                     if (!lt.Has(layer.LayerInfo.Name))
                     {
-                        LayerProps lp = LayerPropertiesDictionary.GetValue(layer.LayerInfo.TrueName, out bool propsgetsuccess);
+                        bool propsgetsuccess = LayerPropertiesDictionary.TryGetValue(layer.LayerInfo.TrueName, out LayerProps lp);
                         LayerTableRecord ltRecord = AddLayer(layer.LayerInfo.Name, lp);
 
                         //Process new layer if isolated chapter visualization is active
