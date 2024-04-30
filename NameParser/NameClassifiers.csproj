@@ -9,6 +9,10 @@
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>none</DebugType>
+	</PropertyGroup>
+	
 	<ItemGroup>
 		<Compile Remove="Unused\NameParserFactory.cs" />
 		<Compile Remove="Unused\NameParserOld.cs" />
@@ -17,6 +21,12 @@
 	<ItemGroup>
 		<None Include="Unused\NameParserFactory.cs" />
 		<None Include="Unused\NameParserOld.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Data\LayerParserTemplate.xml">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 </Project>

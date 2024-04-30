@@ -1,10 +1,11 @@
 ﻿using System.Xml.Linq;
+using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
     internal class AuxilaryClassifierSection : ParserSection
     {
-        private Dictionary<string, string> _descriptionDict = new();
+        private readonly Dictionary<string, string> _descriptionDict = new();
         public AuxilaryClassifierSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
             Name = xElement.Attribute("Name")?.Value ?? throw new NameParserInitializeException("Отсутствует имя дополнительного классификатора");
@@ -39,10 +40,11 @@ namespace NameClassifiers.Sections
             }
             NextSection?.Process(str, layerInfo, pointer);
         }
-        internal override void ComposeName(List<string> inputList, LayerInfo layerInfo)
+        internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {
+            
             inputList.Add(layerInfo.AuxilaryClassifiers[Name]);
-            NextSection?.ComposeName(inputList, layerInfo);
+            NextSection?.ComposeName(inputList, layerInfo, nameType);
         }
         internal override bool ValidateString(string str)
         {

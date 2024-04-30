@@ -1,4 +1,5 @@
 ﻿using System.Xml.Linq;
+using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
@@ -46,12 +47,16 @@ namespace NameClassifiers.Sections
 
             NextSection?.Process(str, layerInfo, pointer);
         }
-        internal override void ComposeName(List<string> inputList, LayerInfo layerInfo)
+        internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {
-            bool success = layerInfo.AuxilaryData.TryGetValue(Name, out string? data);
-            if (success)
-                inputList.Add($"{Brackets[0]}{data}{Brackets[1]}");
-            NextSection?.ComposeName(inputList, layerInfo);
+            // Дополнительные данные только для полного имени
+            if (nameType == NameType.FullName)
+            {
+                bool success = layerInfo.AuxilaryData.TryGetValue(Name, out string? data);
+                if (success)
+                    inputList.Add($"{Brackets[0]}{data}{Brackets[1]}");
+            }
+            NextSection?.ComposeName(inputList, layerInfo, nameType);
         }
         internal override bool ValidateString(string str)
         {

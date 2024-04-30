@@ -7,12 +7,27 @@ namespace NameClassifiers
 
     public abstract class LayerWrapper
     {
+        private static string? _standartPrefix;
+
         public LayerInfo LayerInfo { get; private set; }
-        public static string StandartPrefix { get; set; }
+        public static string? StandartPrefix
+        {
+            get => _standartPrefix;
+            set
+            {
+                if (NameParser.LoadedParsers.ContainsKey(value!))
+                    _standartPrefix = value;
+                else
+                    throw new Exception($"Не загружен интерпретатор для префикса {value}");
+            }
+        }
         public LayerWrapper(string layerName)
         {
             // Поиск префикса по любому возможному разделителю
             string prefix = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])").Value;
+            StandartPrefix ??= prefix;
+            if (!NameParser.LoadedParsers.ContainsKey(prefix))
+                throw new WrongLayerException($"Нет данных для интерпретации слоя с префиксом {prefix}");
             LayerInfo = NameParser.LoadedParsers[prefix].GetLayerInfo(layerName);
         }
 

@@ -23,7 +23,7 @@ namespace LoaderCore.Integrity
             string localPath = xDocument.Root.Element("basepath").Element("local").Value;
             string sourcePath = xDocument.Root.Element("basepath").Element("source").Value;
 
-            List<ComparedFiles> result = new List<ComparedFiles>();
+            List<ComparedFiles> result = new();
             result.AddRange(SearchStructure(innerpath, localPath, sourcePath));
             return result;
         }
@@ -38,7 +38,7 @@ namespace LoaderCore.Integrity
         {
             if (!element.HasElements)
                 return Enumerable.Empty<ComparedFiles>();
-            List<ComparedFiles> results = new List<ComparedFiles>();
+            List<ComparedFiles> results = new();
             foreach (XElement childElement in element.Elements("directory"))
             {
                 string directoryPath = Path.Combine(localPath, childElement.Attribute("Name").Value);
@@ -53,8 +53,7 @@ namespace LoaderCore.Integrity
             {
                 //if (!IncludedModules.Contains(childElement.Attribute("Module").Value))
                 //    continue;
-                ComparedFiles compared = new ComparedFiles
-                    (
+                ComparedFiles compared = new                    (
                     new FileInfo(Path.Combine(localPath, childElement.Attribute("Name").Value)),
                     new FileInfo(Path.Combine(sourcePath, childElement.Attribute("Name").Value)),
                     childElement.Attribute("Module").Value

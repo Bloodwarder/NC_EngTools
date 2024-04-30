@@ -10,6 +10,10 @@
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>none</DebugType>
+	</PropertyGroup>
+	
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
 		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>

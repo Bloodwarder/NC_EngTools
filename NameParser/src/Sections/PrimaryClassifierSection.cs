@@ -1,4 +1,5 @@
 ﻿using System.Xml.Linq;
+using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
@@ -25,10 +26,10 @@ namespace NameClassifiers.Sections
             pointer++;
             NextSection?.Process(str, layerInfo, pointer);
         }
-        internal override void ComposeName(List<string> inputList, LayerInfo layerInfo)
+        internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {
-            inputList.Add(layerInfo.PrimaryClassifier);
-            NextSection?.ComposeName(inputList, layerInfo);
+            inputList.Add(layerInfo.PrimaryClassifier!);
+            NextSection?.ComposeName(inputList, layerInfo, nameType);
         }
         internal override bool ValidateString(string str)
         {

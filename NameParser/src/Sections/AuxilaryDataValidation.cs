@@ -47,20 +47,6 @@ namespace NameClassifiers.Sections
                                               .Select(e => e.Attribute("Value")!.Value)
                                               .ToHashSet();
                 // При необходимости добавить трансформации для основного и дополнительных классификаторов. В исходном варианте - не нужны
-
-                //XElement? transformations = statusElement!.Element("Transformations");
-                //if (transformations != null)
-                //{
-                //    Dictionary<string, string> dict = new();
-                //    foreach (XElement transformation in transformations.Elements())
-                //    {
-                //        string? key = transformation.Element("Source")?.Elements().First().Attribute("Value")?.Value;
-                //        string? value = transformation.Element("Output")?.Elements().First().Attribute("Value")?.Value;
-                //        if (key != null && value != null)
-                //            dict.Add(key, value);
-                //    }
-                //    PrimaryTransformations = dict;
-                //}
             }
             XElement? auxilaryElement = validationElement.Element(ValidAuxilaryElementName);
 
@@ -81,7 +67,7 @@ namespace NameClassifiers.Sections
         internal HashSet<string>? ValidPrimary { get; init; }
         internal Dictionary<string, HashSet<string>>? ValidAuxilary { get; init; } = new();
         internal HashSet<string>? ValidStatus { get; init; } = new();
-        internal Dictionary<string, string> StatusTransformations { get; init; }
+        internal Dictionary<string, string>? StatusTransformations { get; init; }
         //internal Dictionary<string, string> PrimaryTransformations { get; private set; } = new();
         //internal Dictionary<string, Dictionary<string, string>> AuxilaryTransformations { get; private set; } = new();
 
@@ -101,16 +87,18 @@ namespace NameClassifiers.Sections
         }
 
         private bool ValidateStatus(LayerInfo layerInfo) =>
-            ValidStatus?.Contains(layerInfo.Status) ?? true || StatusTransformations.ContainsKey(layerInfo.Status);
+            ValidStatus?.Contains(layerInfo.Status!) ?? true || StatusTransformations.ContainsKey(layerInfo.Status);
         private bool TransoformStatus(LayerInfo layerInfo)
         {
-            bool success = StatusTransformations.TryGetValue(layerInfo.Status, out string? newStatus);
+            if (StatusTransformations == null)
+                return false;
+            bool success = StatusTransformations.TryGetValue(layerInfo.Status!, out string? newStatus);
             layerInfo.Status = newStatus ?? layerInfo.Status;
             return success;
         }
 
         private bool ValidatePrimary(LayerInfo layerInfo) =>
-            ValidPrimary?.Contains(layerInfo.PrimaryClassifier) ?? true;
+            ValidPrimary?.Contains(layerInfo.PrimaryClassifier!) ?? true;
 
         private bool ValidateAuxilary(LayerInfo layerInfo)
         {

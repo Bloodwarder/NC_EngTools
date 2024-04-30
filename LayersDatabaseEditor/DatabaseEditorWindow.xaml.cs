@@ -31,7 +31,7 @@ namespace LayersDatabaseEditor
 
         }
 
-        private async Task<string> TestMethod1Async()
+        private static async Task<string> TestMethod1Async()
         {
             await Task.Delay(3000);
             return "Test1 completed";
@@ -51,7 +51,7 @@ namespace LayersDatabaseEditor
 
         private async Task LogWriteAsync(Task<string> task)
         {
-            Run run = new Run();
+            Run run = new();
             fdLog.Blocks.Add(new Paragraph(run) { Margin = new(0d) });
             await LogBuffer.Instance.Message(run, task);
 
@@ -80,7 +80,7 @@ namespace LayersDatabaseEditor
             private string? messageContent;
             public event PropertyChangedEventHandler? PropertyChanged;
             private static LogBuffer _instance;
-            public static LogBuffer Instance => _instance ?? (_instance = new LogBuffer());
+            public static LogBuffer Instance => _instance ??= new LogBuffer();
 
             private LogBuffer() { }
             public string MessageContent
@@ -95,10 +95,12 @@ namespace LayersDatabaseEditor
 
             public async Task Message(Run run, Task<string> task)
             {
-                Binding binding = new();
-                binding.Source = this;
-                binding.Path = new(nameof(MessageContent));
-                binding.Mode = BindingMode.OneTime;
+                Binding binding = new()
+                {
+                    Source = this,
+                    Path = new(nameof(MessageContent)),
+                    Mode = BindingMode.OneTime
+                };
                 run.SetBinding(Run.TextProperty, binding);
                 await task;
                 run.Text = task.Result;

@@ -1,4 +1,5 @@
 ﻿using System.Xml.Linq;
+using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
@@ -18,6 +19,8 @@ namespace NameClassifiers.Sections
         
         internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
         {
+            if (pointer > str.Length - 1)
+                return;
             if (str[pointer] == _suffix)
             {
                 layerInfo.SuffixTagged = true;
@@ -29,11 +32,12 @@ namespace NameClassifiers.Sections
             }
             NextSection?.Process(str, layerInfo, pointer);
         }
-        internal override void ComposeName(List<string> inputList, LayerInfo layerInfo)
+        internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {
-            if (layerInfo.SuffixTagged)
+            // Суффикс только для полного имени
+            if (nameType == NameType.FullName && layerInfo.SuffixTagged)
                 inputList.Add(_suffix);
-            NextSection?.ComposeName(inputList, layerInfo);
+            NextSection?.ComposeName(inputList, layerInfo, nameType);
         }
         internal override bool ValidateString(string str)
         {

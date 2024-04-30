@@ -1,10 +1,11 @@
 ﻿using System.Xml.Linq;
+using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
     internal class StatusSection : ParserSection
     {
-        private Dictionary<string, string> _descriptionDict = new();
+        private readonly Dictionary<string, string> _descriptionDict = new();
         internal StatusSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
             foreach (XElement chapter in xElement.Elements("Status"))
@@ -27,10 +28,12 @@ namespace NameClassifiers.Sections
             pointer++;
             NextSection?.Process(str, layerInfo, pointer);
         }
-        internal override void ComposeName(List<string> inputList, LayerInfo layerInfo)
+        internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {
-            inputList.Add(layerInfo.Status);
-            NextSection?.ComposeName(inputList, layerInfo);
+            // Статус добавляется в любое имя кроме MainName
+            if (nameType != NameType.MainName)
+                inputList.Add(layerInfo.Status!);
+            NextSection?.ComposeName(inputList, layerInfo, nameType);
         }
         internal override bool ValidateString(string str)
         {

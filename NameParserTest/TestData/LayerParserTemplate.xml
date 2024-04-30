@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<LayerParser>
+	<Title>Инженерная инфраструктура</Title>
+	<Separator Value="_"/>
+	<Classifiers>
+		<Prefix Value="ИС"/>
+		<AuxilaryData Name="ExternalProject" Brackets="\[\]" Description="Внешний проект">
+			<!--Неправомерные статусы позволяют изменить статус на правомерный-->
+			<Validation>
+				<ValidStatuses>
+					<StatusReference Value="ндем"/>
+					<StatusReference Value="неутв"/>
+					<StatusReference Value="нреорг"/>
+					<Transformations>
+						<Transformation>
+							<Source>
+								<StatusReference Value ="сущ"/>
+							</Source>
+							<Output>
+								<StatusReference Value="неутв"/>
+							</Output>
+						</Transformation>
+						<Transformation>
+							<Source>
+								<StatusReference Value ="проект"/>
+							</Source>
+							<Output>
+								<StatusReference Value="неутв"/>
+							</Output>
+						</Transformation>
+						<Transformation>
+							<Source>
+								<StatusReference Value ="дем"/>
+							</Source>
+							<Output>
+								<StatusReference Value="ндем"/>
+							</Output>
+						</Transformation>
+					</Transformations>
+				</ValidStatuses>
+			</Validation>
+		</AuxilaryData>
+		<PrimaryClassifier>
+			<Chapter Value="ВО" Description="Водоотведение"/>
+			<Chapter Value="ВС" Description="Водоснабжение"/>
+			<Chapter Value="ГС" Description="Газоснабжение"/>
+			<Chapter Value="ДК" Description="Дождевая канализация"/>
+			<Chapter Value="ТС" Description="Теплоснабжение"/>
+			<Chapter Value="ТТ" Description="Трубопроводный транспорт"/>
+			<Chapter Value="СС" Description="Связь"/>
+			<Chapter Value="ЭС" Description="Электроснабжение"/>
+			<Chapter Value="ЖД" Description="Инфраструктура железнодорожного транспорта"/>
+		</PrimaryClassifier>
+		<AuxilaryData Name="Diameter" Brackets="\{\}" Description="Диаметр">
+			<!--Неправомерные основные и дополнительные классификаторы запрещают записывать дополнительную информацию с указанным ключом-->
+			<Validation>
+				<ValidPrimary>
+					<ChapterReference Value="ВО"/>
+					<ChapterReference Value="ВС"/>
+					<ChapterReference Value="ГС"/>
+					<ChapterReference Value="ДК"/>
+					<ChapterReference Value="ТС"/>
+					<ChapterReference Value="ТТ"/>
+					<ChapterReference Value="ЖД"/>
+				</ValidPrimary>
+				<ValidAuxilary>
+					<ClassifierReference Name ="Geometry">
+						<ClassifierValue Value="л"/>
+					</ClassifierReference>
+				</ValidAuxilary>
+			</Validation>
+		</AuxilaryData>
+		<!--Только друг за другом-->
+		<AuxilaryClassifier Name ="Geometry">
+			<Classifier Value ="л" Description="Линейный"/>
+			<Classifier Value ="п" Description="Площадной"/>
+			<Classifier Value ="т" Description="Точечный"/>
+		</AuxilaryClassifier>
+		<SecondaryClassifiers/>
+		<StatusClassifier>
+			<Status Value="сущ" Description="Существующий"/>
+			<Status Value="дем" Description="Демонтируемый"/>
+			<Status Value="пр" Description="Планируемый"/>
+			<Status Value="ндем" Description="Неутв. демонтируемый"/>
+			<Status Value="неутв" Description="Неутв. планируемый"/>
+			<Status Value="нреорг" Description="Неутв. реорганизуемый"/>
+		</StatusClassifier>
+		<BooleanSuffix Value="пер" Description="Переустройство"/>
+	</Classifiers>
+	<HighlightMode>
+		<StatusReference Value="пр">
+			<Color>
+				<Red>0</Red>
+				<Green>255</Green>
+				<Blue>255</Blue>
+			</Color>
+		</StatusReference>
+		<StatusReference Value="неутв">
+			<Color>
+				<Red>0</Red>
+				<Green>153</Green>
+				<Blue>153</Blue>
+			</Color>
+		</StatusReference>
+	</HighlightMode>
+	<SharedProperties>
+		<Property Name="ConstantWidth">
+			<StatusGroup>
+				<StatusReference Value="сущ"/>
+				<StatusReference Value="дем"/>
+				<StatusReference Value="ндем"/>
+				<DefaultValue>0.4</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="проект"/>
+				<StatusReference Value="неутв"/>
+				<StatusReference Value="нреорг"/>
+				<DefaultValue>0.6</DefaultValue>
+			</StatusGroup>
+		</Property>
+		<Property Name="Color">
+			<StatusGroup>
+				<StatusReference Value="сущ"/>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="дем"/>
+				<StatusReference Value="нреорг"/>
+				<DefaultColor>
+					<Red>107</Red>
+					<Green>107</Green>
+					<Blue>107</Blue>
+				</DefaultColor>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="проект"/>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="ндем"/>
+				<DefaultColor>
+					<Red>192</Red>
+					<Green>168</Green>
+					<Blue>110</Blue>
+				</DefaultColor>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="неутв"/>
+				<DefaultColor>
+					<Red>0</Red>
+					<Green>0</Green>
+					<Blue>0</Blue>
+				</DefaultColor>
+			</StatusGroup>
+		</Property>
+		<Property Name="LinetypeName">
+			<StatusGroup>
+				<StatusReference Value="сущ"/>
+				<StatusReference Value="дем"/>
+				<StatusReference Value="ндем"/>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="проект"/>
+				<StatusReference Value="неутв"/>
+				<StatusReference Value="нреорг"/>
+			</StatusGroup>
+		</Property>
+		<Property Name="LinetypeScale">
+			<StatusGroup>
+				<StatusReference Value="сущ"/>
+				<StatusReference Value="дем"/>
+				<StatusReference Value="ндем"/>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="проект"/>
+				<StatusReference Value="неутв"/>
+				<StatusReference Value="нреорг"/>
+			</StatusGroup>
+		</Property>
+	</SharedProperties>
+</LayerParser>

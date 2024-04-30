@@ -24,7 +24,7 @@ namespace NameClassifiers
         public NameParser(XDocument xDocument)
         {
             XElement separator = xDocument.Root!.Element("Separator") ?? throw new NameParserInitializeException("Отсутствует разделитель");
-            Separator = separator.Attribute("Value").Value;
+            Separator = separator.Attribute("Value")!.Value;
             XElement classifiers = xDocument.Root!.Element("Classifiers") ?? throw new NameParserInitializeException("Ошибка инициализации. Отсутствуют классификаторы");
             ParserSection? prevSection = null;
             if (!classifiers.HasElements)
@@ -52,17 +52,21 @@ namespace NameClassifiers
                     throw new NameParserInitializeException($"Неопознанный классификатор {name}");
                 }
             }
+            if (!ValidateParser())
+                throw new NameParserInitializeException("Неправильный состав классификаторов");
+            LoadedParsers.Add(Prefix, this);
+            LayerWrapper.StandartPrefix ??= Prefix;
         }
 
         public string Prefix { get; internal set; } = null!;
         public string? Suffix { get; internal set; }
-        public string Separator { get; internal set; }
+        public string Separator { get; internal set; } = null!;
         public static Dictionary<string, NameParser> LoadedParsers { get; } = new();
 
-        internal PrimaryClassifierSection PrimaryClassifier { get; set; }
+        internal PrimaryClassifierSection PrimaryClassifier { get; set; } = null!;
         internal Dictionary<string, AuxilaryClassifierSection> AuxilaryClassifiers = new();
         internal Dictionary<string, AuxilaryDataSection> AuxilaryData = new();
-        internal StatusSection Status { get; set; }
+        internal StatusSection Status { get; set; } = null!;
         internal ParserSection? Processor { get; set; }
 
         public LayerInfo GetLayerInfo(string layerName)
@@ -76,5 +80,22 @@ namespace NameClassifiers
             return layerInfo;
         }
 
+        private bool ValidateParser()
+        {
+            List<ParserSection> sections = new();
+            var currentSection = Processor;
+            do
+            {
+                sections.Add(currentSection!);
+                currentSection = currentSection!.NextSection;
+            }
+            while (currentSection!.NextSection != null);
+            var prefixSections = sections.Where(s => s is PrefixSection);
+            bool prefixInitialized = prefixSections.Count() == 1 && sections.IndexOf(prefixSections.First()) == 0;
+            bool primaryInitialized = sections.Where(s => s is PrimaryClassifierSection).Count() == 1;
+            bool secondaryInitialized = sections.Any(s => s is SecondaryClassifierSection);
+            bool statusInitialized = sections.Where(s => s is StatusSection).Count() == 1;
+            return prefixInitialized && primaryInitialized && secondaryInitialized && statusInitialized;
+        }
     }
 }

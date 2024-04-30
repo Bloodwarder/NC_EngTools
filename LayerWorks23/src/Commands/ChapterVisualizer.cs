@@ -18,7 +18,7 @@ namespace LayerWorks.Commands
     /// </summary>
     public class ChapterVisualizer
     {
-        private static readonly Dictionary<Document, string> _activeChapterState = new Dictionary<Document, string>();
+        private static readonly Dictionary<Document, string> _activeChapterState = new();
 
         internal static Dictionary<Document, string> ActiveChapterState
         {
@@ -56,7 +56,7 @@ namespace LayerWorks.Commands
                 {
                     try
                     {
-                        new ChapterStoreLayerWrapper(ltr);
+                        _ = new ChapterStoreLayerWrapper(ltr);
                         successCount++;
                     }
                     catch (WrongLayerException)
@@ -75,7 +75,7 @@ namespace LayerWorks.Commands
                     .OrderBy(l => l)
                     .ToList();
                 List<string> lcplus = layerchapters.Append("Сброс").ToList();
-                PromptKeywordOptions pko = new PromptKeywordOptions($"Выберите раздел [" + string.Join("/", lcplus) + "]", string.Join(" ", lcplus))
+                PromptKeywordOptions pko = new($"Выберите раздел [" + string.Join("/", lcplus) + "]", string.Join(" ", lcplus))
                 {
                     AppendKeywordsToMessage = true,
                     AllowNone = false,
@@ -110,7 +110,7 @@ namespace LayerWorks.Commands
 
             using (Transaction transaction = tm.StartTransaction())
             {
-                ChapterStoreLayerWrapper cslp = new ChapterStoreLayerWrapper((LayerTableRecord)sender);
+                ChapterStoreLayerWrapper cslp = new((LayerTableRecord)sender);
                 cslp.Push(ActiveChapterState[doc], new() { "пр", "неутв" });
                 transaction.Commit();
             }

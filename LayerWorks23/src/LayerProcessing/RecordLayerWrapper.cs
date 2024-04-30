@@ -10,7 +10,7 @@ namespace LayerWorks.LayerProcessing
     /// </summary>
     public class RecordLayerWrapper : LayerWrapper
     {
-        private DBObjectWrapper<LayerTableRecord> _boundLayer;
+        private DBObjectWrapper<LayerTableRecord> _boundLayer = null!;
 
 
         /// <summary>
