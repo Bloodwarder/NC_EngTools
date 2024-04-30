@@ -4,7 +4,7 @@
 	<Separator Value="_"/>
 	<Classifiers>
 		<Prefix Value="ИС"/>
-		<AuxilaryData Name="ExternalProject" Brackets="\[\]" Description="Внешний проект">
+		<AuxilaryData Name="ExternalProject" Brackets="[]" Description="Внешний проект">
 			<!--Неправомерные статусы позволяют изменить статус на правомерный-->
 			<Validation>
 				<ValidStatuses>
@@ -22,7 +22,7 @@
 						</Transformation>
 						<Transformation>
 							<Source>
-								<StatusReference Value ="проект"/>
+								<StatusReference Value ="пр"/>
 							</Source>
 							<Output>
 								<StatusReference Value="неутв"/>

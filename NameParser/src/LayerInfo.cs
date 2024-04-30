@@ -51,7 +51,7 @@ namespace NameClassifiers
             else
                 throw new Exception("Неверный статус");
         }
-        public void ChangeAuxilaryData(string key, string value)
+        public void ChangeAuxilaryData(string key, string? value)
         {
             if (!ParentParser.AuxilaryData[key].Validation?.TryValidateAndTransform(this) ?? true)
                 throw new Exception($"Нельзя назначить {key} для указанного объекта");

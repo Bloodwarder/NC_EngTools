@@ -87,9 +87,12 @@ namespace NameClassifiers.Sections
         }
 
         private bool ValidateStatus(LayerInfo layerInfo) =>
-            ValidStatus?.Contains(layerInfo.Status!) ?? true || StatusTransformations.ContainsKey(layerInfo.Status);
+            (ValidStatus?.Contains(layerInfo.Status!) ?? true) || (StatusTransformations?.ContainsKey(layerInfo.Status!) ?? false);
         private bool TransoformStatus(LayerInfo layerInfo)
         {
+            bool validStatus = ValidStatus?.Contains(layerInfo.Status!) ?? true;
+            if (validStatus)
+                return true;
             if (StatusTransformations == null)
                 return false;
             bool success = StatusTransformations.TryGetValue(layerInfo.Status!, out string? newStatus);

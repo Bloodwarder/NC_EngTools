@@ -53,7 +53,7 @@ namespace NameClassifiers.Sections
             if (nameType == NameType.FullName)
             {
                 bool success = layerInfo.AuxilaryData.TryGetValue(Name, out string? data);
-                if (success)
+                if (success && data != null)
                     inputList.Add($"{Brackets[0]}{data}{Brackets[1]}");
             }
             NextSection?.ComposeName(inputList, layerInfo, nameType);
