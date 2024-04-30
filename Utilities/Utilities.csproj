@@ -14,7 +14,9 @@
 	<PropertyGroup>
 		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\</OutputPath>
 	</PropertyGroup>
-
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>none</DebugType>
+	</PropertyGroup>
 	<ItemGroup>
 		<Reference Include="hostdbmgd">
 			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostdbmgd.dll</HintPath>

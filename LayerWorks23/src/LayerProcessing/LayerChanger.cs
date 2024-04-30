@@ -13,7 +13,7 @@ namespace LayerWorks.LayerProcessing
     {
         internal static int MaxSimple { get; set; } = 5;
 
-        internal static void UpdateActiveLayerParsers()
+        internal static void UpdateActiveLayerWrappers()
         {
             PromptSelectionResult result = Workstation.Editor.SelectImplied();
 

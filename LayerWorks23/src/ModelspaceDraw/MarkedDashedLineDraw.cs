@@ -8,7 +8,6 @@ using Teigha.Geometry;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
-using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.ModelspaceDraw
 {
@@ -21,7 +20,7 @@ namespace LayerWorks.ModelspaceDraw
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
         public MarkedDashedLineDraw() { }
-        internal MarkedDashedLineDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer) { }
+        internal MarkedDashedLineDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer) { }
         internal MarkedDashedLineDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -32,9 +31,9 @@ namespace LayerWorks.ModelspaceDraw
             foreach (Polyline line in lines)
             {
 
-                bool success = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps props, true);
+                bool success = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps? props, true);
                 if (success)
-                    line.ConstantWidth = props.ConstantWidth;
+                    line.ConstantWidth = props!.ConstantWidth;
                 LayerChecker.FindLinetype("ACAD_ISO02W100", out bool ltgetsuccess);
                 if (ltgetsuccess)
                     line.Linetype = "ACAD_ISO02W100";

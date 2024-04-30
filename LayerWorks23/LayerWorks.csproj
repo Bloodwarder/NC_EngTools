@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>disable</Nullable>
+		<Nullable>enable</Nullable>
 		<PlatformTarget>x64</PlatformTarget>
 		<UseWPF>true</UseWPF>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
@@ -12,6 +12,10 @@
 		<SignAssembly>False</SignAssembly>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>none</DebugType>
+	</PropertyGroup>
+	
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
 		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>

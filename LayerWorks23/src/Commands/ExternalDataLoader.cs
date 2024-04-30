@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Teigha.Runtime;
+﻿using Teigha.Runtime;
 using Teigha.DatabaseServices;
 using LoaderCore.Utilities;
 using LayerWorks.LayerProcessing;
@@ -61,49 +60,52 @@ namespace LayersIO.ExternalData
         }
 
         /// <summary>
-        /// Выгрузка слоёв чертежа в Excel
+        /// Выгрузка слоёв чертежа в Excel.
         /// </summary>
-        [CommandMethod("EXTRACTLAYERS")]
+        //[CommandMethod("EXTRACTLAYERS")]
         public static void ExtractLayersInfoToExcel()
         {
             Workstation.Define();
-            HostMgd.ApplicationServices.Document doc = HostMgd.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-            TransactionManager tm = HostApplicationServices.WorkingDatabase.TransactionManager;
-            Transaction transaction = tm.StartTransaction();
-            using (transaction)
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                LayerTable lt = tm.TopTransaction.GetObject(doc.Database.LayerTableId, OpenMode.ForRead) as LayerTable;
-                var layers = (from ObjectId elem in lt
+                if(LayerWrapper.StandartPrefix == null)
+                {
+                    Workstation.Editor.WriteMessage("Отсутствует префикс для выборки слоёв");
+                    return;
+                }
+                LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead) as LayerTable;
+                var layers = (from ObjectId elem in lt!
                               let ltr = (LayerTableRecord)transaction.GetObject(elem, OpenMode.ForRead)
+                              where ltr.Name.StartsWith(LayerWrapper.StandartPrefix)
                               select ltr).ToList();
                 //int i = 1;
                 //try
                 //{
-                List<LayerProps> props = new List<LayerProps>();
+                List<LayerProps> props = new();
                 foreach (LayerTableRecord ltr in layers)
                 {
                     string checkedname = "";
-                    LayerProps lp = new LayerProps();
+                    LayerProps lp = new();
                     // Попытка распарсить имя слоя для поиска существующих сохранённых свойств
-                    LayerInfo checkinfo = LayerWrapper.GetInfoFromString(ltr.Name, out string? exceptionMessage);
+                    LayerInfo? checkinfo = LayerWrapper.GetInfoFromString(ltr.Name, out string? exceptionMessage);
                     if (checkinfo != null)
                     {
                         checkedname = checkinfo.TrueName;
                     }
                     else
                     {
-                        doc.Editor.WriteMessage(exceptionMessage);
+                        Workstation.Editor.WriteMessage(exceptionMessage);
                     }
                     bool lpsuccess = true;
                     try
                     {
-                        lpsuccess = LayerPropertiesDictionary.TryGetValue(checkedname, out lp, false);
+                        lpsuccess = LayerPropertiesDictionary.TryGetValue(checkedname, out lp!, false);
                     }
                     catch (NoPropertiesException)
                     {
                         lpsuccess = false;
                     }
-                    props.Add(lp);
+                    props.Add(lp!);
 
                     throw new NotImplementedException();
                     //((Excel.Range)((Excel.Range)workbook.Worksheets[1]).Cells[i, 1]).Value = checkedname != "" ? checkedname : ltr.Name;

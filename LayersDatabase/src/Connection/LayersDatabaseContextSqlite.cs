@@ -11,7 +11,7 @@ namespace LayersIO.Connection
         public DbSet<LayerData> Layers { get; set; } = null!;
         public DbSet<LayerGroupData> LayerGroups { get; set; } = null!;
 
-        private string _dataSource;
+        private readonly string _dataSource;
         public LayersDatabaseContextSqlite(string dataSource)
         {
             Database.EnsureCreated();

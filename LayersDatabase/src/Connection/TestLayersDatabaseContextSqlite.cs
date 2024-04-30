@@ -10,7 +10,7 @@ namespace LayersIO.Connection
         public DbSet<LayerData> LayerData { get; set; } = null!;
         public DbSet<LayerGroupData> LayerGroupData { get; set; } = null!;
 
-        private string _dataSource;
+        private readonly string _dataSource;
         
         public TestLayersDatabaseContextSqlite(string dataSource)
         {

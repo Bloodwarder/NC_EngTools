@@ -30,15 +30,12 @@ namespace LayerWorks.Commands
         public static void TransparentOverlayToggle()
         {
             Workstation.Define();
-            Database db = Workstation.Database;
-            TransactionManager tm = Workstation.TransactionManager;
-
             string tgtlayer = LayerWrapper.StandartPrefix + "_Калька";
 
-            using (Transaction transaction = tm.StartTransaction())
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                LayerTable lt = transaction.GetObject(db.LayerTableId, OpenMode.ForWrite, false) as LayerTable;
-                if (!lt.Has(tgtlayer))
+                LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForWrite, false) as LayerTable;
+                if (!lt!.Has(tgtlayer))
                 {
                     System.Drawing.Color color = System.Drawing.Color.FromArgb(166, 255, 255, 255);
                     LayerTableRecord ltrec = new()
@@ -53,12 +50,12 @@ namespace LayerWorks.Commands
                 }
                 else
                 {
-                    LayerTableRecord ltrec = (from ObjectId elem in lt
+                    LayerTableRecord? ltrec = (from ObjectId elem in lt
                                               let ltr = (LayerTableRecord)transaction.GetObject(elem, OpenMode.ForWrite, false)
                                               where ltr.Name == tgtlayer
                                               select ltr)
                                               .FirstOrDefault();
-                    if (ltrec.IsFrozen || ltrec.IsOff)
+                    if (ltrec!.IsFrozen || ltrec.IsOff)
                     {
                         ltrec.IsOff = false;
                         ltrec.IsFrozen = false;
@@ -94,7 +91,7 @@ namespace LayerWorks.Commands
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLayerParsers();
+                    LayerChanger.UpdateActiveLayerWrappers();
                     ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info => info.SwitchStatus(val.ToString())));
                     //ActiveLayerWrappers.StatusSwitch((Status)val);
                     ActiveLayerWrappers.Push();
@@ -131,12 +128,12 @@ namespace LayerWorks.Commands
 
                 try
                 {
-                    LayerChanger.UpdateActiveLayerParsers();
+                    LayerChanger.UpdateActiveLayerWrappers();
                     ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info =>
                     {
-                        bool success = LayerAlteringDictionary.TryGetValue(info.MainName, out string name);
+                        bool success = LayerAlteringDictionary.TryGetValue(info.MainName, out string? name);
                         if (success)
-                            info.AlterSecondaryClassifier(name);
+                            info.AlterSecondaryClassifier(name!);
                         return;
                     }));
                     ActiveLayerWrappers.Push();
@@ -165,9 +162,9 @@ namespace LayerWorks.Commands
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLayerParsers();
+                    LayerChanger.UpdateActiveLayerWrappers();
                     
-                    bool targetValue = !ActiveLayerWrappers.List.FirstOrDefault().LayerInfo.SuffixTagged;
+                    bool targetValue = !ActiveLayerWrappers.List.FirstOrDefault()!.LayerInfo.SuffixTagged;
                     ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged = targetValue; }));
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
@@ -215,7 +212,7 @@ namespace LayerWorks.Commands
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLayerParsers();
+                    LayerChanger.UpdateActiveLayerWrappers();
                     ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info => info.ChangeAuxilaryData(ExtProjectAuxDataKey, extProjectName)));
                     //ActiveLayerWrappers.ExtProjNameAssign(extProjectName);
                     ActiveLayerWrappers.Push();
@@ -246,7 +243,7 @@ namespace LayerWorks.Commands
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLayerParsers();
+                    LayerChanger.UpdateActiveLayerWrappers();
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }

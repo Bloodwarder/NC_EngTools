@@ -46,7 +46,7 @@ namespace LoaderCore
             bool showStartUp = XmlConvert.ToBoolean(StartUpConfig.Root.Element("StartUpShow").Attribute("Enabled").Value);
             if (showStartUp)
             {
-                StartUpWindow window = new StartUpWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
+                StartUpWindow window = new(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
                 Application.ShowModalWindow(window);
             }
 
@@ -158,7 +158,7 @@ namespace LoaderCore
         [CommandMethod("NCET_CONFIG")]
         public static void ConfigureAutorun()
         {
-            StartUpWindow window = new StartUpWindow(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
+            StartUpWindow window = new(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
             window.bUpdateLayerWorks.IsEnabled = false;
             window.bUpdateUtilities.IsEnabled = false;
             window.bUpdateGeoMod.IsEnabled = false;
