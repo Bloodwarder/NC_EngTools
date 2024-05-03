@@ -21,11 +21,14 @@ namespace NameClassifiers
                     throw new Exception($"Не загружен интерпретатор для префикса {value}");
             }
         }
+        static LayerWrapper()
+        {
+            StandartPrefix ??= NameParser.LoadedParsers.FirstOrDefault().Key;
+        }
         public LayerWrapper(string layerName)
         {
             // Поиск префикса по любому возможному разделителю
             string prefix = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])").Value;
-            StandartPrefix ??= prefix;
             if (!NameParser.LoadedParsers.ContainsKey(prefix))
                 throw new WrongLayerException($"Нет данных для интерпретации слоя с префиксом {prefix}");
             LayerInfo = NameParser.LoadedParsers[prefix].GetLayerInfo(layerName);

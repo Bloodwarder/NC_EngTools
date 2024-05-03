@@ -13,7 +13,7 @@ namespace NameParserTest
         [OneTimeSetUp]
         public void Setup()
         {
-            FileInfo fi = new FileInfo(Assembly.GetExecutingAssembly().Location);
+            FileInfo fi = new(Assembly.GetExecutingAssembly().Location);
             _xDocument = XDocument.Load(Path.Combine(fi.Directory!.FullName, "TestData", "LayerParserTemplate.xml"));
             _parser = new NameParser(_xDocument);
         }
@@ -47,7 +47,7 @@ namespace NameParserTest
         {
             try
             {
-                _ = _parser.GetLayerInfo("вап_ыык44_аклвю341");
+                _ = _parser!.GetLayerInfo("вап_ыык44_аклвю341");
             }
             catch (Exception ex) 
             {
@@ -62,7 +62,7 @@ namespace NameParserTest
         {
             try
             {
-                _ = _parser.GetLayerInfo("ИС_какая-то_рандомная_[хрень]_пер");
+                _ = _parser!.GetLayerInfo("ИС_какая-то_рандомная_[хрень]_пер");
             }
             catch (Exception ex)
             {

@@ -12,7 +12,7 @@ using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using Teigha.Runtime;
 
-using Loader.CoreUtilities;
+using NanocadUtilities;
 
 using static Utilities.EntitySelector;
 

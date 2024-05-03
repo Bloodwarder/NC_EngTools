@@ -32,11 +32,9 @@
 			<Private>False</Private>
 			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
-			<HintPath>$(RootOutputPath)\Database\LayersDatabase.dll</HintPath>
 		</ProjectReference>
 		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
 			<Private>False</Private>
-			<HintPath>$(RootOutputPath)\ExtensionLibraries\LoaderCore.dll</HintPath>
 		</ProjectReference>
 	</ItemGroup>
 

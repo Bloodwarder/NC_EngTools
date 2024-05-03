@@ -13,7 +13,7 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DebugType>none</DebugType>
 	</PropertyGroup>
-	
+
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
 		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
@@ -21,15 +21,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="UnusedCode\ExcelDictionaryDataProvider.cs" />
-	  <Compile Remove="UnusedCode\ExcelSimpleDictionaryDataProvider.cs" />
-	  <Compile Remove="UnusedCode\ExcelStructDictionaryDataProvider.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.14">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.14" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.14">
@@ -49,9 +43,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Include="UnusedCode\ExcelDictionaryDataProvider.cs" />
-	  <None Include="UnusedCode\ExcelSimpleDictionaryDataProvider.cs" />
-	  <None Include="UnusedCode\ExcelStructDictionaryDataProvider.cs" />
+		<None Include="UnusedCode\ExcelDictionaryDataProvider.cs" />
+		<None Include="UnusedCode\ExcelSimpleDictionaryDataProvider.cs" />
+		<None Include="UnusedCode\ExcelStructDictionaryDataProvider.cs" />
+		<Compile Remove="UnusedCode\ExcelDictionaryDataProvider.cs" />
+		<Compile Remove="UnusedCode\ExcelSimpleDictionaryDataProvider.cs" />
+		<Compile Remove="UnusedCode\ExcelStructDictionaryDataProvider.cs" />
 	</ItemGroup>
 
 </Project>
