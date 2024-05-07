@@ -19,8 +19,8 @@ namespace LayerWorks.LayerProcessing
         private static string Clayername()
         {
             Database db = Workstation.Database;
-            LayerTableRecord ltr = db.TransactionManager.GetObject(db.Clayer, OpenMode.ForRead) as LayerTableRecord;
-            return ltr.Name;
+            LayerTableRecord? ltr = db.TransactionManager.GetObject(db.Clayer, OpenMode.ForRead) as LayerTableRecord;
+            return ltr!.Name;
         }
 
         /// <summary>
@@ -32,13 +32,13 @@ namespace LayerWorks.LayerProcessing
             Database db = Workstation.Database;
 
             LayerChecker.Check(this);
-            LayerTable lt = tm.TopTransaction.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
-            db.Clayer = lt[LayerInfo.Name];
-            bool success = LayerPropertiesDictionary.TryGetValue(LayerInfo.Name, out LayerProps lp);
+            LayerTable? lt = tm.TopTransaction.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
+            db.Clayer = lt![LayerInfo.Name];
+            bool success = LayerPropertiesDictionary.TryGetValue(LayerInfo.Name, out LayerProps? lp);
             if (success)
             {
-                db.Celtscale = lp.LTScale;
-                db.Plinewid = lp.ConstantWidth;
+                db.Celtscale = lp!.LTScale;
+                db.Plinewid = lp!.ConstantWidth;
             }
         }
     }

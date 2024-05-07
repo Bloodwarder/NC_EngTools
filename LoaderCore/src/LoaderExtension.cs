@@ -21,18 +21,14 @@ namespace LoaderCore
         const string StructureXmlName = "Structure.xml";
         const string StartUpConfigName = "StartUpConfig.xml";
 
-        static Dictionary<string, string>? LibraryFiles { get; } = new();
+        static Dictionary<string, string>? LibraryFiles { get; }
         // Поиск обновлений и настройка загрузки и обновления сборок
         static LoaderExtension()
         {
-            DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.Parent;
+            DirectoryInfo? dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.Parent;
             IEnumerable<FileInfo>? files = SearchDirectoryForDlls(dir!);
-            foreach (FileInfo fi in files)
-            {
-                LibraryFiles[fi.Name] = fi.FullName;
-            }
+            LibraryFiles = SearchDirectoryForDlls(dir!)?.ToDictionary(f => f.Name, f => f.FullName);
         }
-
         
         public static void Initialize()
         {
@@ -43,7 +39,7 @@ namespace LoaderCore
 
             // Читаем конфигурацию на предмет необходимости отображения стартового окна и отображаем его
             XDocument StartUpConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
-            bool showStartUp = XmlConvert.ToBoolean(StartUpConfig.Root.Element("StartUpShow").Attribute("Enabled").Value);
+            bool showStartUp = XmlConvert.ToBoolean(StartUpConfig.Root.Element("StartUpShow").Attribute("Enabled")?.Value);
             if (showStartUp)
             {
                 StartUpWindow window = new(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
@@ -54,22 +50,22 @@ namespace LoaderCore
             StartUpConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
 
             // Получаем из конфига теги обновляемых модулей и обновляем все необходимые файлы, помеченные указанными тегами
-            List<string> updatedModules = StartUpConfig
-                .Root
-                .Element("Modules")
+            List<string>? updatedModules = StartUpConfig
+                .Root?
+                .Element("Modules")?
                 .Elements()
-                .Where(e => XmlConvert.ToBoolean(e.Attribute("Update").Value))
+                .Where(e => XmlConvert.ToBoolean(e.Attribute("Update")!.Value))
                 .Select(e => e.Name.LocalName)
                 .ToList();
             FileUpdater.UpdatedModules.UnionWith(updatedModules);
             FileUpdater.UpdateRange(files);
 
             // Аналогичная процедура с загружаемыми сборками
-            List<string> loadedModules = StartUpConfig
-                .Root
-                .Element("Modules")
+            List<string>? loadedModules = StartUpConfig
+                .Root?
+                .Element("Modules")?
                 .Elements()
-                .Where(e => XmlConvert.ToBoolean(e.Attribute("Include").Value))
+                .Where(e => XmlConvert.ToBoolean(e.Attribute("Include")!.Value))
                 .Select(e => e.Name.LocalName)
                 .ToList();
             StructureComparer.IncludedModules.UnionWith(loadedModules);
@@ -139,15 +135,8 @@ namespace LoaderCore
 
         private static IEnumerable<FileInfo>? SearchDirectoryForDlls(DirectoryInfo directory)
         {
-            List<FileInfo> fileList = directory.GetFiles().Where(fi => fi.Extension == ".dll").ToList();
-            DirectoryInfo[] dirList = directory.GetDirectories();
-            foreach (DirectoryInfo dir in dirList)
-            {
-                IEnumerable<FileInfo>? fi = SearchDirectoryForDlls(dir);
-                if (fi.Any())
-                    fileList.AddRange(fi);
-            }
-            return fileList;
+            return directory.GetFiles("*", SearchOption.AllDirectories).Where(fi => fi.Extension == ".dll");
+
         }
 
 

@@ -6,7 +6,7 @@ namespace LoaderCore.Utilities
 {
     public static class PathProvider
     {
-        private static Dictionary<string, string> PathDictionary { get; set; }
+        private static Dictionary<string, string> PathDictionary { get; set; } = null!;
 
         internal static void InitializeStructure(IEnumerable<ComparedFiles> files)
         {
@@ -22,7 +22,7 @@ namespace LoaderCore.Utilities
             return PathDictionary[name];
         }
 
-        public static bool TryGetPath(string name, out string path)
+        public static bool TryGetPath(string name, out string? path)
         {
             return PathDictionary.TryGetValue(name, out path);
         }

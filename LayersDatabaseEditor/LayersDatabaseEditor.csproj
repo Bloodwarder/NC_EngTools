@@ -32,6 +32,7 @@
 			<Private>False</Private>
 			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
+			<EmbedInteropTypes>False</EmbedInteropTypes>
 		</ProjectReference>
 		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
 			<Private>False</Private>
@@ -40,6 +41,7 @@
 
 	<ItemGroup>
 	  <Folder Include="src\DatabaseInteraction\" />
+	  <Folder Include="src\IOExcel\" />
 	</ItemGroup>
 
 </Project>

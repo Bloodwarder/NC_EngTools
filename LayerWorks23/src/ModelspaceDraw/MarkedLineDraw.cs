@@ -17,11 +17,10 @@ namespace LayerWorks.ModelspaceDraw
     public abstract class MarkedLineDraw : LegendObjectDraw
     {
         const double RelativeWidthLimit = 0.65d;
-        internal string MarkChar => LegendDrawTemplate.MarkChar;
+        internal string MarkChar => LegendDrawTemplate?.MarkChar ?? "ОШБК";
         private double _width;
 
-        internal MarkedLineDraw() { }
-        internal MarkedLineDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer)
+        internal MarkedLineDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
         {
         }
         internal MarkedLineDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
@@ -41,13 +40,13 @@ namespace LayerWorks.ModelspaceDraw
         /// </summary>
         protected void DrawText()
         {
-            TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
+            TextStyleTable? txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
 
-            MText mtext = new MText
+            MText mtext = new()
             {
                 Contents = MarkChar,
-                TextStyleId = txtstyletable["Standard"],
-                TextHeight = 4d,
+                TextStyleId = txtstyletable!["Standard"],
+                TextHeight = 4d, // TODO: ПОМЕНЯТЬ НА ЗНАЧЕНИЕ ИЗ КОНФИГУРАЦИИ
                 Layer = Layer.BoundLayer.Name,
                 Color = s_byLayer,
             };

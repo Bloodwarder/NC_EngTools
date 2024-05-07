@@ -10,19 +10,19 @@ namespace LayersIO.DataTransfer
         /// <summary>
         /// Имя шаблона
         /// </summary>
-        public string DrawTemplate;
+        public string? DrawTemplate;
         /// <summary>
         /// Символ для вставки посередине линии
         /// </summary>
-        public string MarkChar;
+        public string? MarkChar;
         /// <summary>
         /// Ширина (для прямоугольных шаблонов)
         /// </summary>
-        public string Width;
+        public string? Width;
         /// <summary>
         /// Высота (для прямоугольных шаблонов)
         /// </summary>
-        public string Height;
+        public string? Height;
         /// <summary>
         /// Дополнительная яркость внутреннего прямоугольника  (от - 1 до 1)
         /// </summary>
@@ -30,7 +30,7 @@ namespace LayersIO.DataTransfer
         /// <summary>
         /// Имя образца внутренней штриховки
         /// </summary>
-        public string InnerHatchPattern;
+        public string? InnerHatchPattern;
         /// <summary>
         /// Масштаб внутренней штриховки
         /// </summary>
@@ -46,19 +46,19 @@ namespace LayersIO.DataTransfer
         /// <summary>
         /// Ширина внешнего прямоугольника
         /// </summary>
-        public string FenceWidth;
+        public string? FenceWidth;
         /// <summary>
         /// Высота внешнего прямоугольника
         /// </summary>
-        public string FenceHeight;
+        public string? FenceHeight;
         /// <summary>
         /// Слой внешнего прямоугольника (если отличается от основного слоя)
         /// </summary>
-        public string FenceLayer;
+        public string? FenceLayer;
         /// <summary>
         /// Имя образца внешней штриховки
         /// </summary>
-        public string OuterHatchPattern;
+        public string? OuterHatchPattern;
         /// <summary>
         /// Масштаб внешней штриховки
         /// </summary>
@@ -78,7 +78,7 @@ namespace LayersIO.DataTransfer
         /// <summary>
         /// Имя блока
         /// </summary>
-        public string BlockName;
+        public string? BlockName;
         /// <summary>
         /// Смещение точки вставки блока по оси X
         /// </summary>
@@ -90,6 +90,6 @@ namespace LayersIO.DataTransfer
         /// <summary>
         /// Путь к файлу для импорта блока
         /// </summary>
-        public string BlockPath;
+        public string? BlockPath;
     }
 }

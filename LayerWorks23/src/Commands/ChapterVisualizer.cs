@@ -18,15 +18,15 @@ namespace LayerWorks.Commands
     /// </summary>
     public class ChapterVisualizer
     {
-        private static readonly Dictionary<Document, string> _activeChapterState = new();
+        private static readonly Dictionary<Document, string?> _activeChapterState = new();
 
-        internal static Dictionary<Document, string> ActiveChapterState
+        internal static Dictionary<Document, string?> ActiveChapterState
         {
             get
             {
                 Document doc = Workstation.Document;
                 if (!_activeChapterState.ContainsKey(doc))
-                { _activeChapterState.Add(doc, null); }
+                    _activeChapterState.Add(doc, null);
                 return _activeChapterState;
             }
         }
@@ -43,12 +43,19 @@ namespace LayerWorks.Commands
             Document doc = Workstation.Document;
             Database db = Workstation.Database;
 
+            string? prefix = LayerWrapper.StandartPrefix;
+            if (prefix == null)
+            {
+                editor.WriteMessage("Не задан префикс слоёв для выполнения команды");
+                return;
+            }
+
             using (Transaction transaction = tm.StartTransaction())
             {
                 LayerTable lt = (LayerTable)transaction.GetObject(db.LayerTableId, OpenMode.ForRead, false);
                 var layers = from ObjectId elem in lt
                              let ltr = tm.GetObject(elem, OpenMode.ForWrite, false) as LayerTableRecord
-                             where ltr.Name.StartsWith(LayerWrapper.StandartPrefix + NameParser.LoadedParsers[LayerWrapper.StandartPrefix].Separator)
+                             where ltr.Name.StartsWith(LayerWrapper.StandartPrefix + NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].Separator)
                              select ltr;
                 int errorCount = 0;
                 int successCount = 0;
@@ -74,7 +81,7 @@ namespace LayerWorks.Commands
                     .Distinct()
                     .OrderBy(l => l)
                     .ToList();
-                List<string> lcplus = layerchapters.Append("Сброс").ToList();
+                List<string?> lcplus = layerchapters.Append("Сброс").ToList();
                 PromptKeywordOptions pko = new($"Выберите раздел [" + string.Join("/", lcplus) + "]", string.Join(" ", lcplus))
                 {
                     AppendKeywordsToMessage = true,
@@ -103,14 +110,13 @@ namespace LayerWorks.Commands
             }
         }
 
-        internal void NewLayerHighlight(object sender, EventArgs e)
+        internal void NewLayerHighlight(object? sender, EventArgs e)
         {
             Document doc = Workstation.Document;
-            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
 
-            using (Transaction transaction = tm.StartTransaction())
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                ChapterStoreLayerWrapper cslp = new((LayerTableRecord)sender);
+                ChapterStoreLayerWrapper cslp = new((LayerTableRecord)sender!);
                 cslp.Push(ActiveChapterState[doc], new() { "пр", "неутв" });
                 transaction.Commit();
             }

@@ -43,7 +43,7 @@ namespace LayerWorks.Legend
         private void AddCells(LegendGridCell cell)
         {
             this[cell.Layer.LayerInfo.MainName].AddCell(cell);
-            if (cell.ParentRow.LegendData.IgnoreLayer)
+            if (cell.ParentRow!.LegendData!.IgnoreLayer)
                 return;
             cell.ParentGrid = this;
             Cells.Add(cell);
@@ -57,22 +57,22 @@ namespace LayerWorks.Legend
         private void ProcessRows()
         {
             // Выбрать и сортировать слои без метки игнорирования
-            Rows = Rows.Where(r => !r.LegendData.IgnoreLayer).ToList();
+            Rows = Rows.Where(r => !r.LegendData!.IgnoreLayer).ToList();
             Rows.Sort();
             // Выбрать разделы и вставить их названия в нужные места таблицы
-            var labels = Rows.Select(r => r.LegendEntityChapterName).Distinct().ToList();
+            List<string> labels = Rows.Select(r => r.LegendEntityChapterName!).Distinct().ToList();
             foreach (var label in labels)
             {
-                LegendGridRow row = new LegendGridRow
+                LegendGridRow row = new()
                 {
                     ParentGrid = this,
                     Label = LegendInfoTable.Dictionary[label],
                     ItalicLabel = true
                 };
-                Rows.Insert(Rows.IndexOf(Rows.Where(r => r.LegendEntityChapterName == label).Min()), row);
+                Rows.Insert(Rows.IndexOf(Rows.Where(r => r.LegendEntityChapterName! == label).Min()!), row);
             }
             // И то же самое для подразделов
-            var sublabels = Rows.Select(r => r.LegendData.SubLabel).Where(s => s != null).Distinct().ToList();
+            var sublabels = Rows.Select(r => r.LegendData!.SubLabel).Where(s => s != null).Distinct().ToList();
             foreach (var label in sublabels)
             {
                 LegendGridRow row = new LegendGridRow
@@ -80,9 +80,9 @@ namespace LayerWorks.Legend
                     ParentGrid = this,
                     Label = label
                 };
-                var labeledRows = Rows.Where(r => r.LegendData.SubLabel == label).ToList();
-                int minindex = Rows.IndexOf(labeledRows.Min());
-                int maxindex = Rows.IndexOf(labeledRows.Max());
+                var labeledRows = Rows.Where(r => r.LegendData!.SubLabel == label).ToList();
+                int minindex = Rows.IndexOf(labeledRows.Min()!);
+                int maxindex = Rows.IndexOf(labeledRows.Max()!);
                 for (int i = minindex; i < maxindex; i++)
                 {
                     Rows[i].IsSublabeledList = true;
@@ -106,7 +106,7 @@ namespace LayerWorks.Legend
         private void ProcessColumns()
         {
             // Назначить целочисленные X координаты ячейкам таблицы на основе их статусов
-            List<string> statuses = Cells.Select(c => c.Layer.LayerInfo.Status).Distinct().ToList();
+            List<string?> statuses = Cells.Select(c => c.Layer.LayerInfo.Status).Distinct().ToList();
             _columns = statuses.Count;
             statuses.Sort();
             for (int i = 0; i < statuses.Count; i++)
@@ -138,11 +138,11 @@ namespace LayerWorks.Legend
                 var rows = Rows.Where(r => r.LegendEntityClassName == mainname);
                 if (rows.Any())
                 {
-                    return rows.FirstOrDefault();
+                    return rows.FirstOrDefault()!;
                 }
                 else
                 {
-                    LegendGridRow row = new LegendGridRow(mainname)
+                    LegendGridRow row = new(mainname)
                     {
                         ParentGrid = this
                     };

@@ -19,8 +19,7 @@ namespace LayerWorks.ModelspaceDraw
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
-        public SolidLineDraw() { }
-        internal SolidLineDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer) { }
+        internal SolidLineDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer) { }
         internal SolidLineDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -32,11 +31,11 @@ namespace LayerWorks.ModelspaceDraw
             pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
             pl.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
             pl.Layer = Layer.LayerInfo.Name;
-            bool success = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps lp);
+            bool success = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps? lp);
             if (success)
             {
-                pl.LinetypeScale = lp.LTScale;
-                pl.ConstantWidth = lp.ConstantWidth;
+                pl.LinetypeScale = lp!.LTScale;
+                pl.ConstantWidth = lp!.ConstantWidth;
             }
             EntitiesList.Add(pl);
         }

@@ -13,23 +13,23 @@ namespace LayerWorks.Legend
     internal class LegendGridCell : ICloneable
     {
         List<LegendObjectDraw> _draw = new List<LegendObjectDraw>();
-        private LegendDrawTemplate _template;
+        private LegendDrawTemplate? _template;
 
         internal LegendGridCell(RecordLayerWrapper layer)
         {
             Layer = layer;
 
-            bool success = LayerLegendDrawDictionary.TryGetValue(layer.LayerInfo.TrueName, out LegendDrawTemplate ldt);
+            bool success = LayerLegendDrawDictionary.TryGetValue(layer.LayerInfo.TrueName, out LegendDrawTemplate? ldt);
             if (success)
                 _template = ldt;
             else
                 throw new Exception("Нет шаблона для отрисовки");
         }
 
-        internal LegendGrid ParentGrid { get; set; }
-        internal LegendGridRow ParentRow { get; set; }
+        internal LegendGrid? ParentGrid { get; set; }
+        internal LegendGridRow? ParentRow { get; set; }
         internal RecordLayerWrapper Layer { get; set; }
-        internal CellTableIndex TableIndex = new CellTableIndex();
+        internal CellTableIndex TableIndex;
 
         internal void AssignX(int x)
         {
@@ -41,17 +41,15 @@ namespace LayerWorks.Legend
         }
         public void CreateDrawObject()
         {
-            LegendObjectDraw lod = Activator.CreateInstance
-                (
-                Assembly.GetCallingAssembly().FullName,
-                string.Concat("ModelspaceDraw.", _template.DrawTemplate, "Draw")
-                )
-                .Unwrap() as LegendObjectDraw;
+            string typeName = string.Concat("ModelspaceDraw.", _template!.DrawTemplate, "Draw");
+            LegendObjectDraw? lod = Activator.CreateInstance(Assembly.GetCallingAssembly().FullName!, typeName)!.Unwrap() as LegendObjectDraw;
+            if (lod == null)
+                throw new Exception($"Отсутствует тип с именем {typeName}");
 
             lod.LegendDrawTemplate = _template;
             lod.Layer = Layer;
-            double x = ParentGrid.BasePoint.X + TableIndex.X * (ParentGrid.CellWidth + ParentGrid.WidthInterval) + ParentGrid.CellWidth / 2;
-            double y = ParentGrid.BasePoint.Y - TableIndex.Y * (ParentGrid.CellHeight + ParentGrid.HeightInterval) + ParentGrid.CellHeight / 2;
+            double x = ParentGrid!.BasePoint.X + TableIndex.X * (ParentGrid.CellWidth + ParentGrid.WidthInterval) + ParentGrid.CellWidth / 2;
+            double y = ParentGrid!.BasePoint.Y - TableIndex.Y * (ParentGrid.CellHeight + ParentGrid.HeightInterval) + ParentGrid.CellHeight / 2;
             lod.Basepoint = new Point2d(x, y);
             _draw.Add(lod);
         }

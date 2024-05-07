@@ -31,7 +31,7 @@ namespace LayersIO.DataTransfer
         /// <summary>
         /// Тип линий
         /// </summary>
-        public string LineTypeName;
+        public string? LineTypeName;
         /// <summary>
         /// Вес линий
         /// </summary>
