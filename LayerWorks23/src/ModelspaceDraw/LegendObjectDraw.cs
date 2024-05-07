@@ -17,16 +17,16 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public abstract class LegendObjectDraw : ObjectDraw
     {
-        private LegendDrawTemplate legendDrawTemplate;
+        private LegendDrawTemplate? _legendDrawTemplate;
         /// <summary>
         /// Структура с данными для отрисовки объекта
         /// </summary>
-        public LegendDrawTemplate LegendDrawTemplate
+        public LegendDrawTemplate? LegendDrawTemplate
         {
-            get => legendDrawTemplate;
+            get => _legendDrawTemplate;
             set
             {
-                legendDrawTemplate = value;
+                _legendDrawTemplate = value;
                 TemplateSetEventHandler?.Invoke(this, new EventArgs());
             }
         }
@@ -34,16 +34,17 @@ namespace LayerWorks.ModelspaceDraw
         /// Событие назначения объекту конкретного шаблона отрисовки.
         /// Необходимо для объектов, которые нельзя обрабатывать одномоментно и нужно поставить в очередь на обработку (например блоки, импортируемые из внешних чертежей).
         /// </summary>
-        protected event EventHandler TemplateSetEventHandler;
+        protected event EventHandler? TemplateSetEventHandler;
 
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
-        internal protected LegendObjectDraw() { }
-        internal LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer)
+        internal LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
         {
+            
             bool success = LayerLegendDrawDictionary.TryGetValue(Layer.LayerInfo.TrueName, out var legendDrawTemplate);
-            LegendDrawTemplate = legendDrawTemplate;
+            if (success)
+                LegendDrawTemplate = legendDrawTemplate!;
         }
         internal LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {

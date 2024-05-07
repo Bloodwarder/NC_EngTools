@@ -25,7 +25,7 @@ namespace LayersDatabaseEditor
 
         private async void miTestRun_Click(object sender, RoutedEventArgs e)
         {
-            Logger.WriteLog("Запущена тестовая команда");
+            Logger.WriteLog?.Invoke("Запущена тестовая команда");
             Task<string> task = TestMethod1Async();
             await LogWriteAsync(task);
 
@@ -79,17 +79,17 @@ namespace LayersDatabaseEditor
         {
             private string? messageContent;
             public event PropertyChangedEventHandler? PropertyChanged;
-            private static LogBuffer _instance;
+            private static LogBuffer _instance = null!;
             public static LogBuffer Instance => _instance ??= new LogBuffer();
 
             private LogBuffer() { }
-            public string MessageContent
+            public string? MessageContent
             {
                 get => messageContent;
                 set
                 {
                     messageContent = value;
-                    PropertyChanged(_instance, new(nameof(MessageContent)));
+                    PropertyChanged?.Invoke(_instance, new(nameof(MessageContent)));
                 }
             }
 

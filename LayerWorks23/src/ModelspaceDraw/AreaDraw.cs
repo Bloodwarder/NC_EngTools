@@ -17,11 +17,12 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public abstract class AreaDraw : LegendObjectDraw
     {
+        protected const string DefaultHatchPatternName = "SOLID";
+
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
-        public AreaDraw() { }
-        internal AreaDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer) { }
+        internal AreaDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer) { }
         internal AreaDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
@@ -35,9 +36,9 @@ namespace LayerWorks.ModelspaceDraw
         /// <param name="patternscale"> Масштаб образца </param>
         /// <param name="angle"> Угол поворота </param>
         /// <param name="increasebrightness"> Изменение яркости относительно базового цвета слоя </param>
-        protected void DrawHatch(IEnumerable<Polyline> borders, string patternname = "SOLID", double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8)
+        protected void DrawHatch(IEnumerable<Polyline> borders, string patternname = DefaultHatchPatternName, double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8)
         {
-            Hatch hatch = new Hatch();
+            Hatch hatch = new();
             //ДИКИЙ БЛОК, ПЫТАЮЩИЙСЯ ОБРАБОТАТЬ ОШИБКИ ДЛЯ НЕПОНЯТНЫХ ШТРИХОВОК
             try
             {

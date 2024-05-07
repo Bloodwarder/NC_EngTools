@@ -16,7 +16,10 @@ namespace StartUp
         const string LoaderCoreAssemblyName = "LoaderCore.dll";
         const string StructureXmlName = "Structure.xml";
 
-        private readonly bool _debugAssembly = Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
+        private readonly bool _debugAssembly = Assembly.GetExecutingAssembly()
+                                                       .GetCustomAttributes(false)
+                                                       .OfType<DebuggableAttribute>()
+                                                       .Any(da => da.IsJITTrackingEnabled);
         private readonly FileInfo LocalStartUpAssemblyFile = new FileInfo(Assembly.GetExecutingAssembly().Location);
         private string sourceDirectory;
         private string SourceDirectory
@@ -27,7 +30,9 @@ namespace StartUp
                 {
                     try
                     {
-                        XDocument xDocument = XDocument.Load(Path.Combine(LocalStartUpAssemblyFile.DirectoryName, LoaderCoreDirectory, StructureXmlName));
+                        XDocument xDocument = XDocument.Load(Path.Combine(LocalStartUpAssemblyFile.DirectoryName,
+                                                                          LoaderCoreDirectory,
+                                                                          StructureXmlName));
                         sourceDirectory = xDocument.Root.Element("basepath").Element("source").Value;
                         xDocument = null;
                         GC.Collect();
@@ -48,10 +53,18 @@ namespace StartUp
         public void Initialize()
         {
             Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage("Загрузка NC_EngTools");
-            FileInfo localLoaderAssemblyFile = new FileInfo(Path.Combine(LocalStartUpAssemblyFile.DirectoryName, LoaderCoreDirectory, LoaderCoreAssemblyName));
-            FileInfo sourceLoaderAssemblyFile = new FileInfo(Path.Combine(SourceDirectory, LoaderCoreDirectory, LoaderCoreAssemblyName));
-            FileInfo localStructureXml = new FileInfo(Path.Combine(LocalStartUpAssemblyFile.DirectoryName, LoaderCoreDirectory, StructureXmlName));
-            FileInfo sourceStructureXml = new FileInfo(Path.Combine(SourceDirectory, LoaderCoreDirectory, StructureXmlName));
+            FileInfo localLoaderAssemblyFile = new FileInfo(Path.Combine(LocalStartUpAssemblyFile.DirectoryName,
+                                                                         LoaderCoreDirectory,
+                                                                         LoaderCoreAssemblyName));
+            FileInfo sourceLoaderAssemblyFile = new FileInfo(Path.Combine(SourceDirectory,
+                                                                          LoaderCoreDirectory,
+                                                                          LoaderCoreAssemblyName));
+            FileInfo localStructureXml = new FileInfo(Path.Combine(LocalStartUpAssemblyFile.DirectoryName,
+                                                                   LoaderCoreDirectory,
+                                                                   StructureXmlName));
+            FileInfo sourceStructureXml = new FileInfo(Path.Combine(SourceDirectory,
+                                                                    LoaderCoreDirectory,
+                                                                    StructureXmlName));
             try
             {
                 UpdateFile(localLoaderAssemblyFile, sourceLoaderAssemblyFile, out _);

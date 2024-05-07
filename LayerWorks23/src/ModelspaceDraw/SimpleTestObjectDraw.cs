@@ -11,22 +11,22 @@ using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.ModelspaceDraw
 {
+    /// <summary>
+    /// Тестовый класс отрисовки объектов
+    /// </summary>
     internal class SimpleTestObjectDraw : LegendObjectDraw
     {
-        public SimpleTestObjectDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer) { }
+        public SimpleTestObjectDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer) { }
 
         public override void Draw()
         {
-
-
             Database db = Workstation.Database;
-
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                BlockTable blocktable = transaction.GetObject(db.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
-                BlockTableRecord modelspace = transaction.GetObject(blocktable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                BlockTable? blocktable = transaction.GetObject(db.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
+                BlockTableRecord? modelspace = transaction.GetObject(blocktable![BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
 
-                BlockTableRecord newbtr = new BlockTableRecord
+                BlockTableRecord newbtr = new()
                 {
                     Name = "NewBlock",
                     Explodable = true
@@ -66,27 +66,17 @@ namespace LayerWorks.ModelspaceDraw
 
                 //вхождение блока
                 BlockReference bref = new BlockReference(new Point3d(new double[] { 0d, 5d, 0d }), newbtr.ObjectId);
-                modelspace.AppendEntity(bref);
+                modelspace!.AppendEntity(bref);
                 transaction.AddNewlyCreatedDBObject(bref, true); // и в транзакцию
-                                                                 //using (DBObjectCollection dbObjects = new DBObjectCollection())
-                                                                 //{
-                                                                 //    bref.Explode(dbObjects);
-                                                                 //    foreach (DBObject obj in dbObjects)
-                                                                 //    {
-                                                                 //        Entity ent = obj as Entity;
-                                                                 //        modelspace.AppendEntity(ent);
-                                                                 //        transaction.AddNewlyCreatedDBObject(ent, true);
-                                                                 //    }
-                                                                 //}
 
                 //многострочный текст
-                TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(db.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
-                MText mtext = new MText
+                TextStyleTable? txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(db.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
+                MText mtext = new()
                 {
                     BackgroundFill = true,
                     UseBackgroundColor = true,
                     BackgroundScaleFactor = 1.1d,
-                    TextStyleId = txtstyletable["Standard"],
+                    TextStyleId = txtstyletable!["Standard"],
                     Contents = "TEST_TEXT",
                     TextHeight = 4d
                 };

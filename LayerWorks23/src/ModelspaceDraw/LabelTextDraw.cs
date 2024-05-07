@@ -16,16 +16,20 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public class LabelTextDraw : ObjectDraw
     {
+        private static readonly RecordLayerWrapper? _layer;
         private readonly bool _italic = false;
         private readonly string _text;
         static LabelTextDraw()
         {
+            RecordLayerWrapper? layerWrapper = null;
+            EventHandler listener = (object? o, EventArgs e) => { layerWrapper = new((LayerTableRecord)o!); };
+            LayerChecker.LayerAddedEvent += listener;
             LayerChecker.Check(string.Concat(LayerWrapper.StandartPrefix, "_Условные"));
+            LayerChecker.LayerAddedEvent -= listener;
+            _layer = layerWrapper;
         }
-        internal LabelTextDraw() { }
-        internal LabelTextDraw(Point2d basepoint, string label, bool italic = false) : base()
+        internal LabelTextDraw(Point2d basepoint, string label, bool italic = false) : base(basepoint, _layer!)
         {
-            Basepoint = basepoint;
             _italic = italic;
             _text = label;
         }
@@ -33,13 +37,13 @@ namespace LayerWorks.ModelspaceDraw
         /// <inheritdoc/>
         public override void Draw()
         {
-            TextStyleTable txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
+            var txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
             string legendTextLayer = string.Concat(LayerWrapper.StandartPrefix, "_Условные");
             LayerChecker.Check(legendTextLayer);
-            MText mtext = new MText
+            MText mtext = new()
             {
                 Contents = _italic ? $"{{\\fArial|b0|i1|c204|p34;{_text}}}" : _text,
-                TextStyleId = txtstyletable["Standard"],
+                TextStyleId = txtstyletable!["Standard"],
                 TextHeight = LegendGrid.LegendGridParameters.TextHeight,
                 Layer = legendTextLayer,
                 Color = s_byLayer,

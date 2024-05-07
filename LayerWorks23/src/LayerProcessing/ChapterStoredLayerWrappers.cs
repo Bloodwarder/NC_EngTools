@@ -33,9 +33,9 @@ namespace LayerWorks.LayerProcessing
         }
 
         // восстановление состояний слоёв при вызове событием сохранения чертежа
-        internal static void Reset(object sender, DatabaseIOEventArgs e)
+        internal static void Reset(object? sender, DatabaseIOEventArgs e)
         {
-            Database db = sender as Database;
+            Database db = (Database)sender!;
             Document doc = Application.DocumentManager.GetDocument(db);
             if (e.FileName != doc.Name)
                 return;
@@ -57,7 +57,7 @@ namespace LayerWorks.LayerProcessing
             }
 
         }
-        internal static void Highlight(string primaryClassifier)
+        internal static void Highlight(string? primaryClassifier)
         {
             Document doc = Workstation.Document;
             if (!_eventAssigned[doc])
@@ -65,11 +65,14 @@ namespace LayerWorks.LayerProcessing
                 doc.Database.BeginSave += Reset;
                 _eventAssigned[doc] = true;
             }
-            foreach (ChapterStoreLayerWrapper lp in StoredLayerStates[doc]) { lp.Push(primaryClassifier, new() { "пр", "неутв" }); }
+            foreach (ChapterStoreLayerWrapper lp in StoredLayerStates[doc])
+            { 
+                lp.Push(primaryClassifier, new() { "пр", "неутв" }); 
+            }
         }
 
         //Сбросить сохранённые состояния слоёв для текущего документа
-        internal static void Flush(Document doc = null)
+        internal static void Flush(Document? doc = null)
         {
             if (doc == null)
                 doc = Workstation.Document;

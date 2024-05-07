@@ -45,7 +45,7 @@ namespace LayerWorks.LayerProcessing
         /// Принимает тип объектов. Если объект не относится к заданному типу - выключает его. Если относится к переустройству - задаёт яркий цвет
         /// </summary>
         /// <param name="primaryClassifier">Тип объекта по основному классификатору</param>
-        public void Push(string primaryClassifier, List<string> highlitedStatusList)
+        public void Push(string? primaryClassifier, List<string> highlitedStatusList)
         {
             if (primaryClassifier == null)
             {

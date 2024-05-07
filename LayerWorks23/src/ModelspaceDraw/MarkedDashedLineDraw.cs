@@ -34,7 +34,7 @@ namespace LayerWorks.ModelspaceDraw
                 bool success = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps? props, true);
                 if (success)
                     line.ConstantWidth = props!.ConstantWidth;
-                LayerChecker.FindLinetype("ACAD_ISO02W100", out bool ltgetsuccess);
+                LayerChecker.TryFindLinetype("ACAD_ISO02W100", out bool ltgetsuccess);
                 if (ltgetsuccess)
                     line.Linetype = "ACAD_ISO02W100";
                 line.LinetypeScale = 0.3d;

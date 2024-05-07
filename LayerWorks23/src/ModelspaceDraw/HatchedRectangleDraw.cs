@@ -15,26 +15,22 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public class HatchedRectangleDraw : RectangleDraw
     {
-        /// <summary>
-        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
-        /// </summary>
-        public HatchedRectangleDraw() { }
-
-        internal HatchedRectangleDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer) { }
+        internal HatchedRectangleDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer) { }
         internal HatchedRectangleDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }
-
         /// <inheritdoc/>
         public override void Draw()
         {
-            List<Polyline> rectangle = new List<Polyline> { DrawRectangle(RectangleWidth, RectangleHeight, brightnessshift: LegendDrawTemplate.InnerBorderBrightness) };
+            List<Polyline> rectangle = new() { DrawRectangle(RectangleWidth,
+                                                             RectangleHeight,
+                                                             brightnessshift: LegendDrawTemplate?.InnerBorderBrightness ?? 0) };
             DrawHatch(rectangle,
-                patternname: LegendDrawTemplate.InnerHatchPattern,
-                angle: LegendDrawTemplate.InnerHatchAngle,
-                patternscale: LegendDrawTemplate.InnerHatchScale,
-                increasebrightness: LegendDrawTemplate.InnerHatchBrightness
+                patternname: LegendDrawTemplate?.InnerHatchPattern ?? DefaultHatchPatternName,
+                angle: LegendDrawTemplate?.InnerHatchAngle ?? 0,
+                patternscale: LegendDrawTemplate?.InnerHatchScale ?? 1,
+                increasebrightness: LegendDrawTemplate?.InnerHatchBrightness ?? 0
                 );
         }
     }

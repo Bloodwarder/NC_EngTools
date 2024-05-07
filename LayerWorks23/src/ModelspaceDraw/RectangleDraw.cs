@@ -17,26 +17,21 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public class RectangleDraw : AreaDraw
     {
-        /// <summary>
-        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
-        /// </summary>
-        public RectangleDraw() { }
-
-        internal RectangleDraw(Point2d basepoint, RecordLayerWrapper layer = null) : base(basepoint, layer) { }
+        internal RectangleDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer) { }
         internal RectangleDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }
 
-        internal double RectangleWidth => ParseRelativeValue(LegendDrawTemplate.Width, LegendGrid.LegendGridParameters.CellWidth);
-        internal double RectangleHeight => ParseRelativeValue(LegendDrawTemplate.Height, LegendGrid.LegendGridParameters.CellHeight);
+        internal double RectangleWidth => ParseRelativeValue(LegendDrawTemplate!.Width ?? "1*", LegendGrid.LegendGridParameters.CellWidth);
+        internal double RectangleHeight => ParseRelativeValue(LegendDrawTemplate!.Height ?? "1*", LegendGrid.LegendGridParameters.CellHeight);
         /// <inheritdoc/>
         public override void Draw()
         {
             DrawRectangle(RectangleWidth, RectangleHeight);
         }
 
-        private protected Polyline DrawRectangle(double width, double height, string layer = null, double brightnessshift = 0d)
+        private protected Polyline DrawRectangle(double width, double height, string? layer = null, double brightnessshift = 0d)
         {
             Polyline rectangle = new Polyline();
             rectangle.AddVertexAt(0, GetRelativePoint(-width / 2, -height / 2), 0, 0d, 0d);
@@ -44,15 +39,15 @@ namespace LayerWorks.ModelspaceDraw
             rectangle.AddVertexAt(2, GetRelativePoint(width / 2, height / 2), 0, 0d, 0d);
             rectangle.AddVertexAt(3, GetRelativePoint(width / 2, -height / 2), 0, 0d, 0d);
             rectangle.Closed = true;
-            string separator = NameParser.LoadedParsers[LayerWrapper.StandartPrefix].Separator;
+            string separator = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].Separator;
             if (layer != null)
                 LayerChecker.Check($"{LayerWrapper.StandartPrefix}{separator}{layer}"); //ПОКА ЗАВЯЗАНО НА ЧЕКЕР ИЗ ДРУГОГО МОДУЛЯ. ПРОАНАЛИЗИРОВАТЬ ВОЗМОЖНОСТИ ОПТИМИЗАЦИИ
             rectangle.Layer = layer == null ? Layer.BoundLayer.Name : $"{LayerWrapper.StandartPrefix}{separator}{layer}";
-            bool success = LayerPropertiesDictionary.TryGetValue(rectangle.Layer, out LayerProps lp);
+            bool success = LayerPropertiesDictionary.TryGetValue(rectangle.Layer, out LayerProps? lp);
             if (success)
             {
-                rectangle.LinetypeScale = lp.LTScale;
-                rectangle.ConstantWidth = lp.ConstantWidth;
+                rectangle.LinetypeScale = lp!.LTScale;
+                rectangle.ConstantWidth = lp!.ConstantWidth;
             }
             rectangle.Color = BrightnessShift(brightnessshift);
             EntitiesList.Add(rectangle);

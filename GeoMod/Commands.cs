@@ -15,7 +15,7 @@ using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using HostMgd.EditorInput;
 
-using LoaderCore.Utilities;
+using NanocadUtilities;
 using GeoMod.GeometryExtensions;
 using System.Text.RegularExpressions;
 using GeoMod.UI;

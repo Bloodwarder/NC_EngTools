@@ -11,7 +11,7 @@ namespace LayerWorks.Legend
     internal class GridsComposer
     {
 
-        const double SEPARATED_GRIDS_OFFSET = 150d;
+        const double SeparatedGridsOffset = 150d;
         internal List<LegendGridCell> SourceCells { get; set; } = new List<LegendGridCell>();
         internal List<LegendGrid> Grids { get; set; } = new List<LegendGrid>();
 
@@ -55,11 +55,11 @@ namespace LayerWorks.Legend
                     // Сетка с неутв и неутв демонтажом без метки конкретного внешнего проекта
                     AddGrid(c => new string[] { "ндем", "неутв" }.Contains(c.Layer.LayerInfo.Status) && c.Layer.LayerInfo.AuxilaryData["ExternalProject"] == null);
                     // Сетки с неутв и неутв демонтажом для кадого конкретного внешнего проекта
-                    List<string> extprojects = SourceCells
+                    List<string?> extprojects = SourceCells
                         .Where(c => c.Layer.LayerInfo.AuxilaryData["ExternalProject"] != null)
                         .Select(c => c.Layer.LayerInfo.AuxilaryData["ExternalProject"])
                         .Distinct().ToList();
-                    foreach (string extproject in extprojects)
+                    foreach (var extproject in extprojects)
                         AddGrid(c => c.Layer.LayerInfo.AuxilaryData["ExternalProject"] == extproject);
                     break;
 
@@ -77,10 +77,10 @@ namespace LayerWorks.Legend
             List<LegendGridCell> cells = new List<LegendGridCell>();
             foreach (LegendGridCell cell in filteredcells)
             {
-                cells.Add(cell.Clone() as LegendGridCell);
+                cells.Add((LegendGridCell)cell.Clone());
             }
             // Посчитать точку вставки на основании уже вставленных сеток
-            double deltax = Grids.Select(g => g.Width).Sum() + SEPARATED_GRIDS_OFFSET * Grids.Count;
+            double deltax = Grids.Select(g => g.Width).Sum() + SeparatedGridsOffset * Grids.Count;
             // Собрать сетку и добавить в список созданных сеток
             LegendGrid grid = new LegendGrid(cells, new Point3d(_basepoint.X + deltax, _basepoint.Y, 0d));
             grid.Assemble();
