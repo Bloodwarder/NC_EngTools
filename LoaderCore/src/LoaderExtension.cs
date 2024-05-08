@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 using Teigha.Runtime;
+using System.Configuration;
 using System;
 
 namespace LoaderCore
@@ -32,7 +33,6 @@ namespace LoaderCore
         
         public static void Initialize()
         {
-
             Logger.WriteLog += Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage;
 
             List<ComparedFiles> files = InitializeFileStructure();
@@ -101,7 +101,7 @@ namespace LoaderCore
 
             // Получить наборы файлов для сопоставления (локальный, источник и тег модуля) и создать словарь путей для обращения
             List<ComparedFiles> files = StructureComparer.GetFiles(structureXml);
-            PathProvider.InitializeStructure(files);
+            PathProvider.InitializeStructure(dir.Parent!.FullName);
 
             if (preUpdate)
             {
