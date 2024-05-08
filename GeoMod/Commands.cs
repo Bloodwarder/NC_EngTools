@@ -12,7 +12,6 @@ using NetTopologySuite.Operation.Buffer;
 
 using Teigha.Runtime;
 using Teigha.DatabaseServices;
-using Teigha.Geometry;
 using HostMgd.EditorInput;
 
 using NanocadUtilities;
@@ -60,7 +59,7 @@ namespace GeoMod
         /// <summary>
         /// Создание WKT текста из выбранных геометрий dwg и помещение его в буфер обмена
         /// </summary>
-        [CommandMethod("ВКТТЕКСТ", CommandFlags.UsePickSet)]
+        [CommandMethod("ВКТЭКСПОРТ", CommandFlags.UsePickSet)]
         public static void WktToClipboard()
         {
             Workstation.Define();
@@ -85,7 +84,7 @@ namespace GeoMod
             }
         }
 
-        [CommandMethod("ИЗВКТ")]
+        [CommandMethod("ВКТИМПОРТ")]
         public static void GeometryFromClipboardWkt()
         {
             Workstation.Define();
@@ -202,7 +201,7 @@ namespace GeoMod
                 Dictionary<string, double> bufferSizes = new();
                 foreach (string layer in layerNames)
                 {
-                    PromptDoubleOptions pdo = new($"Введите размер буферной зоны для слоя {layer} [Параметры]","Параметры")
+                    PromptDoubleOptions pdo = new($"Введите размер буферной зоны для слоя {layer} [Параметры]", "Параметры")
                     {
                         AllowNegative = false,
                         AllowZero = true,
