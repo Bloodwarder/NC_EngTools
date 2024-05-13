@@ -22,7 +22,7 @@
 						</Transformation>
 						<Transformation>
 							<Source>
-								<StatusReference Value ="проект"/>
+								<StatusReference Value ="пр"/>
 							</Source>
 							<Output>
 								<StatusReference Value="неутв"/>
@@ -87,6 +87,54 @@
 		</StatusClassifier>
 		<BooleanSuffix Value="пер" Description="Переустройство"/>
 	</Classifiers>
+	<LegendFilters DefaultLabel="Инженерная инфраструктура">
+		<StatusFilters>
+			<Filter Name="Существующие">
+				<Grid>
+					<StatusReference Value="сущ"/>
+				</Grid>
+			</Filter>
+			<Filter Name="Внутренние">
+				<Grid>
+					<StatusReference Value="сущ"/>
+					<StatusReference Value="дем"/>
+					<StatusReference Value="пр"/>
+				</Grid>
+			</Filter>
+			<Filter Name="Утв_и_неутв">
+				<Grid>
+					<StatusReference Value="сущ"/>
+					<StatusReference Value="дем"/>
+					<StatusReference Value="пр"/>
+				</Grid>
+				<Grid Label="* иных объектов">
+					<StatusReference Value="ндем"/>
+					<StatusReference Value="неутв"/>
+				</Grid>
+			</Filter>
+			<Filter Name="Разделённые">
+				<Grid>
+					<StatusReference Value="сущ"/>
+					<StatusReference Value="дем"/>
+					<StatusReference Value="пр"/>
+				</Grid>
+				<Grid Label="* иных объектов">
+					<DistinctMode>
+						<DataReference Name="ExternalProject"/>
+					</DistinctMode>
+					<StatusReference Value="ндем"/>
+					<StatusReference Value="неутв"/>
+				</Grid>
+			</Filter>
+		</StatusFilters>
+		<PrimaryFilters>
+			<Filter Name="ИПТ">
+				<Grid Label="Инженерная подготовка территории">
+				<ChapterReference Value="ДК"/>
+				</Grid>
+			</Filter>
+		</PrimaryFilters>
+	</LegendFilters>
 	<HighlightMode>
 		<StatusReference Value="пр">
 			<Color>

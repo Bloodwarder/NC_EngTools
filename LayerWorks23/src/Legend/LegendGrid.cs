@@ -1,26 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using LayerWorks.LayerProcessing;
-using Teigha.Geometry;
+﻿using Teigha.Geometry;
+using LoaderCore.Configuration;
 
 namespace LayerWorks.Legend
 {
     internal class LegendGrid
     {
-        
-        internal static LegendGridParameters LegendGridParameters { get; set; } = new LegendGridParameters();
-        internal double CellWidth => LegendGridParameters.CellWidth;
-        internal double CellHeight => LegendGridParameters.CellHeight;
-        internal double WidthInterval => LegendGridParameters.WidthInterval;
-        internal double HeightInterval => LegendGridParameters.HeightInterval;
-        internal double TextWidth => LegendGridParameters.TextWidth;
-        internal double TextHeight => LegendGridParameters.TextHeight;
-
-
-        internal List<LegendGridRow> Rows = new List<LegendGridRow>();
-        internal List<LegendGridCell> Cells = new List<LegendGridCell>();
+        internal List<LegendGridRow> Rows = new();
+        internal List<LegendGridCell> Cells = new();
         internal double Width { get => _columns * CellWidth + _columns * WidthInterval + TextWidth; }
         internal Point3d BasePoint = new Point3d();
+        private static LegendGridParameters _legendGridParameters = Configuration.LayerWorks.GetLegendGridParameters();
         private int _columns;
 
         internal LegendGrid(IEnumerable<LegendGridCell> cells, Point3d basepoint)
@@ -34,6 +23,35 @@ namespace LayerWorks.Legend
             LegendGridParameters = parameters;
         }
 
+        internal static double CellWidth => LegendGridParameters.CellWidth;
+        internal static double CellHeight => LegendGridParameters.CellHeight;
+        internal static double WidthInterval => LegendGridParameters.WidthInterval;
+        internal static double HeightInterval => LegendGridParameters.HeightInterval;
+        internal static double TextWidth => LegendGridParameters.TextWidth;
+        internal static double TextHeight => LegendGridParameters.TextHeight;
+        private static LegendGridParameters LegendGridParameters { get => _legendGridParameters; set => _legendGridParameters = value; }
+
+        // Индексатор, создающий строку при её отсутствии
+        internal LegendGridRow this[string mainname]
+        {
+            get
+            {
+                var rows = Rows.Where(r => r.LegendEntityClassName == mainname);
+                if (rows.Any())
+                {
+                    return rows.FirstOrDefault()!;
+                }
+                else
+                {
+                    LegendGridRow row = new(mainname)
+                    {
+                        ParentGrid = this
+                    };
+                    AddRow(row);
+                    return row;
+                }
+            }
+        }
         private void AddRow(LegendGridRow row)
         {
             row.ParentGrid = this;
@@ -75,7 +93,7 @@ namespace LayerWorks.Legend
             var sublabels = Rows.Select(r => r.LegendData!.SubLabel).Where(s => s != null).Distinct().ToList();
             foreach (var label in sublabels)
             {
-                LegendGridRow row = new LegendGridRow
+                LegendGridRow row = new()
                 {
                     ParentGrid = this,
                     Label = label
@@ -130,26 +148,10 @@ namespace LayerWorks.Legend
             ProcessColumns();
             ProcessDrawObjects();
         }
-        // Индексатор, создающий строку при её отсутствии
-        internal LegendGridRow this[string mainname]
+
+        internal static void ReloadGridParameters()
         {
-            get
-            {
-                var rows = Rows.Where(r => r.LegendEntityClassName == mainname);
-                if (rows.Any())
-                {
-                    return rows.FirstOrDefault()!;
-                }
-                else
-                {
-                    LegendGridRow row = new(mainname)
-                    {
-                        ParentGrid = this
-                    };
-                    AddRow(row);
-                    return row;
-                }
-            }
+            _legendGridParameters = Configuration.LayerWorks.GetLegendGridParameters();
         }
     }
 }
