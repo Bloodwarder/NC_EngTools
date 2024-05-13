@@ -6,16 +6,44 @@
 	</Directories>
 	<LayerWorksConfiguration>
 		<NameParserPaths>
-			
+			<LayerWorksPath Type="Shared"></LayerWorksPath>
+			<LayerWorksPath Type="Local"></LayerWorksPath>
+			<LayerWorksPath Type="Overrides"></LayerWorksPath>
 		</NameParserPaths>
 		<LayerStandardPaths>
-			
+			<LayerWorksPath Type="Shared"></LayerWorksPath>
+			<LayerWorksPath Type="Local"></LayerWorksPath>
+			<LayerWorksPath Type="Overrides"></LayerWorksPath>
 		</LayerStandardPaths>
+		<LegendGridParameters>
+			<CellWidth>30</CellWidth>
+			<CellHeight>9</CellHeight>
+			<WidthInterval>5</WidthInterval>
+			<HeightInterval>5</HeightInterval>
+			<TextWidth>250</TextWidth>
+			<TextHeight>6</TextHeight>
+		</LegendGridParameters>
 	</LayerWorksConfiguration>
 	<GeoModConfiguration>
-		
+		<BufferParameters>
+			<EndCapStyle>1</EndCapStyle>
+			<JoinStyle>1</JoinStyle>
+			<QuadrantSegments>6</QuadrantSegments>
+			<SimplifyFactor>0.1</SimplifyFactor>
+			<IsSingleSided>False</IsSingleSided>
+		</BufferParameters>
 	</GeoModConfiguration>
 	<UtilitiesConfiguration>
-		
+		<DefaultLabelTextHeight>3.6</DefaultLabelTextHeight>;
+		<DefaultLabelBackgroundScaleFactor>1.1</DefaultLabelBackgroundScaleFactor>
+		<Vertical>
+			<BlackMarkTag>СУЩ_ОТМ</BlackMarkTag>
+			<RedMarkTag>КР_ОТМ</RedMarkTag>
+			<SlopeTag>УКЛОН</SlopeTag>
+			<DistanceTag>РАССТОЯНИЕ</DistanceTag>
+			<ElevationMarkBlockName>ВП_отметки_блок_241120</ElevationMarkBlockName>
+			<SlopeBlockName>ВП уклоны блок_041219</SlopeBlockName>
+			<LastHorStep>0.2</LastHorStep>
+		</Vertical>
 	</UtilitiesConfiguration>
 </сonfiguration>

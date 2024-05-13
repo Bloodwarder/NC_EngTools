@@ -37,10 +37,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\LoaderCore\LoaderCore.csproj" />
     <ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj" />
   </ItemGroup>

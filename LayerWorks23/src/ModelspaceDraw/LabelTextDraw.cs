@@ -44,7 +44,7 @@ namespace LayerWorks.ModelspaceDraw
             {
                 Contents = _italic ? $"{{\\fArial|b0|i1|c204|p34;{_text}}}" : _text,
                 TextStyleId = txtstyletable!["Standard"],
-                TextHeight = LegendGrid.LegendGridParameters.TextHeight,
+                TextHeight = LegendGrid.TextHeight,
                 Layer = legendTextLayer,
                 Color = s_byLayer,
                 LineSpacingFactor = 0.8d

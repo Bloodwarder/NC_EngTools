@@ -3,20 +3,12 @@ using System.Linq;
 using System.Windows.Documents;
 using System.Collections.Generic;
 
-
-using NetTopologySuite;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
-using NtsBufferOps = NetTopologySuite.Operation.Buffer;
-using NetTopologySuite.Operation.Buffer;
 
-using Teigha.Runtime;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-using HostMgd.EditorInput;
 
 using NanocadUtilities;
-using System.Text.RegularExpressions;
 
 namespace GeoMod.GeometryExtensions
 {

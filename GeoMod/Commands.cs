@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Windows.Documents;
 using System.Collections.Generic;
 
 
@@ -27,7 +26,7 @@ namespace GeoMod
     /// </summary>
     public class GeoCommands
     {
-        private static readonly NtsGeometryServices _geometryServices;
+        private static NtsGeometryServices _geometryServices;
         private static double _defaultBufferDistance { get; set; } = 1d;
 
         private static BufferParameters DefaultBufferParameters = new()
@@ -42,19 +41,9 @@ namespace GeoMod
         static GeoCommands()
         {
             // Инициализация NetTopologySuite
-            NtsGeometryServices.Instance = new NtsGeometryServices( // default CoordinateSequenceFactory
-                                                                    NetTopologySuite.Geometries.Implementation.CoordinateArraySequenceFactory.Instance,
-                                                                    // default precision model
-                                                                    new PrecisionModel(1000d),
-                                                                    // default SRID
-                                                                    -1,
-                                                                    // Geometry overlay operation function set to use (Legacy or NG)
-                                                                    GeometryOverlay.NG,
-                                                                    // Coordinate equality comparer to use (CoordinateEqualityComparer or PerOrdinateEqualityComparer)
-                                                                    new CoordinateEqualityComparer()
-                                                                   );
-            _geometryServices = NtsGeometryServices.Instance;
+            InitializeNetTopologySuite();
         }
+
 
         /// <summary>
         /// Создание WKT текста из выбранных геометрий dwg и помещение его в буфер обмена
@@ -346,6 +335,21 @@ namespace GeoMod
             {
                 return null;
             }
+        }
+        private static void InitializeNetTopologySuite()
+        {
+            NtsGeometryServices.Instance = new NtsGeometryServices( // default CoordinateSequenceFactory
+                                                        NetTopologySuite.Geometries.Implementation.CoordinateArraySequenceFactory.Instance,
+                                                        // default precision model
+                                                        new PrecisionModel(1000d),
+                                                        // default SRID
+                                                        -1,
+                                                        // Geometry overlay operation function set to use (Legacy or NG)
+                                                        GeometryOverlay.NG,
+                                                        // Coordinate equality comparer to use (CoordinateEqualityComparer or PerOrdinateEqualityComparer)
+                                                        new CoordinateEqualityComparer()
+                                                       );
+            _geometryServices = NtsGeometryServices.Instance;
         }
     }
 }

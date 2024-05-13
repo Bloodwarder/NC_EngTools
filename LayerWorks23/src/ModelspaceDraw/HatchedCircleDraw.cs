@@ -18,7 +18,7 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public class HatchedCircleDraw : AreaDraw
     {
-        internal double Radius => LegendDrawTemplate?.Radius ?? LegendGrid.LegendGridParameters.CellHeight;
+        internal double Radius => LegendDrawTemplate?.Radius ?? LegendGrid.CellHeight;
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>

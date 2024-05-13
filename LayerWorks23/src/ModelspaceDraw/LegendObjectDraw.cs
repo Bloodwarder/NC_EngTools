@@ -51,8 +51,8 @@ namespace LayerWorks.ModelspaceDraw
             LegendDrawTemplate = template;
         }
 
-        internal static double CellWidth => LegendGrid.LegendGridParameters.CellWidth;
-        internal static double CellHeight => LegendGrid.LegendGridParameters.CellHeight;
+        internal static double CellWidth => LegendGrid.CellWidth;
+        internal static double CellHeight => LegendGrid.CellHeight;
 
         private protected static double ParseRelativeValue(string value, double absolute)
         {
