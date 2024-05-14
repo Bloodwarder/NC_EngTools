@@ -470,7 +470,7 @@ namespace Utilities
                     double slope = Math.Abs(red2 - red1) / l1 * 1000;
                     // Назначение величин блокам
                     SetBlockAttribute(slopeBRef!, SlopeTag, slope.ToString("0"));
-                    SetBlockAttribute(slopeBRef, DistanceTag, l1.ToString("0.0"));
+                    SetBlockAttribute(slopeBRef!, DistanceTag, l1.ToString("0.0"));
                 }
                 finally
                 {
@@ -594,9 +594,9 @@ namespace Utilities
                     LastHorStep = horStep;
 
                     // Получить значения для расчёта
-                    double red1 = double.Parse(GetBlockAttribute(mark1, RedMarkTag));
-                    double red2 = double.Parse(GetBlockAttribute(mark2, RedMarkTag));
-                    double l1 = axis.Length;
+                    double red1 = double.Parse(GetBlockAttribute(mark1!, RedMarkTag));
+                    double red2 = double.Parse(GetBlockAttribute(mark2!, RedMarkTag));
+                    double l1 = axis!.Length;
 
                     bool upwards = red2 > red1;
                     double slope = Math.Abs((red2 - red1) / l1);
@@ -619,7 +619,7 @@ namespace Utilities
 
                     BlockTable? blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
                     BlockTableRecord? modelSpace = transaction.GetObject(blockTable![BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
-                    double vx = mark1.Position.X - mark2.Position.X;
+                    double vx = mark1!.Position.X - mark2!.Position.X;
                     double vy = mark1.Position.Y - mark2.Position.Y;
                     MText mText = new()
                     {

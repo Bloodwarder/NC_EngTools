@@ -88,7 +88,7 @@
 		<BooleanSuffix Value="пер" Description="Переустройство"/>
 	</Classifiers>
 	<LegendFilters DefaultLabel="Инженерная инфраструктура">
-		<StatusFilters>
+		<FilterSection>
 			<Filter Name="Существующие">
 				<Grid>
 					<StatusReference Value="сущ"/>
@@ -126,14 +126,14 @@
 					<StatusReference Value="неутв"/>
 				</Grid>
 			</Filter>
-		</StatusFilters>
-		<PrimaryFilters>
+		</FilterSection>
+		<FilterSection>
 			<Filter Name="ИПТ">
 				<Grid Label="Инженерная подготовка территории">
 				<ChapterReference Value="ДК"/>
 				</Grid>
 			</Filter>
-		</PrimaryFilters>
+		</FilterSection>
 	</LegendFilters>
 	<HighlightMode>
 		<StatusReference Value="пр">

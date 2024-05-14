@@ -4,7 +4,7 @@ using System.Xml.Linq;
 namespace NameParserTest
 {
     [TestFixture]
-    public class Tests
+    public class ParserTests
     {
         XDocument? _xDocument;
         LayerInfo? _layerInfo;

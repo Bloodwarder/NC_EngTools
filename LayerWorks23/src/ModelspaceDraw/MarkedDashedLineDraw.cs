@@ -19,7 +19,6 @@ namespace LayerWorks.ModelspaceDraw
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
-        public MarkedDashedLineDraw() { }
         internal MarkedDashedLineDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer) { }
         internal MarkedDashedLineDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
@@ -34,9 +33,9 @@ namespace LayerWorks.ModelspaceDraw
                 bool success = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps? props, true);
                 if (success)
                     line.ConstantWidth = props!.ConstantWidth;
-                LayerChecker.TryFindLinetype("ACAD_ISO02W100", out bool ltgetsuccess);
+                bool ltgetsuccess = LayerChecker.TryFindLinetype("ACAD_ISO02W100", out ObjectId lineTypeId);
                 if (ltgetsuccess)
-                    line.Linetype = "ACAD_ISO02W100";
+                    line.LinetypeId = lineTypeId;
                 line.LinetypeScale = 0.3d;
             }
         }
