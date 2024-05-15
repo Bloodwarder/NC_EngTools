@@ -8,11 +8,11 @@ namespace NameClassifiers.Filters
     {
         public DistinctMode() { }
 
-        [XmlArrayItem(Type = typeof(SectionReference)),
-            XmlArrayItem(Type = typeof(StatusReference)),
-            XmlArrayItem(Type = typeof(ChapterReference)),
-            XmlArrayItem(Type = typeof(ClassifierReference)),
-            XmlArrayItem(Type = typeof(DataReference))]
+        [XmlElement(Type = typeof(SectionReference))]
+        [XmlElement(Type = typeof(ChapterReference))]
+        [XmlElement(Type = typeof(ClassifierReference))]
+        [XmlElement(Type = typeof(DataReference))]
+        [XmlElement(Type = typeof(StatusReference))]
         public SectionReference[] References { get; set; }
     }
 }
