@@ -17,7 +17,7 @@ namespace NameParserTest
         string _path;
 
         [OneTimeSetUp]
-        public void SetUp() 
+        public void SetUp()
         {
             FileInfo fi = new(Assembly.GetExecutingAssembly().Location);
             _path = Path.Combine(fi.Directory!.FullName, "TestData", "LayerParserTemplate.xml");
@@ -25,31 +25,35 @@ namespace NameParserTest
         [OneTimeTearDown]
         public void TearDown()
         {
-            
+
         }
 
         [Test]
         public void InitialTest()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(GlobalFilters));
-            serializer.UnknownElement += OnUnknownElement;
-            var element = XDocument.Load(_path).Element("LayerParser").Element("LegendFilters");
-            using (XmlReader reader = element.CreateReader())
+
+            XmlSerializer serializer = new(typeof(GlobalFilters));
+
+            var element = XDocument.Load(_path).Element("LayerParser")?.Element("LegendFilters");
+            if (element == null)
+                Assert.Fail("Не найден корневой Xml элемент");
+            using (XmlReader reader = element!.CreateReader())
             {
                 GlobalFilters? globalFilters = serializer.Deserialize(reader) as GlobalFilters;
                 Assert.That(globalFilters, Is.Not.Null);
                 Assert.That(globalFilters.Sections, Is.Not.Null);
+                Assert.That(globalFilters.Sections.FirstOrDefault()?.Filters, Is.Not.Null);
+                Assert.That(globalFilters.Sections.FirstOrDefault()?.Filters.FirstOrDefault()?.Grids.FirstOrDefault(), Is.Not.Null);
             }
 
         }
 
-        private void OnUnknownElement(object? sender, XmlElementEventArgs e)
-        {
-            string elems = e.ExpectedElements;
-        }
 
-        [Test] 
-        public void ElementsProbeTest() 
+
+
+
+        [Test]
+        public void ElementsProbeTest()
         {
             Assert.Fail();
         }

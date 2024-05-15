@@ -13,8 +13,8 @@ namespace NameClassifiers.Filters
         }
         [XmlAttribute("Name")]
         public string Name { get; set; }
-        [XmlArray("")]
-        [XmlArrayItem("Grid")]
+
+        [XmlElement("Grid", Type = typeof(GridFilter))]
         public GridFilter[] Grids { get; set; }
     }
 }

@@ -10,18 +10,17 @@ namespace NameClassifiers.Filters
         {
 
         }
-        [XmlAttribute("Name")]
-        public string? Name { get; set; }
+        [XmlAttribute("Label")]
+        public string? Label { get; set; }
 
-        [XmlArray("")]
-        [XmlArrayItem(Type = typeof(SectionReference)),
-            XmlArrayItem(Type = typeof(StatusReference)),
-            XmlArrayItem(Type = typeof(ChapterReference)),
-            XmlArrayItem(Type = typeof(ClassifierReference)),
-            XmlArrayItem(Type = typeof(DataReference))]
+        [XmlElement(Type = typeof(SectionReference))]
+        [XmlElement(Type = typeof(StatusReference))]
+        [XmlElement(Type = typeof(ChapterReference))]
+        [XmlElement(Type = typeof(ClassifierReference))]
+        [XmlElement(Type = typeof(DataReference))]
         public SectionReference[] Sections { get; set; }
 
         [XmlElement(nameof(DistinctMode))]
-        public DistinctMode DistinctMode { get; set;}
+        public DistinctMode DistinctMode { get; set; }
     }
 }
