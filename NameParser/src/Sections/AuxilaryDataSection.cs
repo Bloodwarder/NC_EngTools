@@ -3,6 +3,10 @@ using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
+    /// <summary>
+    /// Дополнительная информация. Необязательная. Независим от положения (только от скобок).
+    /// Может быть несколько (с разными скобками). Не считается частью основного имени
+    /// </summary>
     internal class AuxilaryDataSection : ParserSection
     {
         internal char[] Brackets { get; init; }

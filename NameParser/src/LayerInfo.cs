@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace NameClassifiers
+﻿namespace NameClassifiers
 {
     public class LayerInfo
     {
@@ -41,20 +39,31 @@ namespace NameClassifiers
                        && PrimaryClassifier != null
                        && SecondaryClassifiers != null
                        && Status != null;
-
-
-
+        /// <summary>
+        /// Изменить статус
+        /// </summary>
+        /// <param name="newStatus"></param>
+        /// <exception cref="WrongLayerException"></exception>
         public void SwitchStatus(string newStatus)
         {
             if (ParentParser.Status.ValidateString(newStatus))
                 Status = newStatus;
             else
-                throw new Exception("Неверный статус");
+                throw new WrongLayerException("Неверный статус");
+            // если значение нового статуса не является корректным для имеющейся дополнительной информации - сбросить информацию
+            foreach(var aux in ParentParser.AuxilaryData.Values)
+            {
+                var validation = aux.Validation; 
+                if (validation == null) 
+                    continue;
+                if (!validation.ValidStatus?.Contains(newStatus) ?? false)
+                    AuxilaryData[aux.Name] = null;
+            }
         }
         public void ChangeAuxilaryData(string key, string? value)
         {
             if (!ParentParser.AuxilaryData[key].Validation?.TryValidateAndTransform(this) ?? true)
-                throw new Exception($"Нельзя назначить {key} для указанного объекта");
+                throw new WrongLayerException($"Нельзя назначить {key} для указанного объекта");
             AuxilaryData[key] = value;
         }
 
@@ -67,7 +76,11 @@ namespace NameClassifiers
             counter += AuxilaryClassifiers.Count;
             SecondaryClassifiers = string.Join(ParentParser.Separator, decomp.Skip(counter));
         }
-
+        /// <summary>
+        /// Собрать строку с именем, с помощью цепочки секций парсера
+        /// </summary>
+        /// <param name="nameType">Тип имени</param>
+        /// <returns>Строка с итоговым именем</returns>
         private string GetNameByType(NameType nameType)
         {
             List<string> members = new();

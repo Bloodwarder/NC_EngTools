@@ -3,6 +3,9 @@ using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
+    /// <summary>
+    /// Основной классификатор. Обязательный. Независим от положения. Может быть только один. Считается частью основного имени
+    /// </summary>
     internal class PrimaryClassifierSection : ParserSection
     {
         private Dictionary<string, string> _descriptionDict = new();

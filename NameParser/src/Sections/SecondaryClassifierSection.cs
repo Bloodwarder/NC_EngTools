@@ -4,7 +4,8 @@ using static NameClassifiers.LayerInfo;
 namespace NameClassifiers.Sections
 {
     /// <summary>
-    /// Сборный классификатор, собирающий все значения, не вошедшие в остальные классификаторы
+    /// Вторичный классификатор, собирающий все значения, не вошедшие в остальные классификаторы.
+    /// Обязательный. Может быть только один. Является частью основного имени
     /// </summary>
     internal class SecondaryClassifierSection : ParserSection
     {

@@ -3,7 +3,10 @@ using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
-
+    /// <summary>
+    /// Суффикс, наличие которого определяет bool значение. Необязательный. Независим от положения.
+    /// Может быть несколько (разного вида). Не считается частью основного имени
+    /// </summary>
     internal class BooleanSection : ParserSection
     {
         private string _suffix { get; init; }

@@ -3,6 +3,10 @@ using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
+    /// <summary>
+    /// Статус. Обязательный. Независим от положения. Может быть только один.
+    /// Считается частью основного имени TrueName (но не группового имени MainName)
+    /// </summary>
     internal class StatusSection : ParserSection
     {
         private readonly Dictionary<string, string> _descriptionDict = new();
