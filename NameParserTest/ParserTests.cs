@@ -6,7 +6,6 @@ namespace NameParserTest
     [TestFixture]
     public class ParserTests
     {
-        XDocument? _xDocument;
         LayerInfo? _layerInfo;
         NameParser? _parser;
 
@@ -14,14 +13,13 @@ namespace NameParserTest
         public void Setup()
         {
             FileInfo fi = new(Assembly.GetExecutingAssembly().Location);
-            _xDocument = XDocument.Load(Path.Combine(fi.Directory!.FullName, "TestData", "LayerParserTemplate.xml"));
-            _parser = new NameParser(_xDocument);
+            string path = Path.Combine(fi.Directory!.FullName, "TestData", "LayerParserTemplate.xml");
+            _parser = new NameParser(path);
         }
         [OneTimeTearDown]
         public void TearDown()
         {
             _layerInfo = null;
-            _xDocument = null;
         }
         [Test]
         public void ParserInitializationTestWhenProper()

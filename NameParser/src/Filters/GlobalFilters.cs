@@ -17,7 +17,6 @@ namespace NameClassifiers.Filters
         [XmlElement(ElementName = "FilterSection", Type = typeof(LegendFilterSection))]
         public LegendFilterSection[] Sections { get; set; }
 
-
     }
 
 }
