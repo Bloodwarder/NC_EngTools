@@ -7,6 +7,7 @@ using System.Xml.Linq;
 
 namespace NameClassifiers.Sections
 {
+
     internal class AuxilaryDataValidation
     {
         private const string ValidStatusesElementName = "ValidStatuses";

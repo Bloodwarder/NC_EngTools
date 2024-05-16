@@ -3,6 +3,9 @@ using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
+    /// <summary>
+    /// Префикс. Обязательный. Всегда первый. Только один. Не считается частью основного имени
+    /// </summary>
     internal class PrefixSection : ParserSection
     {
         public PrefixSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)

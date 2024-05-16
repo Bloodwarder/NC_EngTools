@@ -3,9 +3,12 @@ using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
+    /// <summary>
+    /// Дополнительный классификатор. Необязательный. Независим от положения. Может быть несколько. Считается частью основного имени
+    /// </summary>
     internal class AuxilaryClassifierSection : ParserSection
     {
-        private readonly Dictionary<string, string> _descriptionDict = new();
+        private Dictionary<string, string> _descriptionDict { get; } = new();
         public AuxilaryClassifierSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
             Name = xElement.Attribute("Name")?.Value ?? throw new NameParserInitializeException("Отсутствует имя дополнительного классификатора");
