@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<LayerParser>
+<LayerParser xmlns:xs ="https://www.w3.org/2001/XMLSchema"
+			 xmlns:xdt ="https://www.w3.org/2003/05/xpath-datatypes"
+			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<Title>Инженерная инфраструктура</Title>
 	<Separator Value="_"/>
 	<Classifiers>
@@ -130,7 +132,7 @@
 		<FilterSection>
 			<Filter Name="ИПТ">
 				<Grid Label="Инженерная подготовка территории">
-				<ChapterReference Value="ДК"/>
+					<ChapterReference Value="ДК"/>
 				</Grid>
 			</Filter>
 		</FilterSection>
@@ -157,13 +159,17 @@
 				<StatusReference Value="сущ"/>
 				<StatusReference Value="дем"/>
 				<StatusReference Value="ндем"/>
-				<DefaultValue>0.4</DefaultValue>
+				<DefaultValue>
+					<Double>0.4</Double>
+				</DefaultValue>
 			</StatusGroup>
 			<StatusGroup>
-				<StatusReference Value="проект"/>
+				<StatusReference Value="пр"/>
 				<StatusReference Value="неутв"/>
 				<StatusReference Value="нреорг"/>
-				<DefaultValue>0.6</DefaultValue>
+				<DefaultValue>
+					<Double>0.6</Double>
+				</DefaultValue>
 			</StatusGroup>
 		</Property>
 		<Property Name="Color">
@@ -173,30 +179,36 @@
 			<StatusGroup>
 				<StatusReference Value="дем"/>
 				<StatusReference Value="нреорг"/>
-				<DefaultColor>
-					<Red>107</Red>
-					<Green>107</Green>
-					<Blue>107</Blue>
-				</DefaultColor>
+				<DefaultValue>
+					<Color>
+						<Red>107</Red>
+						<Green>107</Green>
+						<Blue>107</Blue>
+					</Color>
+				</DefaultValue>
 			</StatusGroup>
 			<StatusGroup>
-				<StatusReference Value="проект"/>
+				<StatusReference Value="пр"/>
 			</StatusGroup>
 			<StatusGroup>
 				<StatusReference Value="ндем"/>
-				<DefaultColor>
-					<Red>192</Red>
-					<Green>168</Green>
-					<Blue>110</Blue>
-				</DefaultColor>
+				<DefaultValue>
+					<Color>
+						<Red>192</Red>
+						<Green>168</Green>
+						<Blue>110</Blue>
+					</Color>
+				</DefaultValue>
 			</StatusGroup>
 			<StatusGroup>
 				<StatusReference Value="неутв"/>
-				<DefaultColor>
-					<Red>0</Red>
-					<Green>0</Green>
-					<Blue>0</Blue>
-				</DefaultColor>
+				<DefaultValue>
+					<Color>
+						<Red>0</Red>
+						<Green>0</Green>
+						<Blue>0</Blue>
+					</Color>
+				</DefaultValue>
 			</StatusGroup>
 		</Property>
 		<Property Name="LinetypeName">
@@ -206,19 +218,19 @@
 				<StatusReference Value="ндем"/>
 			</StatusGroup>
 			<StatusGroup>
-				<StatusReference Value="проект"/>
+				<StatusReference Value="пр"/>
 				<StatusReference Value="неутв"/>
 				<StatusReference Value="нреорг"/>
 			</StatusGroup>
 		</Property>
-		<Property Name="LinetypeScale">
+			<Property Name="LinetypeScale">
 			<StatusGroup>
 				<StatusReference Value="сущ"/>
 				<StatusReference Value="дем"/>
 				<StatusReference Value="ндем"/>
 			</StatusGroup>
 			<StatusGroup>
-				<StatusReference Value="проект"/>
+				<StatusReference Value="пр"/>
 				<StatusReference Value="неутв"/>
 				<StatusReference Value="нреорг"/>
 			</StatusGroup>
