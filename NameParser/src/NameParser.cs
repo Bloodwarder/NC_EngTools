@@ -1,8 +1,12 @@
 ﻿
 
 
+using NameClassifiers.Filters;
 using NameClassifiers.Sections;
+using NameClassifiers.SharedProperties;
+using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace NameClassifiers
 {
@@ -19,10 +23,14 @@ namespace NameClassifiers
             [Classifier.StatusClassifier] = (x, p) => new StatusSection(x, p),
             [Classifier.BooleanSuffix] = (x, p) => new BooleanSection(x, p)
         };
+        private string _xmlPath;
+        private GlobalFilters? _globalFilters;
+        private SharedPropertiesCollection? _sharedPropertiesCollection;
 
-
-        public NameParser(XDocument xDocument)
+        public NameParser(string xmlPath)
         {
+            _xmlPath = xmlPath;
+            XDocument xDocument = XDocument.Load(xmlPath);
             XElement separator = xDocument.Root!.Element("Separator") ?? throw new NameParserInitializeException("Отсутствует разделитель");
             Separator = separator.Attribute("Value")!.Value;
             XElement classifiers = xDocument.Root!.Element("Classifiers") ?? throw new NameParserInitializeException("Ошибка инициализации. Отсутствуют классификаторы");
@@ -56,6 +64,22 @@ namespace NameClassifiers
                 throw new NameParserInitializeException("Неправильный состав классификаторов");
             LoadedParsers.Add(Prefix, this);
             LayerWrapper.StandartPrefix ??= Prefix;
+        }
+        public GlobalFilters GlobalFilters
+        {
+            get
+            {
+                _globalFilters ??= DeserializeParserData<GlobalFilters>(_xmlPath,"LegendFilters");
+                return _globalFilters;
+            }
+        }
+        public SharedPropertiesCollection SharedProperties 
+        {
+            get
+            {
+                _sharedPropertiesCollection ??= DeserializeParserData<SharedPropertiesCollection>(_xmlPath, "SharedProperties");
+                return _sharedPropertiesCollection;
+            }
         }
 
         public string Prefix { get; internal set; } = null!;
@@ -96,6 +120,18 @@ namespace NameClassifiers
             bool secondaryInitialized = sections.Any(s => s is SecondaryClassifierSection);
             bool statusInitialized = sections.Where(s => s is StatusSection).Count() == 1;
             return prefixInitialized && primaryInitialized && secondaryInitialized && statusInitialized;
+        }
+
+        private T DeserializeParserData<T>(string path, string elementName) where T : class
+        {
+            XDocument document = XDocument.Load(path);
+            var element = document.Root?.Element(elementName) ?? throw new Exception("Отсутствует корневой элемент");
+            XmlSerializer serializer = new XmlSerializer(typeof(T));
+            using(XmlReader reader = element.CreateReader())
+            {
+                T? result = serializer.Deserialize(reader) as T;
+                return result ?? throw new Exception("Не удалось десериализовать объект");
+            }
         }
     }
 }
