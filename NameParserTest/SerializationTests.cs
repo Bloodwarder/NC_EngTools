@@ -53,11 +53,11 @@ namespace NameParserTest
             var element = XDocument.Load(_path).Element("LayerParser")?.Element("SharedProperties");
             if (element == null)
                 Assert.Fail("Не найден корневой Xml элемент");
-            XmlSerializer serializer = new(typeof(SharedProperties));
+            XmlSerializer serializer = new(typeof(SharedPropertiesCollection));
             serializer.UnknownElement += Serializer_UnknownElement;
             using (XmlReader reader = element!.CreateReader())
             {
-                SharedProperties? sharedProperties = serializer.Deserialize(reader) as SharedProperties;
+                SharedPropertiesCollection? sharedProperties = serializer.Deserialize(reader) as SharedPropertiesCollection;
                 Assert.That(sharedProperties, Is.Not.Null);
                 Assert.That(sharedProperties.Properties, Is.Not.Null);
                 Assert.That(sharedProperties.Properties.FirstOrDefault(), Is.Not.Null);
