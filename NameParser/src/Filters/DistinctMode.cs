@@ -3,6 +3,10 @@ using System.Xml.Serialization;
 
 namespace NameClassifiers.Filters
 {
+    /// <summary>
+    /// Входит в фильтр сетки для сборки легенд.
+    /// Обозначает, что для каждого вхождения соответствующего классификатора необходимо создавать отдельную сетку.
+    /// </summary>
     [XmlRoot("DistinctMode")]
     public class DistinctMode
     {
@@ -13,6 +17,6 @@ namespace NameClassifiers.Filters
         [XmlElement(Type = typeof(ClassifierReference))]
         [XmlElement(Type = typeof(DataReference))]
         [XmlElement(Type = typeof(StatusReference))]
-        public SectionReference[] References { get; set; }
+        public SectionReference Reference { get; set; }
     }
 }

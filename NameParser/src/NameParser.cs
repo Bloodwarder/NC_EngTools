@@ -120,6 +120,7 @@ namespace NameClassifiers
         /// Стартовая секция цепочки обработки
         /// </summary>
         internal ParserSection? Processor { get; set; }
+
         /// <summary>
         /// Парсинг строки имени слоя в объект LayerInfo
         /// </summary>
@@ -135,6 +136,28 @@ namespace NameClassifiers
             Processor!.Process(decomposition, layerInfo, pointer);
             return layerInfo;
         }
+
+        /// <summary>
+        /// Десериализовать вспомогательные данные парсера
+        /// </summary>
+        /// <typeparam name="T">Тип вспомогательных данных</typeparam>
+        /// <param name="path">Путь к xml файлу</param>
+        /// <param name="elementName">Имя элемента для десериализации (ищется внутри корневого элемента)</param>
+        /// <returns></returns>
+        /// <exception cref="XmlException"></exception>
+        /// <exception cref="IOException"></exception>
+        private static T DeserializeParserData<T>(string path, string elementName) where T : class
+        {
+            XDocument document = XDocument.Load(path);
+            var element = document.Root?.Element(elementName) ?? throw new XmlException("Отсутствует корневой элемент");
+            XmlSerializer serializer = new XmlSerializer(typeof(T));
+            using (XmlReader reader = element.CreateReader())
+            {
+                T? result = serializer.Deserialize(reader) as T;
+                return result ?? throw new IOException("Не удалось десериализовать объект");
+            }
+        }
+
         /// <summary>
         /// Проверка парсера на соответствие секций модели обработки
         /// </summary>
@@ -156,26 +179,7 @@ namespace NameClassifiers
             bool statusInitialized = sections.Where(s => s is StatusSection).Count() == 1;
             return prefixInitialized && primaryInitialized && secondaryInitialized && statusInitialized;
         }
-        /// <summary>
-        /// Десериализовать вспомогательные данные парсера
-        /// </summary>
-        /// <typeparam name="T">Тип вспомогательных данных</typeparam>
-        /// <param name="path">Путь к xml файлу</param>
-        /// <param name="elementName">Имя элемента для десериализации (ищется внутри корневого элемента)</param>
-        /// <returns></returns>
-        /// <exception cref="XmlException"></exception>
-        /// <exception cref="IOException"></exception>
-        private T DeserializeParserData<T>(string path, string elementName) where T : class
-        {
-            XDocument document = XDocument.Load(path);
-            var element = document.Root?.Element(elementName) ?? throw new XmlException("Отсутствует корневой элемент");
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
-            using(XmlReader reader = element.CreateReader())
-            {
-                T? result = serializer.Deserialize(reader) as T;
-                return result ?? throw new IOException("Не удалось десериализовать объект");
-            }
-        }
+
         /// <summary>
         /// Найти нужную секцию в цепочке обработки
         /// </summary>
@@ -184,7 +188,7 @@ namespace NameClassifiers
         private TSection FindParserSection<TSection>() where TSection : ParserSection
         {
             ParserSection section = Processor!;
-            while (section is TSection)
+            while (section is not TSection)
             {
                 section = section.NextSection!;
             }

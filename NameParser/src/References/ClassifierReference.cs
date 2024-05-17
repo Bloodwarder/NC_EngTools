@@ -7,6 +7,8 @@ namespace NameClassifiers.References
     public class ClassifierReference : SectionReference
     {
         [XmlAttribute("Name")]
-        public string? Name { get; set; }
+        public string Name { get; set; } = null!;
+
+        public override bool Match(LayerInfo layerInfo) => layerInfo.AuxilaryClassifiers[Name] == Value;
     }
 }

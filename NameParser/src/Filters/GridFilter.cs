@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 namespace NameClassifiers.Filters
 {
     [XmlRoot(ElementName = "Grid")]
-    public class GridFilter
+    public class GridFilter : ICloneable
     {
         public GridFilter()
         {
@@ -18,9 +18,17 @@ namespace NameClassifiers.Filters
         [XmlElement(Type = typeof(ChapterReference))]
         [XmlElement(Type = typeof(ClassifierReference))]
         [XmlElement(Type = typeof(DataReference))]
-        public SectionReference[] Sections { get; set; }
+        public List<SectionReference> References { get; set; } = new();
 
-        [XmlElement(nameof(DistinctMode))]
-        public DistinctMode DistinctMode { get; set; }
+        [XmlElement(nameof(DistinctMode), IsNullable = false)]
+        public DistinctMode? DistinctMode { get; set; }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+        public bool Validate() => !References.Any(r => r.GetType() == DistinctMode?.Reference.GetType());
+
     }
 }

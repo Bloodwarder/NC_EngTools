@@ -90,12 +90,24 @@ namespace LayerWorks.Commands
                     cells.Add(new LegendGridCell(rlp));
                 }
                 // Выбрать фильтр (режим компоновки)
-                string filterModeString = GetStringKeywordResult(_filterKeywords, "Выберите режим компоновки:");
-                TableFilter filter = GetFilter(filterModeString);
+                string[][]? filterKeywords = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!]
+                                                       .GlobalFilters
+                                                       .GetFilterKeyWords(out int filtersCount);
+                string[] chosenKeywords = new string[filtersCount];
+                if (filterKeywords != null)
+                {
+                    for (int i = 0; i < filtersCount; i++)
+                    {
+                        chosenKeywords[i] = GetStringKeywordResult(filterKeywords[i], "Выберите режим компоновки:");
+                    }
+                }
                 // Запустить компоновщик таблиц условных и получить созданные объекты чертежа для вставки в ModelSpace
-                GridsComposer composer = new(cells, filter);
-                composer.Compose(p3d);
-                List<Entity> entitiesList = composer.DrawGrids();
+                List<Entity> entitiesList;
+                using (GridsComposer composer = new(cells, chosenKeywords))
+                {
+                    composer.Compose(p3d);
+                    entitiesList = composer.DrawGrids();
+                }
                 // Получить таблицу блоков и ModelSpace, затем вставить объекты таблиц условных в чертёж
                 BlockTable? blocktable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
                 BlockTableRecord? modelspace = transaction.GetObject(blocktable![BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;

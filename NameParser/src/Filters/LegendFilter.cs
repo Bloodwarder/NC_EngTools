@@ -11,6 +11,14 @@ namespace NameClassifiers.Filters
         {  
 
         }
+        public LegendFilter(bool defaultFilter) : base()
+        {
+            if (defaultFilter)
+            {
+                Name = "Общий";
+                Grids = new GridFilter[] { new() };
+            }
+        }
         [XmlAttribute("Name")]
         public string Name { get; set; }
 

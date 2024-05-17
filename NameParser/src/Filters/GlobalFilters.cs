@@ -12,10 +12,10 @@ namespace NameClassifiers.Filters
     {
         public GlobalFilters() { }
         [XmlAttribute("DefaultLabel")]
-        public string DefaultLabel { get; set; }
+        public string? DefaultLabel { get; set; }
 
         [XmlElement(ElementName = "FilterSection", Type = typeof(LegendFilterSection))]
-        public LegendFilterSection[] Sections { get; set; }
+        public LegendFilterSection[]? Sections { get; set; }
 
     }
 

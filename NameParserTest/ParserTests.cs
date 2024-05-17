@@ -56,6 +56,18 @@ namespace NameParserTest
         }
 
         [Test]
+        public void LayerInfoWhenSwitchStatusShouldDiscardAuxData()
+        {
+            _layerInfo = _parser!.GetLayerInfo("ИС_[Кучино - М-7]_ГС_л_распред_0.6_неутв");
+            string? aux = _layerInfo.AuxilaryData["ExternalProject"];
+            Assert.That(aux, Is.EqualTo("Кучино - М-7"));
+            _layerInfo.SwitchStatus("пр");
+            Assert.That(_layerInfo.Status, Is.EqualTo("пр"));
+            Assert.That(_layerInfo.AuxilaryData["ExternalProject"], Is.Null);
+            Assert.That(_layerInfo.Name, Is.EqualTo("ИС_ГС_л_распред_0.6_пр"));
+        }
+
+        [Test]
         public void LayerInfoWhenProperPrefixWrongInfoShouldThrow()
         {
             try
