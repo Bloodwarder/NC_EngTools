@@ -5,20 +5,19 @@ namespace LayerWorks.Legend
 {
     internal class LegendGrid
     {
-        internal List<LegendGridRow> Rows = new();
-        internal List<LegendGridCell> Cells = new();
-        internal double Width { get => _columns * CellWidth + _columns * WidthInterval + TextWidth; }
-        internal Point3d BasePoint = new Point3d();
+        private const string DefaultLegendHeader = "УСЛОВНЫЕ ОБОЗНАЧЕНИЯ";
+
         private static LegendGridParameters _legendGridParameters = Configuration.LayerWorks.GetLegendGridParameters();
         private int _columns;
 
-        internal LegendGrid(IEnumerable<LegendGridCell> cells, Point3d basepoint)
+        internal LegendGrid(IEnumerable<LegendGridCell> cells, Point3d basepoint, string name = DefaultLegendHeader)
         {
             AddCells(cells);
             BasePoint = basepoint;
+            Name = name;
         }
 
-        internal LegendGrid(IEnumerable<LegendGridCell> cells, Point3d basepoint, LegendGridParameters parameters) : this(cells, basepoint)
+        internal LegendGrid(IEnumerable<LegendGridCell> cells, Point3d basepoint, LegendGridParameters parameters, string name = DefaultLegendHeader) : this(cells, basepoint, name)
         {
             LegendGridParameters = parameters;
         }
@@ -31,6 +30,12 @@ namespace LayerWorks.Legend
         internal static double TextHeight => LegendGridParameters.TextHeight;
         private static LegendGridParameters LegendGridParameters { get => _legendGridParameters; set => _legendGridParameters = value; }
 
+        internal string Name { get; }
+        internal List<LegendGridRow> Rows { get; private set; } = new();
+        internal List<LegendGridCell> Cells { get; } = new();
+        internal double Width { get => _columns * CellWidth + _columns * WidthInterval + TextWidth; }
+        internal Point3d BasePoint { get; set; } = new Point3d();
+        
         // Индексатор, создающий строку при её отсутствии
         internal LegendGridRow this[string mainname]
         {
@@ -108,10 +113,10 @@ namespace LayerWorks.Legend
                 Rows.Insert(minindex, row);
 
             }
-            LegendGridRow gridLabel = new LegendGridRow
+            LegendGridRow gridLabel = new()
             {
                 ParentGrid = this,
-                Label = $"{{\\fArial|b1|i0|c204|p34;{"Инженерная инфраструктура".ToUpper()}}}"   // ВРЕМЕННО, ПОТОМ ОБРАБОТАТЬ КАЖДУЮ ТАБЛИЦУ В КОМПОНОВЩИКЕ
+                Label = $"{{\\fArial|b1|i0|c204|p34;{Name.ToUpper()}}}"   // ИМЯ ДОБАВЛЕНО, ОСТАЛОСЬ ОБРАБОТАТЬ СТИЛЬ
             };
             if (Rows.Count != 0)
                 Rows.Insert(0, gridLabel);

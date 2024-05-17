@@ -44,7 +44,7 @@ namespace NameClassifiers.Sections
                 elementsCounter++;
             }
             // Объединить строки, переместить указатель вперёд на число полученных элементов
-            string auxData = string.Join(ParentParser.Separator, str.Skip(pointer - 1).Take(elementsCounter).ToArray());
+            string auxData = string.Join(ParentParser.Separator, str.Skip(pointer).Take(elementsCounter).ToArray());
             string formattedAuxData = auxData.Replace(Brackets[0].ToString(), "").Replace(Brackets[1].ToString(), "");
             layerInfo.AuxilaryData[Name] = formattedAuxData;
             pointer += elementsCounter;
