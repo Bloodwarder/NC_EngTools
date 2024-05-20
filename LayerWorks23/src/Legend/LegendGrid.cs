@@ -1,5 +1,6 @@
 ﻿using Teigha.Geometry;
 using LoaderCore.Configuration;
+using NameClassifiers;
 
 namespace LayerWorks.Legend
 {
@@ -57,6 +58,19 @@ namespace LayerWorks.Legend
                 }
             }
         }
+
+        internal void Assemble()
+        {
+            ProcessRows();
+            ProcessColumns();
+            ProcessDrawObjects();
+        }
+
+        internal static void ReloadGridParameters()
+        {
+            _legendGridParameters = Configuration.LayerWorks.GetLegendGridParameters();
+        }
+
         private void AddRow(LegendGridRow row)
         {
             row.ParentGrid = this;
@@ -77,6 +91,7 @@ namespace LayerWorks.Legend
             foreach (var cell in cells)
                 AddCells(cell);
         }
+
         private void ProcessRows()
         {
             // Выбрать и сортировать слои без метки игнорирования
@@ -116,7 +131,7 @@ namespace LayerWorks.Legend
             LegendGridRow gridLabel = new()
             {
                 ParentGrid = this,
-                Label = $"{{\\fArial|b1|i0|c204|p34;{Name.ToUpper()}}}"   // ИМЯ ДОБАВЛЕНО, ОСТАЛОСЬ ОБРАБОТАТЬ СТИЛЬ
+                Label = $"{{\\fArial|b1|i0|c204|p34;{Name.ToUpper()}}}"   // TODO: ИМЯ ДОБАВЛЕНО, ОСТАЛОСЬ ОБРАБОТАТЬ СТИЛЬ
             };
             if (Rows.Count != 0)
                 Rows.Insert(0, gridLabel);
@@ -126,12 +141,14 @@ namespace LayerWorks.Legend
             for (int i = 0; i < Rows.Count; i++)
                 Rows[i].AssignY(i);
         }
+
         private void ProcessColumns()
         {
             // Назначить целочисленные X координаты ячейкам таблицы на основе их статусов
-            List<string?> statuses = Cells.Select(c => c.Layer.LayerInfo.Status).Distinct().ToList();
+            var statusArray = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GetStatusArray();
+            List<string?> statuses = Cells.Select(c => c.Layer.LayerInfo.Status).Distinct().OrderBy(s => Array.IndexOf(statusArray, s)).ToList();
             _columns = statuses.Count;
-            statuses.Sort();
+            //statuses.Sort();
             for (int i = 0; i < statuses.Count; i++)
             {
                 foreach (LegendGridCell cell in Cells.Where(c => c.Layer.LayerInfo.Status == statuses[i]))
@@ -147,16 +164,6 @@ namespace LayerWorks.Legend
             }
         }
 
-        internal void Assemble()
-        {
-            ProcessRows();
-            ProcessColumns();
-            ProcessDrawObjects();
-        }
 
-        internal static void ReloadGridParameters()
-        {
-            _legendGridParameters = Configuration.LayerWorks.GetLegendGridParameters();
-        }
     }
 }

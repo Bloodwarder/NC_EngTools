@@ -91,6 +91,10 @@
 	</Classifiers>
 	<LegendFilters DefaultLabel="Инженерная инфраструктура">
 		<FilterSection>
+			<Filter Name="Общий">
+				<Grid>
+				</Grid>
+			</Filter>
 			<Filter Name="Существующие">
 				<Grid>
 					<StatusReference Value="сущ"/>
@@ -138,20 +142,22 @@
 		</FilterSection>
 	</LegendFilters>
 	<HighlightMode>
-		<StatusReference Value="пр">
+		<ReferenceHighlight>
+			<StatusReference Value="пр"/>
 			<Color>
 				<Red>0</Red>
 				<Green>255</Green>
 				<Blue>255</Blue>
 			</Color>
-		</StatusReference>
-		<StatusReference Value="неутв">
+		</ReferenceHighlight>
+		<ReferenceHighlight>
+			<StatusReference Value="неутв"/>
 			<Color>
 				<Red>0</Red>
 				<Green>153</Green>
 				<Blue>153</Blue>
 			</Color>
-		</StatusReference>
+		</ReferenceHighlight>
 	</HighlightMode>
 	<SharedProperties>
 		<Property Name="ConstantWidth">
