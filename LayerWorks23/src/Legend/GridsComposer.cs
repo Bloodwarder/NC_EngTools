@@ -25,11 +25,9 @@ namespace LayerWorks.Legend
         // Компоновка сеток с условными обозначениями на основе выбранных фильтров
         internal void Compose(Point3d basepoint)
         {
-            // Починено под изначальный парсер чтобы компилировалось и работало
-            // Сделать пользовательский выбор для конкретного парсера, данные взять из xml
             _basepoint = basepoint;
             GlobalFilters globalFilters = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GlobalFilters;
-            var grids = globalFilters.GetGridData(_keywords);
+            IEnumerable<GridData> grids = globalFilters.GetGridData(_keywords);
             foreach (var grid in grids)
                 AddGrid(grid);
         }
@@ -37,7 +35,7 @@ namespace LayerWorks.Legend
         {
             // Отфильтровать ячейки, созданные для успешно обработанных слоёв и клонировать их в новый список в соответствии с заданным фильтром
             List<LegendGridCell> filteredcells = SourceCells.Where(gridData.Predicate).ToList();
-            List<LegendGridCell> cells = new List<LegendGridCell>();
+            List<LegendGridCell> cells = new();
             foreach (LegendGridCell cell in filteredcells)
             {
                 cells.Add((LegendGridCell)cell.Clone());
@@ -45,7 +43,7 @@ namespace LayerWorks.Legend
             // Посчитать точку вставки на основании уже вставленных сеток
             double deltax = Grids.Select(g => g.Width).Sum() + SeparatedGridsOffset * Grids.Count;
             // Собрать сетку и добавить в список созданных сеток
-            LegendGrid grid = new LegendGrid(cells, new Point3d(_basepoint.X + deltax, _basepoint.Y, 0d), gridData.GridName);
+            LegendGrid grid = new(cells, new Point3d(_basepoint.X + deltax, _basepoint.Y, 0d), gridData.GridName);
             grid.Assemble();
             Grids.Add(grid);
         }

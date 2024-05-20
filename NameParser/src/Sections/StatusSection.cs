@@ -24,6 +24,7 @@ namespace NameClassifiers.Sections
             }
         }
 
+        internal Dictionary<string, string> GetDescriptionDictionary() => _descriptionDict;
         internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
         {
             if (!_descriptionDict.ContainsKey(str[pointer]))

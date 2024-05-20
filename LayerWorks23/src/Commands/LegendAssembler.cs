@@ -14,6 +14,8 @@ using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
 using LayersIO.ExternalData;
 
+using static NanocadUtilities.EditorHelper;
+
 namespace LayerWorks.Commands
 {
     /// <summary>
@@ -72,7 +74,10 @@ namespace LayerWorks.Commands
                         RecordLayerWrapper rlp = new(ltr);
                         if (!LayerLegendDictionary.CheckKey(rlp.LayerInfo.MainName))
                         {
-                            wrongLayersStringBuilder.AppendLine($"Нет данных для слоя {rlp.LayerInfo.Prefix}{rlp.LayerInfo.ParentParser.Separator}{rlp.LayerInfo.MainName}");
+                            wrongLayersStringBuilder.AppendLine($"Нет данных для слоя "
+                                                                + $"{rlp.LayerInfo.Prefix}"
+                                                                + $"{rlp.LayerInfo.ParentParser.Separator}"
+                                                                + $"{rlp.LayerInfo.MainName}");
                             continue;
                         }
                         layersList.Add(rlp);
@@ -98,7 +103,15 @@ namespace LayerWorks.Commands
                 {
                     for (int i = 0; i < filtersCount; i++)
                     {
-                        chosenKeywords[i] = GetStringKeywordResult(filterKeywords[i], "Выберите режим компоновки:");
+                        try
+                        {
+                            chosenKeywords[i] = GetStringKeywordResult(filterKeywords[i], "Выберите режим компоновки:");
+                        }
+                        catch (System.Exception ex) 
+                        {
+                            Console.WriteLine(ex.Message);
+                            return;
+                        }
                     }
                 }
                 // Запустить компоновщик таблиц условных и получить созданные объекты чертежа для вставки в ModelSpace
@@ -183,20 +196,6 @@ namespace LayerWorks.Commands
                                                 .ToList();
             return entities.Select(e => (LayerTableRecord)transaction.GetObject(e.LayerId, OpenMode.ForWrite))
                            .Distinct();
-        }
-
-        private static string GetStringKeywordResult(string[] keywordsArray, string message)
-        {
-            PromptKeywordOptions pko = new($"{message} [{string.Join("/", keywordsArray)}]", string.Join(" ", keywordsArray))
-            {
-                AppendKeywordsToMessage = true,
-                AllowNone = false,
-                AllowArbitraryInput = false
-            };
-            PromptResult keywordResult = Workstation.Editor.GetKeywords(pko);
-            if (keywordResult.Status != PromptStatus.OK)
-                throw new System.Exception("Ошибка ввода");
-            return keywordResult.StringResult;
         }
 
         private static TableFilter GetFilter(string keyword)

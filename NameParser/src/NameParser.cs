@@ -136,7 +136,9 @@ namespace NameClassifiers
             Processor!.Process(decomposition, layerInfo, pointer);
             return layerInfo;
         }
-
+        
+        public string[] GetStatusArray() => Status.GetDescriptionDictionary().Keys.ToArray();
+        
         /// <summary>
         /// Десериализовать вспомогательные данные парсера
         /// </summary>

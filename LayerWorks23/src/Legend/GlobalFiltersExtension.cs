@@ -69,19 +69,7 @@ namespace LayerWorks.Legend
                 for (int j = 0; j < gridsNumber - 1; j++)
                 {
                     GridFilter gridFilter = fullGridList[j];
-                    Func<LayerInfo, bool> predicate;
-                    if (gridFilter.References == null)
-                    {
-                        predicate = c => true;
-                    }
-                    else
-                    {
-                        // TODO: ПЛОХО - ВСЯ КОЛБАСА БУДЕТ ВЫЧИСЛЯТЬСЯ КАЖДЫЙ РАЗ ПРИ ИСПОЛЬЗОВАНИИ ПРЕДИКАТА - НАДО СОХРАНИТЬ В КЛАССЕ ФИЛЬТРА
-                        Type[] types = gridFilter.References.Select(r => r.GetType()).Distinct().ToArray();    // Типы секций, присутствующие в фильтре сетки
-                        predicate = c => types.Select(t => gridFilter.References.Where(r => r.GetType() == t)) // Коллекции секций каждого типа
-                                              .Select(refs => refs.Any(s => s.Match(c)))                       // предикат - подходит ли хоть одна из одинаковых
-                                              .Aggregate((b1, b2) => b1 && b2);                                // аггрегат - для каждого типа должна подходить хотя бы одна
-                    }
+                    Func<LayerInfo, bool> predicate = gridFilter.GetGridPredicate();
                     gridData[i][j].Predicate = c => predicate(cellToInfo(c));
                     gridData[i][j].GridName = gridFilter.Label ?? "*";
                 }
