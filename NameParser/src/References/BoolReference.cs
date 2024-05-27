@@ -3,12 +3,9 @@
 namespace NameClassifiers.References
 {
     [XmlRoot(ElementName = nameof(BoolReference))]
-
-    internal class BoolReference : SectionReference
+    public class BoolReference : NamedSectionReference
     {
-        [XmlAttribute(AttributeName ="Name",Type =typeof(string))]
-        public string? Name { get; set; }
-        public override bool Match(LayerInfo layerInfo) => layerInfo.SuffixTagged;
+        public override bool Match(LayerInfo layerInfo) => layerInfo.SuffixTagged[Name];
     }
 }
 

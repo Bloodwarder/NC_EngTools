@@ -72,7 +72,6 @@
 				</ValidAuxilary>
 			</Validation>
 		</AuxilaryData>
-		<!--Только друг за другом-->
 		<AuxilaryClassifier Name ="Geometry">
 			<Classifier Value ="л" Description="Линейный"/>
 			<Classifier Value ="п" Description="Площадной"/>
@@ -87,10 +86,14 @@
 			<Status Value="неутв" Description="Неутв. планируемый"/>
 			<Status Value="нреорг" Description="Неутв. реорганизуемый"/>
 		</StatusClassifier>
-		<BooleanSuffix Value="пер" Description="Переустройство"/>
+		<BooleanSuffix Name="Reconstruction" Value="пер" Description="Переустройство"/>
 	</Classifiers>
 	<LegendFilters DefaultLabel="Инженерная инфраструктура">
 		<FilterSection>
+			<Filter Name="Общий">
+				<Grid>
+				</Grid>
+			</Filter>
 			<Filter Name="Существующие">
 				<Grid>
 					<StatusReference Value="сущ"/>
@@ -138,20 +141,36 @@
 		</FilterSection>
 	</LegendFilters>
 	<HighlightMode>
-		<StatusReference Value="пр">
-			<Color>
-				<Red>0</Red>
-				<Green>255</Green>
-				<Blue>255</Blue>
-			</Color>
-		</StatusReference>
-		<StatusReference Value="неутв">
-			<Color>
-				<Red>0</Red>
-				<Green>153</Green>
-				<Blue>153</Blue>
-			</Color>
-		</StatusReference>
+		<Filter Name="Переустройство">
+			<Highlight>
+				<BoolReference Name="Reconstruction" Value="True"/>
+				<Property Name="Color">
+					<Assign>
+						<StatusReference Value="пр"/>
+						<Value>
+							<Color>
+								<Red>0</Red>
+								<Green>255</Green>
+								<Blue>255</Blue>
+							</Color>
+						</Value>
+					</Assign>
+					<Assign>
+						<StatusReference Value="пр"/>
+						<Value>
+							<Color>
+								<Red>0</Red>
+								<Green>255</Green>
+								<Blue>255</Blue>
+							</Color>
+						</Value>
+					</Assign>
+				</Property>
+			</Highlight>
+			<Enable>
+				<ChapterReference/>
+			</Enable>
+		</Filter>
 	</HighlightMode>
 	<SharedProperties>
 		<Property Name="ConstantWidth">
@@ -223,7 +242,7 @@
 				<StatusReference Value="нреорг"/>
 			</StatusGroup>
 		</Property>
-			<Property Name="LinetypeScale">
+		<Property Name="LinetypeScale">
 			<StatusGroup>
 				<StatusReference Value="сущ"/>
 				<StatusReference Value="дем"/>

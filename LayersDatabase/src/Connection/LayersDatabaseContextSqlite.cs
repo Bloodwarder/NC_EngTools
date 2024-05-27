@@ -20,7 +20,7 @@ namespace LayersIO.Connection
 
         public override int SaveChanges()
         {
-            Logger.WriteLog("Сохранение данных");
+            Logger.WriteLog?.Invoke("Сохранение данных");
             return base.SaveChanges();
         }
 

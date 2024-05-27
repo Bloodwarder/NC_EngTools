@@ -4,16 +4,15 @@
 namespace NameClassifiers.SharedProperties
 {
     [XmlRoot("Color")]
-    public class Color
+    public struct Color
     {
-        public Color() { }
         public byte Red { get; set; }
         public byte Green { get; set; }
         public byte Blue { get; set; }
 
-        public System.Drawing.Color GetColor()
+        public static explicit operator System.Drawing.Color(Color color)
         {
-            return System.Drawing.Color.FromArgb(Red, Green, Blue);
+            return System.Drawing.Color.FromArgb(color.Red, color.Green, color.Blue);
         }
     }
 }

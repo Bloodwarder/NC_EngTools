@@ -63,7 +63,7 @@ namespace LayerWorks.Commands
                 {
                     try
                     {
-                        _ = new ChapterStoreLayerWrapper(ltr);
+                        VisualizerLayerWrapper.Create(ltr);
                         successCount++;
                     }
                     catch (WrongLayerException)
@@ -75,40 +75,27 @@ namespace LayerWorks.Commands
                 }
                 Workstation.Editor.WriteMessage($"Фильтр включен для {successCount} слоёв. Число необработанных слоёв: {errorCount}");
 
-                var layerchapters = ChapterStoredLayerWrappers.StoredLayerStates[doc]
-                    .Where(l => l.LayerInfo.PrimaryClassifier != null)
-                    .Select(l => l.LayerInfo.PrimaryClassifier)
-                    .Distinct()
-                    .OrderBy(l => l)
-                    .ToList();
-                List<string?> lcplus = layerchapters.Append("Сброс").ToList();
-                PromptKeywordOptions pko = new($"Выберите раздел [" + string.Join("/", lcplus) + "]", string.Join(" ", lcplus))
+                var layerchapters = VisualizerLayerWrappers.StoredLayerStates[doc]
+                                                              .Where(l => l.LayerInfo.PrimaryClassifier != null)
+                                                              .Select(l => l.LayerInfo.PrimaryClassifier)
+                                                              .Distinct()
+                                                              .OrderBy(l => l)
+                                                              .ToList();
+                layerchapters.Add("Сброс");
+                PromptKeywordOptions pko = new($"Выберите раздел [" + string.Join("/", layerchapters) + "]", string.Join(" ", layerchapters))
                 {
                     AppendKeywordsToMessage = true,
                     AllowNone = false,
                     AllowArbitraryInput = false
                 };
                 PromptResult result = editor.GetKeywords(pko);
-                if (result.Status != PromptStatus.OK) { return; }
-                if (result.StringResult == "Сброс")
-                {
-                    ChapterStoredLayerWrappers.Reset();
-                    if (ActiveChapterState != null)
-                    {
-                        LayerChecker.LayerAddedEvent -= NewLayerHighlight;
-                        ActiveChapterState[doc] = null;
-                    }
-
-                }
-                else
-                {
-                    ActiveChapterState[doc] = result.StringResult;
-                    ChapterStoredLayerWrappers.Highlight(ActiveChapterState[doc]);
-                    LayerChecker.LayerAddedEvent += NewLayerHighlight;
-                }
+                if (result.Status != PromptStatus.OK) 
+                    return;
+                ApplyVisualizer(doc, result.StringResult);
                 transaction.Commit();
             }
         }
+
 
         internal void NewLayerHighlight(object? sender, EventArgs e)
         {
@@ -116,11 +103,29 @@ namespace LayerWorks.Commands
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                ChapterStoreLayerWrapper cslp = new((LayerTableRecord)sender!);
+                VisualizerLayerWrapper cslp = new((LayerTableRecord)sender!);
                 cslp.Push(ActiveChapterState[doc], new() { "пр", "неутв" });
                 transaction.Commit();
             }
 
+        }
+        private void ApplyVisualizer(Document doc, string result)
+        {
+            if (result == "Сброс")
+            {
+                VisualizerLayerWrappers.Reset();
+                if (ActiveChapterState != null)
+                {
+                    LayerChecker.LayerAddedEvent -= NewLayerHighlight;
+                    ActiveChapterState[doc] = null;
+                }
+            }
+            else
+            {
+                ActiveChapterState[doc] = result;
+                VisualizerLayerWrappers.Highlight(ActiveChapterState[doc]);
+                LayerChecker.LayerAddedEvent += NewLayerHighlight;
+            }
         }
     }
 

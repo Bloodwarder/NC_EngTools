@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LoaderCore\LoaderCore.csproj" />
+    <ProjectReference Include="..\LoaderCore\LoaderCore.csproj"/>
     <ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj" />
   </ItemGroup>
 

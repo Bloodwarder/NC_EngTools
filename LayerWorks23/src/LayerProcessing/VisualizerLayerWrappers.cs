@@ -5,17 +5,17 @@ using LayerWorks.Commands;
 
 namespace LayerWorks.LayerProcessing
 {
-    internal static class ChapterStoredLayerWrappers
+    internal static class VisualizerLayerWrappers
     {
         private static readonly Dictionary<Document, bool> _eventAssigned = new Dictionary<Document, bool>(); //должно работать только для одного документа. переделать для многих
-        internal static Dictionary<Document, List<ChapterStoreLayerWrapper>> StoredLayerStates { get; } = new Dictionary<Document, List<ChapterStoreLayerWrapper>>();
-        internal static void Add(ChapterStoreLayerWrapper lp)
+        internal static Dictionary<Document, List<VisualizerLayerWrapper>> StoredLayerStates { get; } = new Dictionary<Document, List<VisualizerLayerWrapper>>();
+        internal static void Add(VisualizerLayerWrapper lp)
         {
             Document doc = Workstation.Document;
             // Сохранить парсер в словарь по ключу-текущему документу
             if (!StoredLayerStates.ContainsKey(doc))
             {
-                StoredLayerStates[doc] = new List<ChapterStoreLayerWrapper>();
+                StoredLayerStates[doc] = new List<VisualizerLayerWrapper>();
                 _eventAssigned.Add(doc, false);
             }
             if (!StoredLayerStates[doc].Any(l => l.LayerInfo.Name == lp.LayerInfo.Name))
@@ -27,7 +27,7 @@ namespace LayerWorks.LayerProcessing
         internal static void Reset()
         {
             Document doc = Workstation.Document;
-            foreach (ChapterStoreLayerWrapper lp in StoredLayerStates[doc]) { lp.Reset(); }
+            foreach (VisualizerLayerWrapper lp in StoredLayerStates[doc]) { lp.Reset(); }
             doc.Database.BeginSave -= Reset;
             _eventAssigned[doc] = false;
         }
@@ -43,7 +43,7 @@ namespace LayerWorks.LayerProcessing
 
             using (Transaction transaction = tm.StartTransaction())
             {
-                foreach (ChapterStoreLayerWrapper lp in StoredLayerStates[doc])
+                foreach (VisualizerLayerWrapper lp in StoredLayerStates[doc])
                 {
                     LayerTableRecord _ = (LayerTableRecord)transaction.GetObject(lp.BoundLayer.Id, OpenMode.ForWrite);
                     lp.Reset();
@@ -65,9 +65,9 @@ namespace LayerWorks.LayerProcessing
                 doc.Database.BeginSave += Reset;
                 _eventAssigned[doc] = true;
             }
-            foreach (ChapterStoreLayerWrapper lp in StoredLayerStates[doc])
+            foreach (VisualizerLayerWrapper lw in StoredLayerStates[doc])
             { 
-                lp.Push(primaryClassifier, new() { "пр", "неутв" }); 
+                lw.Push(primaryClassifier, new() { "пр", "неутв" }); 
             }
         }
 
@@ -76,7 +76,7 @@ namespace LayerWorks.LayerProcessing
         {
             if (doc == null)
                 doc = Workstation.Document;
-            foreach (ChapterStoreLayerWrapper cslp in StoredLayerStates[doc])
+            foreach (VisualizerLayerWrapper cslp in StoredLayerStates[doc])
                 cslp.BoundLayer.Dispose();
             StoredLayerStates[doc].Clear();
         }

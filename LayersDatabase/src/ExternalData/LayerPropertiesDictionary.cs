@@ -17,6 +17,7 @@ namespace LayersIO.ExternalData
             if (instance == null)
                 instance = new LayerPropertiesDictionary();
         }
+        public LayerPropertiesDictionary this[string layerName] => instance[layerName];
 
         internal LayerPropertiesDictionary()
         {

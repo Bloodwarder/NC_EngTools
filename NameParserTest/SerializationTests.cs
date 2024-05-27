@@ -89,8 +89,7 @@ namespace NameParserTest
             serializer.UnknownElement += Serializer_UnknownElement;
             using (XmlReader reader = element!.CreateReader())
             {
-                Color? color = serializer.Deserialize(reader) as Color;
-                Assert.That(color, Is.Not.Null);
+                Color color = (Color)serializer.Deserialize(reader)!;
                 Assert.That(color.Red, Is.EqualTo(107));
             }
         }
