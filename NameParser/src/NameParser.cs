@@ -1,4 +1,5 @@
 ﻿using NameClassifiers.Filters;
+using NameClassifiers.Highlighting;
 using NameClassifiers.Sections;
 using NameClassifiers.SharedProperties;
 
@@ -26,7 +27,9 @@ namespace NameClassifiers
         private string _xmlPath;
         private GlobalFilters? _globalFilters;
         private SharedPropertiesCollection? _sharedPropertiesCollection;
-
+        private Visualizers? _highliters;
+        
+        private List<ParserSection> _sections; 
         public NameParser(string xmlPath)
         {
             // Инициализация пути к файлу с данными парсера
@@ -70,6 +73,7 @@ namespace NameClassifiers
             // Проверить состав секций
             if (!ValidateParser())
                 throw new NameParserInitializeException("Неправильный состав классификаторов");
+            _sections = GetParserSections();
             // Добавить созданный парсер в словарь с загруженными парсерами
             LoadedParsers.Add(Prefix, this);
             LayerWrapper.StandartPrefix ??= Prefix;
@@ -87,7 +91,7 @@ namespace NameClassifiers
         {
             get
             {
-                _globalFilters ??= DeserializeParserData<GlobalFilters>(_xmlPath,"LegendFilters");
+                _globalFilters ??= DeserializeParserData<GlobalFilters>(_xmlPath, "LegendFilters");
                 return _globalFilters;
             }
         }
@@ -95,12 +99,23 @@ namespace NameClassifiers
         /// <summary>
         /// Данные общих свойств для групп классификаторов, для облегчения создания слоёв и групп слоёв
         /// </summary>
-        public SharedPropertiesCollection SharedProperties 
+        public SharedPropertiesCollection SharedProperties
         {
             get
             {
                 _sharedPropertiesCollection ??= DeserializeParserData<SharedPropertiesCollection>(_xmlPath, "SharedProperties");
                 return _sharedPropertiesCollection;
+            }
+        }
+        /// <summary>
+        /// Данные для визуальных фильтров
+        /// </summary>
+        public Visualizers Highlighters
+        {
+            get
+            {
+                _highliters ??= DeserializeParserData<Visualizers>(_xmlPath, "HighlightMode");
+                return _highliters;
             }
         }
         /// <summary>
@@ -115,6 +130,7 @@ namespace NameClassifiers
         internal PrimaryClassifierSection PrimaryClassifier => FindParserSection<PrimaryClassifierSection>();
         internal Dictionary<string, AuxilaryClassifierSection> AuxilaryClassifiers = new();
         internal Dictionary<string, AuxilaryDataSection> AuxilaryData = new();
+
         internal StatusSection Status => FindParserSection<StatusSection>();
         /// <summary>
         /// Стартовая секция цепочки обработки
@@ -136,9 +152,21 @@ namespace NameClassifiers
             Processor!.Process(decomposition, layerInfo, pointer);
             return layerInfo;
         }
-        
+
+        public Dictionary<string,string> GetDescriptionDictionary<T>() where T : ParserSection
+        {
+            var section = _sections.Where(s => s.GetType() ==  typeof(T)).Single();
+            throw new NotImplementedException();
+        }
+        public Dictionary<string, string> GetDescriptionDictionary<T>(string name) where T : NamedParserSection
+        {
+            var section = _sections.Where(s => s is NamedParserSection nps && nps.Name == name).Single();
+            throw new NotImplementedException();
+        }
+
+
         public string[] GetStatusArray() => Status.GetDescriptionDictionary().Keys.ToArray();
-        
+
         /// <summary>
         /// Десериализовать вспомогательные данные парсера
         /// </summary>
@@ -196,6 +224,19 @@ namespace NameClassifiers
             }
             TSection resultSection = (TSection)section;
             return resultSection;
+        }
+
+        private List<ParserSection> GetParserSections()
+        {
+            ParserSection section = Processor!;
+
+            List<ParserSection> sections = new() { section };
+            while(section.NextSection != null)
+            {
+                section = section.NextSection!;
+                sections.Add(section);
+            }
+            return sections;
         }
     }
 }

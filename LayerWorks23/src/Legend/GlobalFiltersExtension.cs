@@ -69,7 +69,7 @@ namespace LayerWorks.Legend
                 for (int j = 0; j < gridsNumber - 1; j++)
                 {
                     GridFilter gridFilter = fullGridList[j];
-                    Func<LayerInfo, bool> predicate = gridFilter.GetGridPredicate();
+                    Func<LayerInfo, bool> predicate = gridFilter.GetPredicate();
                     gridData[i][j].Predicate = c => predicate(cellToInfo(c));
                     gridData[i][j].GridName = gridFilter.Label ?? "*";
                 }

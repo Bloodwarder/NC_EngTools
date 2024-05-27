@@ -11,6 +11,8 @@ using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 using NameClassifiers;
 using NanocadUtilities;
+using LayerWorks.EntityFormatters;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LayerWorks.LayerProcessing
 {
@@ -57,8 +59,9 @@ namespace LayerWorks.LayerProcessing
                     LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
                     if (!lt!.Has(layer.LayerInfo.Name))
                     {
-                        bool propsgetsuccess = LayerPropertiesDictionary.TryGetValue(layer.LayerInfo.TrueName, out LayerProps? lp);
-                        LayerTableRecord ltRecord = AddLayer(layer.LayerInfo.Name, lp);
+                        var standardService = LayerWorksServiceProvider.GetService<IStandardReader<LayerProps>>()!;
+                        bool propsgetsuccess = standardService.TryGetStandard(layer.LayerInfo.TrueName, out LayerProps? props);
+                        LayerTableRecord ltRecord = AddLayer(layer.LayerInfo.Name, props);
 
                         //Process new layer if isolated chapter visualization is active
                         EventArgs e = new();
@@ -104,6 +107,7 @@ namespace LayerWorks.LayerProcessing
 
         internal static bool TryFindLinetype(string? linetypename, out ObjectId lineTypeId)
         {
+            
             ObjectId defaultLinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
             if (linetypename == null)
             {

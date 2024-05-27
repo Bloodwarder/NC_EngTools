@@ -7,7 +7,7 @@ namespace NameClassifiers.Sections
     /// Вторичный классификатор, собирающий все значения, не вошедшие в остальные классификаторы.
     /// Обязательный. Может быть только один. Является частью основного имени
     /// </summary>
-    internal class SecondaryClassifierSection : ParserSection
+    public class SecondaryClassifierSection : ParserSection
     {
         public SecondaryClassifierSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {

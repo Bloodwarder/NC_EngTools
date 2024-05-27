@@ -164,8 +164,8 @@ namespace LayerWorks.Commands
                 {
                     LayerChanger.UpdateActiveLayerWrappers();
                     
-                    bool targetValue = !ActiveLayerWrappers.List.FirstOrDefault()!.LayerInfo.SuffixTagged;
-                    ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged = targetValue; }));
+                    bool targetValue = !ActiveLayerWrappers.List.FirstOrDefault()!.LayerInfo.SuffixTagged["Reconstruction"];
+                    ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged["Reconstruction"] = targetValue; }));
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }

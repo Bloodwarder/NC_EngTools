@@ -7,7 +7,7 @@ namespace NameClassifiers.Sections
     /// Статус. Обязательный. Независим от положения. Может быть только один.
     /// Считается частью основного имени TrueName (но не группового имени MainName)
     /// </summary>
-    internal class StatusSection : ParserSection
+    public class StatusSection : ParserSection
     {
         private readonly Dictionary<string, string> _descriptionDict = new();
         internal StatusSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)

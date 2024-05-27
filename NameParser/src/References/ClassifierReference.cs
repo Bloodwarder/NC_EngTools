@@ -4,11 +4,9 @@
 namespace NameClassifiers.References
 {
     [XmlRoot(ElementName = nameof(ClassifierReference))]
-    public class ClassifierReference : SectionReference
+    public class ClassifierReference : NamedSectionReference
     {
-        [XmlAttribute("Name")]
-        public string Name { get; set; } = null!;
-
+        ///<inheritdoc/>
         public override bool Match(LayerInfo layerInfo) => layerInfo.AuxilaryClassifiers[Name] == Value;
     }
 }

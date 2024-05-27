@@ -6,12 +6,11 @@ namespace NameClassifiers.Sections
     /// <summary>
     /// Дополнительный классификатор. Необязательный. Независим от положения. Может быть несколько. Считается частью основного имени
     /// </summary>
-    internal class AuxilaryClassifierSection : ParserSection
+    public class AuxilaryClassifierSection : NamedParserSection
     {
         private Dictionary<string, string> _descriptionDict { get; } = new();
         public AuxilaryClassifierSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
-            Name = xElement.Attribute("Name")?.Value ?? throw new NameParserInitializeException("Отсутствует имя дополнительного классификатора");
             foreach (XElement classifier in xElement.Elements("Classifier"))
             {
                 XAttribute? keyAttr = classifier.Attribute("Value");
@@ -23,9 +22,6 @@ namespace NameClassifiers.Sections
                     throw new NameParserInitializeException("Ошибка инициализации дополнительного классификатора. Неверный ключ или описание");
             }
         }
-
-        internal string Name { get; init; }
-
 
         internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
         {

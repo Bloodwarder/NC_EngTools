@@ -17,6 +17,7 @@ namespace NameClassifiers.Filters
         [XmlElement(Type = typeof(ClassifierReference))]
         [XmlElement(Type = typeof(DataReference))]
         [XmlElement(Type = typeof(StatusReference))]
+        [XmlElement(Type = typeof(BoolReference))]
         public SectionReference Reference { get; set; }
     }
 }

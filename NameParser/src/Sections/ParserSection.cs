@@ -7,7 +7,7 @@ namespace NameClassifiers.Sections
     /// Секция классификатора. Секции последовательно собираются в цепочку обязанностей 
     /// в конструкторе NameParser и последовательно обрабатывают входящие массивы строк или объекты LayerInfo.
     /// </summary>
-    internal abstract class ParserSection
+    public abstract class ParserSection
     {
         protected NameParser ParentParser { get; init; }
         protected ParserSection(XElement xElement, NameParser parentParser) 

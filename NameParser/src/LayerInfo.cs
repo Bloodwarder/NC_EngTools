@@ -19,7 +19,7 @@
         public Dictionary<string, string?> AuxilaryData { get; } = new();
         public string? SecondaryClassifiers { get; internal set; }
         public string? Status { get; internal set; }
-        public bool SuffixTagged { get; set; } = false;
+        public Dictionary<string,bool> SuffixTagged { get; private set; } = new();
 
         /// <summary>
         /// Значимое имя только с обязательными классификаторами без статуса (отражающее тип объекта)

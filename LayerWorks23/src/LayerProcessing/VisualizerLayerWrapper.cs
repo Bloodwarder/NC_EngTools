@@ -5,33 +5,37 @@ namespace LayerWorks.LayerProcessing
     /// <summary>
     /// Парсер, связанный с объектом LayerTableRecord, хранящий данные об исходном цвете и видимости слоя
     /// </summary>
-    public class ChapterStoreLayerWrapper : RecordLayerWrapper
+    public class VisualizerLayerWrapper : RecordLayerWrapper
     {
         const byte redproj = 0; const byte greenproj = 255; const byte blueproj = 255;
         const byte redns = 0; const byte greenns = 153; const byte bluens = 153;
-        /// <summary>
-        /// Исходное состояние видимости слоя
-        /// </summary>
-        public bool StoredEnabledState;
-        /// <summary>
-        /// Исходный цвет слоя
-        /// </summary>
-        public Teigha.Colors.Color StoredColor;
+
+        public StatedLayerProps StoredLayerProps { get; set; }
+
         /// <inheritdoc/>
-        public ChapterStoreLayerWrapper(LayerTableRecord ltr) : base(ltr)
+        public VisualizerLayerWrapper(LayerTableRecord ltr) : base(ltr)
         {
-            StoredEnabledState = ltr.IsOff;
-            StoredColor = ltr.Color;
-            ChapterStoredLayerWrappers.Add(this);
+            StoredLayerProps = ReadLayerProps();
+            VisualizerLayerWrappers.Add(this);
+            LayerStandartizedEvent += (o, e) =>
+            {
+                if ((LayerTableRecord)o! == BoundLayer)
+                    StoredLayerProps = ReadLayerProps();
+            };
         }
+
+        public static void Create(LayerTableRecord record)
+        {
+            _ = new VisualizerLayerWrapper(record);
+        }
+
         /// <summary>
         /// Возврат исходного цвета и видимости слоя
         /// </summary>
         public void Reset()
         {
             //BoundLayer = Workstation.TransactionManager.TopTransaction.GetObject(BoundLayer.Id, OpenMode.ForWrite) as LayerTableRecord;
-            BoundLayer.IsOff = StoredEnabledState;
-            BoundLayer.Color = StoredColor;
+            WriteLayerProps(StoredLayerProps);
         }
         /// <summary>
         /// Возврат исходного цвета и видимости слоя
@@ -56,7 +60,7 @@ namespace LayerWorks.LayerProcessing
             if (LayerInfo.PrimaryClassifier == primaryClassifier)
             {
                 BoundLayer.IsOff = false;
-                if (LayerInfo.SuffixTagged)
+                if (LayerInfo.SuffixTagged["Reconstruction"])
                 {
                     if (LayerInfo.Status == highlitedStatusList[0])
                     {
@@ -72,6 +76,11 @@ namespace LayerWorks.LayerProcessing
             {
                 BoundLayer.IsOff = true;
             }
+        }
+
+        public void Push(StatedLayerProps statedLayerProps)
+        {
+            WriteLayerProps(statedLayerProps);
         }
     }
 }

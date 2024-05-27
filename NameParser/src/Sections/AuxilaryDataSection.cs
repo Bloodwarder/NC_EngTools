@@ -7,25 +7,22 @@ namespace NameClassifiers.Sections
     /// Дополнительная информация. Необязательная. Независим от положения (только от скобок).
     /// Может быть несколько (с разными скобками). Не считается частью основного имени
     /// </summary>
-    internal class AuxilaryDataSection : ParserSection
+    public class AuxilaryDataSection : NamedParserSection
     {
         internal char[] Brackets { get; init; }
-        internal string Name { get; init; }
         internal string Description { get; init; }
         internal AuxilaryDataValidation? Validation { get; init; }
 
         public AuxilaryDataSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
-            XAttribute nameAttr = xElement.Attribute("Name") ?? throw new NameParserInitializeException("Отсутствует ключ для дополнительных данных");
             XAttribute bracketsAttr = xElement.Attribute("Brackets") ?? throw new NameParserInitializeException("Отсутствуют скобки для дополнительных данных");
             XAttribute descriptionAttr = xElement.Attribute("Description") ?? throw new NameParserInitializeException("Отсутcтвует описание дополнительных данных");
             XElement? validationElement = xElement.Element("Validation");
             if (validationElement != null)
                 Validation = new AuxilaryDataValidation(validationElement);
-            Name = nameAttr.Value;
             Description = descriptionAttr.Value;
             Brackets = new[] { bracketsAttr.Value[0], bracketsAttr.Value[1] };
-            parentParser.AuxilaryData.Add(nameAttr.Value, this);
+            parentParser.AuxilaryData.Add(Name, this);
         }
 
         internal override void Process(string[] str, LayerInfo layerInfo, int pointer)

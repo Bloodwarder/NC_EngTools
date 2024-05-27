@@ -37,7 +37,7 @@ namespace NameParserTest
             Assert.That(_layerInfo.Name, Is.EqualTo("ИС_[ВСМ-2017]_ЭС_л_КЛ_0.4кВ_неутв"));
             _layerInfo.ChangeAuxilaryData("ExternalProject", null);
             Assert.That(_layerInfo.Name, Is.EqualTo("ИС_ЭС_л_КЛ_0.4кВ_неутв"));
-            _layerInfo.SuffixTagged = true;
+            _layerInfo.SuffixTagged["Reconstruction"] = true;
             Assert.That(_layerInfo.Name, Is.EqualTo("ИС_ЭС_л_КЛ_0.4кВ_неутв_пер"));
         }
         [Test]
