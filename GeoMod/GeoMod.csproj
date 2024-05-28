@@ -4,6 +4,8 @@
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
+		<PlatformTarget>x64</PlatformTarget>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>False</AppendRuntimeIdentifierToOutputPath>
@@ -18,7 +20,6 @@
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
 		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries</OutputPath>
-		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
   <ItemGroup>
@@ -37,8 +38,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LoaderCore\LoaderCore.csproj"/>
-    <ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj" />
+	  <ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
+		  <PrivateAssets>All</PrivateAssets>
+	  </ProjectReference>
+	  <ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj">
+		  <PrivateAssets>All</PrivateAssets>
+	  </ProjectReference>
   </ItemGroup>
 
 </Project>

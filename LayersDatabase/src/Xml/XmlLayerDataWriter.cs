@@ -23,5 +23,10 @@ namespace LayersIO.Xml
                 xs.Serialize(fs, dictionary as XmlSerializableDictionary<TKey, TValue>);
             }
         }
+
+        public void OverwriteItem(Dictionary<TKey, TValue> dictionary)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

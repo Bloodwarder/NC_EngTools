@@ -46,8 +46,8 @@ namespace LayerWorks.ModelspaceDraw
             bool success = LayerPropertiesDictionary.TryGetValue(rectangle.Layer, out LayerProps? lp);
             if (success)
             {
-                rectangle.LinetypeScale = lp!.LTScale;
-                rectangle.ConstantWidth = lp!.ConstantWidth;
+                rectangle.LinetypeScale = lp?.LTScale ?? default;
+                rectangle.ConstantWidth = lp?.ConstantWidth ?? default;
             }
             rectangle.Color = BrightnessShift(brightnessshift);
             EntitiesList.Add(rectangle);

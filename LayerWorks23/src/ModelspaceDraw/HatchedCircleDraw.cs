@@ -50,8 +50,8 @@ namespace LayerWorks.ModelspaceDraw
             bool success = LayerPropertiesDictionary.TryGetValue(circle.Layer, out LayerProps? lp);
             if (success)
             {
-                circle.LinetypeScale = lp!.LTScale;
-                circle.ConstantWidth = lp!.ConstantWidth;
+                circle.LinetypeScale = lp?.LTScale ?? circle.LinetypeScale;
+                circle.ConstantWidth = lp?.ConstantWidth ?? circle.ConstantWidth;
             }
 
             EntitiesList.Add(circle);

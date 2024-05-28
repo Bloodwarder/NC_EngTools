@@ -36,8 +36,8 @@ namespace LayerWorks.ModelspaceDraw
             bool success  = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps? lp);
             if (success)
             {
-                pl.LinetypeScale = lp!.LTScale;
-                pl.ConstantWidth = lp!.ConstantWidth;
+                pl.LinetypeScale = lp?.LTScale ?? default;
+                pl.ConstantWidth = lp?.ConstantWidth ?? default;
             }
             pl2.ConstantWidth = double.Parse(LegendDrawTemplate?.Width ?? "1.5");  // ТОЖЕ КОСТЫЛЬ, ЧТОБЫ НЕ ДОБАВЛЯТЬ ДОП ПОЛЕ В ТАБЛИЦУ. ТАКИХ СЛОЯ ВСЕГО 3
             pl2.Color = Color.FromRgb(0, 0, 255);   // ЗАТЫЧКА, ПОКА ТАКОЙ ОБЪЕКТ ВСЕГО ОДИН

@@ -6,6 +6,7 @@
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 		<PlatformTarget>x64</PlatformTarget>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
@@ -19,7 +20,7 @@
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
 		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
-		<OutputPath>$(RootOutputPath)\Editor</OutputPath>
+		<OutputPath>$(RootOutputPath)\</OutputPath>
 		<SignAssembly>False</SignAssembly>
 	</PropertyGroup>
 
@@ -29,13 +30,10 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\LayersDatabase\LayersIO.csproj">
-			<Private>False</Private>
-			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
-			<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
-			<EmbedInteropTypes>False</EmbedInteropTypes>
+			<PrivateAssets>All</PrivateAssets>
 		</ProjectReference>
 		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
-			<Private>False</Private>
+			<PrivateAssets>All</PrivateAssets>
 		</ProjectReference>
 	</ItemGroup>
 

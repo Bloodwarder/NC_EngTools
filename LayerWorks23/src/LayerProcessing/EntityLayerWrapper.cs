@@ -39,8 +39,8 @@ namespace LayerWorks.LayerProcessing
                 ent.Layer = LayerInfo.Name;
                 if (ent is Polyline pl && success)
                 {
-                    pl.LinetypeScale = lp!.LTScale;
-                    pl.ConstantWidth = lp!.ConstantWidth;
+                    pl.LinetypeScale = lp?.LTScale ?? pl.LinetypeScale;
+                    pl.ConstantWidth = lp?.ConstantWidth ?? pl.ConstantWidth;
                 }
             }
         }

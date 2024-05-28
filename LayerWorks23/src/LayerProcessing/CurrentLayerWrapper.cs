@@ -37,8 +37,8 @@ namespace LayerWorks.LayerProcessing
             bool success = LayerPropertiesDictionary.TryGetValue(LayerInfo.Name, out LayerProps? lp);
             if (success)
             {
-                db.Celtscale = lp!.LTScale;
-                db.Plinewid = lp!.ConstantWidth;
+                db.Celtscale = lp?.LTScale ?? default;
+                db.Plinewid = lp?.ConstantWidth ?? default;
             }
         }
     }
