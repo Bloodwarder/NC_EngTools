@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using NameClassifiers.Sections;
+using System.Xml.Serialization;
 
 
 namespace NameClassifiers.References
@@ -10,5 +11,11 @@ namespace NameClassifiers.References
     {
         [XmlAttribute("Name")]
         public string Name { get; set; } = null!;
+
+        public sealed override void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptions)
+        {
+            ParserSection section = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GetSection(this.GetType(), Name);
+            section.ExtractDistinctInfo(layerInfos, out keywords, out descriptions);
+        }
     }
 }

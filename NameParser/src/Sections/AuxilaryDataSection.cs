@@ -63,5 +63,12 @@ namespace NameClassifiers.Sections
         {
             return str.StartsWith(Brackets[0]);
         }
+
+        internal override void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptionFunc)
+        {
+            var data = layerInfos.Select(i => i.AuxilaryData[Name]).Distinct().Select(s => s ?? $"{Description} отсутствует");
+            keywords = data.ToArray();
+            descriptionFunc = s => s ?? $"{Description} отсутствует";
+        }
     }
 }

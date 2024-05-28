@@ -38,5 +38,12 @@ namespace NameClassifiers.Sections
         {
             return _descriptionDict.ContainsKey(str);
         }
+
+        internal override void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptions)
+        {
+            IEnumerable<string> chapters = layerInfos.Select(i => i.PrimaryClassifier!).Distinct();
+            keywords = chapters.ToArray();
+            descriptions = s => _descriptionDict[s];
+        }
     }
 }

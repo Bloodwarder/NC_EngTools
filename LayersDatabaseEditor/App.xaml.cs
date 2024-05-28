@@ -1,14 +1,5 @@
-﻿using Microsoft.VisualBasic.ApplicationServices;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace LayersDatabaseEditor
@@ -20,7 +11,7 @@ namespace LayersDatabaseEditor
     {
         static App()
         {
-            DirectoryInfo? dir = Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.Parent;
+            DirectoryInfo? dir = Directory.GetParent(Assembly.GetExecutingAssembly().Location)!;
             string path = Path.Combine(dir!.FullName,"ExtensionLibraries","LoaderCore.dll");
             Assembly.LoadFrom(path);
         }

@@ -2,7 +2,7 @@
 using NameClassifiers.Highlighting;
 using NameClassifiers.Sections;
 using NameClassifiers.SharedProperties;
-
+using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -110,7 +110,7 @@ namespace NameClassifiers
         /// <summary>
         /// Данные для визуальных фильтров
         /// </summary>
-        public Visualizers Highlighters
+        public Visualizers Visualizers
         {
             get
             {
@@ -153,15 +153,27 @@ namespace NameClassifiers
             return layerInfo;
         }
 
-        public Dictionary<string,string> GetDescriptionDictionary<T>() where T : ParserSection
+
+        internal ParserSection GetSection(Type type)
+        {
+
+            var section = _sections.Where(s => s.GetType() == type).Single();
+            return section;
+        }
+        internal ParserSection GetSection(Type type, string name)
+        {
+            var section = _sections.Where(s => s.GetType() == type && s is NamedParserSection nps && nps.Name == name).Single();
+            return section;
+        }
+        internal ParserSection GetSection<T>() where T : ParserSection
         {
             var section = _sections.Where(s => s.GetType() ==  typeof(T)).Single();
-            throw new NotImplementedException();
+            return (T)section;
         }
-        public Dictionary<string, string> GetDescriptionDictionary<T>(string name) where T : NamedParserSection
+        internal ParserSection GetSection<T>(string name) where T : NamedParserSection
         {
             var section = _sections.Where(s => s is NamedParserSection nps && nps.Name == name).Single();
-            throw new NotImplementedException();
+            return (T)section;
         }
 
 

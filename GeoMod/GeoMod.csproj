@@ -10,11 +10,15 @@
 		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>False</AppendRuntimeIdentifierToOutputPath>
 		<SignAssembly>False</SignAssembly>
-		
+
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DebugType>none</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	</PropertyGroup>
 	
 	<PropertyGroup>
@@ -22,28 +26,32 @@
 		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries</OutputPath>
 	</PropertyGroup>
 
-  <ItemGroup>
-    <Reference Include="hostdbmgd">
-      <HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostdbmgd.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="hostmgd">
-      <HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostmgd.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NetTopologySuite">
-      <HintPath>..\..\..\..\..\.nuget\packages\nettopologysuite\2.5.0\lib\netstandard2.0\NetTopologySuite.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
+	<ItemGroup>
+		<Reference Include="hostdbmgd">
+			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostdbmgd.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="hostmgd">
+			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostmgd.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+	</ItemGroup>
 
-  <ItemGroup>
-	  <ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
-		  <PrivateAssets>All</PrivateAssets>
-	  </ProjectReference>
-	  <ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj">
-		  <PrivateAssets>All</PrivateAssets>
-	  </ProjectReference>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="NetTopologySuite" Version="2.5.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
+		<ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj">
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Properties\" />
+	</ItemGroup>
 
 </Project>

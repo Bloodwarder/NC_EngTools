@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using Ookii.Dialogs.Wpf;
 using System.Windows.Documents;
 using System.Xml.Linq;
 using System.Xml;
@@ -78,23 +77,23 @@ namespace LoaderCore.UI
 
         private void SetUpdatePathButtonClick(object sender, RoutedEventArgs e)
         {
-            VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog()
-            {
-                Multiselect = false,
-                ShowNewFolderButton = false,
-                RootFolder = Environment.SpecialFolder.NetworkShortcuts
-            };
-            dialog.ShowDialog();
-            DirectoryInfo dir = new DirectoryInfo(dialog.SelectedPath);
-            if (dir.Exists)
-            {
-                tbSourcePath.Text = dialog.SelectedPath;
-            }
-            e.Handled = true;
+            //    VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog()
+            //    {
+            //        Multiselect = false,
+            //        ShowNewFolderButton = false,
+            //        RootFolder = Environment.SpecialFolder.NetworkShortcuts
+            //    };
+            //    dialog.ShowDialog();
+            //    DirectoryInfo dir = new DirectoryInfo(dialog.SelectedPath);
+            //    if (dir.Exists)
+            //    {
+            //        tbSourcePath.Text = dialog.SelectedPath;
+            //    }
+            //    e.Handled = true;
         }
 
 
-        private void StartUpWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+    private void StartUpWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value = XmlConvert.ToString((bool)chbShowOnStartUp.IsChecked);
 

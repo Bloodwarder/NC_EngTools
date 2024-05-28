@@ -11,6 +11,9 @@ using NanocadUtilities;
 using NameClassifiers;
 using LayerWorks.LayerProcessing;
 
+using static NanocadUtilities.EditorHelper;
+using NameClassifiers.Highlighting;
+
 namespace LayerWorks.Commands
 {
     /// <summary>
@@ -68,12 +71,17 @@ namespace LayerWorks.Commands
                     }
                     catch (WrongLayerException)
                     {
-                        //editor.WriteMessage(ex.Message);
                         errorCount++;
                         continue;
                     }
                 }
                 Workstation.Editor.WriteMessage($"Фильтр включен для {successCount} слоёв. Число необработанных слоёв: {errorCount}");
+
+                Visualizers visualizers = NameParser.LoadedParsers[prefix].Visualizers;
+                string[] filters = visualizers.Filters.Select(x => x.Name).ToArray();
+                string filterName = GetStringKeywordResult(filters, "Выберите фильтр");
+                HighlightFilter chosenFilter = visualizers.Filters.Where(f => f.Name == filterName).Single();
+                
 
                 var layerchapters = VisualizerLayerWrappers.StoredLayerStates[doc]
                                                               .Where(l => l.LayerInfo.PrimaryClassifier != null)
