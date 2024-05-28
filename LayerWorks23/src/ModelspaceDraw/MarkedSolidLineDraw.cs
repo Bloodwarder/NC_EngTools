@@ -34,7 +34,7 @@ namespace LayerWorks.ModelspaceDraw
 
                 bool success = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps? lp, true);
                 if (success)
-                    line.ConstantWidth = lp!.ConstantWidth;
+                    line.ConstantWidth = lp?.ConstantWidth ?? default;
                 line.LinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
             }
         }

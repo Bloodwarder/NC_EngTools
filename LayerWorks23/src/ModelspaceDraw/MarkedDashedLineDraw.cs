@@ -32,7 +32,7 @@ namespace LayerWorks.ModelspaceDraw
 
                 bool success = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps? props, true);
                 if (success)
-                    line.ConstantWidth = props!.ConstantWidth;
+                    line.ConstantWidth = props?.ConstantWidth ?? default;
                 bool ltgetsuccess = LayerChecker.TryFindLinetype("ACAD_ISO02W100", out ObjectId lineTypeId);
                 if (ltgetsuccess)
                     line.LinetypeId = lineTypeId;

@@ -5,6 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PlatformTarget>x64</PlatformTarget>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<UseWPF>true</UseWPF>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -25,9 +26,6 @@
 	<ItemGroup>
 	  <Compile Remove="src\LayerProcessing\LayerWrapperOld.cs" />
 	  <Compile Remove="src\LayerProcessing\Status.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <None Include="src\LayerProcessing\LayerWrapperOld.cs" />
 	  <None Include="src\LayerProcessing\Status.cs" />
 	</ItemGroup>
@@ -37,12 +35,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\LayersDatabase\LayersIO.csproj" />
+		<ProjectReference Include="..\LayersDatabase\LayersIO.csproj">
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
 	  <ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
-	    <Private>False</Private>
+		  <PrivateAssets>All</PrivateAssets>
 	  </ProjectReference>
-	  <ProjectReference Include="..\NameParser\NameClassifiers.csproj" />
-	  <ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj" />
+		<ProjectReference Include="..\NameParser\NameClassifiers.csproj">
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
+		<ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj">
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
 	</ItemGroup>
 
 	<ItemGroup>

@@ -10,12 +10,15 @@
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 		<SignAssembly>false</SignAssembly>
 	</PropertyGroup>
+	
 	<PropertyGroup>
 		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\</OutputPath>
 	</PropertyGroup>
+	
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DebugType>none</DebugType>
 	</PropertyGroup>
+	
 	<ItemGroup>
 		<Reference Include="hostdbmgd">
 			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostdbmgd.dll</HintPath>
@@ -26,12 +29,13 @@
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
+	
 	<ItemGroup>
-		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-	</ItemGroup>
-	<ItemGroup>
-	  <ProjectReference Include="..\LoaderCore\LoaderCore.csproj" />
-	  <ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj" />
+		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
+		<ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj">
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
 	</ItemGroup>
 </Project>

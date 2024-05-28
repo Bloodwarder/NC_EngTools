@@ -34,8 +34,8 @@ namespace LayerWorks.ModelspaceDraw
             bool success = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps? lp);
             if (success)
             {
-                pl.LinetypeScale = lp!.LTScale;
-                pl.ConstantWidth = lp!.ConstantWidth;
+                pl.LinetypeScale = lp?.LTScale ?? default;
+                pl.ConstantWidth = lp?.ConstantWidth ?? default;
             }
             EntitiesList.Add(pl);
         }

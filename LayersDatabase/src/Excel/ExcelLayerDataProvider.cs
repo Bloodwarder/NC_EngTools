@@ -2,7 +2,6 @@
 using LayersIO.Xml;
 using NPOI.SS.UserModel;
 using System.Diagnostics;
-using System.IO;
 
 
 
@@ -63,6 +62,38 @@ namespace LayersIO.Excel
         }
 
         abstract private protected TValue CellsExtract(ICell rng);
+
+        public TValue? GetItem(TKey key)
+        {
+            IWorkbook xlwb = WorkbookFactory.Create(_fileInfo.FullName, null, true);
+            ISheet ws = xlwb.GetSheet(sheetname);
+            TValue? value = default;
+            try
+            {
+                for (int i = 1; i < ws.LastRowNum + 1; i++)
+                {
+                    try
+                    {
+                        TKey comparedKey = (TKey)_valueHandler[typeof(TKey)](ws.GetRow(i).Cells[1]);
+                        if (comparedKey == key)
+                        {
+                            value = CellsExtract(ws.GetRow(i).Cells[2]);
+                            break;
+                        }
+                    }
+                    catch
+                    {
+                        Debug.Print($"Key extraction error in row {i}");
+                        continue;
+                    }
+                }
+            }
+            finally
+            {
+                xlwb.Close();
+            }
+            return value;
+        }
         //abstract private protected void CellsImport(IWorkbook xlwb, Dictionary<TKey, TValue> importeddictionary);
     }
 }

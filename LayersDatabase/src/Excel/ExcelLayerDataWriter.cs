@@ -46,5 +46,10 @@ namespace LayersIO.Excel
             }
         }
         abstract private protected void CellsImport(IWorkbook xlwb, Dictionary<TKey, TValue> importeddictionary);
+
+        public void OverwriteItem(Dictionary<TKey, TValue> dictionary)
+        {
+            throw new NotImplementedException("Запись одного значения в xml пока не реализовывалась");
+        }
     }
 }
