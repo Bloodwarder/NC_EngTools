@@ -7,6 +7,7 @@
 		<PlatformTarget>x64</PlatformTarget>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<UseWPF>true</UseWPF>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
@@ -19,6 +20,11 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DebugType>none</DebugType>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	</PropertyGroup>
 	
 	<ItemGroup>
@@ -40,13 +46,19 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="8.0.0" />
-		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="7.0.0" />
 	</ItemGroup>
 
 	<Target Name="HelloWorld" AfterTargets="AfterBuild">
 		<Message Text="Hello World" Importance="high" />
 	</Target>
+	<!--<Target Name="CopyDependencies" AfterTargets="Build">
+		<ItemGroup>
+			<Dependencies Include="$(RootOutputPath)/*" Exclude="$(RootOutputPath)/LoaderCore.*"/>
+		</ItemGroup>
+		<Move SourceFiles="@(Dependencies)" DestinationFolder="$(OutputPath)LoaderCore" />
+	</Target>-->
 	
 </Project>

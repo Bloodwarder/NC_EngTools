@@ -11,10 +11,10 @@ namespace LayersIO.Xml
     /// <typeparam name="TKey">Ключ</typeparam>
     /// <typeparam name="TValue">Значение</typeparam>
     [XmlRoot("Dictionary")]
-    public class XmlSerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable
+    public class XmlSerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable where TKey : notnull
     {
         /// <inheritdoc/>
-        public System.Xml.Schema.XmlSchema GetSchema()
+        public System.Xml.Schema.XmlSchema? GetSchema()
         {
             return null;
         }

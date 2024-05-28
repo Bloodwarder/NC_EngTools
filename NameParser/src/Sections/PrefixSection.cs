@@ -38,5 +38,10 @@ namespace NameClassifiers.Sections
         {
             return str == ParentParser.Prefix;
         }
+
+        internal override void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptions)
+        {
+            throw new NotImplementedException("Префикс всегда один");
+        }
     }
 }

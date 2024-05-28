@@ -7,7 +7,7 @@
 		<UseWPF>true</UseWPF>
 		<PlatformTarget>x64</PlatformTarget>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -21,7 +21,6 @@
 		<Deterministic>True</Deterministic>
 		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
 		<OutputPath>$(RootOutputPath)\</OutputPath>
-		<SignAssembly>False</SignAssembly>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -31,15 +30,15 @@
 	<ItemGroup>
 		<ProjectReference Include="..\LayersDatabase\LayersIO.csproj">
 			<PrivateAssets>All</PrivateAssets>
+			<Private>False</Private>
+			<ExcludeAssets>All</ExcludeAssets>
 		</ProjectReference>
 		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
 			<PrivateAssets>All</PrivateAssets>
+			<Private>False</Private>
+			<ExcludeAssets>All</ExcludeAssets>
 		</ProjectReference>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="src\DatabaseInteraction\" />
-	  <Folder Include="src\IOExcel\" />
+		
 	</ItemGroup>
 
 </Project>

@@ -28,7 +28,7 @@ namespace LayerWorks.LayerProcessing
         /// </summary>
         public override void Push()
         {
-            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            TransactionManager tm = Workstation.TransactionManager;
             Database db = Workstation.Database;
 
             LayerChecker.Check(this);

@@ -86,7 +86,7 @@
 			<Status Value="неутв" Description="Неутв. планируемый"/>
 			<Status Value="нреорг" Description="Неутв. реорганизуемый"/>
 		</StatusClassifier>
-		<BooleanSuffix Name="Reconstruction" Value="пер" Description="Переустройство"/>
+		<BooleanSuffix Name="Reconstruction" Value="пер" Description="Переустраиваемые" FalseDescription="Строящиеся и существующие"/>
 	</Classifiers>
 	<LegendFilters DefaultLabel="Инженерная инфраструктура">
 		<FilterSection>

@@ -26,7 +26,7 @@ namespace GeoMod
     /// </summary>
     public class GeoCommands
     {
-        private static NtsGeometryServices _geometryServices;
+        private static NtsGeometryServices _geometryServices = null!;
         private static double _defaultBufferDistance { get; set; } = 1d;
 
         private static BufferParameters DefaultBufferParameters = new()
@@ -40,7 +40,6 @@ namespace GeoMod
 
         static GeoCommands()
         {
-            // Инициализация NetTopologySuite
             InitializeNetTopologySuite();
         }
 
