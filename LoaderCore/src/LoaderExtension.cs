@@ -1,7 +1,9 @@
 ﻿using HostMgd.ApplicationServices;
-using LoaderCore.Utilities;
 using LoaderCore.Integrity;
 using LoaderCore.UI;
+using LoaderCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,8 +11,6 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 using Teigha.Runtime;
-using System.Configuration;
-using System;
 
 namespace LoaderCore
 {
@@ -21,8 +21,9 @@ namespace LoaderCore
     {
         const string StructureXmlName = "Structure.xml";
         const string StartUpConfigName = "StartUpConfig.xml";
+        private static readonly ServiceCollection _serviceCollection = new();
+        private static bool _serviceProviderBuilt = false;
 
-        static Dictionary<string, string>? LibraryFiles { get; }
         // Поиск обновлений и настройка загрузки и обновления сборок
         static LoaderExtension()
         {
@@ -30,10 +31,15 @@ namespace LoaderCore
             IEnumerable<FileInfo>? files = SearchDirectoryForDlls(dir!);
             LibraryFiles = SearchDirectoryForDlls(dir!)?.ToDictionary(f => f.Name, f => f.FullName);
         }
-        
+        public static ServiceProvider ServiceProvider { get; private set; }
+        public static ServiceCollection Services => !_serviceProviderBuilt ? _serviceCollection : throw new InvalidOperationException("Провайдер сервисов уже построен");
+        private static Dictionary<string, string>? LibraryFiles { get; }
+
         public static void Initialize()
         {
             Logger.WriteLog += Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage;
+
+
 
             List<ComparedFiles> files = InitializeFileStructure();
 
@@ -76,6 +82,9 @@ namespace LoaderCore
                 Logger.WriteLog.Invoke($"Сборка {assembly.Name} загружена");
             }
             Logger.WriteLog = null;
+
+            ServiceProvider = Services.BuildServiceProvider();
+            _serviceProviderBuilt = true;
         }
 
         public static void InitializeAsLibrary()

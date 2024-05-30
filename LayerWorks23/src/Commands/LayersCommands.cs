@@ -1,17 +1,15 @@
 ﻿//System
-using System.Linq;
 //nanoCAD
 using HostMgd.EditorInput;
-using Teigha.DatabaseServices;
-using Teigha.Runtime;
-using Teigha.Colors;
-
+using LayersIO.ExternalData;
+using LayerWorks.Dictionaries;
+using LayerWorks.LayerProcessing;
+using NameClassifiers;
 //internal modules
 using NanocadUtilities;
-using NameClassifiers;
-using LayerWorks.LayerProcessing;
-using LayerWorks.Dictionaries;
-using LayersIO.ExternalData;
+using Teigha.Colors;
+using Teigha.DatabaseServices;
+using Teigha.Runtime;
 
 namespace LayerWorks.Commands
 {
@@ -51,9 +49,9 @@ namespace LayerWorks.Commands
                 else
                 {
                     LayerTableRecord? ltrec = (from ObjectId elem in lt
-                                              let ltr = (LayerTableRecord)transaction.GetObject(elem, OpenMode.ForWrite, false)
-                                              where ltr.Name == tgtlayer
-                                              select ltr)
+                                               let ltr = (LayerTableRecord)transaction.GetObject(elem, OpenMode.ForWrite, false)
+                                               where ltr.Name == tgtlayer
+                                               select ltr)
                                               .FirstOrDefault();
                     if (ltrec!.IsFrozen || ltrec.IsOff)
                     {
@@ -163,7 +161,7 @@ namespace LayerWorks.Commands
                 try
                 {
                     LayerChanger.UpdateActiveLayerWrappers();
-                    
+
                     bool targetValue = !ActiveLayerWrappers.List.FirstOrDefault()!.LayerInfo.SuffixTagged["Reconstruction"];
                     ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged["Reconstruction"] = targetValue; }));
                     ActiveLayerWrappers.Push();

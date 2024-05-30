@@ -10,8 +10,8 @@ namespace NameClassifiers.Sections
     public abstract class ParserSection
     {
         protected NameParser ParentParser { get; init; }
-        protected ParserSection(XElement xElement, NameParser parentParser) 
-        { 
+        protected ParserSection(XElement xElement, NameParser parentParser)
+        {
             this.ParentParser = parentParser;
         }
 

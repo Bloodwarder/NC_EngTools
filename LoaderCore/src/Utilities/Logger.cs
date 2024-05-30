@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace LoaderCore.Utilities
+﻿namespace LoaderCore.Utilities
 {
     public static class Logger
     {

@@ -1,7 +1,7 @@
 ﻿using HostMgd.ApplicationServices;
+using LayerWorks.Commands;
 using NanocadUtilities;
 using Teigha.DatabaseServices;
-using LayerWorks.Commands;
 
 namespace LayerWorks.LayerProcessing
 {
@@ -66,8 +66,8 @@ namespace LayerWorks.LayerProcessing
                 _eventAssigned[doc] = true;
             }
             foreach (VisualizerLayerWrapper lw in StoredLayerStates[doc])
-            { 
-                lw.Push(primaryClassifier, new() { "пр", "неутв" }); 
+            {
+                lw.Push(primaryClassifier, new() { "пр", "неутв" });
             }
         }
 

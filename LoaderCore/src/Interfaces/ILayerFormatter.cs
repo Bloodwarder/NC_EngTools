@@ -1,6 +1,6 @@
 ﻿using Teigha.DatabaseServices;
 
-namespace LayerWorks.EntityFormatters
+namespace LoaderCore.Interfaces
 {
     public interface ILayerFormatter
     {

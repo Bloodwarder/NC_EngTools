@@ -1,13 +1,11 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-
+﻿using LayersIO.Excel;
 using LoaderCore;
 using LoaderCore.Utilities;
-using LayersIO.Excel;
-using System.Windows.Documents;
-using System.Diagnostics;
-using System.Windows.Data;
 using System.ComponentModel;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
 
 namespace LayersDatabaseEditor
 {

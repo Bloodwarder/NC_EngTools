@@ -41,7 +41,7 @@ namespace NameClassifiers.Sections
         }
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {
-            
+
             inputList.Add(layerInfo.AuxilaryClassifiers[Name]);
             NextSection?.ComposeName(inputList, layerInfo, nameType);
         }

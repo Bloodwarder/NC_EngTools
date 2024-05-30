@@ -3,11 +3,10 @@
 //Modules
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
+using LayerWorks.LayerProcessing;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-
-using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.ModelspaceDraw
 {

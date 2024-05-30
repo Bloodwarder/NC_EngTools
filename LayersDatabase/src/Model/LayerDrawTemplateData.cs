@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LayersIO.Model
+﻿namespace LayersIO.Model
 {
     /// <summary>
     /// Сбоственный тип LayerData, содержащий информацию об отрисовке в таблице условных обозначений

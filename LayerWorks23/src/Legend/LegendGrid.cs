@@ -1,6 +1,6 @@
-﻿using Teigha.Geometry;
-using LoaderCore.Configuration;
+﻿using LoaderCore.Configuration;
 using NameClassifiers;
+using Teigha.Geometry;
 
 namespace LayerWorks.Legend
 {
@@ -36,7 +36,7 @@ namespace LayerWorks.Legend
         internal List<LegendGridCell> Cells { get; } = new();
         internal double Width { get => _columns * CellWidth + _columns * WidthInterval + TextWidth; }
         internal Point3d BasePoint { get; set; } = new Point3d();
-        
+
         // Индексатор, создающий строку при её отсутствии
         internal LegendGridRow this[string mainname]
         {

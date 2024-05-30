@@ -114,18 +114,18 @@ namespace LayersIO.Excel
             return layers;
         }
 
-        private static Dictionary<string, T>ExtractToDictionary<T, N>(Mapper mapper, string sheetname, Func<RowInfo<N>, string> nameExpression)
+        private static Dictionary<string, T> ExtractToDictionary<T, N>(Mapper mapper, string sheetname, Func<RowInfo<N>, string> nameExpression)
             where T : class
             where N : class
         {
-                var mappedNames = mapper.Take<N>(sheetname).Select(nameExpression).ToList();
-                var mappedData = mapper.Take<T>(sheetname).ToList();
-                Dictionary<string, T> mappedDataDictionary = new();
-                for (int i = 0; i < mappedNames.Count; i++)
-                {
-                    mappedDataDictionary[mappedNames[i]!] = mappedData[i].Value;
-                }
-                return mappedDataDictionary;
+            var mappedNames = mapper.Take<N>(sheetname).Select(nameExpression).ToList();
+            var mappedData = mapper.Take<T>(sheetname).ToList();
+            Dictionary<string, T> mappedDataDictionary = new();
+            for (int i = 0; i < mappedNames.Count; i++)
+            {
+                mappedDataDictionary[mappedNames[i]!] = mappedData[i].Value;
+            }
+            return mappedDataDictionary;
         }
 
         private static void ExportEntities<T>(IEnumerable<T> entities, DbContext db, Func<T, string> entityNamesExpression) where T : class

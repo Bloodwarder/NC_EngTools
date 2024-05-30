@@ -1,8 +1,8 @@
-﻿using Teigha.DatabaseServices;
-using LayersIO.DataTransfer;
+﻿using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
-using NanocadUtilities;
 using NameClassifiers;
+using NanocadUtilities;
+using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing
 {

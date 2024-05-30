@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace LayerWorks.Legend
+﻿namespace LayerWorks.Legend
 {
     /// <summary>
     /// Словарь с именами разделов

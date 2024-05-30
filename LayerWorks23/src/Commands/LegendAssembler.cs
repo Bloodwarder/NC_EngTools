@@ -1,19 +1,17 @@
 ﻿//System
-using System.Text;
 //nanoCAD
 using HostMgd.EditorInput;
-using Teigha.DatabaseServices;
-using Teigha.Runtime;
-using Teigha.Colors;
-
-//internal modules
-using Teigha.Geometry;
-using NameClassifiers;
-using NanocadUtilities;
+using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
-using LayersIO.ExternalData;
-
+using NameClassifiers;
+using NanocadUtilities;
+using System.Text;
+using Teigha.Colors;
+using Teigha.DatabaseServices;
+//internal modules
+using Teigha.Geometry;
+using Teigha.Runtime;
 using static NanocadUtilities.EditorHelper;
 
 namespace LayerWorks.Commands
@@ -107,7 +105,7 @@ namespace LayerWorks.Commands
                         {
                             chosenKeywords[i] = GetStringKeywordResult(filterKeywords[i], "Выберите режим компоновки:");
                         }
-                        catch (System.Exception ex) 
+                        catch (System.Exception ex)
                         {
                             Console.WriteLine(ex.Message);
                             return;

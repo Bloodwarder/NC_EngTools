@@ -1,10 +1,7 @@
-using System;
-using System.Linq;
-using System.Windows.Documents;
-using System.Collections.Generic;
-
 using NetTopologySuite.Geometries;
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Teigha.DatabaseServices;
 
 namespace GeoMod.GeometryExtensions

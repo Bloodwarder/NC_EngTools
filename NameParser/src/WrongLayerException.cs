@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NameClassifiers
+﻿namespace NameClassifiers
 {
     public class WrongLayerException : Exception
     {

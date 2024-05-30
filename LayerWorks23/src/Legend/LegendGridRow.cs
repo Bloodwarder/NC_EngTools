@@ -1,9 +1,9 @@
-﻿using LayerWorks.ModelspaceDraw;
+﻿using LayersIO.DataTransfer;
+using LayersIO.ExternalData;
+using LayerWorks.ModelspaceDraw;
+using NameClassifiers;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-using LayersIO.DataTransfer;
-using LayersIO.ExternalData;
-using NameClassifiers;
 
 namespace LayerWorks.Legend
 {

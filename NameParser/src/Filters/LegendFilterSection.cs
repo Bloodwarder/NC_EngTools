@@ -10,7 +10,7 @@ namespace NameClassifiers.Filters
         [XmlAttribute("Name")]
         public string? Name { get; set; }
 
-        [XmlElement(ElementName ="Filter", Type = typeof(LegendFilter))]
+        [XmlElement(ElementName = "Filter", Type = typeof(LegendFilter))]
         public LegendFilter[] Filters { get; set; }
     }
 }

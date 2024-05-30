@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Xml.Linq;
 
 namespace NameParserTest
 {
@@ -27,7 +26,7 @@ namespace NameParserTest
             Assert.That(_parser, Is.Not.Null);
             Assert.That(_parser.Prefix, Is.EqualTo("ИС"));
         }
-        
+
         [Test]
         public void LayerInfoTestWhenProper()
         {
@@ -47,7 +46,7 @@ namespace NameParserTest
             {
                 _ = _parser!.GetLayerInfo("вап_ыык44_аклвю341");
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Assert.That(ex, Is.InstanceOf<WrongLayerException>());
                 return;

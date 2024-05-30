@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace LayerWorks.Legend
+﻿namespace LayerWorks.Legend
 {
     internal class LegendGridRowComparer : IComparer<LegendGridRow>
     {

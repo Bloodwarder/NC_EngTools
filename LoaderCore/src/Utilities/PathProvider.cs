@@ -1,8 +1,6 @@
-﻿using LoaderCore.Integrity;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System;
 
 namespace LoaderCore.Utilities
 {

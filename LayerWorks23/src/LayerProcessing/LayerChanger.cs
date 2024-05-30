@@ -1,11 +1,9 @@
 ﻿//nanoCAD
 using HostMgd.EditorInput;
-using Teigha.DatabaseServices;
-
+using NameClassifiers;
 //internal modules
 using NanocadUtilities;
-using NameClassifiers;
-using LayerWorks.LayerProcessing;
+using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing
 {

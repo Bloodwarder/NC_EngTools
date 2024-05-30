@@ -1,16 +1,13 @@
 ﻿//System
-using System;
-using System.Linq;
-using System.Collections.Generic;
 
 //Modules
+using HostMgd.ApplicationServices;
+using LayersIO.DataTransfer;
+using LayerWorks.LayerProcessing;
 using NanocadUtilities;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-using HostMgd.ApplicationServices;
-using LayerWorks.LayerProcessing;
-using LayersIO.DataTransfer;
 
 namespace LayerWorks.ModelspaceDraw
 {

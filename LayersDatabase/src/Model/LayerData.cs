@@ -16,12 +16,12 @@
         {
             get
             {
-                return string.Concat(MainName,Separator,StatusName);
+                return string.Concat(MainName, Separator, StatusName);
             }
             set
             {
                 string[] classifiers = value.Split(Separator);
-                MainName = string.Join(Separator, classifiers.Take(classifiers.Length-1).ToArray());
+                MainName = string.Join(Separator, classifiers.Take(classifiers.Length - 1).ToArray());
                 StatusName = classifiers[^1];
             }
         }

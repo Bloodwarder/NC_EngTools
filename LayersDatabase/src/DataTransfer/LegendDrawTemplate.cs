@@ -1,6 +1,4 @@
-﻿using LayersIO.Model;
-
-namespace LayersIO.DataTransfer
+﻿namespace LayersIO.DataTransfer
 {
     /// <summary>
     /// Данные для отрисовки шаблона легенды

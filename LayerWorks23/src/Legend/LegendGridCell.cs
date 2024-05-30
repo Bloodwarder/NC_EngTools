@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using LayersIO.DataTransfer;
+﻿using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.ModelspaceDraw;
+using System.Reflection;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
 

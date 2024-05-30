@@ -1,5 +1,4 @@
 ﻿using LayersIO.DataTransfer;
-using LayersIO.Database.Readers;
 using Microsoft.EntityFrameworkCore;
 using Nelibur.ObjectMapper;
 

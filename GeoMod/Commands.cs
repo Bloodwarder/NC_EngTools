@@ -1,23 +1,18 @@
-using System;
-using System.Linq;
-using System.Collections.Generic;
-
-
+using GeoMod.GeometryExtensions;
+using GeoMod.UI;
+using HostMgd.ApplicationServices;
+using HostMgd.EditorInput;
+using NanocadUtilities;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using NtsBufferOps = NetTopologySuite.Operation.Buffer;
 using NetTopologySuite.Operation.Buffer;
-
-using Teigha.Runtime;
-using Teigha.DatabaseServices;
-using HostMgd.EditorInput;
-
-using NanocadUtilities;
-using GeoMod.GeometryExtensions;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
-using GeoMod.UI;
-using HostMgd.ApplicationServices;
+using Teigha.DatabaseServices;
+using Teigha.Runtime;
+using NtsBufferOps = NetTopologySuite.Operation.Buffer;
 
 namespace GeoMod
 {

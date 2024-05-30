@@ -1,14 +1,13 @@
 ﻿//System
-using System;
 
 //Modules
 //nanoCAD
-using Teigha.Geometry;
-using Teigha.Colors;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
+using Teigha.Colors;
+using Teigha.Geometry;
 
 namespace LayerWorks.ModelspaceDraw
 {
@@ -41,7 +40,7 @@ namespace LayerWorks.ModelspaceDraw
         /// </summary>
         internal LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
         {
-            
+
             bool success = LayerLegendDrawDictionary.TryGetValue(Layer.LayerInfo.TrueName, out var legendDrawTemplate);
             if (success)
                 LegendDrawTemplate = legendDrawTemplate!;

@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-
-using NetTopologySuite.Geometries;
-
+﻿using NetTopologySuite.Geometries;
+using System.Collections.Generic;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
 
