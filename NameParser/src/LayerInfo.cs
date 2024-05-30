@@ -19,7 +19,7 @@
         public Dictionary<string, string?> AuxilaryData { get; } = new();
         public string? SecondaryClassifiers { get; internal set; }
         public string? Status { get; internal set; }
-        public Dictionary<string,bool> SuffixTagged { get; private set; } = new();
+        public Dictionary<string, bool> SuffixTagged { get; private set; } = new();
 
         /// <summary>
         /// Значимое имя только с обязательными классификаторами без статуса (отражающее тип объекта)
@@ -51,10 +51,10 @@
             else
                 throw new WrongLayerException("Неверный статус");
             // если значение нового статуса не является корректным для имеющейся дополнительной информации - сбросить информацию
-            foreach(var aux in ParentParser.AuxilaryData.Values)
+            foreach (var aux in ParentParser.AuxilaryData.Values)
             {
-                var validation = aux.Validation; 
-                if (validation == null) 
+                var validation = aux.Validation;
+                if (validation == null)
                     continue;
                 if (!validation.ValidStatus?.Contains(newStatus) ?? false)
                     AuxilaryData[aux.Name] = null;

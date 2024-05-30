@@ -1,11 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using System.Xml.Serialization;
-using NameClassifiers;
+﻿using NameClassifiers;
 using NameClassifiers.Filters;
-using NameClassifiers.References;
-using Teigha.DatabaseServices.Filters;
-using Teigha.GraphicsInterface;
 
 namespace LayerWorks.Legend
 {

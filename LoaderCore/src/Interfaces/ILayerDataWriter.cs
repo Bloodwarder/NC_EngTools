@@ -1,4 +1,6 @@
-﻿namespace LayersIO.ExternalData
+﻿using System.Collections.Generic;
+
+namespace LoaderCore.Interfaces
 {
     public interface ILayerDataWriter<TKey, TValue> where TKey : notnull
     {

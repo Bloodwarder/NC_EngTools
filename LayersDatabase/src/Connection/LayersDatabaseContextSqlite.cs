@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-using LayersIO.Model;
-using System.Reflection;
+﻿using LayersIO.Model;
 using LoaderCore.Utilities;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace LayersIO.Connection
 {

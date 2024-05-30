@@ -1,17 +1,13 @@
-﻿using System.Data;
+﻿using HostMgd.EditorInput;
+using LoaderCore.Configuration;
+using NanocadUtilities;
+using System.Data;
 using System.Text;
 using System.Text.RegularExpressions;
-
-using HostMgd.EditorInput;
-
 using Teigha.Colors;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using Teigha.Runtime;
-
-using NanocadUtilities;
-using LoaderCore.Configuration;
-
 using static Utilities.EntitySelector;
 
 namespace Utilities

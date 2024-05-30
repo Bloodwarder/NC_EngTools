@@ -1,6 +1,5 @@
 ﻿
 using LayersIO.Model;
-using LayersIO.DataTransfer;
 using Nelibur.ObjectMapper;
 
 namespace LayersIO.DataTransfer
@@ -24,7 +23,7 @@ namespace LayersIO.DataTransfer
             return _mappedTypes.TryGetValue(type, out var mappedType) ? mappedType : null;
         }
 
-        private static void MapTypes<T1,T2>()
+        private static void MapTypes<T1, T2>()
         {
             TinyMapper.Bind(typeof(T1), typeof(T2));
             _mappedTypes[typeof(T1)] = typeof(T2);

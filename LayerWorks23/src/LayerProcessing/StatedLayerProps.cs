@@ -1,6 +1,5 @@
 ﻿using LayersIO.DataTransfer;
 using Nelibur.ObjectMapper;
-using System.Runtime.CompilerServices;
 
 namespace LayerWorks.LayerProcessing
 {

@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using LayersIO.DataTransfer;
+﻿using LayersIO.DataTransfer;
 using LayersIO.Xml;
+using LoaderCore.Interfaces;
 using LoaderCore.Utilities;
+using System.Diagnostics.CodeAnalysis;
 
 namespace LayersIO.ExternalData
 {
@@ -10,14 +10,13 @@ namespace LayersIO.ExternalData
     {
         const string XmlPropsName = "Layer_Props.xml";
 
-        private static readonly LayerPropertiesDictionary instance;
+        private static LayerPropertiesDictionary instance { get; set; }
         private readonly Dictionary<string, LayerProps> defaultLayerProps = new Dictionary<string, LayerProps>();
         static LayerPropertiesDictionary()
         {
             if (instance == null)
                 instance = new LayerPropertiesDictionary();
         }
-        public LayerPropertiesDictionary this[string layerName] => instance[layerName];
 
         internal LayerPropertiesDictionary()
         {
@@ -38,42 +37,20 @@ namespace LayersIO.ExternalData
             }
         }
 
-        private protected bool TryGetInstanceValue(string layername, out LayerProps? value, bool enabledefaults = true)
+        public bool TryGetValue(string key, [MaybeNullWhen(false)] out LayerProps value, bool enabledefaults)
         {
-                    //return new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 };
-
-            bool success = InstanceDictionary.TryGetValue(layername, out LayerProps? layerProps);
-            if (success)
+            bool success = TryGetValue(key, out value);
+            if(!success && enabledefaults)
             {
-                value= layerProps;
-                return success;
+                value = new LayerProps { ConstantWidth = 0.4, LTScale = 1, LineTypeName = "Continuous", LineWeight = -3 };
+                success = true;
             }
-            else
-            {
-                if (enabledefaults)
-                {
-                    value = new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 };
-                    return true;
-                }
-                else
-                {
-                    throw new System.Exception("Нет стандартов для слоя");
-                }
-            }
+            return success;
         }
 
-        public static bool TryGetValue(string layername, out LayerProps? value, bool enabledefaults = true)
+        public void Reload(ILayerDataWriter<string, LayerProps> primary, ILayerDataProvider<string, LayerProps> secondary)
         {
-            return instance.TryGetInstanceValue(layername, out value, enabledefaults);
-        }
-        public static void Reload(ILayerDataWriter<string, LayerProps> primary, ILayerDataProvider<string, LayerProps> secondary)
-        {
-            instance.ReloadInstance(primary, secondary);
-        }
-
-        public static bool CheckKey(string key)
-        {
-            return instance.CheckInstanceKey(key);
+            ReloadInstance(primary, secondary);
         }
     }
 }

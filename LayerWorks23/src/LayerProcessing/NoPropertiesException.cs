@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LayerWorks.LayerProcessing
+﻿namespace LayerWorks.LayerProcessing
 {
     internal class NoPropertiesException : Exception
     {

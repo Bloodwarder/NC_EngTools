@@ -1,12 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.Extensions.Configuration.Xml;
+﻿using LoaderCore.Utilities;
 using Microsoft.Extensions.Configuration;
-using System.IO;
-using LoaderCore.Utilities;
 
 namespace LoaderCore.Configuration
 {

@@ -1,5 +1,4 @@
 ﻿//System
-using System.Collections.Generic;
 using LayersIO.DataTransfer;
 
 //Modules

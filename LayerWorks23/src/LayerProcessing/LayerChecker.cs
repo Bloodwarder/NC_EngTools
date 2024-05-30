@@ -1,18 +1,16 @@
 ﻿//System
-using System.IO;
-//nanoCAD
-using Teigha.DatabaseServices;
-using Teigha.Colors;
-
-//internal modules
-using LoaderCore.Utilities;
-using LayerWorks.LayerProcessing;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
+using LoaderCore.Interfaces;
+//internal modules
+using LoaderCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
 using NanocadUtilities;
-using LayerWorks.EntityFormatters;
-using Microsoft.Extensions.DependencyInjection;
+using System.IO;
+using Teigha.Colors;
+//nanoCAD
+using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing
 {
@@ -107,7 +105,7 @@ namespace LayerWorks.LayerProcessing
 
         internal static bool TryFindLinetype(string? linetypename, out ObjectId lineTypeId)
         {
-            
+
             ObjectId defaultLinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
             if (linetypename == null)
             {

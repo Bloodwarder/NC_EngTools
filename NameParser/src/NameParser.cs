@@ -2,7 +2,6 @@
 using NameClassifiers.Highlighting;
 using NameClassifiers.Sections;
 using NameClassifiers.SharedProperties;
-using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -28,8 +27,8 @@ namespace NameClassifiers
         private GlobalFilters? _globalFilters;
         private SharedPropertiesCollection? _sharedPropertiesCollection;
         private Visualizers? _highliters;
-        
-        private List<ParserSection> _sections; 
+
+        private List<ParserSection> _sections;
         public NameParser(string xmlPath)
         {
             // Инициализация пути к файлу с данными парсера
@@ -167,7 +166,7 @@ namespace NameClassifiers
         }
         internal ParserSection GetSection<T>() where T : ParserSection
         {
-            var section = _sections.Where(s => s.GetType() ==  typeof(T)).Single();
+            var section = _sections.Where(s => s.GetType() == typeof(T)).Single();
             return (T)section;
         }
         internal ParserSection GetSection<T>(string name) where T : NamedParserSection
@@ -243,7 +242,7 @@ namespace NameClassifiers
             ParserSection section = Processor!;
 
             List<ParserSection> sections = new() { section };
-            while(section.NextSection != null)
+            while (section.NextSection != null)
             {
                 section = section.NextSection!;
                 sections.Add(section);

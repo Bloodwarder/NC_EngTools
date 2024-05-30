@@ -21,7 +21,7 @@ namespace LoaderCore.Integrity
         /// Является ли сборка отладочной (для отключения реального обновления в отладочной сборке)
         /// </summary>
         private static readonly bool _testRun = Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
-                      
+
         internal static void UpdateFile(FileInfo local, FileInfo source)
         {
             bool localExists = local.Exists;

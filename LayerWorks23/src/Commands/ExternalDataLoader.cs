@@ -1,12 +1,12 @@
-﻿using Teigha.Runtime;
-using Teigha.DatabaseServices;
-using LoaderCore.Utilities;
-using LayerWorks.LayerProcessing;
-using NanocadUtilities;
-using LayersIO.DataTransfer;
+﻿using LayersIO.DataTransfer;
 using LayersIO.Excel;
 using LayersIO.Xml;
+using LayerWorks.LayerProcessing;
+using LoaderCore.Utilities;
 using NameClassifiers;
+using NanocadUtilities;
+using Teigha.DatabaseServices;
+using Teigha.Runtime;
 
 namespace LayersIO.ExternalData
 {
@@ -35,26 +35,26 @@ namespace LayersIO.ExternalData
         {
             if ((reload & ToReload.Properties) == ToReload.Properties)
             {
-                ExcelComplexLayerDataProvider<string, LayerProps> xlpropsprovider = new (PathProvider.GetPath("Layer_Props.xlsm"), "Props");
-                XmlLayerDataWriter<string, LayerProps> xmlpropsprovider = new (PathProvider.GetPath("Layer_Props.xml"));
+                ExcelComplexLayerDataProvider<string, LayerProps> xlpropsprovider = new(PathProvider.GetPath("Layer_Props.xlsm"), "Props");
+                XmlLayerDataWriter<string, LayerProps> xmlpropsprovider = new(PathProvider.GetPath("Layer_Props.xml"));
                 LayerPropertiesDictionary.Reload(xmlpropsprovider, xlpropsprovider);
             }
             if ((reload & ToReload.Alter) == ToReload.Alter)
             {
-                ExcelSimpleLayerDataProvider<string, string> xlalterprovider = new (PathProvider.GetPath("Layer_Props.xlsm"), "Alter");
-                XmlLayerDataWriter<string, string> xmlalterprovider = new (PathProvider.GetPath("Layer_Alter.xml"));
+                ExcelSimpleLayerDataProvider<string, string> xlalterprovider = new(PathProvider.GetPath("Layer_Props.xlsm"), "Alter");
+                XmlLayerDataWriter<string, string> xmlalterprovider = new(PathProvider.GetPath("Layer_Alter.xml"));
                 LayerAlteringDictionary.Reload(xmlalterprovider, xlalterprovider);
             }
             if ((reload & ToReload.Legend) == ToReload.Legend)
             {
-                ExcelComplexLayerDataProvider<string, LegendData> xllegendprovider = new (PathProvider.GetPath("Layer_Props.xlsm"), "Legend");
-                XmlLayerDataWriter<string, LegendData> xmllegendprovider = new (PathProvider.GetPath("Layer_Legend.xml"));
+                ExcelComplexLayerDataProvider<string, LegendData> xllegendprovider = new(PathProvider.GetPath("Layer_Props.xlsm"), "Legend");
+                XmlLayerDataWriter<string, LegendData> xmllegendprovider = new(PathProvider.GetPath("Layer_Legend.xml"));
                 LayerLegendDictionary.Reload(xmllegendprovider, xllegendprovider);
             }
             if ((reload & ToReload.LegendDraw) == ToReload.LegendDraw)
             {
-                ExcelComplexLayerDataProvider<string, LegendDrawTemplate> xllegenddrawprovider = new (PathProvider.GetPath("Layer_Props.xlsm"), "LegendDraw");
-                XmlLayerDataWriter<string, LegendDrawTemplate> xmllegenddrawprovider = new (PathProvider.GetPath("Layer_LegendDraw.xml"));
+                ExcelComplexLayerDataProvider<string, LegendDrawTemplate> xllegenddrawprovider = new(PathProvider.GetPath("Layer_Props.xlsm"), "LegendDraw");
+                XmlLayerDataWriter<string, LegendDrawTemplate> xmllegenddrawprovider = new(PathProvider.GetPath("Layer_LegendDraw.xml"));
                 LayerLegendDrawDictionary.Reload(xmllegenddrawprovider, xllegenddrawprovider);
             }
         }
@@ -68,7 +68,7 @@ namespace LayersIO.ExternalData
             Workstation.Define();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                if(LayerWrapper.StandartPrefix == null)
+                if (LayerWrapper.StandartPrefix == null)
                 {
                     Workstation.Editor.WriteMessage("Отсутствует префикс для выборки слоёв");
                     return;

@@ -1,5 +1,5 @@
-﻿using LayersIO.ExternalData;
-using LayersIO.Xml;
+﻿using LayersIO.Xml;
+using LoaderCore.Interfaces;
 using NPOI.SS.UserModel;
 using System.Diagnostics;
 
@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace LayersIO.Excel
 {
-    abstract public class ExcelLayerDataProvider<TKey, TValue> : ILayerDataProvider<TKey, TValue> where TKey : class//where TValue : struct
+    public abstract class ExcelLayerDataProvider<TKey, TValue> : ILayerDataProvider<TKey, TValue> where TKey : class//where TValue : struct
     {
         internal string Path { get; set; }
         private protected string sheetname;

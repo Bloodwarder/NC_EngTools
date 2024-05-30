@@ -3,16 +3,14 @@
 //nanoCAD
 using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
-using Teigha.DatabaseServices;
-using Teigha.Runtime;
-
+using LayerWorks.LayerProcessing;
+using NameClassifiers;
+using NameClassifiers.Highlighting;
 //internal modules
 using NanocadUtilities;
-using NameClassifiers;
-using LayerWorks.LayerProcessing;
-
+using Teigha.DatabaseServices;
+using Teigha.Runtime;
 using static NanocadUtilities.EditorHelper;
-using NameClassifiers.Highlighting;
 
 namespace LayerWorks.Commands
 {
@@ -81,7 +79,7 @@ namespace LayerWorks.Commands
                 string[] filters = visualizers.Filters.Select(x => x.Name).ToArray();
                 string filterName = GetStringKeywordResult(filters, "Выберите фильтр");
                 HighlightFilter chosenFilter = visualizers.Filters.Where(f => f.Name == filterName).Single();
-                
+
 
                 var layerchapters = VisualizerLayerWrappers.StoredLayerStates[doc]
                                                               .Where(l => l.LayerInfo.PrimaryClassifier != null)
@@ -97,7 +95,7 @@ namespace LayerWorks.Commands
                     AllowArbitraryInput = false
                 };
                 PromptResult result = editor.GetKeywords(pko);
-                if (result.Status != PromptStatus.OK) 
+                if (result.Status != PromptStatus.OK)
                     return;
                 ApplyVisualizer(doc, result.StringResult);
                 transaction.Commit();

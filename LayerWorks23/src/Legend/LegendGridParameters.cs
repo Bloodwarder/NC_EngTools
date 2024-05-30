@@ -32,7 +32,7 @@ namespace LayerWorks.Legend
                 CellWidth = config.LegendGridParameters.CellWidth,
                 HeightInterval = config.LegendGridParameters.HeightInterval,
                 TextHeight = config.LegendGridParameters.TextHeight,
-                TextWidth = config.LegendGridParameters.TextWidth, 
+                TextWidth = config.LegendGridParameters.TextWidth,
                 WidthInterval = config.LegendGridParameters.WidthInterval
             };
             return parameters;

@@ -1,7 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LayersIO.Model;
 using LoaderCore.Utilities;
-using LayersIO.Model;
-using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 
 namespace LayersIO.Connection
 {
@@ -11,7 +10,7 @@ namespace LayersIO.Connection
         public DbSet<LayerGroupData> LayerGroupData { get; set; } = null!;
 
         private readonly string _dataSource;
-        
+
         public TestLayersDatabaseContextSqlite(string dataSource)
         {
             _dataSource = dataSource;

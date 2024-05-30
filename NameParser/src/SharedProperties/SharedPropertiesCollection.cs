@@ -1,6 +1,4 @@
-﻿using NameClassifiers.Filters;
-using System.Collections;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 
 namespace NameClassifiers.SharedProperties

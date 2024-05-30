@@ -8,8 +8,8 @@ namespace NameClassifiers.SharedProperties
     public class StatusGroup : ReferenceCollectionFilter
     {
         public StatusGroup() { }
-        
-        [XmlElement(ElementName ="DefaultValue", Type= typeof(ValueContainer))]
+
+        [XmlElement(ElementName = "DefaultValue", Type = typeof(ValueContainer))]
         public ValueContainer? DefaultValue;
     }
 }

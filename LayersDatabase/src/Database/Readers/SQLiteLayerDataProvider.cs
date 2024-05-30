@@ -1,4 +1,4 @@
-﻿using LayersIO.ExternalData;
+﻿using LoaderCore.Interfaces;
 
 namespace LayersIO.Database.Readers
 {

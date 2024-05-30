@@ -1,12 +1,11 @@
-﻿using System;
+﻿using LoaderCore.Integrity;
+using LoaderCore.Utilities;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
-using System.Xml.Linq;
 using System.Xml;
-using System.IO;
-using LoaderCore.Utilities;
-using LoaderCore.Integrity;
+using System.Xml.Linq;
 
 namespace LoaderCore.UI
 {
@@ -93,7 +92,7 @@ namespace LoaderCore.UI
         }
 
 
-    private void StartUpWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void StartUpWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value = XmlConvert.ToString((bool)chbShowOnStartUp.IsChecked);
 

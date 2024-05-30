@@ -1,8 +1,7 @@
-﻿using NameClassifiers;
-using Teigha.DatabaseServices;
-using LayersIO.DataTransfer;
+﻿using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
-using LayerWorks.LayerProcessing;
+using NameClassifiers;
+using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing
 {

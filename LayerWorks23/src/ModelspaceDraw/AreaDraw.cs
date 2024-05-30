@@ -1,11 +1,9 @@
 ﻿//System
-using System;
-using System.Collections.Generic;
 
 
 //Modules
-using LayerWorks.LayerProcessing;
 using LayersIO.DataTransfer;
+using LayerWorks.LayerProcessing;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;

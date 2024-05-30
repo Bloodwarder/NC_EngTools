@@ -1,5 +1,4 @@
-﻿using System;
-using Teigha.DatabaseServices;
+﻿using Teigha.DatabaseServices;
 
 
 namespace NanocadUtilities

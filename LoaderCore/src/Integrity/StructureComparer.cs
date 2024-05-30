@@ -53,7 +53,7 @@ namespace LoaderCore.Integrity
             {
                 //if (!IncludedModules.Contains(childElement.Attribute("Module").Value))
                 //    continue;
-                ComparedFiles compared = new                    (
+                ComparedFiles compared = new(
                     new FileInfo(Path.Combine(localPath, childElement.Attribute("Name").Value)),
                     new FileInfo(Path.Combine(sourcePath, childElement.Attribute("Name").Value)),
                     childElement.Attribute("Module").Value

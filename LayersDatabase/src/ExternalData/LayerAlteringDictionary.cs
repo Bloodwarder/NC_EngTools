@@ -1,19 +1,13 @@
-﻿using LoaderCore.Utilities;
-using LayersIO.Xml;
-using System.Diagnostics;
+﻿using LayersIO.Xml;
+using LoaderCore.Interfaces;
+using LoaderCore.Utilities;
 
 namespace LayersIO.ExternalData
 {
     public class LayerAlteringDictionary : ExternalDictionary<string, string>
     {
         const string XmlAlterName = "Layer_Alter.xml";
-
-        private static readonly LayerAlteringDictionary instance;
-        static LayerAlteringDictionary()
-        {
-            if (instance == null)
-                instance = new LayerAlteringDictionary();
-        }
+        static LayerAlteringDictionary() { }
         private LayerAlteringDictionary()
         {
             try
@@ -26,18 +20,9 @@ namespace LayersIO.ExternalData
             }
         }
 
-
-        public static bool TryGetValue(string layername, out string? success)
+        public void Reload(ILayerDataWriter<string, string> primary, ILayerDataProvider<string, string> secondary)
         {
-            return instance.TryGetInstanceValue(layername, out success);
-        }
-        public static void Reload(ILayerDataWriter<string, string> primary, ILayerDataProvider<string, string> secondary)
-        {
-            instance.ReloadInstance(primary, secondary);
-        }
-        public static bool CheckKey(string key)
-        {
-            return instance.CheckInstanceKey(key);
+            ReloadInstance(primary, secondary);
         }
     }
 }

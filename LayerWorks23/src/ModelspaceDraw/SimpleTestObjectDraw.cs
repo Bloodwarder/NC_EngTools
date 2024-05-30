@@ -1,13 +1,12 @@
 ﻿//System
-using System;
 
 //Modules
+using LayerWorks.LayerProcessing;
 using NanocadUtilities;
+using Teigha.Colors;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-using Teigha.Colors;
-using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.ModelspaceDraw
 {

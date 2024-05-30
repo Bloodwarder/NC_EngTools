@@ -1,9 +1,7 @@
-﻿using NetTopologySuite.Geometries;
-
+﻿using NanocadUtilities;
+using NetTopologySuite.Geometries;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-
-using NanocadUtilities;
 
 namespace GeoMod.GeometryExtensions
 {

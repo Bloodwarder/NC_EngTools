@@ -1,11 +1,10 @@
 ﻿
-using Teigha.DatabaseServices;
+using LayersIO.DataTransfer;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
 using NanocadUtilities;
-using LayersIO.DataTransfer;
-using LayerWorks.EntityFormatters;
-using Microsoft.Extensions.DependencyInjection;
-using NameClassifiers.SharedProperties;
+using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing
 {
@@ -52,7 +51,7 @@ namespace LayerWorks.LayerProcessing
         {
             var transaction = Workstation.TransactionManager.TopTransaction;
             IStandardReader<LayerProps> reader = LayerWorksServiceProvider.GetService<IStandardReader<LayerProps>>()!;
-            _ = reader.TryGetStandard(LayerInfo, out var standard);
+            _ = reader.TryGetStandard(LayerInfo.TrueName, out var standard);
             StatedLayerProps layerProps = standard?.ToStatedLayerProps() ?? new();
 
             layerProps.LineTypeName = ((LinetypeTableRecord)transaction.GetObject(BoundLayer.LinetypeObjectId, OpenMode.ForRead)).Name;
@@ -74,7 +73,7 @@ namespace LayerWorks.LayerProcessing
                 BoundLayer.Color = layerProps.GetColor() ?? BoundLayer.Color;
                 BoundLayer.LinetypeObjectId = lttrId;
                 BoundLayer.LineWeight = (LineWeight)(layerProps.LineWeight ?? -3);
-                if(layerProps is StatedLayerProps statedLayerProps)
+                if (layerProps is StatedLayerProps statedLayerProps)
                 {
                     BoundLayer.IsOff = statedLayerProps.IsOff ?? BoundLayer.IsOff;
                     BoundLayer.IsFrozen = statedLayerProps.IsFrozen ?? BoundLayer.IsFrozen;
