@@ -1,19 +1,24 @@
-﻿using LayersIO.ExternalData;
+﻿using LayersIO.DataTransfer;
+using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
+using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace LoaderCore.Interfaces
 {
     internal class InMemoryLayerAlterReader : IStandardReader<string>
     {
+        private static LayerAlteringDictionary _provider = LoaderExtension.ServiceProvider.GetService<LayerAlteringDictionary>();
+
         public string GetStandard(string layerName)
         {
-            _ = LayerAlteringDictionary.TryGetValue(layerName, out var props);
+            _ = _provider.TryGetValue(layerName, out var props);
             return props ?? throw new NoPropertiesException("");
         }
 
-        public bool TryGetStandard(string layerName, out string? standard)
+        public bool TryGetStandard([MaybeNullWhen(false)]string layerName, out string? standard)
         {
-            bool success = LayerAlteringDictionary.TryGetValue(layerName, out standard);
+            bool success = _provider.TryGetValue(layerName, out standard);
             return success;
         }
     }

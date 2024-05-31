@@ -2,6 +2,12 @@
 {
     public class LayerGroupData
     {
+        public LayerGroupData() { }
+
+        public LayerGroupData(string mainName)
+        {
+            MainName = mainName;
+        }
 
         public int Id { get; set; }
 

@@ -23,6 +23,7 @@ namespace LoaderCore
         const string StartUpConfigName = "StartUpConfig.xml";
         private static readonly ServiceCollection _serviceCollection = new();
         private static bool _serviceProviderBuilt = false;
+        private static ServiceProvider serviceProvider = null!;
 
         // Поиск обновлений и настройка загрузки и обновления сборок
         static LoaderExtension()
@@ -31,8 +32,18 @@ namespace LoaderCore
             IEnumerable<FileInfo>? files = SearchDirectoryForDlls(dir!);
             LibraryFiles = SearchDirectoryForDlls(dir!)?.ToDictionary(f => f.Name, f => f.FullName);
         }
-        public static ServiceProvider ServiceProvider { get; private set; }
-        public static ServiceCollection Services => !_serviceProviderBuilt ? _serviceCollection : throw new InvalidOperationException("Провайдер сервисов уже построен");
+        public static ServiceProvider ServiceProvider
+        {
+            get => _serviceProviderBuilt ? serviceProvider : throw new InvalidOperationException("Провайдер сервисов ещё не построен");
+            private set
+            {
+                serviceProvider = value;
+                _serviceProviderBuilt = true;
+            }
+        }
+        public static ServiceCollection Services => !_serviceProviderBuilt ?
+                                                        _serviceCollection :
+                                                        throw new InvalidOperationException("Провайдер сервисов уже построен");
         private static Dictionary<string, string>? LibraryFiles { get; }
 
         public static void Initialize()
@@ -84,7 +95,6 @@ namespace LoaderCore
             Logger.WriteLog = null;
 
             ServiceProvider = Services.BuildServiceProvider();
-            _serviceProviderBuilt = true;
         }
 
         public static void InitializeAsLibrary()

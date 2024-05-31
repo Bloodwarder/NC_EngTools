@@ -1,6 +1,8 @@
-﻿using LayersIO.DataTransfer;
-using LayersIO.ExternalData;
+﻿using LayersIO.ExternalData;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
+using NPOI.SS.Formula.Functions;
 using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing
@@ -10,6 +12,12 @@ namespace LayerWorks.LayerProcessing
     /// </summary>
     public class EntityLayerWrapper : LayerWrapper
     {
+        private static readonly IEntityFormatter _entityFormatter;
+
+        static EntityLayerWrapper()
+        {
+            _entityFormatter = LoaderCore.LoaderExtension.ServiceProvider.GetService<IEntityFormatter>()!;
+        }
         internal EntityLayerWrapper(string layername) : base(layername)
         {
             ActiveLayerWrappers.Add(this);
@@ -25,22 +33,17 @@ namespace LayerWorks.LayerProcessing
         /// <summary>
         /// Коллекция связанных объектов чертежа
         /// </summary>
-        public List<Entity> BoundEntities = new List<Entity>();
+        public List<Entity> BoundEntities = new();
         /// <summary>
         /// Назначение выходного слоя и соответствующих ему свойств связанным объектам чертежа
         /// </summary>
         public override void Push()
         {
             LayerChecker.Check(this);
-            bool success = LayerPropertiesDictionary.TryGetValue(LayerInfo.Name, out LayerProps? lp);
             foreach (Entity ent in BoundEntities)
             {
                 ent.Layer = LayerInfo.Name;
-                if (ent is Polyline pl && success)
-                {
-                    pl.LinetypeScale = lp?.LTScale ?? pl.LinetypeScale;
-                    pl.ConstantWidth = lp?.ConstantWidth ?? pl.ConstantWidth;
-                }
+                _entityFormatter.FormatEntity(ent, LayerInfo.TrueName);
             }
         }
     }

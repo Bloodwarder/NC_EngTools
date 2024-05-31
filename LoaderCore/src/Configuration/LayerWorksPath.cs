@@ -2,7 +2,7 @@
 {
     public class LayerWorksPath
     {
-        readonly PathRoute Route;
-        readonly string? Path;
+        public readonly PathRoute Route;
+        public readonly string? Path;
     }
 }

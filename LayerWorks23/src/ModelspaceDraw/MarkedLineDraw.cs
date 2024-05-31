@@ -45,7 +45,7 @@ namespace LayerWorks.ModelspaceDraw
             {
                 Contents = MarkChar,
                 TextStyleId = txtstyletable!["Standard"],
-                TextHeight = 4d, // TODO: ПОМЕНЯТЬ НА ЗНАЧЕНИЕ ИЗ КОНФИГУРАЦИИ
+                TextHeight = LoaderCore.Configuration.Configuration.LayerWorks?.LegendGridParameters?.TextHeight ?? 6d,
                 Layer = Layer.BoundLayer.Name,
                 Color = s_byLayer,
             };

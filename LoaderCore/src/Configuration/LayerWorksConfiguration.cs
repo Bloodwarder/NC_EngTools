@@ -4,8 +4,8 @@ namespace LoaderCore.Configuration
 {
     public class LayerWorksConfiguration
     {
-        List<LayerWorksPath> NameParserPaths;
-        List<LayerWorksPath> LayerStandardPaths;
+        public static List<LayerWorksPath> NameParserPaths;
+        public static List<LayerWorksPath> LayerStandardPaths;
         public LegendGridParameters? LegendGridParameters { get; set; }
     }
 }
