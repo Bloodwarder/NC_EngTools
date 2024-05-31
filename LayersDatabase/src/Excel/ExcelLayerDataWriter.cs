@@ -49,7 +49,7 @@ namespace LayersIO.Excel
 
         public void OverwriteItem(Dictionary<TKey, TValue> dictionary)
         {
-            throw new NotImplementedException("Запись одного значения в xml пока не реализовывалась");
+            throw new NotImplementedException("Запись одного значения в Excel пока не реализовывалась");
         }
     }
 }

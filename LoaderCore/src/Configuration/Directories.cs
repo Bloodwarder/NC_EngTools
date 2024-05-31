@@ -2,7 +2,7 @@
 {
     public class Directories
     {
-        internal string LocalDirectory { get; set; }
-        internal string UpdateDirectory { get; set; }
+        public string LocalDirectory { get; set; }
+        public string UpdateDirectory { get; set; }
     }
 }
