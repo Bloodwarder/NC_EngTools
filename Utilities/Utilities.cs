@@ -264,6 +264,32 @@ namespace Utilities
                 // Пока работает только на целиком отформатированный текст
             }
         }
+
+        /// <summary>
+        /// Назначает тексту нулевую ширину для удобства автоматической обработки выравнивания и фона
+        /// </summary>
+        [CommandMethod("НУЛЕВАЯШИРИНАТЕКСТА")]
+        public static void AssignZeroWidth()
+        {
+            Workstation.Define();
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            {
+                PromptSelectionOptions pso = new PromptSelectionOptions()
+                { };
+                PromptSelectionResult result = Workstation.Editor.GetSelection(pso);
+                if (result.Status != PromptStatus.OK)
+                    return;
+                var texts = from ObjectId id in result.Value.GetObjectIds()
+                            let entity = transaction.GetObject(id, OpenMode.ForWrite) as Entity
+                            where entity is MText
+                            select entity as MText;
+                foreach (var text in texts)
+                {
+                    text.Width = 0d;
+                }
+                transaction.Commit();
+            }
+        }
     }
 
     public class EntityPointPolylineTracer
