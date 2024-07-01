@@ -75,7 +75,7 @@ namespace GeoMod
             string fromClipboard = System.Windows.Clipboard.GetText();
 
             // отфильтровать текст, описывающий wkt геометрию
-            string[] matches = Regex.Matches(fromClipboard, @"[a-zA-Z]*\s?\(.*\)").Select(m => m.Value).ToArray();
+            string[] matches = Regex.Matches(fromClipboard, @"[a-zA-Z]*\s?\([^A-Za-zА-Яа-я]*\)").Select(m => m.Value).ToArray();
             WKTReader reader = new(_geometryServices);
 
             // создать геометрию, преобразовать в объекты dwg и поместить в модель
