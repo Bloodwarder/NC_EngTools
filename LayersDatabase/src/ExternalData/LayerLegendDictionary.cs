@@ -2,6 +2,7 @@
 using LayersIO.Xml;
 using LoaderCore.Interfaces;
 using LoaderCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LayersIO.ExternalData
 {
@@ -14,7 +15,8 @@ namespace LayersIO.ExternalData
         {
             try
             {
-                InstanceDictionary = new XmlLayerDataProvider<string, LegendData>(PathProvider.GetPath(XmlLegendName)).GetData();
+                var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LegendData>>();
+                InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlLegendName)).GetData();
             }
             catch (FileNotFoundException)
             {

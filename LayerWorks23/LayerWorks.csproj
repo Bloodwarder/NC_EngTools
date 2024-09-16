@@ -77,4 +77,13 @@
 		</None>
 	</ItemGroup>
 
+	<Target Name="CopyUserData" AfterTargets="Build">
+		<ItemGroup>
+			<UserData Include="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\LayersData\*.*"/>
+		</ItemGroup>
+		<Move SourceFiles="@(UserData)" DestinationFolder="..\NC_EngTools\bin\$(Configuration)\UserData"/>
+		<RemoveDir Directories="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\LayersData"/>
+	</Target>
+	
+	
 </Project>

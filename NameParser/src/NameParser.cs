@@ -34,14 +34,17 @@ namespace NameClassifiers
             // Инициализация пути к файлу с данными парсера
             _xmlPath = xmlPath;
             XDocument xDocument = XDocument.Load(xmlPath);
+
             // Инициализация сепаратора
             XElement separator = xDocument.Root!.Element("Separator") ?? throw new NameParserInitializeException("Отсутствует разделитель");
             Separator = separator.Attribute("Value")!.Value;
+
             // Проверка наличия элемента с классификаторами
             XElement classifiers = xDocument.Root!.Element("Classifiers") ?? throw new NameParserInitializeException("Ошибка инициализации. Отсутствуют классификаторы");
             ParserSection? prevSection = null;
             if (!classifiers.HasElements)
                 throw new NameParserInitializeException("Ошибка инициализации. Отсутствуют классификаторы");
+
             // Создание цепочки секций парсера для последовательной обработки строк при парсинге строк в LayerInfo и обратной конвертации
             foreach (var classifier in classifiers.Elements())
             {
@@ -175,6 +178,15 @@ namespace NameClassifiers
             return (T)section;
         }
 
+
+        public void ExtractSectionInfo<T>(out string[] keywords, out Func<string, string> descriptions) where T : ParserSection
+        {
+            GetSection<T>().ExtractFullInfo(out keywords, out descriptions);
+        }
+        public void ExtractSectionInfo<T>(string name, out string[] keywords, out Func<string, string> descriptions) where T : NamedParserSection
+        {
+            GetSection<T>(name).ExtractFullInfo(out keywords, out descriptions);
+        }
 
         public string[] GetStatusArray() => Status.GetDescriptionDictionary().Keys.ToArray();
 

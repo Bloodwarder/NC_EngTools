@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LayersIO.Database
 {
-    public class SQLiteDataProviderFactory<TKey, TValue> where TKey : notnull
+    public class SQLiteDataProviderFactory<TKey, TValue> : IDataProviderFactory<TKey,TValue> where TKey : notnull
     {
         private Func<string, ILayerDataProvider<TKey, TValue>> _providerFactioryMethod =
             LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<Func<string, ILayerDataProvider<TKey, TValue>>>();

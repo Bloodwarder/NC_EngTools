@@ -21,6 +21,6 @@ namespace NameClassifiers.Sections
         internal abstract void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType);
         internal abstract bool ValidateString(string str);
         internal abstract void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptions);
-
+        internal abstract void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions);
     }
 }

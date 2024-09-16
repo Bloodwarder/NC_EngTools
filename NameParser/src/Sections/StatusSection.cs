@@ -51,5 +51,11 @@ namespace NameClassifiers.Sections
             keywords = statuses.ToArray();
             descriptions = s => _descriptionDict[s];
         }
+
+        internal override void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions)
+        {
+            keywords = _descriptionDict.Keys.ToArray();
+            descriptions = s => _descriptionDict[s];
+        }
     }
 }

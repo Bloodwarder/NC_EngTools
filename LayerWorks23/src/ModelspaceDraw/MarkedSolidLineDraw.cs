@@ -4,6 +4,8 @@
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using NanocadUtilities;
 //nanoCAD
 using Teigha.DatabaseServices;
@@ -29,10 +31,8 @@ namespace LayerWorks.ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-
-                bool success = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps? lp, true);
-                if (success)
-                    line.ConstantWidth = lp?.ConstantWidth ?? default;
+                var formatter = LoaderCore.LoaderExtension.ServiceProvider.GetService<IEntityFormatter>();
+                formatter?.FormatEntity(line, Layer.LayerInfo.TrueName);
                 line.LinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
             }
         }

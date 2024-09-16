@@ -6,6 +6,7 @@ using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using Teigha.Runtime;
+using LayersIO.Xml;
 using LayersIO.Database;
 using LayersIO.Database.Readers;
 
@@ -43,6 +44,17 @@ namespace LayerWorks
             LoaderExtension.Services.AddTransient<SQLiteDataProviderFactory<string, LegendDrawTemplate>>();
             LoaderExtension.Services.AddTransient<SQLiteDataProviderFactory<string, string?>>();
             LoaderExtension.Services.AddTransient<SQLiteLayerDataContextFactory>();
+
+            LoaderExtension.Services.AddTransient<IDataProviderFactory<string, LayerProps>, SQLiteDataProviderFactory<string, LayerProps>>();
+            LoaderExtension.Services.AddTransient<IDataProviderFactory<string, LegendData>, SQLiteDataProviderFactory<string, LegendData>>();
+            LoaderExtension.Services.AddTransient<IDataProviderFactory<string, LegendDrawTemplate>, SQLiteDataProviderFactory<string, LegendDrawTemplate>>();
+            LoaderExtension.Services.AddTransient<IDataProviderFactory<string, string>, SQLiteDataProviderFactory<string, string>>();
+
+            LoaderExtension.Services.AddTransient<IDataWriterFactory<string, LayerProps>, XmlDataWriterFactory<string, LayerProps>>();
+            LoaderExtension.Services.AddTransient<IDataWriterFactory<string, LegendData>, XmlDataWriterFactory<string, LegendData>>();
+            LoaderExtension.Services.AddTransient<IDataWriterFactory<string, LegendDrawTemplate>, XmlDataWriterFactory<string, LegendDrawTemplate>>();
+            LoaderExtension.Services.AddTransient<IDataWriterFactory<string, string>, XmlDataWriterFactory<string, string>>();
+
 
             LoaderExtension.Services.AddSingleton<IEntityFormatter, StandardEntityFormatter>();
         }

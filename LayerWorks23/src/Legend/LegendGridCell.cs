@@ -2,6 +2,8 @@
 using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.ModelspaceDraw;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
@@ -17,7 +19,8 @@ namespace LayerWorks.Legend
         {
             Layer = layer;
 
-            bool success = LayerLegendDrawDictionary.TryGetValue(layer.LayerInfo.TrueName, out LegendDrawTemplate? ldt);
+            var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IStandardReader<LegendDrawTemplate>>();
+            bool success = service.TryGetStandard(layer.LayerInfo.TrueName, out LegendDrawTemplate? ldt);
             if (success)
                 _template = ldt;
             else

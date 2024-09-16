@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using LoaderCore.Interfaces;
+using System.Xml.Serialization;
 
 namespace LayersIO.Xml
 {

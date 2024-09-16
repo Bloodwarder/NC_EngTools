@@ -70,5 +70,11 @@ namespace NameClassifiers.Sections
             keywords = data.ToArray();
             descriptionFunc = s => s ?? $"{Description} отсутствует";
         }
+
+        internal override void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions)
+        {
+            keywords = new[] { Name };
+            descriptions = s => Description;
+        }
     }
 }

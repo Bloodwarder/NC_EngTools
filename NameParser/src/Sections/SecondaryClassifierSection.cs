@@ -46,5 +46,11 @@ namespace NameClassifiers.Sections
         {
             throw new NotImplementedException("Вторичный классификатор не используется в этом контексте");
         }
+
+        internal override void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions)
+        {
+            keywords = Array.Empty<string>();
+            descriptions = s => string.Empty;            
+        }
     }
 }
