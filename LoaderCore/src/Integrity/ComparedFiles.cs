@@ -2,6 +2,7 @@
 
 namespace LoaderCore.Integrity
 {
+    // TODO: Создать систему поиска и обновления сборок
     internal struct ComparedFiles
     {
         internal FileInfo LocalFile;

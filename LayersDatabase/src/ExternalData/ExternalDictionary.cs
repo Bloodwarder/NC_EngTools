@@ -6,8 +6,6 @@ namespace LayersIO.ExternalData
 {
     public abstract class ExternalDictionary<TKey, TValue> : IDictionary<TKey,TValue> where TKey : notnull
     {
-
-
         private protected Dictionary<TKey, TValue> InstanceDictionary { get; set; }
 
         public ICollection<TKey> Keys => ((IDictionary<TKey, TValue>)InstanceDictionary).Keys;

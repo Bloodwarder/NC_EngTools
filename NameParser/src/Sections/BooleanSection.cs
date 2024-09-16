@@ -58,5 +58,12 @@ namespace NameClassifiers.Sections
             keywords = values.Select(b => b ? _description : _falseDescription).ToArray();
             descriptionFunc = s => s;
         }
+
+        internal override void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions)
+        {
+            keywords = new[] { Name };
+            descriptions = s => _description;
+
+        }
     }
 }

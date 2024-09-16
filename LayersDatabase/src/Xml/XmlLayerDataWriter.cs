@@ -23,7 +23,7 @@ namespace LayersIO.Xml
             }
         }
 
-        public void OverwriteItem(Dictionary<TKey, TValue> dictionary)
+        public void OverwriteItem(TKey key, TValue item)
         {
             throw new NotImplementedException();
         }

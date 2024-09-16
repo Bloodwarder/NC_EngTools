@@ -29,9 +29,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="Data\LayerParserTemplate.xml">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
+		<None Update="Data\LayerParser_ИС.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
+
+	<!--Переместить базовый парсер-->
+	<Target Name="CopyUserData" AfterTargets="Build">
+		<ItemGroup>
+			<UserData Include="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Data\LayerParser_ИС.xml"/>
+		</ItemGroup>
+		<Move SourceFiles="@(UserData)" DestinationFolder="..\NC_EngTools\bin\$(Configuration)\UserData"/>
+		<RemoveDir Directories="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Data"/>
+	</Target>
 
 </Project>

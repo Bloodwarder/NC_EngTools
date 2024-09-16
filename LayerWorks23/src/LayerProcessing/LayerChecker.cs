@@ -28,7 +28,9 @@ namespace LayerWorks.LayerProcessing
                     LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
                     if (!lt!.Has(layername))
                     {
-                        bool propsgetsuccess = LayerPropertiesDictionary.TryGetValue(layername, out LayerProps? lp);
+                        var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
+                        bool propsgetsuccess = service.TryGetStandard(layername, out LayerProps? lp);
+
                         LayerTableRecord ltRecord = AddLayer(layername, lp);
 
                         //Process new layer if isolated chapter visualization is active
@@ -38,6 +40,7 @@ namespace LayerWorks.LayerProcessing
                     }
                     else
                     {
+                        transaction.Commit();
                         return;
                     }
                 }
@@ -57,7 +60,7 @@ namespace LayerWorks.LayerProcessing
                     LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
                     if (!lt!.Has(layer.LayerInfo.Name))
                     {
-                        var standardService = LayerWorksServiceProvider.GetService<IStandardReader<LayerProps>>()!;
+                        var standardService = LoaderCore.LoaderExtension.ServiceProvider.GetService<IStandardReader<LayerProps>>()!;
                         bool propsgetsuccess = standardService.TryGetStandard(layer.LayerInfo.TrueName, out LayerProps? props);
                         LayerTableRecord ltRecord = AddLayer(layer.LayerInfo.Name, props);
 

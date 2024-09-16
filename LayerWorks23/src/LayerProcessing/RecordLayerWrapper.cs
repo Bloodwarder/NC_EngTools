@@ -39,7 +39,7 @@ namespace LayerWorks.LayerProcessing
         /// <exception cref="NotImplementedException">Метод не реализован (пока не понадобился)</exception>
         public override void Push()
         {
-            var standardReader = LayerWorksServiceProvider.GetService<IStandardReader<LayerProps>>();
+            var standardReader = LoaderCore.LoaderExtension.ServiceProvider.GetService<IStandardReader<LayerProps>>();
             bool success = standardReader!.TryGetStandard(LayerInfo.TrueName, out var props);
             if (!success)
                 throw new NoPropertiesException($"Отсутствует стандарт для слоя {BoundLayer.Name}");
@@ -50,7 +50,7 @@ namespace LayerWorks.LayerProcessing
         internal StatedLayerProps ReadLayerProps()
         {
             var transaction = Workstation.TransactionManager.TopTransaction;
-            IStandardReader<LayerProps> reader = LayerWorksServiceProvider.GetService<IStandardReader<LayerProps>>()!;
+            IStandardReader<LayerProps> reader = LoaderCore.LoaderExtension.ServiceProvider.GetService<IStandardReader<LayerProps>>()!;
             _ = reader.TryGetStandard(LayerInfo.TrueName, out var standard);
             StatedLayerProps layerProps = standard?.ToStatedLayerProps() ?? new();
 

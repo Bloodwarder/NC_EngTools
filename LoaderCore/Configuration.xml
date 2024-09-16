@@ -5,13 +5,15 @@
 		<UpdateDirectory></UpdateDirectory>
 	</Directories>
 	<LayerWorksConfiguration>
+		<Enabled>True</Enabled>
+		<UpdateEnabled>True</UpdateEnabled>
 		<NameParserPaths>
-			<LayerWorksPath Type="Shared"></LayerWorksPath>
+			<LayerWorksPath Type="Shared">\\COMP010\Data\364\пыщь\ncet_shared_files</LayerWorksPath>
 			<LayerWorksPath Type="Local"></LayerWorksPath>
 			<LayerWorksPath Type="Overrides"></LayerWorksPath>
 		</NameParserPaths>
 		<LayerStandardPaths>
-			<LayerWorksPath Type="Shared"></LayerWorksPath>
+			<LayerWorksPath Type="Shared">\\COMP010\Data\364\пыщь\ncet_shared_files</LayerWorksPath>
 			<LayerWorksPath Type="Local"></LayerWorksPath>
 			<LayerWorksPath Type="Overrides"></LayerWorksPath>
 		</LayerStandardPaths>
@@ -25,6 +27,8 @@
 		</LegendGridParameters>
 	</LayerWorksConfiguration>
 	<GeoModConfiguration>
+		<Enabled>True</Enabled>
+		<UpdateEnabled>True</UpdateEnabled>
 		<BufferParameters>
 			<EndCapStyle>1</EndCapStyle>
 			<JoinStyle>1</JoinStyle>
@@ -34,6 +38,8 @@
 		</BufferParameters>
 	</GeoModConfiguration>
 	<UtilitiesConfiguration>
+		<Enabled>True</Enabled>
+		<UpdateEnabled>True</UpdateEnabled>
 		<DefaultLabelTextHeight>3.6</DefaultLabelTextHeight>;
 		<DefaultLabelBackgroundScaleFactor>1.1</DefaultLabelBackgroundScaleFactor>
 		<Vertical>

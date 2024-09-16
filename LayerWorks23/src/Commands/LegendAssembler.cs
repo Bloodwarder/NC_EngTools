@@ -1,9 +1,12 @@
 ﻿//System
 //nanoCAD
 using HostMgd.EditorInput;
+using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
 using NanocadUtilities;
 using System.Text;
@@ -70,7 +73,8 @@ namespace LayerWorks.Commands
                     try
                     {
                         RecordLayerWrapper rlp = new(ltr);
-                        if (!LayerLegendDictionary.CheckKey(rlp.LayerInfo.MainName))
+                        var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IDictionary<string, LegendData>>();
+                        if (!service.ContainsKey(rlp.LayerInfo.MainName))
                         {
                             wrongLayersStringBuilder.AppendLine($"Нет данных для слоя "
                                                                 + $"{rlp.LayerInfo.Prefix}"

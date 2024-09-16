@@ -79,7 +79,7 @@ namespace GeoMod
             WKTReader reader = new(_geometryServices);
 
             // создать геометрию, преобразовать в объекты dwg и поместить в модель
-            Geometry[] geometries = matches.Select(m => reader.Read(m)).ToArray();
+            Geometry[] geometries = matches.Select(m => reader.Read(m)).ToArray();  // TODO: обработать ошибки на случай, если некорректна€ строка всЄ же проскочит через регул€рку
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 BlockTable? blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
@@ -335,7 +335,7 @@ namespace GeoMod
             NtsGeometryServices.Instance = new NtsGeometryServices( // default CoordinateSequenceFactory
                                                         NetTopologySuite.Geometries.Implementation.CoordinateArraySequenceFactory.Instance,
                                                         // default precision model
-                                                        new PrecisionModel(1000d),
+                                                        new PrecisionModel(100d),
                                                         // default SRID
                                                         -1,
                                                         // Geometry overlay operation function set to use (Legacy or NG)

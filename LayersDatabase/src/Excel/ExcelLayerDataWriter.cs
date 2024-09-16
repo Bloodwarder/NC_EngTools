@@ -47,9 +47,9 @@ namespace LayersIO.Excel
         }
         abstract private protected void CellsImport(IWorkbook xlwb, Dictionary<TKey, TValue> importeddictionary);
 
-        public void OverwriteItem(Dictionary<TKey, TValue> dictionary)
+        public void OverwriteItem(TKey key, TValue item)
         {
-            throw new NotImplementedException("Запись одного значения в Excel пока не реализовывалась");
+            throw new NotImplementedException();
         }
     }
 }

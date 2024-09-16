@@ -1,5 +1,7 @@
 ﻿using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
 using NanocadUtilities;
 using Teigha.DatabaseServices;
@@ -34,7 +36,9 @@ namespace LayerWorks.LayerProcessing
             LayerChecker.Check(this);
             LayerTable? lt = tm.TopTransaction.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
             db.Clayer = lt![LayerInfo.Name];
-            bool success = LayerPropertiesDictionary.TryGetValue(LayerInfo.Name, out LayerProps? lp);
+
+            var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
+            bool success = service.TryGetStandard(LayerInfo.Name, out LayerProps? lp);
             if (success)
             {
                 db.Celtscale = lp?.LTScale ?? default;

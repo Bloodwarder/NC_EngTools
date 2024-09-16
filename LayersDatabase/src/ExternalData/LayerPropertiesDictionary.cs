@@ -1,7 +1,7 @@
 ﻿using LayersIO.DataTransfer;
-using LayersIO.Xml;
 using LoaderCore.Interfaces;
 using LoaderCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 
 namespace LayersIO.ExternalData
@@ -10,19 +10,14 @@ namespace LayersIO.ExternalData
     {
         const string XmlPropsName = "Layer_Props.xml";
 
-        private static LayerPropertiesDictionary instance { get; set; }
         private readonly Dictionary<string, LayerProps> defaultLayerProps = new Dictionary<string, LayerProps>();
-        static LayerPropertiesDictionary()
-        {
-            if (instance == null)
-                instance = new LayerPropertiesDictionary();
-        }
 
         internal LayerPropertiesDictionary()
         {
             try
             {
-                InstanceDictionary = new XmlLayerDataProvider<string, LayerProps>(PathProvider.GetPath(XmlPropsName)).GetData();
+                var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LayerProps>>();
+                InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlPropsName)).GetData();
 
                 defaultLayerProps.Add("сущ", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 });
                 defaultLayerProps.Add("дем", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3, Red = 107, Green = 107, Blue = 107 });

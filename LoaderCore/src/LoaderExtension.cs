@@ -1,16 +1,20 @@
-﻿using HostMgd.ApplicationServices;
-using LoaderCore.Integrity;
-using LoaderCore.UI;
-using LoaderCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
+
+using Microsoft.Extensions.DependencyInjection;
+
+using HostMgd.ApplicationServices;
 using Teigha.Runtime;
+
+using LoaderCore.Integrity;
+using LoaderCore.UI;
+using LoaderCore.Utilities;
+using Microsoft.Extensions.Configuration;
 
 namespace LoaderCore
 {
@@ -19,11 +23,13 @@ namespace LoaderCore
     /// </summary>
     public static class LoaderExtension
     {
+        // TODO: Переработать окно автозапуска и конфигурации 
         const string StructureXmlName = "Structure.xml";
         const string StartUpConfigName = "StartUpConfig.xml";
-        private static readonly ServiceCollection _serviceCollection = new();
+        private const string ConfigurationXmlFileName = "Configuration.xml";
+        private static readonly IServiceCollection _serviceCollection = new ServiceCollection();
         private static bool _serviceProviderBuilt = false;
-        private static ServiceProvider serviceProvider = null!;
+        private static IServiceProvider serviceProvider = null!;
 
         // Поиск обновлений и настройка загрузки и обновления сборок
         static LoaderExtension()
@@ -32,7 +38,7 @@ namespace LoaderCore
             IEnumerable<FileInfo>? files = SearchDirectoryForDlls(dir!);
             LibraryFiles = SearchDirectoryForDlls(dir!)?.ToDictionary(f => f.Name, f => f.FullName);
         }
-        public static ServiceProvider ServiceProvider
+        public static IServiceProvider ServiceProvider
         {
             get => _serviceProviderBuilt ? serviceProvider : throw new InvalidOperationException("Провайдер сервисов ещё не построен");
             private set
@@ -41,7 +47,7 @@ namespace LoaderCore
                 _serviceProviderBuilt = true;
             }
         }
-        public static ServiceCollection Services => !_serviceProviderBuilt ?
+        public static IServiceCollection Services => !_serviceProviderBuilt ?
                                                         _serviceCollection :
                                                         throw new InvalidOperationException("Провайдер сервисов уже построен");
         private static Dictionary<string, string>? LibraryFiles { get; }
@@ -50,8 +56,7 @@ namespace LoaderCore
         {
             Logger.WriteLog += Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage;
 
-
-
+            
             List<ComparedFiles> files = InitializeFileStructure();
 
             // Читаем конфигурацию на предмет необходимости отображения стартового окна и отображаем его
@@ -93,6 +98,9 @@ namespace LoaderCore
                 Logger.WriteLog.Invoke($"Сборка {assembly.Name} загружена");
             }
             Logger.WriteLog = null;
+
+            IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+            configurationBuilder.AddXmlFile(PathProvider.GetPath(ConfigurationXmlFileName));
 
             ServiceProvider = Services.BuildServiceProvider();
         }
