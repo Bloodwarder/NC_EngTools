@@ -29,6 +29,7 @@
 	<GeoModConfiguration>
 		<Enabled>True</Enabled>
 		<UpdateEnabled>True</UpdateEnabled>
+		<Precision>100</Precision>
 		<BufferParameters>
 			<EndCapStyle>1</EndCapStyle>
 			<JoinStyle>1</JoinStyle>

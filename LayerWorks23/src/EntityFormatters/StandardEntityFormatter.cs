@@ -2,6 +2,7 @@
 using LoaderCore.Interfaces;
 using LoaderCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NameClassifiers;
 using Teigha.DatabaseServices;
 
@@ -10,6 +11,7 @@ namespace LayerWorks.EntityFormatters
     public class StandardEntityFormatter : IEntityFormatter
     {
         private static IStandardReader<LayerProps> _standardReader = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
+        private static ILogger? _logger = LoaderCore.LoaderExtension.ServiceProvider.GetService<ILogger>();
         public void FormatEntity(Entity entity)
         {
             string layerName = entity.Layer;
@@ -23,7 +25,7 @@ namespace LayerWorks.EntityFormatters
             bool success = _standardReader.TryGetStandard(key, out LayerProps? props);
             if (!success)
             {
-                Logger.WriteLog?.Invoke($"Не удалось форматировать объект чертежа {entity}"); // UNDONE : Проверить что выводит. Создать корректное сообщение об ошибке
+                _logger?.LogWarning($"Не удалось форматировать объект чертежа {entity}"); // UNDONE : Проверить что выводит. Создать корректное сообщение об ошибке
                 return;
             }
             entity.LinetypeScale = props?.LTScale ?? entity.LinetypeScale;
@@ -33,7 +35,7 @@ namespace LayerWorks.EntityFormatters
                     polyline.ConstantWidth = props?.ConstantWidth ?? polyline.ConstantWidth;
                     break;
                 case Hatch hatch:
-                    Logger.WriteLog?.Invoke($"Форматирование штриховок не реализовано"); // UNDONE : Реализовать форматирование штриховок
+                    _logger?.LogWarning($"Форматирование штриховок не реализовано"); // UNDONE : Реализовать форматирование штриховок
                     break;
             }
         }

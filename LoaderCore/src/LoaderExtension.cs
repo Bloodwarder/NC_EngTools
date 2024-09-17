@@ -15,6 +15,7 @@ using LoaderCore.Integrity;
 using LoaderCore.UI;
 using LoaderCore.Utilities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace LoaderCore
 {
@@ -54,9 +55,9 @@ namespace LoaderCore
 
         public static void Initialize()
         {
-            Logger.WriteLog += Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage;
+            LoggingRouter.WriteLog += Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage;
 
-            
+
             List<ComparedFiles> files = InitializeFileStructure();
 
             // Читаем конфигурацию на предмет необходимости отображения стартового окна и отображаем его
@@ -95,12 +96,16 @@ namespace LoaderCore
             foreach (FileInfo assembly in loadingAssemblies)
             {
                 Assembly.LoadFrom(assembly.FullName);
-                Logger.WriteLog.Invoke($"Сборка {assembly.Name} загружена");
+                LoggingRouter.WriteLog.Invoke($"Сборка {assembly.Name} загружена");
             }
-            Logger.WriteLog = null;
+            LoggingRouter.WriteLog = null;
 
             IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
             configurationBuilder.AddXmlFile(PathProvider.GetPath(ConfigurationXmlFileName));
+            IConfiguration config = configurationBuilder.Build();
+
+            Services.AddSingleton(config)
+                    .AddSingleton<ILogger, NcetSimpleLogger>();
 
             ServiceProvider = Services.BuildServiceProvider();
         }
@@ -109,6 +114,15 @@ namespace LoaderCore
         {
             _ = InitializeFileStructure(false);
             AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
+
+            IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+            configurationBuilder.AddXmlFile(PathProvider.GetPath(ConfigurationXmlFileName));
+            IConfiguration config = configurationBuilder.Build();
+
+            Services.AddSingleton(config)
+                    .AddSingleton<ILogger, NcetSimpleLogger>();
+
+            ServiceProvider = Services.BuildServiceProvider();
         }
 
         private static List<ComparedFiles> InitializeFileStructure(bool preUpdate = true)
