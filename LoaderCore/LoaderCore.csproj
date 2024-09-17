@@ -38,6 +38,9 @@
 		</Reference>
 	</ItemGroup>
 	<ItemGroup>
+		<None Update="Configuration.xml">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 		<None Update="StartUpConfig.xml">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>

@@ -12,7 +12,7 @@
 	</PropertyGroup>
 	
 	<PropertyGroup>
-		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\</OutputPath>
+		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Utilities</OutputPath>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -33,9 +33,11 @@
 	<ItemGroup>
 		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
 			<PrivateAssets>All</PrivateAssets>
+			<Private>False</Private>
 		</ProjectReference>
 		<ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj">
 			<PrivateAssets>All</PrivateAssets>
+			<Private>False</Private>
 		</ProjectReference>
 	</ItemGroup>
 </Project>

@@ -20,7 +20,7 @@
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
 		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
-		<OutputPath>$(RootOutputPath)\</OutputPath>
+		<OutputPath>$(RootOutputPath)\ExtensionLibraries\LayerWorks</OutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>

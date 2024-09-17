@@ -20,7 +20,7 @@
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
 		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
-		<OutputPath>$(RootOutputPath)\ExtensionLibraries</OutputPath>
+		<OutputPath>$(RootOutputPath)\ExtensionLibraries\LayerWorks</OutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -33,15 +33,19 @@
 	<ItemGroup>
 		<ProjectReference Include="..\LayersDatabase\LayersIO.csproj">
 			<PrivateAssets>All</PrivateAssets>
+			<Private>False</Private>
 		</ProjectReference>
 	  <ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
 		  <PrivateAssets>All</PrivateAssets>
+		  <Private>False</Private>
 	  </ProjectReference>
 		<ProjectReference Include="..\NameParser\NameClassifiers.csproj">
 			<PrivateAssets>All</PrivateAssets>
+			<Private>False</Private>
 		</ProjectReference>
 		<ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj">
 			<PrivateAssets>All</PrivateAssets>
+			<Private>False</Private>
 		</ProjectReference>
 	</ItemGroup>
 
@@ -79,10 +83,10 @@
 
 	<Target Name="CopyUserData" AfterTargets="Build">
 		<ItemGroup>
-			<UserData Include="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\LayersData\*.*"/>
+			<UserData Include="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\LayerWorks\LayersData\*.*" />
 		</ItemGroup>
-		<Move SourceFiles="@(UserData)" DestinationFolder="..\NC_EngTools\bin\$(Configuration)\UserData"/>
-		<RemoveDir Directories="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\LayersData"/>
+		<Move SourceFiles="@(UserData)" DestinationFolder="..\NC_EngTools\bin\$(Configuration)\UserData" />
+		<RemoveDir Directories="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\LayerWorks\LayersData" />
 	</Target>
 	
 	

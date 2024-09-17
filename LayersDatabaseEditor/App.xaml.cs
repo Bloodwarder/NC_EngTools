@@ -12,7 +12,7 @@ namespace LayersDatabaseEditor
         static App()
         {
             DirectoryInfo? dir = Directory.GetParent(Assembly.GetExecutingAssembly().Location)!;
-            string path = Path.Combine(dir!.FullName, "ExtensionLibraries", "LoaderCore.dll");
+            string path = Path.Combine(dir!.Parent!.FullName, "LoaderCore.dll");
             Assembly.LoadFrom(path);
         }
     }
