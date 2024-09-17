@@ -18,13 +18,13 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
 		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
-		<OutputPath>$(RootOutputPath)\ExtensionLibraries</OutputPath>
+		<OutputPath>$(RootOutputPath)\ExtensionLibraries\LayerWorks</OutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -47,6 +47,8 @@
 			<ExcludeAssets>All</ExcludeAssets>
 			<PrivateAssets>All</PrivateAssets>
 			<HintPath>$(RootOutputPath)\ExtensionLibraries\LoaderCore.dll</HintPath>
+			<Private>False</Private>
+			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 		</ProjectReference>
 	</ItemGroup>
 
@@ -68,10 +70,10 @@
 	<!--Переместить базу данных-->
 	<Target Name="CopyUserData" AfterTargets="Build">
 		<ItemGroup>
-			<UserData Include="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Data\LayerData_ИС.db"/>
+			<UserData Include="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\LayerWorks\Data\LayerData_ИС.db" />
 		</ItemGroup>
-		<Move SourceFiles="@(UserData)" DestinationFolder="..\NC_EngTools\bin\$(Configuration)\UserData"/>
-		<RemoveDir Directories="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Data"/>
+		<Move SourceFiles="@(UserData)" DestinationFolder="..\NC_EngTools\bin\$(Configuration)\UserData" />
+		<RemoveDir Directories="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\LayerWorks\Data" />
 	</Target>
 
 </Project>

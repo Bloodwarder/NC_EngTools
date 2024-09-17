@@ -43,5 +43,10 @@ namespace NameClassifiers.Sections
         {
             throw new NotImplementedException("Префикс всегда один");
         }
+
+        internal override void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

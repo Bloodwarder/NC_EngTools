@@ -18,12 +18,12 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
 	</PropertyGroup>
-	
+
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
-		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries</OutputPath>
+		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\GeoMod</OutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -38,20 +38,24 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="NetTopologySuite" Version="2.5.0" />
+		<PackageReference Include="NetTopologySuite" Version="2.5.0"></PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
 			<PrivateAssets>All</PrivateAssets>
+			<Private>False</Private>
+			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 		</ProjectReference>
 		<ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj">
 			<PrivateAssets>All</PrivateAssets>
+			<Private>False</Private>
+			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 		</ProjectReference>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Properties\" />
+		<Folder Include="Properties\" />
 	</ItemGroup>
 
 </Project>
