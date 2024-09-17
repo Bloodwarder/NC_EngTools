@@ -2,6 +2,8 @@ using GeoMod.GeometryExtensions;
 using GeoMod.UI;
 using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using NanocadUtilities;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
@@ -21,21 +23,27 @@ namespace GeoMod
     /// </summary>
     public class GeoCommands
     {
+        private const string RelatedConfigurationSection = "GeoModConfiguration";
+
         private static NtsGeometryServices _geometryServices = null!;
+        private static Microsoft.Extensions.Configuration.IConfigurationSection _configuration;
         private static double _defaultBufferDistance { get; set; } = 1d;
 
-        private static BufferParameters DefaultBufferParameters = new()
-        {
-            EndCapStyle = EndCapStyle.Round,
-            JoinStyle = NtsBufferOps.JoinStyle.Round,
-            QuadrantSegments = 6,
-            SimplifyFactor = 0.02d,
-            IsSingleSided = false
-        };
+        private static BufferParameters DefaultBufferParameters;
 
         static GeoCommands()
         {
+            var section = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IConfiguration>();
+            _configuration = section.GetRequiredSection(RelatedConfigurationSection);
             InitializeNetTopologySuite();
+            DefaultBufferParameters = _configuration.GetValue<BufferParameters>("BufferParameters") ?? new()
+            {
+                EndCapStyle = EndCapStyle.Round,
+                JoinStyle = NtsBufferOps.JoinStyle.Round,
+                QuadrantSegments = 6,
+                SimplifyFactor = 0.02d,
+                IsSingleSided = false
+            };
         }
 
 
@@ -332,10 +340,11 @@ namespace GeoMod
         }
         private static void InitializeNetTopologySuite()
         {
+            double precision = _configuration.GetValue<double>("Precision");
             NtsGeometryServices.Instance = new NtsGeometryServices( // default CoordinateSequenceFactory
                                                         NetTopologySuite.Geometries.Implementation.CoordinateArraySequenceFactory.Instance,
                                                         // default precision model
-                                                        new PrecisionModel(100d),
+                                                        new PrecisionModel(precision),
                                                         // default SRID
                                                         -1,
                                                         // Geometry overlay operation function set to use (Legacy or NG)

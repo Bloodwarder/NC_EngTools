@@ -36,12 +36,12 @@ namespace LoaderCore.Integrity
             {
                 if (_testRun)
                 {
-                    Logger.WriteLog?.Invoke($"Отладочная сборка. Вывод сообщения об обновлении {local.Name}");
+                    LoggingRouter.WriteLog?.Invoke($"Отладочная сборка. Вывод сообщения об обновлении {local.Name}");
                     return;
                 }
                 source.CopyTo(local.FullName, true);
                 FileUpdatedEvent?.Invoke(local, new EventArgs());
-                Logger.WriteLog?.Invoke($"Файл {local.Name} обновлён");
+                LoggingRouter.WriteLog?.Invoke($"Файл {local.Name} обновлён");
                 return;
             }
         }

@@ -6,6 +6,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LayersDatabaseEditor
 {
@@ -14,16 +16,17 @@ namespace LayersDatabaseEditor
     /// </summary>
     public partial class DatabaseEditorWindow : Window
     {
+        ILogger? _logger = LoaderExtension.ServiceProvider.GetService<ILogger>();
         public DatabaseEditorWindow()
         {
-            LoaderExtension.InitializeAsLibrary();
+            
             InitializeComponent();
-            Logger.WriteLog += LogWrite;
+            LoggingRouter.WriteLog += LogWrite;
         }
 
         private async void miTestRun_Click(object sender, RoutedEventArgs e)
         {
-            Logger.WriteLog?.Invoke("Запущена тестовая команда");
+            _logger?.LogInformation("Запущена тестовая команда");
             Task<string> task = TestMethod1Async();
             await LogWriteAsync(task);
 
@@ -68,7 +71,8 @@ namespace LayersDatabaseEditor
         private async void miExportLayersFromExcel_Click(object sender, RoutedEventArgs e)
         {
             LogWrite("Запущен импорт слоёв из Excel");
-            Task<string> task = ExcelLayerReader.ReadWorkbookAsync(PathProvider.GetPath("Layer_Props.xlsm"));
+            var reader = new ExcelLayerReader();
+            Task<string> task = reader.ReadWorkbookAsync(PathProvider.GetPath("Layer_Props.xlsm"));
             await LogWriteAsync(task);
             //ExcelLayerReader.ReadWorkbook(PathProvider.GetPath("Layer_Props.xlsm"));
         }

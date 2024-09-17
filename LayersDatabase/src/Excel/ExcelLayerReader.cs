@@ -2,6 +2,8 @@
 using LayersIO.Model;
 using LoaderCore.Utilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Npoi.Mapper;
 using System.Diagnostics;
 
@@ -9,7 +11,9 @@ namespace LayersIO.Excel
 {
     public class ExcelLayerReader
     {
-        public static void ReadWorkbook(string workbookPath)
+        public ILogger? _logger = LoaderCore.LoaderExtension.ServiceProvider.GetService<ILogger>();
+
+        public void ReadWorkbook(string workbookPath)
         {
             Stopwatch sw = Stopwatch.StartNew();
             Mapper mapper = new(workbookPath);
@@ -25,10 +29,10 @@ namespace LayersIO.Excel
                 //ExportEntities(layers, db, lg => lg.Name);
                 //Logger.WriteLog($"Время операции - {Math.Round(sw.Elapsed.TotalSeconds, 2)}");
             }
-            Logger.WriteLog($"Операция завершена. Время операции - {Math.Round(sw.Elapsed.TotalSeconds, 2)}");
+            _logger?.LogInformation($"Операция завершена. Время операции - {Math.Round(sw.Elapsed.TotalSeconds, 2)}");
         }
 
-        public async static Task<string> ReadWorkbookAsync(string workbookPath)
+        public async Task<string> ReadWorkbookAsync(string workbookPath)
         {
             Stopwatch sw = Stopwatch.StartNew();
             await Task.Run(() =>
@@ -128,7 +132,7 @@ namespace LayersIO.Excel
             return mappedDataDictionary;
         }
 
-        private static void ExportEntities<T>(IEnumerable<T> entities, DbContext db, Func<T, string> entityNamesExpression) where T : class
+        private void ExportEntities<T>(IEnumerable<T> entities, DbContext db, Func<T, string> entityNamesExpression) where T : class
         {
             int successCounter = 0;
             int failureCounter = 0;
@@ -142,18 +146,18 @@ namespace LayersIO.Excel
                 }
                 catch (DbUpdateException ex)
                 {
-                    Logger.WriteLog($"Ошибка при экспорте слоя {entityNamesExpression}");
-                    Logger.WriteLog(ex.InnerException!.Message);
+                    _logger?.LogWarning($"Ошибка при экспорте слоя {entityNamesExpression}");
+                    _logger?.LogWarning(ex.InnerException!.Message);
                     failureCounter++;
                     continue;
                 }
                 catch (Exception ex)
                 {
-                    Logger.WriteLog($"Ошибка при экспорте слоя {entityNamesExpression}.\n{ex.Message}");
+                    _logger?.LogWarning($"Ошибка при экспорте слоя {entityNamesExpression}.\n{ex.Message}");
                     continue;
                 }
             }
-            Logger.WriteLog($"Импорт объектов {typeof(T).Name} завершён. Успешно импортированно {successCounter} объектов. Ошибок - {failureCounter}");
+            _logger?.LogInformation($"Импорт объектов {typeof(T).Name} завершён. Успешно импортированно {successCounter} объектов. Ошибок - {failureCounter}");
         }
 
 

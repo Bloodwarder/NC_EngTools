@@ -29,7 +29,7 @@ namespace LoaderCore.UI
 
             InitializeComponent();
 
-            Logger.WriteLog += LogWindow;
+            LoggingRouter.WriteLog += LogWindow;
 
             chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value);
 
@@ -45,12 +45,12 @@ namespace LoaderCore.UI
             using (StreamReader reader = new StreamReader(PathProvider.GetPath("Список изменений.txt")))
             {
                 string line;
-                Logger.WriteLog("Последние обновления:");
+                LoggingRouter.WriteLog("Последние обновления:");
                 while ((line = reader.ReadLine()) != "" || reader.EndOfStream)
                 {
-                    Logger.WriteLog(line.Replace("\t", ""));
+                    LoggingRouter.WriteLog(line.Replace("\t", ""));
                 }
-                Logger.WriteLog("\n");
+                LoggingRouter.WriteLog("\n");
             }
         }
 
@@ -109,7 +109,7 @@ namespace LoaderCore.UI
             if (checkdir.Exists)
                 _xmlStructure.Root.Element("basepath").Element("source").Value = tbSourcePath.Text;
             _xmlStructure.Save(_xmlStructurePath);
-            Logger.WriteLog -= LogWindow;
+            LoggingRouter.WriteLog -= LogWindow;
         }
 
         private void UpdateButtonClick(object sender, RoutedEventArgs e)
