@@ -137,7 +137,7 @@ namespace LayerWorks.Commands
                     LayerChanger.UpdateActiveLayerWrappers();
                     ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info =>
                     {
-                        bool success = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<InMemoryLayerAlterReader>()
+                        bool success = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<InMemoryLayerAlterReader>()
                                                                                  .TryGetStandard(info.MainName, out string? name);
                         if (success)
                             info.AlterSecondaryClassifier(name!);

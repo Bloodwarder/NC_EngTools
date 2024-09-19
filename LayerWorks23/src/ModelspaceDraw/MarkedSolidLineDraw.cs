@@ -31,7 +31,7 @@ namespace LayerWorks.ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-                var formatter = LoaderCore.LoaderExtension.ServiceProvider.GetService<IEntityFormatter>();
+                var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
                 formatter?.FormatEntity(line, Layer.LayerInfo.TrueName);
                 line.LinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
             }

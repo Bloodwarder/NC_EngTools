@@ -14,7 +14,7 @@ namespace LayersIO.Database.Readers
 
         static SQLiteDataProvider()
         {
-            _contextFactory = LoaderExtension.ServiceProvider.GetRequiredService<SQLiteLayerDataContextFactory>();
+            _contextFactory = NcetCore.ServiceProvider.GetRequiredService<SQLiteLayerDataContextFactory>();
         }
         public SQLiteDataProvider(string path) 
         {

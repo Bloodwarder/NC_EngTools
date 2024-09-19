@@ -19,7 +19,7 @@ namespace LayerWorks.Legend
         {
             Layer = layer;
 
-            var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IStandardReader<LegendDrawTemplate>>();
+            var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IStandardReader<LegendDrawTemplate>>();
             bool success = service.TryGetStandard(layer.LayerInfo.TrueName, out LegendDrawTemplate? ldt);
             if (success)
                 _template = ldt;

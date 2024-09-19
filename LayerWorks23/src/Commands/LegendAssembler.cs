@@ -73,7 +73,7 @@ namespace LayerWorks.Commands
                     try
                     {
                         RecordLayerWrapper rlp = new(ltr);
-                        var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IDictionary<string, LegendData>>();
+                        var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDictionary<string, LegendData>>();
                         if (!service.ContainsKey(rlp.LayerInfo.MainName))
                         {
                             wrongLayersStringBuilder.AppendLine($"Нет данных для слоя "

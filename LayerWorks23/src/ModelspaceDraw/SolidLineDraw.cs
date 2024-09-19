@@ -31,7 +31,7 @@ namespace LayerWorks.ModelspaceDraw
             pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
             pl.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
             pl.Layer = Layer.LayerInfo.Name;
-            var formatter = LoaderCore.LoaderExtension.ServiceProvider.GetService<IEntityFormatter>();
+            var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
             formatter?.FormatEntity(pl, Layer.LayerInfo.TrueName);
             EntitiesList.Add(pl);
         }

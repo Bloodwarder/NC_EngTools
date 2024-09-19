@@ -33,7 +33,7 @@ namespace GeoMod
 
         static GeoCommands()
         {
-            var section = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IConfiguration>();
+            var section = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IConfiguration>();
             _configuration = section.GetRequiredSection(RelatedConfigurationSection);
             InitializeNetTopologySuite();
             DefaultBufferParameters = _configuration.GetValue<BufferParameters>("BufferParameters") ?? new()

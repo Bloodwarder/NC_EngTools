@@ -11,7 +11,7 @@ namespace LayersIO.Excel
 {
     public class ExcelLayerReader
     {
-        public ILogger? _logger = LoaderCore.LoaderExtension.ServiceProvider.GetService<ILogger>();
+        public ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
 
         public void ReadWorkbook(string workbookPath)
         {

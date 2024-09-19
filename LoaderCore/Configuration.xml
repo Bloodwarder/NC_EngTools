@@ -1,21 +1,40 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<сonfiguration>
+<сonfiguration xmlns="http://tempuri.org/ConfigurationSchema.xsd">
+	<ShowStartup>true</ShowStartup>
 	<Directories>
 		<LocalDirectory></LocalDirectory>
 		<UpdateDirectory></UpdateDirectory>
 	</Directories>
-	<LayerWorksConfiguration>
-		<Enabled>True</Enabled>
-		<UpdateEnabled>True</UpdateEnabled>
+	<LayerWorksConfiguration Module="LayerWorks">
+		<Enabled>true</Enabled>
+		<UpdateEnabled>true</UpdateEnabled>
 		<NameParserPaths>
-			<LayerWorksPath Type="Shared">\\COMP010\Data\364\пыщь\ncet_shared_files</LayerWorksPath>
-			<LayerWorksPath Type="Local"></LayerWorksPath>
-			<LayerWorksPath Type="Overrides"></LayerWorksPath>
+			<LayerWorksPath>
+				<Type>Shared</Type>
+				<Path>\\COMP010\Data\364\пыщь\ncet_shared_files</Path>
+			</LayerWorksPath>
+			<LayerWorksPath>
+				<Type>Local</Type>
+				<Path></Path>
+			</LayerWorksPath>
+			<LayerWorksPath>
+				<Type>Overrides</Type>
+				<Path></Path>
+			</LayerWorksPath>
 		</NameParserPaths>
 		<LayerStandardPaths>
-			<LayerWorksPath Type="Shared">\\COMP010\Data\364\пыщь\ncet_shared_files</LayerWorksPath>
-			<LayerWorksPath Type="Local"></LayerWorksPath>
-			<LayerWorksPath Type="Overrides"></LayerWorksPath>
+			<LayerWorksPath>
+				<Type>Shared</Type>
+				<Path>\\COMP010\Data\364\пыщь\ncet_shared_files</Path>
+			</LayerWorksPath>
+			<LayerWorksPath>
+				<Type>Local</Type>
+				<Path></Path>
+			</LayerWorksPath>
+			<LayerWorksPath>
+				<Type>Overrides</Type>
+				<Path></Path>
+			</LayerWorksPath>
 		</LayerStandardPaths>
 		<LegendGridParameters>
 			<CellWidth>30</CellWidth>
@@ -26,21 +45,21 @@
 			<TextHeight>6</TextHeight>
 		</LegendGridParameters>
 	</LayerWorksConfiguration>
-	<GeoModConfiguration>
-		<Enabled>True</Enabled>
-		<UpdateEnabled>True</UpdateEnabled>
+	<GeoModConfiguration Module="GeoMod">
+		<Enabled>true</Enabled>
+		<UpdateEnabled>true</UpdateEnabled>
 		<Precision>100</Precision>
 		<BufferParameters>
 			<EndCapStyle>1</EndCapStyle>
 			<JoinStyle>1</JoinStyle>
 			<QuadrantSegments>6</QuadrantSegments>
 			<SimplifyFactor>0.1</SimplifyFactor>
-			<IsSingleSided>False</IsSingleSided>
+			<IsSingleSided>false</IsSingleSided>
 		</BufferParameters>
 	</GeoModConfiguration>
-	<UtilitiesConfiguration>
-		<Enabled>True</Enabled>
-		<UpdateEnabled>True</UpdateEnabled>
+	<UtilitiesConfiguration Module="Utilities">
+		<Enabled>true</Enabled>
+		<UpdateEnabled>true</UpdateEnabled>
 		<DefaultLabelTextHeight>3.6</DefaultLabelTextHeight>;
 		<DefaultLabelBackgroundScaleFactor>1.1</DefaultLabelBackgroundScaleFactor>
 		<Vertical>

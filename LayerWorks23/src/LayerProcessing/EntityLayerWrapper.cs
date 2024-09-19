@@ -16,7 +16,7 @@ namespace LayerWorks.LayerProcessing
 
         static EntityLayerWrapper()
         {
-            _entityFormatter = LoaderCore.LoaderExtension.ServiceProvider.GetService<IEntityFormatter>()!;
+            _entityFormatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>()!;
         }
         internal EntityLayerWrapper(string layername) : base(layername)
         {

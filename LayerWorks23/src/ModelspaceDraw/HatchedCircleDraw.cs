@@ -48,7 +48,7 @@ namespace LayerWorks.ModelspaceDraw
             circle.Closed = true;
             circle.Layer = layer ?? Layer.BoundLayer.Name;
 
-            var formatter = LoaderCore.LoaderExtension.ServiceProvider.GetService<IEntityFormatter>();
+            var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
             formatter?.FormatEntity(circle, Layer.LayerInfo.TrueName);
 
             EntitiesList.Add(circle);

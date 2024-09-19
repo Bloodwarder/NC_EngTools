@@ -16,7 +16,7 @@ namespace LayersIO.ExternalData
         {
             try
             {
-                var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LayerProps>>();
+                var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LayerProps>>();
                 InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlPropsName)).GetData();
 
                 defaultLayerProps.Add("сущ", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 });

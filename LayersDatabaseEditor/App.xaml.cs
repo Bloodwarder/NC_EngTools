@@ -20,7 +20,7 @@ namespace LayersDatabaseEditor
 
         private static void InitializeLoaderCore()
         {
-            LoaderExtension.InitializeAsLibrary();
+            NcetCore.InitializeAsLibrary();
         }
     }
 

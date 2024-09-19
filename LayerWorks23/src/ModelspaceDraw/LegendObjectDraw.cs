@@ -42,7 +42,7 @@ namespace LayerWorks.ModelspaceDraw
         /// </summary>
         internal LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
         {
-            var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IStandardReader<LegendDrawTemplate>>();
+            var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IStandardReader<LegendDrawTemplate>>();
             bool success = service.TryGetStandard(Layer.LayerInfo.TrueName, out var legendDrawTemplate);
             if (success)
                 LegendDrawTemplate = legendDrawTemplate;

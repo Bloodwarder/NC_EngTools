@@ -13,7 +13,7 @@ namespace LayersIO.ExternalData
         {
             try
             {
-                var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IDataProviderFactory<string, string>>();
+                var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, string>>();
                 InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlAlterName)).GetData();
             }
             catch (FileNotFoundException)

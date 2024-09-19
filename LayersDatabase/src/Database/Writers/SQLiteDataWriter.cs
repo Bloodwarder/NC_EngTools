@@ -12,7 +12,7 @@ namespace LayersIO.Database.Writers
 
         static SQLiteDataWriter()
         {
-            _contextFactory = LoaderExtension.ServiceProvider.GetRequiredService<SQLiteLayerDataContextFactory>();
+            _contextFactory = NcetCore.ServiceProvider.GetRequiredService<SQLiteLayerDataContextFactory>();
         }
         public SQLiteDataWriter(string path)
         {

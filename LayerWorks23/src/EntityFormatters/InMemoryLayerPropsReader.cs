@@ -7,7 +7,7 @@ namespace LoaderCore.Interfaces
 {
     internal class InMemoryLayerPropsReader : IStandardReader<LayerProps>
     {
-        private static IDictionary<string, LayerProps> _provider = LoaderExtension.ServiceProvider.GetService<IDictionary<string, LayerProps>>();
+        private static IDictionary<string, LayerProps> _provider = NcetCore.ServiceProvider.GetService<IDictionary<string, LayerProps>>();
         public LayerProps GetStandard(string layerName)
         {
             _ = _provider.TryGetValue(layerName, out var props);

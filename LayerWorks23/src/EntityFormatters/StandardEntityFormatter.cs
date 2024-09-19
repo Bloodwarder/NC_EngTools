@@ -10,8 +10,8 @@ namespace LayerWorks.EntityFormatters
 {
     public class StandardEntityFormatter : IEntityFormatter
     {
-        private static IStandardReader<LayerProps> _standardReader = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
-        private static ILogger? _logger = LoaderCore.LoaderExtension.ServiceProvider.GetService<ILogger>();
+        private static IStandardReader<LayerProps> _standardReader = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
+        private static ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
         public void FormatEntity(Entity entity)
         {
             string layerName = entity.Layer;

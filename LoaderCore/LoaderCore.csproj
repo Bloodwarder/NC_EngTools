@@ -15,7 +15,7 @@
 
 	<PropertyGroup>
 		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
-		<OutputPath>$(RootOutputPath)\ExtensionLibraries</OutputPath>
+		<OutputPath>$(RootOutputPath)\ExtensionLibraries\LoaderCore</OutputPath>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

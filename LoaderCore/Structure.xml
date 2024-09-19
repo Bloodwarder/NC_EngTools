@@ -22,7 +22,7 @@
 			<file Name="StartUpConfig.xml" Module="PreUpdated"/>
 			<file Name="Structure.xml" Module="PreUpdated"/>
 		</directory>
-		<directory Name="ExtensionLibraries23">
+		<directory Name="ExtensionLibraries">
 			<file Name="GeoMod.dll" Module="GeoMod"/>
 			<file Name="NetTopologySuite.dll" Module="GeoMod"/>
 		</directory>
