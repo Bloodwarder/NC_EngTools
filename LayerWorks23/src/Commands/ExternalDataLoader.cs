@@ -9,7 +9,7 @@ using NameClassifiers;
 using NanocadUtilities;
 using Teigha.DatabaseServices;
 using Teigha.Runtime;
-using static LoaderCore.LoaderExtension;
+using static LoaderCore.NcetCore;
 
 namespace LayersIO.ExternalData
 {
@@ -40,25 +40,25 @@ namespace LayersIO.ExternalData
             {
                 ExcelComplexLayerDataProvider<string, LayerProps> xlpropsprovider = new(PathProvider.GetPath("Layer_Props.xlsm"), "Props");
                 XmlLayerDataWriter<string, LayerProps> xmlpropsprovider = new(PathProvider.GetPath("Layer_Props.xml"));
-                LoaderExtension.ServiceProvider.GetService<LayerPropertiesDictionary>().Reload(xmlpropsprovider, xlpropsprovider);
+                NcetCore.ServiceProvider.GetService<LayerPropertiesDictionary>().Reload(xmlpropsprovider, xlpropsprovider);
             }
             if ((reload & ToReload.Alter) == ToReload.Alter)
             {
                 ExcelSimpleLayerDataProvider<string, string> xlalterprovider = new(PathProvider.GetPath("Layer_Props.xlsm"), "Alter");
                 XmlLayerDataWriter<string, string> xmlalterprovider = new(PathProvider.GetPath("Layer_Alter.xml"));
-                LoaderExtension.ServiceProvider.GetService<LayerAlteringDictionary>().Reload(xmlalterprovider, xlalterprovider);
+                NcetCore.ServiceProvider.GetService<LayerAlteringDictionary>().Reload(xmlalterprovider, xlalterprovider);
             }
             if ((reload & ToReload.Legend) == ToReload.Legend)
             {
                 ExcelComplexLayerDataProvider<string, LegendData> xllegendprovider = new(PathProvider.GetPath("Layer_Props.xlsm"), "Legend");
                 XmlLayerDataWriter<string, LegendData> xmllegendprovider = new(PathProvider.GetPath("Layer_Legend.xml"));
-                LoaderExtension.ServiceProvider.GetService<LayerLegendDictionary>().Reload(xmllegendprovider, xllegendprovider);
+                NcetCore.ServiceProvider.GetService<LayerLegendDictionary>().Reload(xmllegendprovider, xllegendprovider);
             }
             if ((reload & ToReload.LegendDraw) == ToReload.LegendDraw)
             {
                 ExcelComplexLayerDataProvider<string, LegendDrawTemplate> xllegenddrawprovider = new(PathProvider.GetPath("Layer_Props.xlsm"), "LegendDraw");
                 XmlLayerDataWriter<string, LegendDrawTemplate> xmllegenddrawprovider = new(PathProvider.GetPath("Layer_LegendDraw.xml"));
-                LoaderExtension.ServiceProvider.GetService<LayerLegendDrawDictionary>().Reload(xmllegenddrawprovider, xllegenddrawprovider);
+                NcetCore.ServiceProvider.GetService<LayerLegendDrawDictionary>().Reload(xmllegenddrawprovider, xllegenddrawprovider);
             }
         }
 
@@ -102,7 +102,7 @@ namespace LayersIO.ExternalData
                     bool lpsuccess = true;
                     try
                     {
-                        lpsuccess = LoaderExtension.ServiceProvider.GetService<LayerPropertiesDictionary>().TryGetValue(checkedname, out lp!, false);
+                        lpsuccess = NcetCore.ServiceProvider.GetService<LayerPropertiesDictionary>().TryGetValue(checkedname, out lp!, false);
                     }
                     catch (NoPropertiesException)
                     {

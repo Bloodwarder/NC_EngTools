@@ -16,28 +16,39 @@ using LoaderCore.UI;
 using LoaderCore.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Xml.Schema;
 
 namespace LoaderCore
 {
+    public static class LoaderExtension
+    {
+        public static void Initialize()
+        {
+            var coreHandler = new ModuleHandler("LoaderCore");
+
+            // TODO : обновить txt
+
+            coreHandler.Update();
+            coreHandler.Load();
+            NcetCore.Initialize();
+        }
+    }
+
+
     /// <summary>
     /// Загрузчик сборок с окном конфигурации
     /// </summary>
-    public static class LoaderExtension
+    public static class NcetCore
     {
         // TODO: Переработать окно автозапуска и конфигурации 
-        const string StructureXmlName = "Structure.xml";
-        const string StartUpConfigName = "StartUpConfig.xml";
         private const string ConfigurationXmlFileName = "Configuration.xml";
         private static readonly IServiceCollection _serviceCollection = new ServiceCollection();
         private static bool _serviceProviderBuilt = false;
         private static IServiceProvider serviceProvider = null!;
 
         // Поиск обновлений и настройка загрузки и обновления сборок
-        static LoaderExtension()
+        static NcetCore()
         {
-            DirectoryInfo? dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.Parent;
-            IEnumerable<FileInfo>? files = SearchDirectoryForDlls(dir!);
-            LibraryFiles = SearchDirectoryForDlls(dir!)?.ToDictionary(f => f.Name, f => f.FullName);
         }
         public static IServiceProvider ServiceProvider
         {
@@ -51,57 +62,33 @@ namespace LoaderCore
         public static IServiceCollection Services => !_serviceProviderBuilt ?
                                                         _serviceCollection :
                                                         throw new InvalidOperationException("Провайдер сервисов уже построен");
-        private static Dictionary<string, string>? LibraryFiles { get; }
+        internal static List<ModuleHandler> Modules { get; } = new();
+        internal static string RootLocalDirectory { get; set; }
+        internal static string RootUpdateDirectory { get; set; }
+        private static Dictionary<string, string>? LibraryFiles { get; } = new();
 
         public static void Initialize()
         {
             LoggingRouter.WriteLog += Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage;
 
+            XDocument configurationXml = XDocument.Load(ConfigurationXmlFileName);
 
-            List<ComparedFiles> files = InitializeFileStructure();
-
-            // Читаем конфигурацию на предмет необходимости отображения стартового окна и отображаем его
-            XDocument StartUpConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
-            bool showStartUp = XmlConvert.ToBoolean(StartUpConfig.Root.Element("StartUpShow").Attribute("Enabled")?.Value);
-            if (showStartUp)
-            {
-                StartUpWindow window = new(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
-                Application.ShowModalWindow(window);
-            }
+            CheckConfigurationXml(configurationXml);
+            DisplayAutorunConfigurationWindow(configurationXml);
 
             // Заново читаем конфиг (мог измениться)
-            StartUpConfig = XDocument.Load(PathProvider.GetPath(StartUpConfigName));
+            configurationXml = XDocument.Load(ConfigurationXmlFileName);
 
-            // Получаем из конфига теги обновляемых модулей и обновляем все необходимые файлы, помеченные указанными тегами
-            List<string>? updatedModules = StartUpConfig
-                .Root?
-                .Element("Modules")?
-                .Elements()
-                .Where(e => XmlConvert.ToBoolean(e.Attribute("Update")!.Value))
-                .Select(e => e.Name.LocalName)
-                .ToList();
-            FileUpdater.UpdatedModules.UnionWith(updatedModules);
-            FileUpdater.UpdateRange(files);
-
-            // Аналогичная процедура с загружаемыми сборками
-            List<string>? loadedModules = StartUpConfig
-                .Root?
-                .Element("Modules")?
-                .Elements()
-                .Where(e => XmlConvert.ToBoolean(e.Attribute("Include")!.Value))
-                .Select(e => e.Name.LocalName)
-                .ToList();
-            StructureComparer.IncludedModules.UnionWith(loadedModules);
-            List<FileInfo> loadingAssemblies = files.Where(cf => cf.LocalFile.Extension == ".dll" && StructureComparer.IncludedModules.Contains(cf.ModuleTag)).Select(cf => cf.LocalFile).ToList();
-            foreach (FileInfo assembly in loadingAssemblies)
-            {
-                Assembly.LoadFrom(assembly.FullName);
-                LoggingRouter.WriteLog.Invoke($"Сборка {assembly.Name} загружена");
-            }
+            InitializeModules(configurationXml);
+            IndexFiles();
+            RegisterDependencies();
             LoggingRouter.WriteLog = null;
+        }
 
+        private static void RegisterDependencies()
+        {
             IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-            configurationBuilder.AddXmlFile(PathProvider.GetPath(ConfigurationXmlFileName));
+            configurationBuilder.AddXmlFile(ConfigurationXmlFileName);
             IConfiguration config = configurationBuilder.Build();
 
             Services.AddSingleton(config)
@@ -110,54 +97,116 @@ namespace LoaderCore
             ServiceProvider = Services.BuildServiceProvider();
         }
 
-        public static void InitializeAsLibrary()
+        private static void IndexFiles()
         {
-            _ = InitializeFileStructure(false);
+            PathProvider.InitializeStructure(RootLocalDirectory);
+            var dllFiles = new DirectoryInfo(RootLocalDirectory).GetFiles("*.dll", SearchOption.AllDirectories);
+            foreach (var dllFile in dllFiles)
+            {
+                LibraryFiles.TryAdd(AssemblyName.GetAssemblyName(dllFile.FullName).FullName, dllFile.FullName);
+            }
             AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
-
-            IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-            configurationBuilder.AddXmlFile(PathProvider.GetPath(ConfigurationXmlFileName));
-            IConfiguration config = configurationBuilder.Build();
-
-            Services.AddSingleton(config)
-                    .AddSingleton<ILogger, NcetSimpleLogger>();
-
-            ServiceProvider = Services.BuildServiceProvider();
         }
 
-        private static List<ComparedFiles> InitializeFileStructure(bool preUpdate = true)
+        private static void DisplayAutorunConfigurationWindow(XDocument configurationXml)
         {
-            // Получаем директорию выполняемой сборки и xml файл со структурой папок приложения
-            DirectoryInfo dir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!;
-            string structurePath = Path.Combine(dir.FullName, StructureXmlName);
-            XDocument structureXml = XDocument.Load(structurePath);
-
-            // Если локальный путь пуст (у только что скачанного xml со структурой), прописать его
-            XElement xmlLocalPath = structureXml.Root!.Element("basepath")!.Element("local")!;
-            if (xmlLocalPath.Value == string.Empty || xmlLocalPath.IsEmpty)
+            // Читаем конфигурацию на предмет необходимости отображения стартового окна и отображаем его
+            bool showStartUp = XmlConvert.ToBoolean(configurationXml.Root!.Element("ShowStartup")!.Value);
+            if (showStartUp)
             {
-                xmlLocalPath.Add(dir.Parent!.FullName);
-                structureXml.Save(structurePath);
+                StartUpWindow window = new(ConfigurationXmlFileName);
+                Application.ShowModalWindow(window);
             }
-
-            // Получить наборы файлов для сопоставления (локальный, источник и тег модуля) и создать словарь путей для обращения
-            List<ComparedFiles> files = StructureComparer.GetFiles(structureXml);
-            PathProvider.InitializeStructure(dir.Parent!.FullName);
-
-            if (preUpdate)
-            {
-                // Сразу обновляем список изменений и инструкцию со списком команд
-                ComparedFiles cfiles = files.Where(f => f.LocalFile.FullName == PathProvider.GetPath(StartUpConfigName)).FirstOrDefault();
-                FileUpdater.UpdateFile(cfiles.LocalFile, cfiles.SourceFile);
-                cfiles = files.Where(f => f.LocalFile.FullName == PathProvider.GetPath("Список изменений.txt")).FirstOrDefault();
-                FileUpdater.UpdateFile(cfiles.LocalFile, cfiles.SourceFile);
-                cfiles = files.Where(f => f.LocalFile.FullName == PathProvider.GetPath("Команды.txt")).FirstOrDefault();
-                FileUpdater.UpdateFile(cfiles.LocalFile, cfiles.SourceFile);
-            }
-            return files;
-
-
         }
+
+        private static void CheckConfigurationXml(XDocument document)
+        {
+            // проверить по xsd
+            bool isValid = true;
+            XmlSchemaSet xmlSchemaSet = new();
+            xmlSchemaSet.Add(null, "ConfigurationSchema.xsd");
+            document.Validate(xmlSchemaSet, (sender, e) =>
+            {
+                LoggingRouter.WriteLog?.Invoke(e.Message);
+                isValid = false;
+            });
+
+            DirectoryInfo defaultLocalDir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.Parent!.Parent!;
+
+            // если ошибочный - перезаписать файл
+            if (!isValid)
+            {
+                XElement updateDirectoryElement = document.Root!.Element("Directories")!.Element("UpdateDirectory")!;
+                DirectoryInfo updateDir = new(updateDirectoryElement.Value);
+                if (!updateDir.Exists)
+                    throw new IOException("Невозможно найти папку с обновлениями");
+                var sourceFile = updateDir.GetFiles(ConfigurationXmlFileName, SearchOption.AllDirectories).Single();
+                var targetFile = defaultLocalDir.GetFiles(ConfigurationXmlFileName, SearchOption.AllDirectories).Single();
+                RootUpdateDirectory = updateDir.FullName;
+                sourceFile.CopyTo(targetFile.FullName, true);
+            }
+
+            // проверить и прописать локальную директорию
+            // везде восклицательные знаки, так как уже проверили по xsd
+            XElement localDirectoryElement = document.Root!.Element("Directories")!.Element("LocalDirectory")!;
+
+            DirectoryInfo localDir = new(localDirectoryElement.Value);
+
+            bool isUpdated = false;
+
+            if (!localDir.Exists)
+            {
+                localDir = defaultLocalDir;
+                localDirectoryElement.Value = localDir.FullName;
+                RootLocalDirectory = localDir.FullName;
+                isUpdated = true;
+            }
+            // проверить и прописать директории с пользовательскими данными
+            var defaultUserDataPath = localDir.GetDirectories("UserData").Single();
+            var parserPath = document.Root.Element("LayerWorksConfiguration")!
+                                          .Element("NameParserPaths")!
+                                          .Elements()
+                                          .Single(e => e.Element("Type")!.Value == "Local");
+            var standardPath = document.Root.Element("LayerWorksConfiguration")!
+                                          .Element("LayerStandardPaths")!
+                                          .Elements()
+                                          .Single(e => e.Element("Type")!.Value == "Local");
+            if (parserPath.Value == null || !Directory.Exists(parserPath.Value))
+            {
+                parserPath.Value = defaultUserDataPath.FullName;
+                isUpdated = true;
+            }
+            if (standardPath.Value == null || !Directory.Exists(standardPath.Value))
+            {
+                standardPath.Value = defaultUserDataPath.FullName;
+                isUpdated = true;
+            }
+            // сохранить файл, если был обновлён
+            if (isUpdated)
+                document.Save(ConfigurationXmlFileName);
+        }
+
+        private static void InitializeModules(XDocument configurationXml)
+        {
+            XElement[] moduleElements = configurationXml.Elements().Where(e => e.Attribute("Module") != null).ToArray();
+            foreach (XElement element in moduleElements)
+            {
+                ModuleHandler module = new ModuleHandler(element.Attribute("Module")!.Value);
+                Modules.Add(module);
+                bool update = XmlConvert.ToBoolean(element.Element("UpdateEnabled")!.Value);
+                if (update)
+                {
+                    module.Update();
+                }
+                bool enable = XmlConvert.ToBoolean(element.Element("Enabled")!.Value);
+                if (enable)
+                {
+                    module.Load();
+                    LoggingRouter.WriteLog?.Invoke($"Модуль {module.Name} загружен");
+                }
+            }
+        }
+
         private static Assembly? AssemblyResolve(object? sender, ResolveEventArgs args)
         {
             try
@@ -174,13 +223,20 @@ namespace LoaderCore
             return null;
         }
 
+        public static void InitializeAsLibrary()
+        {
+            XDocument configurationXml = XDocument.Load(ConfigurationXmlFileName);
+
+            CheckConfigurationXml(configurationXml);
+            InitializeModules(configurationXml);
+            IndexFiles();
+            RegisterDependencies();
+        }
+
         private static IEnumerable<FileInfo>? SearchDirectoryForDlls(DirectoryInfo directory)
         {
             return directory.GetFiles("*", SearchOption.AllDirectories).Where(fi => fi.Extension == ".dll");
-
         }
-
-
 
         /// <summary>
         /// Команда вызова окна конфигурации
@@ -188,7 +244,7 @@ namespace LoaderCore
         [CommandMethod("NCET_CONFIG")]
         public static void ConfigureAutorun()
         {
-            StartUpWindow window = new(PathProvider.GetPath(StartUpConfigName), PathProvider.GetPath(StructureXmlName));
+            StartUpWindow window = new(PathProvider.GetPath(ConfigurationXmlFileName));
             window.bUpdateLayerWorks.IsEnabled = false;
             window.bUpdateUtilities.IsEnabled = false;
             window.bUpdateGeoMod.IsEnabled = false;

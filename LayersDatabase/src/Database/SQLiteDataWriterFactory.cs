@@ -11,7 +11,7 @@ namespace LayersIO.Database
     public class SQLiteDataWriterFactory<TKey, TValue> where TKey : notnull
     {
         private Func<string, ILayerDataWriter<TKey, TValue>> _writerFactioryMethod =
-            LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<Func<string, ILayerDataWriter<TKey, TValue>>>();
+            LoaderCore.NcetCore.ServiceProvider.GetRequiredService<Func<string, ILayerDataWriter<TKey, TValue>>>();
 
         public ILayerDataWriter<TKey, TValue> CreateWriter(string path)
         {

@@ -1,4 +1,6 @@
 ﻿using LoaderCore.Configuration;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
 using Teigha.Geometry;
 
@@ -7,10 +9,16 @@ namespace LayerWorks.Legend
     internal class LegendGrid
     {
         private const string DefaultLegendHeader = "УСЛОВНЫЕ ОБОЗНАЧЕНИЯ";
-
-        private static LegendGridParameters _legendGridParameters = Configuration.LayerWorks.GetLegendGridParameters();
+        
+        private static LegendGridParameters _legendGridParameters;
         private int _columns;
 
+        static LegendGrid()
+        {
+            var config = LoaderCore.NcetCore.ServiceProvider.GetService<IConfiguration>();
+            var lgp = config?.GetSection("LayerWorksConfiguration").GetValue<LegendGridParameters>("LegendGridParameters");
+            _legendGridParameters = lgp ?? LegendGridParameters.GetDefault();
+        }
         internal LegendGrid(IEnumerable<LegendGridCell> cells, Point3d basepoint, string name = DefaultLegendHeader)
         {
             AddCells(cells);

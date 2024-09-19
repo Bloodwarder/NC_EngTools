@@ -7,7 +7,7 @@ namespace LoaderCore.Interfaces
 {
     internal class InMemoryLayerLegendReader : IStandardReader<LegendData>
     {
-        private static IDictionary<string, LegendData> _provider = LoaderExtension.ServiceProvider.GetService<IDictionary<string, LegendData>>();
+        private static IDictionary<string, LegendData> _provider = NcetCore.ServiceProvider.GetService<IDictionary<string, LegendData>>();
 
         public LegendData GetStandard(string layerName)
         {

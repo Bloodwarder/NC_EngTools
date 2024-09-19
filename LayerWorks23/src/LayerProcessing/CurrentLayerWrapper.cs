@@ -37,7 +37,7 @@ namespace LayerWorks.LayerProcessing
             LayerTable? lt = tm.TopTransaction.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
             db.Clayer = lt![LayerInfo.Name];
 
-            var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
+            var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
             bool success = service.TryGetStandard(LayerInfo.Name, out LayerProps? lp);
             if (success)
             {

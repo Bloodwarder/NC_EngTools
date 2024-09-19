@@ -46,7 +46,7 @@ namespace LayerWorks.ModelspaceDraw
                 LayerChecker.Check($"{LayerWrapper.StandartPrefix}{separator}{layer}"); //ПОКА ЗАВЯЗАНО НА ЧЕКЕР ИЗ ДРУГОГО МОДУЛЯ. ПРОАНАЛИЗИРОВАТЬ ВОЗМОЖНОСТИ ОПТИМИЗАЦИИ
             rectangle.Layer = layer == null ? Layer.BoundLayer.Name : $"{LayerWrapper.StandartPrefix}{separator}{layer}";
 
-            var formatter = LoaderCore.LoaderExtension.ServiceProvider.GetService<IEntityFormatter>();
+            var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
             formatter?.FormatEntity(rectangle, Layer.LayerInfo.TrueName);
 
             rectangle.Color = BrightnessShift(brightnessshift);

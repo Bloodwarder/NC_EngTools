@@ -23,40 +23,40 @@ namespace LayerWorks
 
         private static void RegisterServices()
         {
-            LoaderExtension.Services.AddTransient<IStandardReader<LayerProps>, InMemoryLayerPropsReader>();
-            LoaderExtension.Services.AddTransient<IStandardReader<LegendData>, InMemoryLayerLegendReader>();
-            LoaderExtension.Services.AddTransient<IStandardReader<LegendDrawTemplate>, InMemoryLayerLegendDrawReader>();
-            LoaderExtension.Services.AddTransient<InMemoryLayerAlterReader>();
+            NcetCore.Services.AddTransient<IStandardReader<LayerProps>, InMemoryLayerPropsReader>();
+            NcetCore.Services.AddTransient<IStandardReader<LegendData>, InMemoryLayerLegendReader>();
+            NcetCore.Services.AddTransient<IStandardReader<LegendDrawTemplate>, InMemoryLayerLegendDrawReader>();
+            NcetCore.Services.AddTransient<InMemoryLayerAlterReader>();
 
-            LoaderExtension.Services.AddSingleton<IDictionary<string, LayerProps>, LayerPropertiesDictionary>();
-            LoaderExtension.Services.AddSingleton<IDictionary<string, LegendData>, LayerLegendDictionary>();
-            LoaderExtension.Services.AddSingleton<IDictionary<string, LegendDrawTemplate>, LayerLegendDrawDictionary>();
-            LoaderExtension.Services.AddSingleton<LayerAlteringDictionary>();
+            NcetCore.Services.AddSingleton<IDictionary<string, LayerProps>, LayerPropertiesDictionary>();
+            NcetCore.Services.AddSingleton<IDictionary<string, LegendData>, LayerLegendDictionary>();
+            NcetCore.Services.AddSingleton<IDictionary<string, LegendDrawTemplate>, LayerLegendDrawDictionary>();
+            NcetCore.Services.AddSingleton<LayerAlteringDictionary>();
 
-            LoaderExtension.Services.AddTransient<ILayerDataProvider<string, LayerProps>>();
-            LoaderExtension.Services.AddTransient<Func<string, ILayerDataProvider<string, LayerProps>>>(p => new(path => new SQLiteLayerPropsProvider(path)));
-            LoaderExtension.Services.AddTransient<Func<string, ILayerDataProvider<string, LegendData>>>(p => new(path => new SQLiteLayerLegendDataProvider(path)));
-            LoaderExtension.Services.AddTransient<Func<string, ILayerDataProvider<string, LegendDrawTemplate>>>(p => new(path => new SQLiteLegendDrawTemplateProvider(path)));
-            LoaderExtension.Services.AddTransient<Func<string, ILayerDataProvider<string, string?>>>(p => new(path => new SQLiteAlterLayersProvider(path)));
+            NcetCore.Services.AddTransient<ILayerDataProvider<string, LayerProps>>();
+            NcetCore.Services.AddTransient<Func<string, ILayerDataProvider<string, LayerProps>>>(p => new(path => new SQLiteLayerPropsProvider(path)));
+            NcetCore.Services.AddTransient<Func<string, ILayerDataProvider<string, LegendData>>>(p => new(path => new SQLiteLayerLegendDataProvider(path)));
+            NcetCore.Services.AddTransient<Func<string, ILayerDataProvider<string, LegendDrawTemplate>>>(p => new(path => new SQLiteLegendDrawTemplateProvider(path)));
+            NcetCore.Services.AddTransient<Func<string, ILayerDataProvider<string, string?>>>(p => new(path => new SQLiteAlterLayersProvider(path)));
 
-            LoaderExtension.Services.AddTransient<SQLiteDataProviderFactory<string, LayerProps>>();
-            LoaderExtension.Services.AddTransient<SQLiteDataProviderFactory<string, LegendData>>();
-            LoaderExtension.Services.AddTransient<SQLiteDataProviderFactory<string, LegendDrawTemplate>>();
-            LoaderExtension.Services.AddTransient<SQLiteDataProviderFactory<string, string?>>();
-            LoaderExtension.Services.AddTransient<SQLiteLayerDataContextFactory>();
+            NcetCore.Services.AddTransient<SQLiteDataProviderFactory<string, LayerProps>>();
+            NcetCore.Services.AddTransient<SQLiteDataProviderFactory<string, LegendData>>();
+            NcetCore.Services.AddTransient<SQLiteDataProviderFactory<string, LegendDrawTemplate>>();
+            NcetCore.Services.AddTransient<SQLiteDataProviderFactory<string, string?>>();
+            NcetCore.Services.AddTransient<SQLiteLayerDataContextFactory>();
 
-            LoaderExtension.Services.AddTransient<IDataProviderFactory<string, LayerProps>, SQLiteDataProviderFactory<string, LayerProps>>();
-            LoaderExtension.Services.AddTransient<IDataProviderFactory<string, LegendData>, SQLiteDataProviderFactory<string, LegendData>>();
-            LoaderExtension.Services.AddTransient<IDataProviderFactory<string, LegendDrawTemplate>, SQLiteDataProviderFactory<string, LegendDrawTemplate>>();
-            LoaderExtension.Services.AddTransient<IDataProviderFactory<string, string>, SQLiteDataProviderFactory<string, string>>();
+            NcetCore.Services.AddTransient<IDataProviderFactory<string, LayerProps>, SQLiteDataProviderFactory<string, LayerProps>>();
+            NcetCore.Services.AddTransient<IDataProviderFactory<string, LegendData>, SQLiteDataProviderFactory<string, LegendData>>();
+            NcetCore.Services.AddTransient<IDataProviderFactory<string, LegendDrawTemplate>, SQLiteDataProviderFactory<string, LegendDrawTemplate>>();
+            NcetCore.Services.AddTransient<IDataProviderFactory<string, string>, SQLiteDataProviderFactory<string, string>>();
 
-            LoaderExtension.Services.AddTransient<IDataWriterFactory<string, LayerProps>, XmlDataWriterFactory<string, LayerProps>>();
-            LoaderExtension.Services.AddTransient<IDataWriterFactory<string, LegendData>, XmlDataWriterFactory<string, LegendData>>();
-            LoaderExtension.Services.AddTransient<IDataWriterFactory<string, LegendDrawTemplate>, XmlDataWriterFactory<string, LegendDrawTemplate>>();
-            LoaderExtension.Services.AddTransient<IDataWriterFactory<string, string>, XmlDataWriterFactory<string, string>>();
+            NcetCore.Services.AddTransient<IDataWriterFactory<string, LayerProps>, XmlDataWriterFactory<string, LayerProps>>();
+            NcetCore.Services.AddTransient<IDataWriterFactory<string, LegendData>, XmlDataWriterFactory<string, LegendData>>();
+            NcetCore.Services.AddTransient<IDataWriterFactory<string, LegendDrawTemplate>, XmlDataWriterFactory<string, LegendDrawTemplate>>();
+            NcetCore.Services.AddTransient<IDataWriterFactory<string, string>, XmlDataWriterFactory<string, string>>();
 
 
-            LoaderExtension.Services.AddSingleton<IEntityFormatter, StandardEntityFormatter>();
+            NcetCore.Services.AddSingleton<IEntityFormatter, StandardEntityFormatter>();
         }
 
         public void Terminate()

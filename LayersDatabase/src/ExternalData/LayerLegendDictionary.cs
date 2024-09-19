@@ -15,7 +15,7 @@ namespace LayersIO.ExternalData
         {
             try
             {
-                var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LegendData>>();
+                var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LegendData>>();
                 InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlLegendName)).GetData();
             }
             catch (FileNotFoundException)

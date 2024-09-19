@@ -1,4 +1,7 @@
-﻿using LoaderCore.Configuration;
+﻿using HostMgd.ApplicationServices;
+using LoaderCore.Configuration;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
 using NanocadUtilities;
 using System;
@@ -13,6 +16,9 @@ namespace LayerWorks
 {
     internal static class FallbackPath
     {
+        private const string RelatedConfigSection = "LayerWorksConfiguration";
+        private static LayerWorksConfiguration _configuration = 
+            LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IConfiguration>().GetValue<LayerWorksConfiguration>(RelatedConfigSection);
         internal static string? DocumentOverride
         {
             get
@@ -23,8 +29,8 @@ namespace LayerWorks
             }
         }
 
-        internal static string? UserOverride => LayerWorksConfiguration.NameParserPaths?.FirstOrDefault(lwp => lwp.Route == PathRoute.Overrides)?.Path;
-        internal static string LocalBackUp => LayerWorksConfiguration.NameParserPaths.FirstOrDefault(lwp => lwp.Route == PathRoute.Local).Path;
-        internal static string CommonShared => LayerWorksConfiguration.NameParserPaths.FirstOrDefault(lwp => lwp.Route == PathRoute.Shared).Path;
+        internal static string? UserOverride => _configuration.LayerStandardPaths?.FirstOrDefault(lwp => lwp.Route == PathRoute.Overrides)?.Path;
+        internal static string LocalBackUp => _configuration.LayerStandardPaths.FirstOrDefault(lwp => lwp.Route == PathRoute.Local).Path;
+        internal static string CommonShared => _configuration.LayerStandardPaths.FirstOrDefault(lwp => lwp.Route == PathRoute.Shared).Path;
     }
 }

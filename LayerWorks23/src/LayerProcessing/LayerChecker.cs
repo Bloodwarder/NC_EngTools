@@ -28,7 +28,7 @@ namespace LayerWorks.LayerProcessing
                     LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
                     if (!lt!.Has(layername))
                     {
-                        var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
+                        var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
                         bool propsgetsuccess = service.TryGetStandard(layername, out LayerProps? lp);
 
                         LayerTableRecord ltRecord = AddLayer(layername, lp);
@@ -60,7 +60,7 @@ namespace LayerWorks.LayerProcessing
                     LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
                     if (!lt!.Has(layer.LayerInfo.Name))
                     {
-                        var standardService = LoaderCore.LoaderExtension.ServiceProvider.GetService<IStandardReader<LayerProps>>()!;
+                        var standardService = LoaderCore.NcetCore.ServiceProvider.GetService<IStandardReader<LayerProps>>()!;
                         bool propsgetsuccess = standardService.TryGetStandard(layer.LayerInfo.TrueName, out LayerProps? props);
                         LayerTableRecord ltRecord = AddLayer(layer.LayerInfo.Name, props);
 

@@ -38,7 +38,7 @@ namespace LayerWorks.Legend
         {
             LegendEntityClassName = mainname;
 
-            var service = LoaderCore.LoaderExtension.ServiceProvider.GetRequiredService<IStandardReader<LegendData>>();
+            var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IStandardReader<LegendData>>();
             bool success = service.TryGetStandard(mainname, out LegendData? ld);
             if (success)
                 LegendData = ld;

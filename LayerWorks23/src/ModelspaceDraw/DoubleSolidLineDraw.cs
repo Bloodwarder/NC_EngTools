@@ -35,7 +35,7 @@ namespace LayerWorks.ModelspaceDraw
             pl.Layer = Layer.LayerInfo.Name;
             Polyline pl2 = (Polyline)pl.Clone();
 
-            var formatter = LoaderCore.LoaderExtension.ServiceProvider.GetService<IEntityFormatter>();
+            var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
             formatter?.FormatEntity(pl, Layer.LayerInfo.TrueName);
             // UNDONE : Не реализована отрисовка двойной полилинии
             pl2.ConstantWidth = double.Parse(LegendDrawTemplate?.Width ?? "1.5");  // ТОЖЕ КОСТЫЛЬ, ЧТОБЫ НЕ ДОБАВЛЯТЬ ДОП ПОЛЕ В ТАБЛИЦУ. ТАКИХ СЛОЯ ВСЕГО 3

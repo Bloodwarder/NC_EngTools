@@ -16,7 +16,7 @@ namespace LayersDatabaseEditor
     /// </summary>
     public partial class DatabaseEditorWindow : Window
     {
-        ILogger? _logger = LoaderExtension.ServiceProvider.GetService<ILogger>();
+        ILogger? _logger = NcetCore.ServiceProvider.GetService<ILogger>();
         public DatabaseEditorWindow()
         {
             

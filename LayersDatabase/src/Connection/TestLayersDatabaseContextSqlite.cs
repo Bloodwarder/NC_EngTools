@@ -8,7 +8,7 @@ namespace LayersIO.Connection
 {
     public class TestLayersDatabaseContextSqlite : DbContext
     {
-        public ILogger? _logger = LoaderCore.LoaderExtension.ServiceProvider.GetService<ILogger>();
+        public ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
         public DbSet<LayerData> LayerData { get; set; } = null!;
         public DbSet<LayerGroupData> LayerGroupData { get; set; } = null!;
 

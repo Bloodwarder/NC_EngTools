@@ -8,7 +8,7 @@ namespace LoaderCore.Interfaces
 {
     internal class InMemoryLayerAlterReader : IStandardReader<string>
     {
-        private static LayerAlteringDictionary _provider = LoaderExtension.ServiceProvider.GetService<LayerAlteringDictionary>();
+        private static LayerAlteringDictionary _provider = NcetCore.ServiceProvider.GetService<LayerAlteringDictionary>();
 
         public string GetStandard(string layerName)
         {
