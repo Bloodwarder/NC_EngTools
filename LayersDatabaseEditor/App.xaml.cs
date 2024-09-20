@@ -13,14 +13,14 @@ namespace LayersDatabaseEditor
         static App()
         {
             DirectoryInfo? dir = Directory.GetParent(Assembly.GetExecutingAssembly().Location)!;
-            string path = Path.Combine(dir!.Parent!.FullName, "LoaderCore.dll");
+            string path = Path.Combine(dir!.Parent!.FullName,"LoaderCore","LoaderCore.dll");
             Assembly.LoadFrom(path);
             InitializeLoaderCore();
         }
 
         private static void InitializeLoaderCore()
         {
-            NcetCore.InitializeAsLibrary();
+            LoaderExtension.InitializeAsLibrary();
         }
     }
 

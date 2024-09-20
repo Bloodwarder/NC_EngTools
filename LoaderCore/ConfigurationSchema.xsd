@@ -1,5 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema id="ConfigurationSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema id="ConfigurationSchema"
+		   attributeFormDefault="qualified"
+		   elementFormDefault="qualified"
+		   xmlns="http://tempuri.org/ConfigurationSchema.xsd"
+		   xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<xs:element name="сonfiguration">
 		<xs:complexType>
 			<xs:sequence>
