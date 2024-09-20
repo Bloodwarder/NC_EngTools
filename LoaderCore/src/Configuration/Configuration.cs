@@ -1,5 +1,6 @@
 ﻿using LoaderCore.Utilities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LoaderCore.Configuration
 {
@@ -10,9 +11,7 @@ namespace LoaderCore.Configuration
 
         static Configuration()
         {
-            string xmlPath = PathProvider.GetPath(ConfigurationFileName);
-            IConfiguration config = new ConfigurationBuilder().AddXmlFile(xmlPath).Build();
-            _config = config;
+            _config = NcetCore.ServiceProvider.GetService<IConfiguration>();
         }
 
         public static Directories Directories => _config.GetRequiredSection(nameof(Directories)).Get<Directories>();

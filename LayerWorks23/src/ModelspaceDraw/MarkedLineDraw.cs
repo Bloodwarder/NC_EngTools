@@ -3,7 +3,9 @@ using LayersIO.DataTransfer;
 
 //Modules
 using LayerWorks.LayerProcessing;
+using LoaderCore.Configuration;
 using NanocadUtilities;
+using LayerWorks.Legend;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
@@ -45,7 +47,7 @@ namespace LayerWorks.ModelspaceDraw
             {
                 Contents = MarkChar,
                 TextStyleId = txtstyletable!["Standard"],
-                TextHeight = LoaderCore.Configuration.Configuration.LayerWorks?.LegendGridParameters?.TextHeight ?? 6d,
+                TextHeight = LegendGrid.TextHeight,
                 Layer = Layer.BoundLayer.Name,
                 Color = s_byLayer,
             };

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<сonfiguration xmlns="http://tempuri.org/ConfigurationSchema.xsd">
-	<ShowStartup>true</ShowStartup>
+<сonfiguration>
+<ShowStartup>true</ShowStartup>
 	<Directories>
 		<LocalDirectory></LocalDirectory>
 		<UpdateDirectory></UpdateDirectory>

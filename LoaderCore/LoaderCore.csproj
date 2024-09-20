@@ -41,6 +41,9 @@
 		<None Update="Configuration.xml">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<None Update="ConfigurationSchema.xsd">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="StartUpConfig.xml">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
@@ -56,14 +59,11 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
 	</ItemGroup>
 
-	<Target Name="HelloWorld" AfterTargets="AfterBuild">
-		<Message Text="Hello World" Importance="high" />
-	</Target>
-	<!--<Target Name="CopyDependencies" AfterTargets="Build">
+	<Target Name="MoveConfigurationFile" AfterTargets="Build">
 		<ItemGroup>
-			<Dependencies Include="$(RootOutputPath)/*" Exclude="$(RootOutputPath)/LoaderCore.*"/>
+			<UserData Include="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\LoaderCore\Configuration.xml" />
 		</ItemGroup>
-		<Move SourceFiles="@(Dependencies)" DestinationFolder="$(OutputPath)LoaderCore" />
-	</Target>-->
+		<Move SourceFiles="@(UserData)" DestinationFolder="..\NC_EngTools\bin\$(Configuration)\" />
+	</Target>
 	
 </Project>

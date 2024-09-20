@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using LoaderCore;
+using LoaderCore.Interfaces;
+using LoaderCore.Integrity;
 using LoaderCore.Utilities;
 using Exception = System.Exception;
 
@@ -20,7 +24,9 @@ namespace LoaderCore.Integrity
         {
             Name = name;
             DllName = $"{name}.dll";
-            var directoryPath = Path.Combine(NcetCore.RootLocalDirectory, ModulesFolderName, Name);
+            var rootDirectory = NcetCore.RootLocalDirectory
+                                ?? new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.Parent!.Parent!.FullName;
+            var directoryPath = Path.Combine(rootDirectory, ModulesFolderName, Name);
             _moduleDirectory = new DirectoryInfo(directoryPath);
             _mainAssemblyPath = Path.Combine(directoryPath, DllName);
             if (!File.Exists(_mainAssemblyPath))
@@ -34,11 +40,17 @@ namespace LoaderCore.Integrity
         {
             LoadMainAssembly();
             LoadDependencies();
+            RunInitializer();
         }
 
 
         internal void Update()
         {
+            if (Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled))
+            {
+                LoggingRouter.WriteLog?.Invoke("Отладочная сборка - обновление не производится");
+                return;
+            }
             var updateSourceDirectory = new DirectoryInfo(Path.Combine(NcetCore.RootUpdateDirectory, ModulesFolderName));
             if (!updateSourceDirectory.Exists)
                 throw new Exception("Источник обновлений недоступен");
@@ -57,7 +69,7 @@ namespace LoaderCore.Integrity
                     var newLocalFile = sourceFile.CopyTo(localFile?.FullName
                                                          ?? sourceFile.FullName.Replace(
                                                              NcetCore.RootUpdateDirectory,
-                                                             NcetCore.RootLocalDirectory), 
+                                                             NcetCore.RootLocalDirectory),
                                                                 true);
                     LoggingRouter.WriteLog?.Invoke($"Файл {newLocalFile.Name} обновлён ");
                     updated = true;
@@ -141,19 +153,46 @@ namespace LoaderCore.Integrity
             }
         }
 
-        private bool TryGetAssemblyName(string dllFilePath, out AssemblyName? assemblyName)
+        private void RunInitializer()
         {
+
+            Type targetType = typeof(INcetInitializer);
+            Type? classType;
             try
             {
-                var name = AssemblyName.GetAssemblyName(dllFilePath);
-                assemblyName = name;
-                return true;
+                classType = _mainAssembly!.GetTypes()
+                                              .SingleOrDefault(t => t.GetCustomAttribute<NcetModuleInitializerAttribute>() != null
+                                                                   && targetType.IsAssignableFrom(t));
             }
-            catch (BadImageFormatException)
-            {
-                assemblyName = null;
-                return false;
+            catch (ReflectionTypeLoadException ex)
+            { 
+                // Handle types that could not be loaded, including those from missing assemblies
+                classType = ex.Types.Where(t => t != null).SingleOrDefault(t => t!.GetCustomAttribute<NcetModuleInitializerAttribute>() != null
+                                                                   && targetType.IsAssignableFrom(t));
             }
+            if (classType == null)
+                return;
+            INcetInitializer? initializer = Activator.CreateInstance(classType) as INcetInitializer;
+            if (initializer == null)
+                throw new Exception("Ошибка инициализации модуля");
+            initializer.Initialize();
+        }
+
+    
+
+    private bool TryGetAssemblyName(string dllFilePath, out AssemblyName? assemblyName)
+    {
+        try
+        {
+            var name = AssemblyName.GetAssemblyName(dllFilePath);
+            assemblyName = name;
+            return true;
+        }
+        catch (BadImageFormatException)
+        {
+            assemblyName = null;
+            return false;
         }
     }
+}
 }
