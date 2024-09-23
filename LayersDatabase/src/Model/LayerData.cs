@@ -32,8 +32,8 @@
                 StatusName = classifiers[^1];
             }
         }
-        public LayerPropertiesData LayerPropertiesData { get; set; }
-        public LayerDrawTemplateData LayerDrawTemplateData { get; set; }
+        public LayerPropertiesData? LayerPropertiesData { get; set; }
+        public LayerDrawTemplateData? LayerDrawTemplateData { get; set; }
 
         public bool IsEmpty => LayerPropertiesData is null || LayerDrawTemplateData is null || MainName is null;
     }

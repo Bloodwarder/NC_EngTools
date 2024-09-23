@@ -51,7 +51,6 @@ namespace LoaderCore
     /// </summary>
     public static class NcetCore
     {
-        // TODO: Переработать окно автозапуска и конфигурации 
         private const string ConfigurationXmlFileName = "Configuration.xml";
         private static readonly IServiceCollection _serviceCollection = new ServiceCollection();
         private static bool _serviceProviderBuilt = false;
@@ -75,8 +74,8 @@ namespace LoaderCore
                                                         throw new InvalidOperationException("Провайдер сервисов уже построен");
         internal static List<ModuleHandler> Modules { get; } = new();
         internal static string RootLocalDirectory { get; set; } = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.Parent!.Parent!.FullName;
-        internal static string RootUpdateDirectory { get; set; }
-        private static Dictionary<string, string>? LibraryFiles { get; } = new();
+        internal static string? RootUpdateDirectory { get; set; }
+        private static Dictionary<string, string> LibraryFiles { get; } = new();
 
         public static void Initialize()
         {

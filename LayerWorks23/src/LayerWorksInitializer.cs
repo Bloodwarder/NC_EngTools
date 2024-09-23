@@ -26,12 +26,13 @@ namespace LayerWorks
             NcetCore.Services.AddTransient<IStandardReader<LegendDrawTemplate>, InMemoryLayerLegendDrawReader>();
             NcetCore.Services.AddTransient<InMemoryLayerAlterReader>();
 
+            // TODO: Поменять IDictionary на репозиторий с отдельным интерфейсом
             NcetCore.Services.AddSingleton<IDictionary<string, LayerProps>, LayerPropertiesDictionary>();
             NcetCore.Services.AddSingleton<IDictionary<string, LegendData>, LayerLegendDictionary>();
             NcetCore.Services.AddSingleton<IDictionary<string, LegendDrawTemplate>, LayerLegendDrawDictionary>();
             NcetCore.Services.AddSingleton<LayerAlteringDictionary>();
 
-            NcetCore.Services.AddTransient<ILayerDataProvider<string, LayerProps>>();
+            // используются внутри фабрике (регистрируется в следующих строках)
             NcetCore.Services.AddTransient<Func<string, ILayerDataProvider<string, LayerProps>>>(p => new(path => new SQLiteLayerPropsProvider(path)));
             NcetCore.Services.AddTransient<Func<string, ILayerDataProvider<string, LegendData>>>(p => new(path => new SQLiteLayerLegendDataProvider(path)));
             NcetCore.Services.AddTransient<Func<string, ILayerDataProvider<string, LegendDrawTemplate>>>(p => new(path => new SQLiteLegendDrawTemplateProvider(path)));

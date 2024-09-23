@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LayersIO.Database
 {
-    public abstract class SQLiteLayerDataContextFactory
+    public class SQLiteLayerDataContextFactory
     {
         static SQLiteLayerDataContextFactory()
         {
