@@ -1,2 +1,2 @@
-global using NUnit.Framework;
 global using NameClassifiers;
+global using NUnit.Framework;

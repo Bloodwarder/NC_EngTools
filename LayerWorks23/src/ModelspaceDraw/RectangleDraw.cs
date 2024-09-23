@@ -2,13 +2,15 @@
 
 //Modules
 //nanoCAD
-using Teigha.DatabaseServices;
-using Teigha.Geometry;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
+using Teigha.DatabaseServices;
+using Teigha.Geometry;
 
 namespace LayerWorks.ModelspaceDraw
 {
@@ -43,12 +45,10 @@ namespace LayerWorks.ModelspaceDraw
             if (layer != null)
                 LayerChecker.Check($"{LayerWrapper.StandartPrefix}{separator}{layer}"); //ПОКА ЗАВЯЗАНО НА ЧЕКЕР ИЗ ДРУГОГО МОДУЛЯ. ПРОАНАЛИЗИРОВАТЬ ВОЗМОЖНОСТИ ОПТИМИЗАЦИИ
             rectangle.Layer = layer == null ? Layer.BoundLayer.Name : $"{LayerWrapper.StandartPrefix}{separator}{layer}";
-            bool success = LayerPropertiesDictionary.TryGetValue(rectangle.Layer, out LayerProps? lp);
-            if (success)
-            {
-                rectangle.LinetypeScale = lp!.LTScale;
-                rectangle.ConstantWidth = lp!.ConstantWidth;
-            }
+
+            var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
+            formatter?.FormatEntity(rectangle, Layer.LayerInfo.TrueName);
+
             rectangle.Color = BrightnessShift(brightnessshift);
             EntitiesList.Add(rectangle);
             return rectangle;

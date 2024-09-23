@@ -3,7 +3,10 @@ using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
-    internal class PrimaryClassifierSection : ParserSection
+    /// <summary>
+    /// Основной классификатор. Обязательный. Независим от положения. Может быть только один. Считается частью основного имени
+    /// </summary>
+    public class PrimaryClassifierSection : ParserSection
     {
         private Dictionary<string, string> _descriptionDict = new();
         public PrimaryClassifierSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
@@ -34,6 +37,19 @@ namespace NameClassifiers.Sections
         internal override bool ValidateString(string str)
         {
             return _descriptionDict.ContainsKey(str);
+        }
+
+        internal override void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptions)
+        {
+            IEnumerable<string> chapters = layerInfos.Select(i => i.PrimaryClassifier!).Distinct();
+            keywords = chapters.ToArray();
+            descriptions = s => _descriptionDict[s];
+        }
+
+        internal override void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions)
+        {
+            keywords = _descriptionDict.Keys.ToArray();
+            descriptions = s => _descriptionDict[s];
         }
     }
 }

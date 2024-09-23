@@ -1,6 +1,4 @@
-﻿using LayersIO.ExternalData;
-using System.Collections.Generic;
-using System.IO;
+﻿using LoaderCore.Interfaces;
 using System.Xml.Serialization;
 
 namespace LayersIO.Xml
@@ -20,13 +18,18 @@ namespace LayersIO.Xml
 
         public Dictionary<TKey, TValue> GetData()
         {
-            if (!_fileInfo.Exists) { throw new System.Exception("Файл не существует"); }
+            if (!_fileInfo.Exists) { throw new FileNotFoundException("Файл не существует"); }
             XmlSerializer xs = new(typeof(XmlSerializableDictionary<TKey, TValue>));
             using (FileStream fs = new(FilePath, FileMode.Open))
             {
                 XmlSerializableDictionary<TKey, TValue> dct = xs.Deserialize(fs) as XmlSerializableDictionary<TKey, TValue>;
-                return dct!;
+                return dct ?? new();
             }
+        }
+
+        public TValue? GetItem(TKey key)
+        {
+            throw new NotImplementedException("Получение одного значения из xml пока не реализовывалось");
         }
     }
 }

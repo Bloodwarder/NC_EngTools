@@ -17,6 +17,19 @@ namespace LayerWorks.Legend
         internal double HeightInterval { get; set; } = _defaultHeightInterval;
         internal double TextWidth { get; set; } = _defaultTextWidth;
         internal double TextHeight { get; set; } = _defaultTextHeight;
+
+        internal static LegendGridParameters GetDefault()
+        {
+            return new()
+            {
+                CellWidth = _defaultCellWidth,
+                CellHeight = _defaultCellHeight,
+                WidthInterval = _defaultWidthInterval,
+                HeightInterval = _defaultHeightInterval,
+                TextWidth = _defaultTextWidth,
+                TextHeight = _defaultTextHeight
+            };
+        }
     }
 
     internal static class LayerWorksConfigurationExtension
@@ -32,7 +45,7 @@ namespace LayerWorks.Legend
                 CellWidth = config.LegendGridParameters.CellWidth,
                 HeightInterval = config.LegendGridParameters.HeightInterval,
                 TextHeight = config.LegendGridParameters.TextHeight,
-                TextWidth = config.LegendGridParameters.TextWidth, 
+                TextWidth = config.LegendGridParameters.TextWidth,
                 WidthInterval = config.LegendGridParameters.WidthInterval
             };
             return parameters;

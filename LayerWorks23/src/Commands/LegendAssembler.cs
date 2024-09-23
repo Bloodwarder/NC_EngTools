@@ -1,18 +1,21 @@
 ﻿//System
-using System.Text;
 //nanoCAD
 using HostMgd.EditorInput;
-using Teigha.DatabaseServices;
-using Teigha.Runtime;
-using Teigha.Colors;
-
-//internal modules
-using Teigha.Geometry;
-using NameClassifiers;
-using NanocadUtilities;
+using LayersIO.DataTransfer;
+using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
-using LayersIO.ExternalData;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using NameClassifiers;
+using NanocadUtilities;
+using System.Text;
+using Teigha.Colors;
+using Teigha.DatabaseServices;
+//internal modules
+using Teigha.Geometry;
+using Teigha.Runtime;
+using static NanocadUtilities.EditorHelper;
 
 namespace LayerWorks.Commands
 {
@@ -70,9 +73,13 @@ namespace LayerWorks.Commands
                     try
                     {
                         RecordLayerWrapper rlp = new(ltr);
-                        if (!LayerLegendDictionary.CheckKey(rlp.LayerInfo.MainName))
+                        var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDictionary<string, LegendData>>();
+                        if (!service.ContainsKey(rlp.LayerInfo.MainName))
                         {
-                            wrongLayersStringBuilder.AppendLine($"Нет данных для слоя {rlp.LayerInfo.Prefix}{rlp.LayerInfo.ParentParser.Separator}{rlp.LayerInfo.MainName}");
+                            wrongLayersStringBuilder.AppendLine($"Нет данных для слоя "
+                                                                + $"{rlp.LayerInfo.Prefix}"
+                                                                + $"{rlp.LayerInfo.ParentParser.Separator}"
+                                                                + $"{rlp.LayerInfo.MainName}");
                             continue;
                         }
                         layersList.Add(rlp);
@@ -90,12 +97,32 @@ namespace LayerWorks.Commands
                     cells.Add(new LegendGridCell(rlp));
                 }
                 // Выбрать фильтр (режим компоновки)
-                string filterModeString = GetStringKeywordResult(_filterKeywords, "Выберите режим компоновки:");
-                TableFilter filter = GetFilter(filterModeString);
+                string[][]? filterKeywords = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!]
+                                                       .GlobalFilters
+                                                       .GetFilterKeyWords(out int filtersCount);
+                string[] chosenKeywords = new string[filtersCount];
+                if (filterKeywords != null)
+                {
+                    for (int i = 0; i < filtersCount; i++)
+                    {
+                        try
+                        {
+                            chosenKeywords[i] = GetStringKeywordResult(filterKeywords[i], "Выберите режим компоновки:");
+                        }
+                        catch (System.Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                            return;
+                        }
+                    }
+                }
                 // Запустить компоновщик таблиц условных и получить созданные объекты чертежа для вставки в ModelSpace
-                GridsComposer composer = new(cells, filter);
-                composer.Compose(p3d);
-                List<Entity> entitiesList = composer.DrawGrids();
+                List<Entity> entitiesList;
+                using (GridsComposer composer = new(cells, chosenKeywords))
+                {
+                    composer.Compose(p3d);
+                    entitiesList = composer.DrawGrids();
+                }
                 // Получить таблицу блоков и ModelSpace, затем вставить объекты таблиц условных в чертёж
                 BlockTable? blocktable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
                 BlockTableRecord? modelspace = transaction.GetObject(blocktable![BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
@@ -171,20 +198,6 @@ namespace LayerWorks.Commands
                                                 .ToList();
             return entities.Select(e => (LayerTableRecord)transaction.GetObject(e.LayerId, OpenMode.ForWrite))
                            .Distinct();
-        }
-
-        private static string GetStringKeywordResult(string[] keywordsArray, string message)
-        {
-            PromptKeywordOptions pko = new($"{message} [{string.Join("/", keywordsArray)}]", string.Join(" ", keywordsArray))
-            {
-                AppendKeywordsToMessage = true,
-                AllowNone = false,
-                AllowArbitraryInput = false
-            };
-            PromptResult keywordResult = Workstation.Editor.GetKeywords(pko);
-            if (keywordResult.Status != PromptStatus.OK)
-                throw new System.Exception("Ошибка ввода");
-            return keywordResult.StringResult;
         }
 
         private static TableFilter GetFilter(string keyword)

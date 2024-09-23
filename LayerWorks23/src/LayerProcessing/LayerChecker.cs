@@ -1,16 +1,16 @@
 ﻿//System
-using System.IO;
-//nanoCAD
-using Teigha.DatabaseServices;
-using Teigha.Colors;
-
-//internal modules
-using LoaderCore.Utilities;
-using LayerWorks.LayerProcessing;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
+using LoaderCore.Interfaces;
+//internal modules
+using LoaderCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
 using NanocadUtilities;
+using System.IO;
+using Teigha.Colors;
+//nanoCAD
+using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing
 {
@@ -28,7 +28,9 @@ namespace LayerWorks.LayerProcessing
                     LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
                     if (!lt!.Has(layername))
                     {
-                        bool propsgetsuccess = LayerPropertiesDictionary.TryGetValue(layername, out LayerProps? lp);
+                        var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
+                        bool propsgetsuccess = service.TryGetStandard(layername, out LayerProps? lp);
+
                         LayerTableRecord ltRecord = AddLayer(layername, lp);
 
                         //Process new layer if isolated chapter visualization is active
@@ -38,6 +40,7 @@ namespace LayerWorks.LayerProcessing
                     }
                     else
                     {
+                        transaction.Commit();
                         return;
                     }
                 }
@@ -57,8 +60,9 @@ namespace LayerWorks.LayerProcessing
                     LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
                     if (!lt!.Has(layer.LayerInfo.Name))
                     {
-                        bool propsgetsuccess = LayerPropertiesDictionary.TryGetValue(layer.LayerInfo.TrueName, out LayerProps? lp);
-                        LayerTableRecord ltRecord = AddLayer(layer.LayerInfo.Name, lp);
+                        var standardService = LoaderCore.NcetCore.ServiceProvider.GetService<IStandardReader<LayerProps>>()!;
+                        bool propsgetsuccess = standardService.TryGetStandard(layer.LayerInfo.TrueName, out LayerProps? props);
+                        LayerTableRecord ltRecord = AddLayer(layer.LayerInfo.Name, props);
 
                         //Process new layer if isolated chapter visualization is active
                         EventArgs e = new();
@@ -104,6 +108,7 @@ namespace LayerWorks.LayerProcessing
 
         internal static bool TryFindLinetype(string? linetypename, out ObjectId lineTypeId)
         {
+
             ObjectId defaultLinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
             if (linetypename == null)
             {

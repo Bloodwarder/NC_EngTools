@@ -1,23 +1,20 @@
-using System;
-using System.Linq;
-using System.Collections.Generic;
-
-
+using GeoMod.GeometryExtensions;
+using GeoMod.UI;
+using HostMgd.ApplicationServices;
+using HostMgd.EditorInput;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using NanocadUtilities;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using NtsBufferOps = NetTopologySuite.Operation.Buffer;
 using NetTopologySuite.Operation.Buffer;
-
-using Teigha.Runtime;
-using Teigha.DatabaseServices;
-using HostMgd.EditorInput;
-
-using NanocadUtilities;
-using GeoMod.GeometryExtensions;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
-using GeoMod.UI;
-using HostMgd.ApplicationServices;
+using Teigha.DatabaseServices;
+using Teigha.Runtime;
+using NtsBufferOps = NetTopologySuite.Operation.Buffer;
 
 namespace GeoMod
 {
@@ -26,22 +23,27 @@ namespace GeoMod
     /// </summary>
     public class GeoCommands
     {
-        private static NtsGeometryServices _geometryServices;
+        private const string RelatedConfigurationSection = "GeoModConfiguration";
+
+        private static NtsGeometryServices _geometryServices = null!;
+        private static Microsoft.Extensions.Configuration.IConfigurationSection _configuration;
         private static double _defaultBufferDistance { get; set; } = 1d;
 
-        private static BufferParameters DefaultBufferParameters = new()
-        {
-            EndCapStyle = EndCapStyle.Round,
-            JoinStyle = NtsBufferOps.JoinStyle.Round,
-            QuadrantSegments = 6,
-            SimplifyFactor = 0.02d,
-            IsSingleSided = false
-        };
+        private static BufferParameters DefaultBufferParameters;
 
         static GeoCommands()
         {
-            // Инициализация NetTopologySuite
+            var section = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IConfiguration>();
+            _configuration = section.GetRequiredSection(RelatedConfigurationSection);
             InitializeNetTopologySuite();
+            DefaultBufferParameters = _configuration.GetValue<BufferParameters>("BufferParameters") ?? new()
+            {
+                EndCapStyle = EndCapStyle.Round,
+                JoinStyle = NtsBufferOps.JoinStyle.Round,
+                QuadrantSegments = 6,
+                SimplifyFactor = 0.02d,
+                IsSingleSided = false
+            };
         }
 
 
@@ -81,11 +83,11 @@ namespace GeoMod
             string fromClipboard = System.Windows.Clipboard.GetText();
 
             // отфильтровать текст, описывающий wkt геометрию
-            string[] matches = Regex.Matches(fromClipboard, @"[a-zA-Z]*\s?\(.*\)").Select(m => m.Value).ToArray();
+            string[] matches = Regex.Matches(fromClipboard, @"[a-zA-Z]*\s?\([^A-Za-zА-Яа-я]*\)").Select(m => m.Value).ToArray();
             WKTReader reader = new(_geometryServices);
 
             // создать геометрию, преобразовать в объекты dwg и поместить в модель
-            Geometry[] geometries = matches.Select(m => reader.Read(m)).ToArray();
+            Geometry[] geometries = matches.Select(m => reader.Read(m)).ToArray();  // TODO: обработать ошибки на случай, если некорректная строка всё же проскочит через регулярку
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 BlockTable? blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
@@ -338,10 +340,11 @@ namespace GeoMod
         }
         private static void InitializeNetTopologySuite()
         {
+            double precision = _configuration.GetValue<double>("Precision");
             NtsGeometryServices.Instance = new NtsGeometryServices( // default CoordinateSequenceFactory
                                                         NetTopologySuite.Geometries.Implementation.CoordinateArraySequenceFactory.Instance,
                                                         // default precision model
-                                                        new PrecisionModel(1000d),
+                                                        new PrecisionModel(precision),
                                                         // default SRID
                                                         -1,
                                                         // Geometry overlay operation function set to use (Legacy or NG)

@@ -2,13 +2,14 @@
 
 //Modules
 //nanoCAD
-using Teigha.DatabaseServices;
-using Teigha.Geometry;
-using Teigha.Colors;
-
-using LayerWorks.LayerProcessing;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
+using LayerWorks.LayerProcessing;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using Teigha.Colors;
+using Teigha.DatabaseServices;
+using Teigha.Geometry;
 
 namespace LayerWorks.ModelspaceDraw
 {
@@ -33,12 +34,10 @@ namespace LayerWorks.ModelspaceDraw
             pl.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
             pl.Layer = Layer.LayerInfo.Name;
             Polyline pl2 = (Polyline)pl.Clone();
-            bool success  = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps? lp);
-            if (success)
-            {
-                pl.LinetypeScale = lp!.LTScale;
-                pl.ConstantWidth = lp!.ConstantWidth;
-            }
+
+            var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
+            formatter?.FormatEntity(pl, Layer.LayerInfo.TrueName);
+            // UNDONE : Не реализована отрисовка двойной полилинии
             pl2.ConstantWidth = double.Parse(LegendDrawTemplate?.Width ?? "1.5");  // ТОЖЕ КОСТЫЛЬ, ЧТОБЫ НЕ ДОБАВЛЯТЬ ДОП ПОЛЕ В ТАБЛИЦУ. ТАКИХ СЛОЯ ВСЕГО 3
             pl2.Color = Color.FromRgb(0, 0, 255);   // ЗАТЫЧКА, ПОКА ТАКОЙ ОБЪЕКТ ВСЕГО ОДИН
             EntitiesList.Add(pl2);

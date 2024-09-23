@@ -1,4 +1,4 @@
-﻿using LayersIO.ExternalData;
+﻿using LoaderCore.Interfaces;
 using NPOI.SS.UserModel;
 
 
@@ -46,5 +46,10 @@ namespace LayersIO.Excel
             }
         }
         abstract private protected void CellsImport(IWorkbook xlwb, Dictionary<TKey, TValue> importeddictionary);
+
+        public void OverwriteItem(TKey key, TValue item)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

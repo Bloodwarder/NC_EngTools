@@ -1,14 +1,6 @@
-﻿using Microsoft.VisualBasic.ApplicationServices;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
+﻿using LoaderCore;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace LayersDatabaseEditor
@@ -20,9 +12,15 @@ namespace LayersDatabaseEditor
     {
         static App()
         {
-            DirectoryInfo? dir = Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.Parent;
-            string path = Path.Combine(dir!.FullName,"ExtensionLibraries","LoaderCore.dll");
+            DirectoryInfo? dir = Directory.GetParent(Assembly.GetExecutingAssembly().Location)!;
+            string path = Path.Combine(dir!.Parent!.FullName,"LoaderCore","LoaderCore.dll");
             Assembly.LoadFrom(path);
+            InitializeLoaderCore();
+        }
+
+        private static void InitializeLoaderCore()
+        {
+            LoaderExtension.InitializeAsLibrary();
         }
     }
 

@@ -1,11 +1,10 @@
-﻿using LayersIO.ExternalData;
+﻿using LoaderCore.Interfaces;
 using System.Xml.Serialization;
 
 namespace LayersIO.Xml
 {
     public class XmlLayerDataWriter<TKey, TValue> : ILayerDataWriter<TKey, TValue>
-    where TKey : class
-    where TValue : class
+    where TKey : notnull
     {
         private string FilePath { get; set; }
         private readonly FileInfo _fileInfo;
@@ -22,6 +21,11 @@ namespace LayersIO.Xml
             {
                 xs.Serialize(fs, dictionary as XmlSerializableDictionary<TKey, TValue>);
             }
+        }
+
+        public void OverwriteItem(TKey key, TValue item)
+        {
+            throw new NotImplementedException();
         }
     }
 }

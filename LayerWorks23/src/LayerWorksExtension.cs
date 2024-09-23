@@ -1,18 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LayerWorks.EntityFormatters;
+using LoaderCore.Interfaces;
+using LoaderCore;
+using System.ComponentModel;
 using Teigha.Runtime;
-using HostMgd.ApplicationServices;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LayerWorks
 {
     internal class LayerWorksExtension : IExtensionApplication
     {
-        public void Initialize()
+        void IExtensionApplication.Initialize()
         {
+            TypeDescriptor.AddAttributes(typeof(Teigha.Colors.Color), new TypeConverterAttribute(typeof(TeighaColorTypeConverter)));
 
+            NcetCore.Services.AddSingleton<IEntityFormatter, StandardEntityFormatter>();
+
+            new LayerWorksInitializer().Initialize();
         }
 
         public void Terminate()

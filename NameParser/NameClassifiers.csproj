@@ -5,6 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PlatformTarget>x64</PlatformTarget>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	</PropertyGroup>
@@ -12,7 +13,11 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DebugType>none</DebugType>
 	</PropertyGroup>
-	
+
+	<PropertyGroup>
+		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries</OutputPath>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<Compile Remove="Unused\NameParserFactory.cs" />
 		<Compile Remove="Unused\NameParserOld.cs" />
@@ -24,9 +29,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="Data\LayerParserTemplate.xml">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
+		<None Update="Data\LayerParser_ИС.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
+
+	<!--Переместить базовый парсер-->
+	<Target Name="CopyUserData" AfterTargets="Build">
+		<ItemGroup>
+			<UserData Include="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Data\LayerParser_ИС.xml"/>
+		</ItemGroup>
+		<Move SourceFiles="@(UserData)" DestinationFolder="..\NC_EngTools\bin\$(Configuration)\UserData"/>
+		<RemoveDir Directories="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Data"/>
+	</Target>
 
 </Project>

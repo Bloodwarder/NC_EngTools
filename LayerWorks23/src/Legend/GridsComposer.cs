@@ -1,75 +1,41 @@
-﻿using Teigha.DatabaseServices;
+﻿using NameClassifiers;
+using NameClassifiers.Filters;
+using Teigha.DatabaseServices;
 using Teigha.Geometry;
 
 namespace LayerWorks.Legend
 {
-    internal class GridsComposer
+    internal class GridsComposer : IDisposable
     {
 
         const double SeparatedGridsOffset = 150d;
+        internal static GridsComposer? ActiveComposer { get; private set; }
         internal List<LegendGridCell> SourceCells { get; set; } = new List<LegendGridCell>();
         internal List<LegendGrid> Grids { get; set; } = new List<LegendGrid>();
 
-        private readonly TableFilter _filter;
+        private readonly string[] _keywords;
         Point3d _basepoint;
-        internal GridsComposer(IEnumerable<LegendGridCell> cells, TableFilter filter)
+        internal GridsComposer(IEnumerable<LegendGridCell> cells, string[] keywords)
         {
+            ActiveComposer = this;
             SourceCells.AddRange(cells);
-            _filter = filter;
+            _keywords = keywords;
         }
 
         // Компоновка сеток с условными обозначениями на основе выбранных фильтров
         internal void Compose(Point3d basepoint)
         {
-            // Починено под изначальный парсер чтобы компилировалось и работало
-            // Сделать пользовательский выбор для конкретного парсера, данные взять из xml
             _basepoint = basepoint;
-            switch (_filter)
-            {
-                case TableFilter.ExistingOnly:
-                    // Сетка только с сущом
-                    AddGrid(c => c.Layer.LayerInfo.Status == "сущ");
-                    break;
-
-                case TableFilter.InternalOnly:
-                    // Сетка с сущом, проектом и утверждаемым демонтажом
-                    AddGrid(c => new string[] { "сущ", "дем", "пр"}.Contains(c.Layer.LayerInfo.Status));
-                    break;
-
-                case TableFilter.InternalAndExternal:
-                    // Сетка с сущом, проектом и утверждаемым демонтажом
-                    AddGrid(c => new string[] { "сущ", "дем", "пр" }.Contains(c.Layer.LayerInfo.Status));
-                    // Сетка с неутв и неутв демонтажом
-                    AddGrid(c => new string[] { "ндем", "неутв"}.Contains(c.Layer.LayerInfo.Status));
-
-                    break;
-
-                case TableFilter.InternalAndSeparatedExternal:
-                    // Сетка с сущом и проектом
-                    AddGrid(c => new string[] { "сущ", "дем", "пр" }.Contains(c.Layer.LayerInfo.Status));
-                    // Сетка с неутв и неутв демонтажом без метки конкретного внешнего проекта
-                    AddGrid(c => new string[] { "ндем", "неутв" }.Contains(c.Layer.LayerInfo.Status) && c.Layer.LayerInfo.AuxilaryData["ExternalProject"] == null);
-                    // Сетки с неутв и неутв демонтажом для кадого конкретного внешнего проекта
-                    List<string?> extprojects = SourceCells
-                        .Where(c => c.Layer.LayerInfo.AuxilaryData["ExternalProject"] != null)
-                        .Select(c => c.Layer.LayerInfo.AuxilaryData["ExternalProject"])
-                        .Distinct().ToList();
-                    foreach (var extproject in extprojects)
-                        AddGrid(c => c.Layer.LayerInfo.AuxilaryData["ExternalProject"] == extproject);
-                    break;
-
-                case TableFilter.Full:
-                    // Полная общая сетка для всех успешно обработанных слоёв
-                    AddGrid(c => true);
-                    break;
-            }
-
+            GlobalFilters globalFilters = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GlobalFilters;
+            IEnumerable<GridData> grids = globalFilters.GetGridData(_keywords);
+            foreach (var grid in grids)
+                AddGrid(grid);
         }
-        private void AddGrid(Func<LegendGridCell, bool> predicate)
+        private void AddGrid(GridData gridData)
         {
             // Отфильтровать ячейки, созданные для успешно обработанных слоёв и клонировать их в новый список в соответствии с заданным фильтром
-            List<LegendGridCell> filteredcells = SourceCells.Where(predicate).ToList();
-            List<LegendGridCell> cells = new List<LegendGridCell>();
+            List<LegendGridCell> filteredcells = SourceCells.Where(gridData.Predicate).ToList();
+            List<LegendGridCell> cells = new();
             foreach (LegendGridCell cell in filteredcells)
             {
                 cells.Add((LegendGridCell)cell.Clone());
@@ -77,7 +43,7 @@ namespace LayerWorks.Legend
             // Посчитать точку вставки на основании уже вставленных сеток
             double deltax = Grids.Select(g => g.Width).Sum() + SeparatedGridsOffset * Grids.Count;
             // Собрать сетку и добавить в список созданных сеток
-            LegendGrid grid = new LegendGrid(cells, new Point3d(_basepoint.X + deltax, _basepoint.Y, 0d));
+            LegendGrid grid = new(cells, new Point3d(_basepoint.X + deltax, _basepoint.Y, 0d), gridData.GridName);
             grid.Assemble();
             Grids.Add(grid);
         }
@@ -101,6 +67,12 @@ namespace LayerWorks.Legend
                 }
             }
             return entities;
+        }
+
+        public void Dispose()
+        {
+            ActiveComposer = null;
+            GC.SuppressFinalize(this);
         }
     }
 }

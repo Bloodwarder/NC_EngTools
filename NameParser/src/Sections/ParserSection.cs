@@ -7,11 +7,11 @@ namespace NameClassifiers.Sections
     /// Секция классификатора. Секции последовательно собираются в цепочку обязанностей 
     /// в конструкторе NameParser и последовательно обрабатывают входящие массивы строк или объекты LayerInfo.
     /// </summary>
-    internal abstract class ParserSection
+    public abstract class ParserSection
     {
         protected NameParser ParentParser { get; init; }
-        protected ParserSection(XElement xElement, NameParser parentParser) 
-        { 
+        protected ParserSection(XElement xElement, NameParser parentParser)
+        {
             this.ParentParser = parentParser;
         }
 
@@ -20,5 +20,7 @@ namespace NameClassifiers.Sections
         internal abstract void Process(string[] str, LayerInfo layerInfo, int pointer);
         internal abstract void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType);
         internal abstract bool ValidateString(string str);
+        internal abstract void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptions);
+        internal abstract void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions);
     }
 }

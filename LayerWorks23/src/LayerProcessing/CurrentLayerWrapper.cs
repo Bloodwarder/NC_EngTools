@@ -1,8 +1,10 @@
-﻿using Teigha.DatabaseServices;
-using LayersIO.DataTransfer;
+﻿using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
-using NanocadUtilities;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
+using NanocadUtilities;
+using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing
 {
@@ -28,17 +30,19 @@ namespace LayerWorks.LayerProcessing
         /// </summary>
         public override void Push()
         {
-            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
+            TransactionManager tm = Workstation.TransactionManager;
             Database db = Workstation.Database;
 
             LayerChecker.Check(this);
             LayerTable? lt = tm.TopTransaction.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
             db.Clayer = lt![LayerInfo.Name];
-            bool success = LayerPropertiesDictionary.TryGetValue(LayerInfo.Name, out LayerProps? lp);
+
+            var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
+            bool success = service.TryGetStandard(LayerInfo.Name, out LayerProps? lp);
             if (success)
             {
-                db.Celtscale = lp!.LTScale;
-                db.Plinewid = lp!.ConstantWidth;
+                db.Celtscale = lp?.LTScale ?? default;
+                db.Plinewid = lp?.ConstantWidth ?? default;
             }
         }
     }

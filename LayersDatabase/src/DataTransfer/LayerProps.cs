@@ -1,6 +1,4 @@
-﻿using LayersIO.Model;
-
-namespace LayersIO.DataTransfer
+﻿namespace LayersIO.DataTransfer
 {
 
     /// <summary>
@@ -11,23 +9,23 @@ namespace LayersIO.DataTransfer
         /// <summary>
         /// Глобальная ширина
         /// </summary>
-        public double ConstantWidth;
+        public double? ConstantWidth;
         /// <summary>
         /// Масштаб типа линий
         /// </summary>
-        public double LTScale;
+        public double? LTScale;
         /// <summary>
         /// Красный
         /// </summary>
-        public byte Red;
+        public byte? Red;
         /// <summary>
         /// Зелёный
         /// </summary>
-        public byte Green;
+        public byte? Green;
         /// <summary>
         /// Синий
         /// </summary>
-        public byte Blue;
+        public byte? Blue;
         /// <summary>
         /// Тип линий
         /// </summary>
@@ -35,7 +33,7 @@ namespace LayersIO.DataTransfer
         /// <summary>
         /// Вес линий
         /// </summary>
-        public int LineWeight;
+        public int? LineWeight;
 
     }
 }

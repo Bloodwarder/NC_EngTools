@@ -1,17 +1,20 @@
 ﻿//System
-using System.Linq;
 //nanoCAD
 using HostMgd.EditorInput;
-using Teigha.DatabaseServices;
-using Teigha.Runtime;
-using Teigha.Colors;
-
+using LayersIO.ExternalData;
+using LayerWorks.Dictionaries;
+using LayerWorks.LayerProcessing;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using NameClassifiers;
+using NameClassifiers.Sections;
 //internal modules
 using NanocadUtilities;
-using NameClassifiers;
-using LayerWorks.LayerProcessing;
-using LayerWorks.Dictionaries;
-using LayersIO.ExternalData;
+using Teigha.Colors;
+using Teigha.DatabaseServices;
+using Teigha.Runtime;
+
+using static NanocadUtilities.EditorHelper;
 
 namespace LayerWorks.Commands
 {
@@ -51,9 +54,9 @@ namespace LayerWorks.Commands
                 else
                 {
                     LayerTableRecord? ltrec = (from ObjectId elem in lt
-                                              let ltr = (LayerTableRecord)transaction.GetObject(elem, OpenMode.ForWrite, false)
-                                              where ltr.Name == tgtlayer
-                                              select ltr)
+                                               let ltr = (LayerTableRecord)transaction.GetObject(elem, OpenMode.ForWrite, false)
+                                               where ltr.Name == tgtlayer
+                                               select ltr)
                                               .FirstOrDefault();
                     if (ltrec!.IsFrozen || ltrec.IsOff)
                     {
@@ -69,7 +72,7 @@ namespace LayerWorks.Commands
                 transaction.Commit();
             }
         }
-
+        // TODO: Изменить команду для работы с xml данными из NameParser
         /// <summary>
         /// Изменение статуса объекта в соответствии с данными LayerParser
         /// </summary>
@@ -78,21 +81,24 @@ namespace LayerWorks.Commands
         {
             Workstation.Define();
 
-            PromptKeywordOptions pko = new($"Укажите статус объекта <{PrevStatus}> [Сущ/Демонтаж/Проект/Неутв/Неутв_демонтаж/Неутв_реорганизация]", "Сущ Демонтаж Проект Неутв Неутв_демонтаж Неутв_реорганизация")
-            {
-                AppendKeywordsToMessage = true,
-                AllowNone = false,
-                AllowArbitraryInput = false
-            };
-            PromptResult res = Workstation.Editor.GetKeywords(pko);
-            if (res.Status == PromptStatus.OK) { PrevStatus = res.StringResult; }
-            StatusTextDictionary.StTxtDictionary.TryGetValue(res.StringResult, out int val);
+            NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].ExtractSectionInfo<StatusSection>(out string[] statuses,
+                                                                                                     out Func<string, string> descriptions);
+            string newStatus = GetStringKeywordResult(statuses, statuses.Select(s => descriptions(s)).ToArray(), $"Укажите статус объекта <{PrevStatus}>");
+            //PromptKeywordOptions pko = new($"Укажите статус объекта <{PrevStatus}> [Сущ/Демонтаж/Проект/Неутв/Неутв_демонтаж/Неутв_реорганизация]", "Сущ Демонтаж Проект Неутв Неутв_демонтаж Неутв_реорганизация")
+            //{
+            //    AppendKeywordsToMessage = true,
+            //    AllowNone = false,
+            //    AllowArbitraryInput = false
+            //};
+            //PromptResult res = Workstation.Editor.GetKeywords(pko);
+            //if (res.Status == PromptStatus.OK) { PrevStatus = res.StringResult; }
+            //StatusTextDictionary.StTxtDictionary.TryGetValue(res.StringResult, out int val);
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
                 {
                     LayerChanger.UpdateActiveLayerWrappers();
-                    ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info => info.SwitchStatus(val.ToString())));
+                    ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info => info.SwitchStatus(newStatus)));
                     //ActiveLayerWrappers.StatusSwitch((Status)val);
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
@@ -131,7 +137,8 @@ namespace LayerWorks.Commands
                     LayerChanger.UpdateActiveLayerWrappers();
                     ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info =>
                     {
-                        bool success = LayerAlteringDictionary.TryGetValue(info.MainName, out string? name);
+                        bool success = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<InMemoryLayerAlterReader>()
+                                                                                 .TryGetStandard(info.MainName, out string? name);
                         if (success)
                             info.AlterSecondaryClassifier(name!);
                         return;
@@ -163,9 +170,9 @@ namespace LayerWorks.Commands
                 try
                 {
                     LayerChanger.UpdateActiveLayerWrappers();
-                    
-                    bool targetValue = !ActiveLayerWrappers.List.FirstOrDefault()!.LayerInfo.SuffixTagged;
-                    ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged = targetValue; }));
+
+                    bool targetValue = !ActiveLayerWrappers.List.FirstOrDefault()!.LayerInfo.SuffixTagged["Reconstruction"];
+                    ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged["Reconstruction"] = targetValue; }));
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }

@@ -1,14 +1,14 @@
 ﻿//System
-using System.Collections.Generic;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
+using LayerWorks.LayerProcessing;
+using LayerWorks.Legend;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 //Modules
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-
-using LayerWorks.LayerProcessing;
-using LayerWorks.Legend;
 
 namespace LayerWorks.ModelspaceDraw
 {
@@ -47,12 +47,9 @@ namespace LayerWorks.ModelspaceDraw
             circle.AddVertexAt(2, GetRelativePoint(0, radius / 2), 0, 0d, 0d);
             circle.Closed = true;
             circle.Layer = layer ?? Layer.BoundLayer.Name;
-            bool success = LayerPropertiesDictionary.TryGetValue(circle.Layer, out LayerProps? lp);
-            if (success)
-            {
-                circle.LinetypeScale = lp!.LTScale;
-                circle.ConstantWidth = lp!.ConstantWidth;
-            }
+
+            var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
+            formatter?.FormatEntity(circle, Layer.LayerInfo.TrueName);
 
             EntitiesList.Add(circle);
             return circle;

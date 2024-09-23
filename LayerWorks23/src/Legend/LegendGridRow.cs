@@ -1,9 +1,11 @@
-﻿using LayerWorks.ModelspaceDraw;
+﻿using LayersIO.DataTransfer;
+using LayersIO.ExternalData;
+using LayerWorks.ModelspaceDraw;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using NameClassifiers;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-using LayersIO.DataTransfer;
-using LayersIO.ExternalData;
-using NameClassifiers;
 
 namespace LayerWorks.Legend
 {
@@ -35,7 +37,9 @@ namespace LayerWorks.Legend
         internal LegendGridRow(string mainname)
         {
             LegendEntityClassName = mainname;
-            bool success = LayerLegendDictionary.TryGetValue(mainname, out LegendData? ld);
+
+            var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IStandardReader<LegendData>>();
+            bool success = service.TryGetStandard(mainname, out LegendData? ld);
             if (success)
                 LegendData = ld;
             else

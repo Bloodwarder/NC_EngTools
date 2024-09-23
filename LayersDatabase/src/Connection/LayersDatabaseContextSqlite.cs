@@ -1,13 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-using LayersIO.Model;
-using System.Reflection;
+﻿using LayersIO.Model;
 using LoaderCore.Utilities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace LayersIO.Connection
 {
     public class LayersDatabaseContextSqlite : DbContext
     {
+        public ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
         public DbSet<LayerData> Layers { get; set; } = null!;
         public DbSet<LayerGroupData> LayerGroups { get; set; } = null!;
 
@@ -20,7 +22,7 @@ namespace LayersIO.Connection
 
         public override int SaveChanges()
         {
-            Logger.WriteLog("Сохранение данных");
+            _logger?.LogInformation("Сохранение данных");
             return base.SaveChanges();
         }
 

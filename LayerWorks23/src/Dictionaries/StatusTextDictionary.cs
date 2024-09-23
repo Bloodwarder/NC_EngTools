@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace LayerWorks.Dictionaries
+﻿namespace LayerWorks.Dictionaries
 {
     static class StatusTextDictionary
     {

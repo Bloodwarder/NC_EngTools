@@ -1,13 +1,13 @@
 ﻿//System
-
+using Microsoft.Extensions.DependencyInjection;
 //Modules
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
+using LayerWorks.LayerProcessing;
+using LoaderCore.Interfaces;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-
-using LayerWorks.LayerProcessing;
 
 namespace LayerWorks.ModelspaceDraw
 {
@@ -31,12 +31,8 @@ namespace LayerWorks.ModelspaceDraw
             pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
             pl.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
             pl.Layer = Layer.LayerInfo.Name;
-            bool success = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps? lp);
-            if (success)
-            {
-                pl.LinetypeScale = lp!.LTScale;
-                pl.ConstantWidth = lp!.ConstantWidth;
-            }
+            var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
+            formatter?.FormatEntity(pl, Layer.LayerInfo.TrueName);
             EntitiesList.Add(pl);
         }
     }

@@ -21,7 +21,7 @@ namespace LoaderCore.Integrity
         /// Является ли сборка отладочной (для отключения реального обновления в отладочной сборке)
         /// </summary>
         private static readonly bool _testRun = Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
-                      
+
         internal static void UpdateFile(FileInfo local, FileInfo source)
         {
             bool localExists = local.Exists;
@@ -36,12 +36,12 @@ namespace LoaderCore.Integrity
             {
                 if (_testRun)
                 {
-                    Logger.WriteLog?.Invoke($"Отладочная сборка. Вывод сообщения об обновлении {local.Name}");
+                    LoggingRouter.WriteLog?.Invoke($"Отладочная сборка. Вывод сообщения об обновлении {local.Name}");
                     return;
                 }
                 source.CopyTo(local.FullName, true);
                 FileUpdatedEvent?.Invoke(local, new EventArgs());
-                Logger.WriteLog?.Invoke($"Файл {local.Name} обновлён");
+                LoggingRouter.WriteLog?.Invoke($"Файл {local.Name} обновлён");
                 return;
             }
         }

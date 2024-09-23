@@ -1,7 +1,8 @@
-﻿using System.IO;
-using LayersIO.DataTransfer;
+﻿using LayersIO.DataTransfer;
 using LayersIO.Xml;
+using LoaderCore.Interfaces;
 using LoaderCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LayersIO.ExternalData
 {
@@ -9,34 +10,22 @@ namespace LayersIO.ExternalData
     {
         const string XmlLegendName = "Layer_Legend.xml";
 
-        private static readonly LayerLegendDictionary instance;
-        static LayerLegendDictionary()
-        {
-            if (instance == null)
-                instance = new LayerLegendDictionary();
-        }
+        static LayerLegendDictionary() { }
         LayerLegendDictionary()
         {
             try
             {
-                InstanceDictionary = new XmlLayerDataProvider<string, LegendData>(PathProvider.GetPath(XmlLegendName)).GetData();
+                var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LegendData>>();
+                InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlLegendName)).GetData();
             }
             catch (FileNotFoundException)
             {
                 //ExternalDataLoader.Reloader(ToReload.Legend);
             }
         }
-        public static bool TryGetValue(string layername, out LegendData? value)
+        public void Reload(ILayerDataWriter<string, LegendData> primary, ILayerDataProvider<string, LegendData> secondary)
         {
-            return instance.TryGetInstanceValue(layername, out value);
-        }
-        public static void Reload(ILayerDataWriter<string, LegendData> primary, ILayerDataProvider<string, LegendData> secondary)
-        {
-            instance.ReloadInstance(primary, secondary);
-        }
-        public static bool CheckKey(string key)
-        {
-            return instance.CheckInstanceKey(key);
+            ReloadInstance(primary, secondary);
         }
     }
 }

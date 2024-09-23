@@ -3,7 +3,11 @@ using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
-    internal class StatusSection : ParserSection
+    /// <summary>
+    /// Статус. Обязательный. Независим от положения. Может быть только один.
+    /// Считается частью основного имени TrueName (но не группового имени MainName)
+    /// </summary>
+    public class StatusSection : ParserSection
     {
         private readonly Dictionary<string, string> _descriptionDict = new();
         internal StatusSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
@@ -20,6 +24,7 @@ namespace NameClassifiers.Sections
             }
         }
 
+        internal Dictionary<string, string> GetDescriptionDictionary() => _descriptionDict;
         internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
         {
             if (!_descriptionDict.ContainsKey(str[pointer]))
@@ -38,6 +43,19 @@ namespace NameClassifiers.Sections
         internal override bool ValidateString(string str)
         {
             return _descriptionDict.ContainsKey(str);
+        }
+
+        internal override void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptions)
+        {
+            IEnumerable<string> statuses = layerInfos.Select(i => i.Status!).Distinct();
+            keywords = statuses.ToArray();
+            descriptions = s => _descriptionDict[s];
+        }
+
+        internal override void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions)
+        {
+            keywords = _descriptionDict.Keys.ToArray();
+            descriptions = s => _descriptionDict[s];
         }
     }
 }

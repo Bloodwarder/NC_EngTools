@@ -1,13 +1,14 @@
 ﻿//System
-using System.Collections.Generic;
 
 //Modules
 //nanoCAD
-using Teigha.DatabaseServices;
-using Teigha.Geometry;
 using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using Teigha.DatabaseServices;
+using Teigha.Geometry;
 
 namespace LayerWorks.ModelspaceDraw
 {
@@ -29,10 +30,8 @@ namespace LayerWorks.ModelspaceDraw
         {
             foreach (Polyline line in lines)
             {
-
-                bool success = LayerPropertiesDictionary.TryGetValue(Layer.LayerInfo.TrueName, out LayerProps? props, true);
-                if (success)
-                    line.ConstantWidth = props!.ConstantWidth;
+                var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
+                formatter?.FormatEntity(line, Layer.LayerInfo.TrueName);
                 bool ltgetsuccess = LayerChecker.TryFindLinetype("ACAD_ISO02W100", out ObjectId lineTypeId);
                 if (ltgetsuccess)
                     line.LinetypeId = lineTypeId;

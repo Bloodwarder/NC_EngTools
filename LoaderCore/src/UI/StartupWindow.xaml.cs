@@ -1,13 +1,12 @@
-﻿using System;
+﻿using LoaderCore.Integrity;
+using LoaderCore.Utilities;
+using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Ookii.Dialogs.Wpf;
 using System.Windows.Documents;
-using System.Xml.Linq;
 using System.Xml;
-using System.IO;
-using LoaderCore.Utilities;
-using LoaderCore.Integrity;
+using System.Xml.Linq;
 
 namespace LoaderCore.UI
 {
@@ -18,41 +17,38 @@ namespace LoaderCore.UI
     {
         private readonly XDocument _xmlConfig;
         private readonly string _xmlConfigPath;
-        private readonly XDocument _xmlStructure;
-        private readonly string _xmlStructurePath;
 
-        public StartUpWindow(string xmlConfigPath, string xmlStructurePath)
+        public StartUpWindow(string xmlConfigPath)
         {
             _xmlConfigPath = xmlConfigPath;
             _xmlConfig = XDocument.Load(xmlConfigPath);
 
-            _xmlStructurePath = xmlStructurePath;
-            _xmlStructure = XDocument.Load(xmlStructurePath);
-
             InitializeComponent();
 
-            Logger.WriteLog += LogWindow;
+            LoggingRouter.WriteLog += LogWindow;
 
-            chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value);
+#nullable disable warnings
+            chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("ShowStartup").Value);
 
-            chbIncludeLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Include").Value);
-            chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Update").Value);
-            chbIncludeUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Include").Value);
-            chbAutoUpdateUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Update").Value);
-            chbIncludeGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("GeoMod").Attribute("Include").Value);
-            chbAutoUpdateGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("Modules").Element("GeoMod").Attribute("Update").Value);
+            chbIncludeLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value);
+            chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value);
+            chbIncludeUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("UtilitiesConfiguration").Element("Enabled").Value);
+            chbAutoUpdateUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("UtilitiesConfiguration").Element("UpdateEnabled").Value);
+            chbIncludeGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("GeoModConfiguration").Element("Enabled").Value);
+            chbAutoUpdateGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("GeoModConfiguration").Element("UpdateEnabled").Value);
 
-            tbSourcePath.Text = _xmlStructure.Root.Element("basepath").Element("source").Value;
+            tbSourcePath.Text = _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value;
+#nullable restore
             // Вывод данных о последнем обновлении
             using (StreamReader reader = new StreamReader(PathProvider.GetPath("Список изменений.txt")))
             {
                 string line;
-                Logger.WriteLog("Последние обновления:");
+                LoggingRouter.WriteLog("Последние обновления:");
                 while ((line = reader.ReadLine()) != "" || reader.EndOfStream)
                 {
-                    Logger.WriteLog(line.Replace("\t", ""));
+                    LoggingRouter.WriteLog(line.Replace("\t", ""));
                 }
-                Logger.WriteLog("\n");
+                LoggingRouter.WriteLog("\n");
             }
         }
 
@@ -78,46 +74,48 @@ namespace LoaderCore.UI
 
         private void SetUpdatePathButtonClick(object sender, RoutedEventArgs e)
         {
-            VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog()
-            {
-                Multiselect = false,
-                ShowNewFolderButton = false,
-                RootFolder = Environment.SpecialFolder.NetworkShortcuts
-            };
-            dialog.ShowDialog();
-            DirectoryInfo dir = new DirectoryInfo(dialog.SelectedPath);
-            if (dir.Exists)
-            {
-                tbSourcePath.Text = dialog.SelectedPath;
-            }
-            e.Handled = true;
+            //    VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog()
+            //    {
+            //        Multiselect = false,
+            //        ShowNewFolderButton = false,
+            //        RootFolder = Environment.SpecialFolder.NetworkShortcuts
+            //    };
+            //    dialog.ShowDialog();
+            //    DirectoryInfo dir = new DirectoryInfo(dialog.SelectedPath);
+            //    if (dir.Exists)
+            //    {
+            //        tbSourcePath.Text = dialog.SelectedPath;
+            //    }
+            //    e.Handled = true;
         }
 
 
         private void StartUpWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            _xmlConfig.Root.Element("StartUpShow").Attribute("Enabled").Value = XmlConvert.ToString((bool)chbShowOnStartUp.IsChecked);
+#nullable disable warnings
+            _xmlConfig.Root.Element("ShowStartup").Value = XmlConvert.ToString((bool)chbShowOnStartUp.IsChecked);
 
-            _xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Include").Value = XmlConvert.ToString((bool)chbIncludeLayerWorks.IsChecked);
-            _xmlConfig.Root.Element("Modules").Element("LayerWorks").Attribute("Update").Value = XmlConvert.ToString((bool)chbAutoUpdateLayerWorks.IsChecked);
-            _xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Include").Value = XmlConvert.ToString((bool)chbIncludeUtilities.IsChecked);
-            _xmlConfig.Root.Element("Modules").Element("Utilities").Attribute("Update").Value = XmlConvert.ToString((bool)chbAutoUpdateUtilities.IsChecked);
-            _xmlConfig.Root.Element("Modules").Element("GeoMod").Attribute("Include").Value = XmlConvert.ToString((bool)chbIncludeGeoMod.IsChecked);
-            _xmlConfig.Root.Element("Modules").Element("GeoMod").Attribute("Update").Value = XmlConvert.ToString((bool)chbAutoUpdateGeoMod.IsChecked);
+            _xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeLayerWorks.IsChecked);
+            _xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateLayerWorks.IsChecked);
+            _xmlConfig.Root.Element("UtilitiesConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeUtilities.IsChecked);
+            _xmlConfig.Root.Element("UtilitiesConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateUtilities.IsChecked);
+            _xmlConfig.Root.Element("GeoModConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeGeoMod.IsChecked);
+            _xmlConfig.Root.Element("GeoModConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateGeoMod.IsChecked);
 
             _xmlConfig.Save(_xmlConfigPath);
 
             DirectoryInfo checkdir = new DirectoryInfo(tbSourcePath.Text);
             if (checkdir.Exists)
-                _xmlStructure.Root.Element("basepath").Element("source").Value = tbSourcePath.Text;
-            _xmlStructure.Save(_xmlStructurePath);
-            Logger.WriteLog -= LogWindow;
+                _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value = tbSourcePath.Text;
+            _xmlConfig.Save(_xmlConfigPath);
+#nullable restore
+            LoggingRouter.WriteLog -= LogWindow;
         }
 
         private void UpdateButtonClick(object sender, RoutedEventArgs e)
         {
-            Button button = sender as Button;
-            FileUpdater.UpdateRange(StructureComparer.GetFiles(_xmlStructure), button.Tag.ToString());
+            Button button = (Button)sender;
+            NcetCore.Modules.Where(m => m.Name == button.Tag.ToString()).Single().Update();
         }
 
         private void LogWindow(string message)

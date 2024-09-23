@@ -3,7 +3,10 @@ using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
-    internal class PrefixSection : ParserSection
+    /// <summary>
+    /// Префикс. Обязательный. Всегда первый. Только один. Не считается частью основного имени
+    /// </summary>
+    public class PrefixSection : ParserSection
     {
         public PrefixSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
@@ -34,6 +37,16 @@ namespace NameClassifiers.Sections
         internal override bool ValidateString(string str)
         {
             return str == ParentParser.Prefix;
+        }
+
+        internal override void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptions)
+        {
+            throw new NotImplementedException("Префикс всегда один");
+        }
+
+        internal override void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions)
+        {
+            throw new NotImplementedException();
         }
     }
 }

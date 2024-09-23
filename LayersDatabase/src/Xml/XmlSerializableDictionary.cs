@@ -1,6 +1,4 @@
-﻿
-using System.Collections.Generic;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace LayersIO.Xml
 {
@@ -11,10 +9,10 @@ namespace LayersIO.Xml
     /// <typeparam name="TKey">Ключ</typeparam>
     /// <typeparam name="TValue">Значение</typeparam>
     [XmlRoot("Dictionary")]
-    public class XmlSerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable
+    public class XmlSerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable where TKey : notnull
     {
         /// <inheritdoc/>
-        public System.Xml.Schema.XmlSchema GetSchema()
+        public System.Xml.Schema.XmlSchema? GetSchema()
         {
             return null;
         }

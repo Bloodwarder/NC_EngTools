@@ -3,25 +3,26 @@ using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
-    internal class AuxilaryDataSection : ParserSection
+    /// <summary>
+    /// Дополнительная информация. Необязательная. Независим от положения (только от скобок).
+    /// Может быть несколько (с разными скобками). Не считается частью основного имени
+    /// </summary>
+    public class AuxilaryDataSection : NamedParserSection
     {
         internal char[] Brackets { get; init; }
-        internal string Name { get; init; }
         internal string Description { get; init; }
         internal AuxilaryDataValidation? Validation { get; init; }
 
         public AuxilaryDataSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
-            XAttribute nameAttr = xElement.Attribute("Name") ?? throw new NameParserInitializeException("Отсутствует ключ для дополнительных данных");
             XAttribute bracketsAttr = xElement.Attribute("Brackets") ?? throw new NameParserInitializeException("Отсутствуют скобки для дополнительных данных");
             XAttribute descriptionAttr = xElement.Attribute("Description") ?? throw new NameParserInitializeException("Отсутcтвует описание дополнительных данных");
             XElement? validationElement = xElement.Element("Validation");
             if (validationElement != null)
                 Validation = new AuxilaryDataValidation(validationElement);
-            Name = nameAttr.Value;
             Description = descriptionAttr.Value;
             Brackets = new[] { bracketsAttr.Value[0], bracketsAttr.Value[1] };
-            parentParser.AuxilaryData.Add(nameAttr.Value, this);
+            parentParser.AuxilaryData.Add(Name, this);
         }
 
         internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
@@ -40,7 +41,7 @@ namespace NameClassifiers.Sections
                 elementsCounter++;
             }
             // Объединить строки, переместить указатель вперёд на число полученных элементов
-            string auxData = string.Join(ParentParser.Separator, str.Skip(pointer - 1).Take(elementsCounter).ToArray());
+            string auxData = string.Join(ParentParser.Separator, str.Skip(pointer).Take(elementsCounter).ToArray());
             string formattedAuxData = auxData.Replace(Brackets[0].ToString(), "").Replace(Brackets[1].ToString(), "");
             layerInfo.AuxilaryData[Name] = formattedAuxData;
             pointer += elementsCounter;
@@ -61,6 +62,19 @@ namespace NameClassifiers.Sections
         internal override bool ValidateString(string str)
         {
             return str.StartsWith(Brackets[0]);
+        }
+
+        internal override void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptionFunc)
+        {
+            var data = layerInfos.Select(i => i.AuxilaryData[Name]).Distinct().Select(s => s ?? $"{Description} отсутствует");
+            keywords = data.ToArray();
+            descriptionFunc = s => s ?? $"{Description} отсутствует";
+        }
+
+        internal override void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions)
+        {
+            keywords = new[] { Name };
+            descriptions = s => Description;
         }
     }
 }

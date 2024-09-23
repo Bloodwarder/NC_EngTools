@@ -6,6 +6,13 @@
     /// <exception cref="NullReferenceException">Required members are null</exception>
     public class LayerData
     {
+        public LayerData() { }
+        public LayerData(string name)
+        {
+            Name = name;
+        }
+
+
         public int Id { get; set; }
         public string Separator = "_"; // TODO: Заменить на универсальную конструкцию. Брать из xml или из сборки LayerWorks. Или устанавливать из LayersDatabaseEditor
         public string MainName { get; set; } = null!;
@@ -16,16 +23,18 @@
         {
             get
             {
-                return string.Concat(MainName,Separator,StatusName);
+                return string.Concat(MainName, Separator, StatusName);
             }
             set
             {
                 string[] classifiers = value.Split(Separator);
-                MainName = string.Join(Separator, classifiers.Take(classifiers.Length-1).ToArray());
+                MainName = string.Join(Separator, classifiers.Take(classifiers.Length - 1).ToArray());
                 StatusName = classifiers[^1];
             }
         }
-        public LayerPropertiesData LayerPropertiesData { get; set; } = null!;
-        public LayerDrawTemplateData LayerDrawTemplateData { get; set; } = null!;
+        public LayerPropertiesData? LayerPropertiesData { get; set; }
+        public LayerDrawTemplateData? LayerDrawTemplateData { get; set; }
+
+        public bool IsEmpty => LayerPropertiesData is null || LayerDrawTemplateData is null || MainName is null;
     }
 }

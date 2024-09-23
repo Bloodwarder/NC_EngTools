@@ -3,12 +3,14 @@ using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
 {
-    internal class AuxilaryClassifierSection : ParserSection
+    /// <summary>
+    /// Дополнительный классификатор. Необязательный. Независим от положения. Может быть несколько. Считается частью основного имени
+    /// </summary>
+    public class AuxilaryClassifierSection : NamedParserSection
     {
-        private readonly Dictionary<string, string> _descriptionDict = new();
+        private Dictionary<string, string> _descriptionDict { get; } = new();
         public AuxilaryClassifierSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
-            Name = xElement.Attribute("Name")?.Value ?? throw new NameParserInitializeException("Отсутствует имя дополнительного классификатора");
             foreach (XElement classifier in xElement.Elements("Classifier"))
             {
                 XAttribute? keyAttr = classifier.Attribute("Value");
@@ -20,9 +22,6 @@ namespace NameClassifiers.Sections
                     throw new NameParserInitializeException("Ошибка инициализации дополнительного классификатора. Неверный ключ или описание");
             }
         }
-
-        internal string Name { get; init; }
-
 
         internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
         {
@@ -42,13 +41,26 @@ namespace NameClassifiers.Sections
         }
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {
-            
+
             inputList.Add(layerInfo.AuxilaryClassifiers[Name]);
             NextSection?.ComposeName(inputList, layerInfo, nameType);
         }
         internal override bool ValidateString(string str)
         {
             return _descriptionDict.ContainsKey(str);
+        }
+
+        internal override void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptionFunc)
+        {
+            var classifiers = layerInfos.Select(i => i.AuxilaryClassifiers[Name]).Distinct();
+            keywords = classifiers.ToArray();
+            descriptionFunc = s => s;
+        }
+
+        internal override void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions)
+        {
+            keywords = _descriptionDict.Keys.ToArray();
+            descriptions = s => _descriptionDict[s];
         }
     }
 }

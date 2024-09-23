@@ -5,8 +5,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PlatformTarget>x64</PlatformTarget>
-		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	</PropertyGroup>
@@ -15,19 +17,25 @@
 		<DebugType>none</DebugType>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
+
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
 		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
-		<OutputPath>..\NC_EngTools\bin\$(Configuration)\Database</OutputPath>
+		<OutputPath>$(RootOutputPath)\ExtensionLibraries\LayerWorks</OutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.14">
-
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.19">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.14" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.14">
-
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.19"></PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.19">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="NPOI" Version="2.6.2" />
 		<PackageReference Include="Npoi.Mapper" Version="6.2.1" />
@@ -36,8 +44,11 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
-			<Private>False</Private>
+			<ExcludeAssets>All</ExcludeAssets>
+			<PrivateAssets>All</PrivateAssets>
 			<HintPath>$(RootOutputPath)\ExtensionLibraries\LoaderCore.dll</HintPath>
+			<Private>False</Private>
+			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 		</ProjectReference>
 	</ItemGroup>
 
@@ -49,5 +60,20 @@
 		<Compile Remove="UnusedCode\ExcelSimpleDictionaryDataProvider.cs" />
 		<Compile Remove="UnusedCode\ExcelStructDictionaryDataProvider.cs" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Data\LayerData_ИС.db">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
+	<!--Переместить базу данных-->
+	<Target Name="CopyUserData" AfterTargets="Build">
+		<ItemGroup>
+			<UserData Include="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\LayerWorks\Data\LayerData_ИС.db" />
+		</ItemGroup>
+		<Move SourceFiles="@(UserData)" DestinationFolder="..\NC_EngTools\bin\$(Configuration)\UserData" />
+		<RemoveDir Directories="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\LayerWorks\Data" />
+	</Target>
 
 </Project>

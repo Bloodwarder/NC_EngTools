@@ -4,9 +4,10 @@ using static NameClassifiers.LayerInfo;
 namespace NameClassifiers.Sections
 {
     /// <summary>
-    /// Сборный классификатор, собирающий все значения, не вошедшие в остальные классификаторы
+    /// Вторичный классификатор, собирающий все значения, не вошедшие в остальные классификаторы.
+    /// Обязательный. Может быть только один. Является частью основного имени
     /// </summary>
-    internal class SecondaryClassifierSection : ParserSection
+    public class SecondaryClassifierSection : ParserSection
     {
         public SecondaryClassifierSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
@@ -39,6 +40,17 @@ namespace NameClassifiers.Sections
         {
             // если значение не является подходящим для следующей секции, значит подходит для этой, собирающейся по остаточному принципу
             return !(NextSection?.ValidateString(str) ?? true);
+        }
+
+        internal override void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptions)
+        {
+            throw new NotImplementedException("Вторичный классификатор не используется в этом контексте");
+        }
+
+        internal override void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions)
+        {
+            keywords = Array.Empty<string>();
+            descriptions = s => string.Empty;            
         }
     }
 }

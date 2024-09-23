@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="ConfigurationSchema"
+		   attributeFormDefault="qualified"
+		   elementFormDefault="qualified"
+		   xmlns="http://tempuri.org/ConfigurationSchema.xsd"
+		   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="сonfiguration">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name ="ShowStartup" type="xs:boolean"/>
+				<xs:element name="Directories">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="LocalDirectory" />
+							<xs:element name="UpdateDirectory" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="LayerWorksConfiguration">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Enabled" type="xs:boolean" />
+							<xs:element name="UpdateEnabled" type="xs:boolean" />
+							<xs:element name="NameParserPaths">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element maxOccurs="unbounded" name="LayerWorksPath">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Type" type="xs:string" />
+													<xs:element name="Path" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="LayerStandardPaths">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element maxOccurs="unbounded" name="LayerWorksPath">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Type" type="xs:string" />
+													<xs:element name="Path" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="LegendGridParameters">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="CellWidth" type="xs:double" />
+										<xs:element name="CellHeight" type="xs:double" />
+										<xs:element name="WidthInterval" type="xs:double" />
+										<xs:element name="HeightInterval" type="xs:double" />
+										<xs:element name="TextWidth" type="xs:double" />
+										<xs:element name="TextHeight" type="xs:double" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="Module" type="xs:string"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="GeoModConfiguration">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Enabled" type="xs:boolean" />
+							<xs:element name="UpdateEnabled" type="xs:boolean" />
+							<xs:element name="Precision" type="xs:int" />
+							<xs:element name="BufferParameters">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="EndCapStyle" type="xs:int" />
+										<xs:element name="JoinStyle" type="xs:int" />
+										<xs:element name="QuadrantSegments" type="xs:int" />
+										<xs:element name="SimplifyFactor" type="xs:double" />
+										<xs:element name="IsSingleSided" type="xs:boolean" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="Module" type="xs:string"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="UtilitiesConfiguration">
+					<xs:complexType mixed="true">
+						<xs:sequence>
+							<xs:element name="Enabled" type="xs:boolean" />
+							<xs:element name="UpdateEnabled" type="xs:boolean" />
+							<xs:element name="DefaultLabelTextHeight" type="xs:decimal" />
+							<xs:element name="DefaultLabelBackgroundScaleFactor" type="xs:decimal" />
+							<xs:element name="Vertical">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="BlackMarkTag" type="xs:string" />
+										<xs:element name="RedMarkTag" type="xs:string" />
+										<xs:element name="SlopeTag" type="xs:string" />
+										<xs:element name="DistanceTag" type="xs:string" />
+										<xs:element name="ElevationMarkBlockName" type="xs:string" />
+										<xs:element name="SlopeBlockName" type="xs:string" />
+										<xs:element name="LastHorStep" type="xs:double" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="Module" type="xs:string"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

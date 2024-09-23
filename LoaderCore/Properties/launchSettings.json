@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LoaderCore": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false
+    }
+  }
+}

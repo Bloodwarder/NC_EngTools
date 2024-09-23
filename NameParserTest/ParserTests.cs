@@ -1,12 +1,10 @@
 using System.Reflection;
-using System.Xml.Linq;
 
 namespace NameParserTest
 {
     [TestFixture]
     public class ParserTests
     {
-        XDocument? _xDocument;
         LayerInfo? _layerInfo;
         NameParser? _parser;
 
@@ -14,14 +12,13 @@ namespace NameParserTest
         public void Setup()
         {
             FileInfo fi = new(Assembly.GetExecutingAssembly().Location);
-            _xDocument = XDocument.Load(Path.Combine(fi.Directory!.FullName, "TestData", "LayerParserTemplate.xml"));
-            _parser = new NameParser(_xDocument);
+            string path = Path.Combine(fi.Directory!.FullName, "TestData", "LayerParserTemplate.xml");
+            _parser = new NameParser(path);
         }
         [OneTimeTearDown]
         public void TearDown()
         {
             _layerInfo = null;
-            _xDocument = null;
         }
         [Test]
         public void ParserInitializationTestWhenProper()
@@ -29,7 +26,7 @@ namespace NameParserTest
             Assert.That(_parser, Is.Not.Null);
             Assert.That(_parser.Prefix, Is.EqualTo("ИС"));
         }
-        
+
         [Test]
         public void LayerInfoTestWhenProper()
         {
@@ -39,7 +36,7 @@ namespace NameParserTest
             Assert.That(_layerInfo.Name, Is.EqualTo("ИС_[ВСМ-2017]_ЭС_л_КЛ_0.4кВ_неутв"));
             _layerInfo.ChangeAuxilaryData("ExternalProject", null);
             Assert.That(_layerInfo.Name, Is.EqualTo("ИС_ЭС_л_КЛ_0.4кВ_неутв"));
-            _layerInfo.SuffixTagged = true;
+            _layerInfo.SuffixTagged["Reconstruction"] = true;
             Assert.That(_layerInfo.Name, Is.EqualTo("ИС_ЭС_л_КЛ_0.4кВ_неутв_пер"));
         }
         [Test]
@@ -49,12 +46,24 @@ namespace NameParserTest
             {
                 _ = _parser!.GetLayerInfo("вап_ыык44_аклвю341");
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Assert.That(ex, Is.InstanceOf<WrongLayerException>());
                 return;
             }
             Assert.Fail("Не выброшено исключение");
+        }
+
+        [Test]
+        public void LayerInfoWhenSwitchStatusShouldDiscardAuxData()
+        {
+            _layerInfo = _parser!.GetLayerInfo("ИС_[Кучино - М-7]_ГС_л_распред_0.6_неутв");
+            string? aux = _layerInfo.AuxilaryData["ExternalProject"];
+            Assert.That(aux, Is.EqualTo("Кучино - М-7"));
+            _layerInfo.SwitchStatus("пр");
+            Assert.That(_layerInfo.Status, Is.EqualTo("пр"));
+            Assert.That(_layerInfo.AuxilaryData["ExternalProject"], Is.Null);
+            Assert.That(_layerInfo.Name, Is.EqualTo("ИС_ГС_л_распред_0.6_пр"));
         }
 
         [Test]

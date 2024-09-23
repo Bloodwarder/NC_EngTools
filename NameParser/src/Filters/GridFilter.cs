@@ -4,24 +4,32 @@ using System.Xml.Serialization;
 namespace NameClassifiers.Filters
 {
     [XmlRoot(ElementName = "Grid")]
-    public class GridFilter
+    public class GridFilter : ReferenceCollectionFilter, ICloneable
     {
         public GridFilter()
         {
 
         }
-        [XmlAttribute("Name")]
-        public string? Name { get; set; }
+        [XmlAttribute("Label")]
+        public string? Label { get; set; }
 
-        [XmlArray("")]
-        [XmlArrayItem(Type = typeof(SectionReference)),
-            XmlArrayItem(Type = typeof(StatusReference)),
-            XmlArrayItem(Type = typeof(ChapterReference)),
-            XmlArrayItem(Type = typeof(ClassifierReference)),
-            XmlArrayItem(Type = typeof(DataReference))]
-        public SectionReference[] Sections { get; set; }
+        //[XmlElement(Type = typeof(SectionReference))]
+        //[XmlElement(Type = typeof(StatusReference))]
+        //[XmlElement(Type = typeof(ChapterReference))]
+        //[XmlElement(Type = typeof(ClassifierReference))]
+        //[XmlElement(Type = typeof(DataReference))]
+        //[XmlElement(Type = typeof(BoolReference))]
+        //public List<SectionReference> References { get; set; } = new();
 
-        [XmlElement(nameof(DistinctMode))]
-        public DistinctMode DistinctMode { get; set;}
+        [XmlElement(nameof(DistinctMode), IsNullable = false)]
+        public DistinctMode? DistinctMode { get; set; }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+        public bool Validate() => !References.Any(r => r.GetType() == DistinctMode?.Reference.GetType());
+
     }
 }
