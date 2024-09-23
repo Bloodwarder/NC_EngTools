@@ -174,7 +174,7 @@ namespace LoaderCore.Integrity
                 return;
             INcetInitializer? initializer = Activator.CreateInstance(classType) as INcetInitializer;
             if (initializer == null)
-                throw new Exception("Ошибка инициализации модуля");
+                throw new Exception($"Ошибка инициализации модуля {Name}");
             initializer.Initialize();
         }
 
