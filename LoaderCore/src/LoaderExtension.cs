@@ -226,7 +226,7 @@ namespace LoaderCore
         {
             try
             {
-                string filename = args.Name; //string.Concat(args.Name.Split(", ")[0], ".dll");
+                string filename = args.Name;
                 bool getAssemblySuccess = LibraryFiles!.TryGetValue(filename, out string? assemblyPath);
                 if (getAssemblySuccess)
                     return Assembly.LoadFrom(assemblyPath!);

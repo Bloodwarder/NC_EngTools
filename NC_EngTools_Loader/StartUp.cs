@@ -12,39 +12,37 @@ namespace StartUp
     public class StartUp : IExtensionApplication
     {
         const string DefaultSourceDirectory = @"\\Comp575\обмен - коновалов\NC_EngTools";
-        const string LoaderCoreDirectory = "ExtensionLibraries";
+        const string LoaderCoreDirectory = @"ExtensionLibraries\LoaderCore";
         const string LoaderCoreAssemblyName = "LoaderCore.dll";
-        const string StructureXmlName = "Structure.xml";
+        const string ConfigurationXmlName = "Configuration.xml";
 
         private readonly bool _debugAssembly = Assembly.GetExecutingAssembly()
                                                        .GetCustomAttributes(false)
                                                        .OfType<DebuggableAttribute>()
                                                        .Any(da => da.IsJITTrackingEnabled);
         private readonly FileInfo LocalStartUpAssemblyFile = new FileInfo(Assembly.GetExecutingAssembly().Location);
-        private string sourceDirectory;
+        private string _sourceDirectory;
         private string SourceDirectory
         {
             get
             {
-                if (sourceDirectory == null)
+                if (_sourceDirectory == null)
                 {
                     try
                     {
                         XDocument xDocument = XDocument.Load(Path.Combine(LocalStartUpAssemblyFile.DirectoryName,
                                                                           LoaderCoreDirectory,
-                                                                          StructureXmlName));
-                        sourceDirectory = xDocument.Root.Element("basepath").Element("source").Value;
-                        xDocument = null;
-                        GC.Collect();
+                                                                          ConfigurationXmlName));
+                        _sourceDirectory = xDocument.Root.Element("Directories").Element("UpdateDirectory").Value;
                     }
                     catch (System.Exception)
                     {
-                        sourceDirectory = DefaultSourceDirectory;
+                        _sourceDirectory = DefaultSourceDirectory;
                     }
                 }
-                return sourceDirectory;
+                return _sourceDirectory;
             }
-            set => sourceDirectory = value;
+            set => _sourceDirectory = value;
         }
 
         /// <summary>
@@ -59,16 +57,16 @@ namespace StartUp
             FileInfo sourceLoaderAssemblyFile = new FileInfo(Path.Combine(SourceDirectory,
                                                                           LoaderCoreDirectory,
                                                                           LoaderCoreAssemblyName));
-            FileInfo localStructureXml = new FileInfo(Path.Combine(LocalStartUpAssemblyFile.DirectoryName,
+            FileInfo localConfigurationXml = new FileInfo(Path.Combine(LocalStartUpAssemblyFile.DirectoryName,
                                                                    LoaderCoreDirectory,
-                                                                   StructureXmlName));
-            FileInfo sourceStructureXml = new FileInfo(Path.Combine(SourceDirectory,
+                                                                   ConfigurationXmlName));
+            FileInfo sourceConfigurationXml = new FileInfo(Path.Combine(SourceDirectory,
                                                                     LoaderCoreDirectory,
-                                                                    StructureXmlName));
+                                                                    ConfigurationXmlName));
             try
             {
                 UpdateFile(localLoaderAssemblyFile, sourceLoaderAssemblyFile, out _);
-                UpdateFile(localStructureXml, sourceStructureXml, out bool xmlupdated);
+                //UpdateFile(localConfigurationXml, sourceConfigurationXml, out bool xmlupdated);
             }
             catch (System.Exception ex)
             {
@@ -76,17 +74,16 @@ namespace StartUp
                 return;
             }
 
-
             try
             {
-                XDocument xmldoc = XDocument.Load(localStructureXml.FullName);
-                XElement localPathElement = xmldoc.Root.Element("basepath").Element("local");
+                XDocument configXml = XDocument.Load(localConfigurationXml.FullName);
+                XElement localPathElement = configXml.Root.Element("Directories").Element("LocalDirectory");
                 localPathElement.Value = LocalStartUpAssemblyFile.Directory.FullName;
-                xmldoc.Save(localStructureXml.FullName);
+                configXml.Save(localConfigurationXml.FullName);
             }
             catch (System.Exception)
             {
-                Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Ошибка работы с файлом {StructureXmlName}");
+                Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Ошибка работы с файлом {ConfigurationXmlName}");
                 return;
             }
 
@@ -105,13 +102,20 @@ namespace StartUp
 
         private void UpdateFile(FileInfo local, FileInfo source, out bool updated)
         {
-
             bool localExists = local.Exists;
             bool sourceExists = source.Exists;
-            if (!localExists && !sourceExists)
+            if (!sourceExists)
             {
                 updated = false;
-                throw new System.Exception($"\nПриложение не загружено. Отсутствует локальный файл {local.Name} и нет доступа к файлам обновления");
+                if (localExists)
+                {
+                    Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"Отсутствует файл обновлений. Продолжение работы без обновления");
+                    return;
+                }
+                else
+                {
+                    throw new System.Exception($"\nПриложение не загружено. Отсутствует локальный файл {local.Name} и нет доступа к файлам обновления");
+                }
             }
             if (sourceExists && (!localExists || local.LastWriteTime < source.LastWriteTime))
             {
