@@ -14,8 +14,9 @@ namespace NameParserTest
         public void Setup()
         {
             FileInfo fi = new FileInfo(Assembly.GetExecutingAssembly().Location);
-            _xDocument = XDocument.Load(Path.Combine(fi.Directory!.FullName, "TestData", "LayerParserTemplate.xml"));
-            _parser = new NameParser(_xDocument);
+            var path = Path.Combine(fi.Directory!.FullName, "TestData", "LayerParserTemplate.xml");
+            _xDocument = XDocument.Load(path);
+            _parser = new NameParser(path);
         }
         [OneTimeTearDown]
         public void TearDown()
@@ -39,7 +40,7 @@ namespace NameParserTest
             Assert.That(_layerInfo.Name, Is.EqualTo("ИС_[ВСМ-2017]_ЭС_л_КЛ_0.4кВ_неутв"));
             _layerInfo.ChangeAuxilaryData("ExternalProject", null);
             Assert.That(_layerInfo.Name, Is.EqualTo("ИС_ЭС_л_КЛ_0.4кВ_неутв"));
-            _layerInfo.SuffixTagged = true;
+            _layerInfo.SuffixTagged["Reconstruction"] = true;
             Assert.That(_layerInfo.Name, Is.EqualTo("ИС_ЭС_л_КЛ_0.4кВ_неутв_пер"));
         }
         [Test]
@@ -47,7 +48,7 @@ namespace NameParserTest
         {
             try
             {
-                _ = _parser.GetLayerInfo("вап_ыык44_аклвю341");
+                _ = _parser!.GetLayerInfo("вап_ыык44_аклвю341");
             }
             catch (Exception ex) 
             {
