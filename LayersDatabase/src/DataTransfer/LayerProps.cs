@@ -13,7 +13,7 @@
         /// <summary>
         /// Масштаб типа линий
         /// </summary>
-        public double? LTScale;
+        public double? LinetypeScale;
         /// <summary>
         /// Красный
         /// </summary>

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace LayersIO.Connection
 {
-    public class TestLayersDatabaseContextSqlite : DbContext
+    public class OverwriteLayersDatabaseContextSqlite : DbContext
     {
         public ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
         public DbSet<LayerData> LayerData { get; set; } = null!;
@@ -14,7 +14,7 @@ namespace LayersIO.Connection
 
         private readonly string _dataSource;
 
-        public TestLayersDatabaseContextSqlite(string dataSource)
+        public OverwriteLayersDatabaseContextSqlite(string dataSource) : base()
         {
             _dataSource = dataSource;
             Database.EnsureDeleted();

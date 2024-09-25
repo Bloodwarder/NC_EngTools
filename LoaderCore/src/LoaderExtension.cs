@@ -212,7 +212,14 @@ namespace LoaderCore
             var dllFiles = new DirectoryInfo(RootLocalDirectory).GetFiles("*.dll", SearchOption.AllDirectories);
             foreach (var dllFile in dllFiles)
             {
-                LibraryFiles.TryAdd(AssemblyName.GetAssemblyName(dllFile.FullName).FullName, dllFile.FullName);
+                try
+                {
+                    LibraryFiles.TryAdd(AssemblyName.GetAssemblyName(dllFile.FullName).FullName, dllFile.FullName);
+                }
+                catch (BadImageFormatException)
+                {
+                    continue;
+                }
             }
             AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
         }

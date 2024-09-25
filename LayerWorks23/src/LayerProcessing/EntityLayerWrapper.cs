@@ -1,8 +1,6 @@
-﻿using LayersIO.ExternalData;
-using LoaderCore.Interfaces;
+﻿using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
-using NPOI.SS.Formula.Functions;
 using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing

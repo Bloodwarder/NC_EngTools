@@ -15,7 +15,7 @@ namespace NanocadUtilities
             // Если всего один элемент, то и выбирать нечего
             if (keywordsArray.Length == 1)
                 return keywordsArray[0];
-            PromptKeywordOptions pko = new($"{message} [{string.Join("/", keywordsArray)}]", string.Join(" ", descriptionArray))
+            PromptKeywordOptions pko = new($"{message} [{string.Join("/", descriptionArray)}]", string.Join(" ", keywordsArray))
             {
                 AppendKeywordsToMessage = true,
                 AllowNone = false,

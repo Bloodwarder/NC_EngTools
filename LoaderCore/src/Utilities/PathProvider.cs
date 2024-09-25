@@ -10,7 +10,14 @@ namespace LoaderCore.Utilities
 
         internal static void InitializeStructure(string baseDirectory)
         {
-            _fileStructure = GetProjectFiles(baseDirectory);
+            var files = new DirectoryInfo(baseDirectory).GetFiles("*", SearchOption.AllDirectories);
+            _fileStructure = new Dictionary<string, FileInfo>();
+            foreach (var file in files)
+            {
+                bool success = _fileStructure.TryAdd(file.Name, file);
+                if (!success)
+                    LoggingRouter.WriteLog?.Invoke($"Обнаружен дублирующийся файл {file.Name}");
+            }
         }
 
         /// <summary>
@@ -38,31 +45,6 @@ namespace LoaderCore.Utilities
         public static bool TryGetFileInfo(string fileName, out FileInfo? file)
         {
             return _fileStructure.TryGetValue(fileName, out file);
-        }
-
-        internal static Dictionary<string, FileInfo> GetProjectFiles(DirectoryInfo directory)
-        {
-            return new(GetFilesFromDirectory(directory));
-        }
-
-        internal static Dictionary<string, FileInfo> GetProjectFiles(string directoryPath)
-        {
-            DirectoryInfo directory = new(directoryPath);
-            if (directory.Exists)
-            {
-                return GetProjectFiles(directory);
-            }
-            else
-            {
-                throw new Exception("Directory don't exist");
-            }
-        }
-
-        private static IEnumerable<KeyValuePair<string, FileInfo>> GetFilesFromDirectory(DirectoryInfo directory)
-        {
-            var files = directory.GetFiles("*", SearchOption.AllDirectories);
-            foreach (FileInfo file in files)
-                yield return new(file.Name, file);
         }
     }
 }
