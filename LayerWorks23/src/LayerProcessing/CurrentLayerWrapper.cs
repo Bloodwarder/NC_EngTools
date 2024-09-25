@@ -37,8 +37,8 @@ namespace LayerWorks.LayerProcessing
             LayerTable? lt = tm.TopTransaction.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
             db.Clayer = lt![LayerInfo.Name];
 
-            var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
-            bool success = service.TryGetStandard(LayerInfo.Name, out LayerProps? lp);
+            var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string,LayerProps>>();
+            bool success = service.TryGet(LayerInfo.TrueName, out LayerProps? lp);
             if (success)
             {
                 db.Celtscale = lp?.LinetypeScale ?? default;

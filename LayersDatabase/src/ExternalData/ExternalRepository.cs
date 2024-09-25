@@ -49,5 +49,10 @@ namespace LayersIO.ExternalData
         {
             throw new NotImplementedException();
         }
+
+        public IEnumerable<TKey> GetKeys()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

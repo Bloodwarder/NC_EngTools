@@ -31,6 +31,11 @@ namespace LayerWorks.EntityFormatters
             return _dictionary.Values;
         }
 
+        public IEnumerable<string> GetKeys()
+        {
+            return _dictionary.Keys;
+        }
+
         public IEnumerable<KeyValuePair<string, LayerProps>> GetKeyValuePairs()
         {
             return _dictionary.AsEnumerable();
