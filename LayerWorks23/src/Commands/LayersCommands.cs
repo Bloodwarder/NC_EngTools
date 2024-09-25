@@ -3,6 +3,7 @@
 using HostMgd.EditorInput;
 using LayersIO.ExternalData;
 using LayerWorks.Dictionaries;
+using LayerWorks.EntityFormatters;
 using LayerWorks.LayerProcessing;
 using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -84,20 +85,12 @@ namespace LayerWorks.Commands
             NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].ExtractSectionInfo<StatusSection>(out string[] statuses,
                                                                                                      out Func<string, string> descriptions);
             string newStatus = GetStringKeywordResult(statuses, statuses.Select(s => descriptions(s)).ToArray(), $"Укажите статус объекта <{PrevStatus}>");
-            //PromptKeywordOptions pko = new($"Укажите статус объекта <{PrevStatus}> [Сущ/Демонтаж/Проект/Неутв/Неутв_демонтаж/Неутв_реорганизация]", "Сущ Демонтаж Проект Неутв Неутв_демонтаж Неутв_реорганизация")
-            //{
-            //    AppendKeywordsToMessage = true,
-            //    AllowNone = false,
-            //    AllowArbitraryInput = false
-            //};
-            //PromptResult res = Workstation.Editor.GetKeywords(pko);
-            //if (res.Status == PromptStatus.OK) { PrevStatus = res.StringResult; }
-            //StatusTextDictionary.StTxtDictionary.TryGetValue(res.StringResult, out int val);
+
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLayerWrappers();
+                    SelectionHandler.UpdateActiveLayerWrappers();
                     ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info => info.SwitchStatus(newStatus)));
                     //ActiveLayerWrappers.StatusSwitch((Status)val);
                     ActiveLayerWrappers.Push();
@@ -118,6 +111,14 @@ namespace LayerWorks.Commands
             }
         }
 
+        [CommandMethod("НОВСТАНДСЛОЙ")]
+        public static void NewStandardLayer()
+        {
+            Workstation.Define();
+
+
+        }
+
         /// <summary>
         /// Изменение типа объекта на альтернативный в соответствии с таблицей
         /// </summary>
@@ -134,11 +135,11 @@ namespace LayerWorks.Commands
 
                 try
                 {
-                    LayerChanger.UpdateActiveLayerWrappers();
+                    SelectionHandler.UpdateActiveLayerWrappers();
                     ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info =>
                     {
-                        bool success = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<InMemoryLayerAlterReader>()
-                                                                                 .TryGetStandard(info.MainName, out string? name);
+                        bool success = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<InMemoryLayerAlterRepository>()
+                                                                                 .TryGet(info.MainName, out string? name);
                         if (success)
                             info.AlterSecondaryClassifier(name!);
                         return;
@@ -169,7 +170,7 @@ namespace LayerWorks.Commands
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLayerWrappers();
+                    SelectionHandler.UpdateActiveLayerWrappers();
 
                     bool targetValue = !ActiveLayerWrappers.List.FirstOrDefault()!.LayerInfo.SuffixTagged["Reconstruction"];
                     ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged["Reconstruction"] = targetValue; }));
@@ -219,7 +220,7 @@ namespace LayerWorks.Commands
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLayerWrappers();
+                    SelectionHandler.UpdateActiveLayerWrappers();
                     ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info => info.ChangeAuxilaryData(ExtProjectAuxDataKey, extProjectName)));
                     //ActiveLayerWrappers.ExtProjNameAssign(extProjectName);
                     ActiveLayerWrappers.Push();
@@ -250,7 +251,7 @@ namespace LayerWorks.Commands
             {
                 try
                 {
-                    LayerChanger.UpdateActiveLayerWrappers();
+                    SelectionHandler.UpdateActiveLayerWrappers();
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }

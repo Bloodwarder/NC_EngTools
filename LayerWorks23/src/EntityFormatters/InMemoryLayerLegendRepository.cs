@@ -9,11 +9,11 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace LayerWorks.EntityFormatters
 {
-    internal class InMemoryLayerLegendReader : IRepository<string, LegendData>
+    internal class InMemoryLayerLegendRepository : IRepository<string, LegendData>
     {
         private static Dictionary<string, LegendData> _dictionary = null!;
 
-        public InMemoryLayerLegendReader()
+        public InMemoryLayerLegendRepository()
         {
             var factory = NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LegendData>>();
             var path = PathProvider.GetPath("LayerData_ИС.db"); // TODO : вставить универсальную конструкцию

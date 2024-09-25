@@ -41,7 +41,7 @@ namespace LayerWorks.LayerProcessing
             bool success = service.TryGetStandard(LayerInfo.Name, out LayerProps? lp);
             if (success)
             {
-                db.Celtscale = lp?.LTScale ?? default;
+                db.Celtscale = lp?.LinetypeScale ?? default;
                 db.Plinewid = lp?.ConstantWidth ?? default;
             }
         }

@@ -7,7 +7,7 @@ using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing
 {
-    internal static class LayerChanger
+    internal static class SelectionHandler
     {
         internal static int MaxSimple { get; set; } = 5;
 
@@ -20,11 +20,11 @@ namespace LayerWorks.LayerProcessing
                 SelectionSet selectionSet = result.Value;
                 if (selectionSet.Count < MaxSimple)
                 {
-                    ChangerSimple(selectionSet);
+                    ProcessSimple(selectionSet);
                 }
                 else
                 {
-                    ChangerBig(selectionSet);
+                    ProcessBulk(selectionSet);
                 }
             }
             else
@@ -33,7 +33,7 @@ namespace LayerWorks.LayerProcessing
             }
         }
 
-        private static void ChangerSimple(SelectionSet selectionSet)
+        private static void ProcessSimple(SelectionSet selectionSet)
         {
 
             foreach (Entity entity in (from ObjectId elem in selectionSet.GetObjectIds()
@@ -55,7 +55,7 @@ namespace LayerWorks.LayerProcessing
             }
         }
 
-        private static void ChangerBig(SelectionSet selectionSet)
+        private static void ProcessBulk(SelectionSet selectionSet)
         {
             Dictionary<string, EntityLayerWrapper> dct = new Dictionary<string, EntityLayerWrapper>();
             foreach (var entity in (from ObjectId elem in selectionSet.GetObjectIds()

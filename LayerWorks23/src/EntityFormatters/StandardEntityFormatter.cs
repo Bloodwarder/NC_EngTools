@@ -10,8 +10,14 @@ namespace LayerWorks.EntityFormatters
 {
     public class StandardEntityFormatter : IEntityFormatter
     {
-        private static IRepository<string, LayerProps> _repository = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
-        private static ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
+        private static IRepository<string, LayerProps> _repository;
+        private static ILogger? _logger;
+
+        public StandardEntityFormatter()
+        {
+            _repository = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
+            _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
+        }
         public void FormatEntity(Entity entity)
         {
             string layerName = entity.Layer;
@@ -28,7 +34,7 @@ namespace LayerWorks.EntityFormatters
                 _logger?.LogWarning($"Не удалось форматировать объект чертежа {entity.GetType().Name}"); // UNDONE : Проверить что выводит. Создать корректное сообщение об ошибке
                 return;
             }
-            entity.LinetypeScale = props?.LTScale ?? entity.LinetypeScale;
+            entity.LinetypeScale = props?.LinetypeScale ?? entity.LinetypeScale;
             switch (entity)
             {
                 case Polyline polyline:

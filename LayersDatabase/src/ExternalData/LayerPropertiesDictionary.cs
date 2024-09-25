@@ -19,12 +19,12 @@ namespace LayersIO.ExternalData
                 //var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LayerProps>>();
                 //InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlPropsName)).GetData();
 
-                defaultLayerProps.Add("сущ", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 });
-                defaultLayerProps.Add("дем", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3, Red = 107, Green = 107, Blue = 107 });
-                defaultLayerProps.Add("пр", new LayerProps { ConstantWidth = 0.6, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 });
-                defaultLayerProps.Add("неутв", new LayerProps { ConstantWidth = 0.6, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 });
-                defaultLayerProps.Add("ндем", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3, Red = 192, Green = 168, Blue = 110 });
-                defaultLayerProps.Add("нреорг", new LayerProps { ConstantWidth = 0.6, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3, Red = 107, Green = 107, Blue = 107 });
+                defaultLayerProps.Add("сущ", new LayerProps { ConstantWidth = 0.4, LinetypeScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 });
+                defaultLayerProps.Add("дем", new LayerProps { ConstantWidth = 0.4, LinetypeScale = 0.8, LineTypeName = "Continuous", LineWeight = -3, Red = 107, Green = 107, Blue = 107 });
+                defaultLayerProps.Add("пр", new LayerProps { ConstantWidth = 0.6, LinetypeScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 });
+                defaultLayerProps.Add("неутв", new LayerProps { ConstantWidth = 0.6, LinetypeScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 });
+                defaultLayerProps.Add("ндем", new LayerProps { ConstantWidth = 0.4, LinetypeScale = 0.8, LineTypeName = "Continuous", LineWeight = -3, Red = 192, Green = 168, Blue = 110 });
+                defaultLayerProps.Add("нреорг", new LayerProps { ConstantWidth = 0.6, LinetypeScale = 0.8, LineTypeName = "Continuous", LineWeight = -3, Red = 107, Green = 107, Blue = 107 });
             }
             catch (FileNotFoundException)
             {
@@ -37,7 +37,7 @@ namespace LayersIO.ExternalData
             bool success = TryGet(key, out value);
             if(!success && enabledefaults)
             {
-                value = new LayerProps { ConstantWidth = 0.4, LTScale = 1, LineTypeName = "Continuous", LineWeight = -3 };
+                value = new LayerProps { ConstantWidth = 0.4, LinetypeScale = 1, LineTypeName = "Continuous", LineWeight = -3 };
                 success = true;
             }
             return success;

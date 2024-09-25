@@ -9,15 +9,15 @@ namespace LayersIO.Connection
 {
     public class LayersDatabaseContextSqlite : DbContext
     {
-        public ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
+        private ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
         public DbSet<LayerData> Layers { get; set; } = null!;
         public DbSet<LayerGroupData> LayerGroups { get; set; } = null!;
 
         private readonly string _dataSource;
-        public LayersDatabaseContextSqlite(string dataSource)
+        public LayersDatabaseContextSqlite(string dataSource) : base()
         {
-            Database.EnsureCreated();
             _dataSource = dataSource;
+            Database.EnsureCreated();
         }
 
         public override int SaveChanges()
@@ -33,7 +33,9 @@ namespace LayersIO.Connection
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelBuilder.ApplyConfiguration(new LayerDataConfiguration());
+            modelBuilder.ApplyConfiguration(new LayerGroupDataConfiguration());
+            //modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
 }

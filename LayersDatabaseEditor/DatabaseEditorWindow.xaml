@@ -20,6 +20,7 @@
         <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
             <MenuItem Header="Программа">
                 <MenuItem Name="miTestRun" Header="Запуск тестовой команды" Click="miTestRun_Click"/>
+                <MenuItem Name="miTestRun2" Header="Запуск тестовой команды 2" Click="miTestRun2_Click"/>
                 <Separator/>
                 <MenuItem Header="Выход"/>
             </MenuItem>

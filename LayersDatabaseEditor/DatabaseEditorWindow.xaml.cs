@@ -8,6 +8,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using LayersIO.Connection;
 
 namespace LayersDatabaseEditor
 {
@@ -106,6 +107,18 @@ namespace LayersDatabaseEditor
                 run.SetBinding(Run.TextProperty, binding);
                 await task;
                 run.Text = task.Result;
+            }
+        }
+
+        private void miTestRun2_Click(object sender, RoutedEventArgs e)
+        {
+            using (LayersDatabaseContextSqlite db = new(PathProvider.GetPath("LayerData_ИС.db")))
+            {
+                var layers = db.Layers.Skip(25).Take(5).ToArray();
+                foreach (var layer in layers)
+                {
+                    LogWrite($"{layer.Name}   {layer.LayerDrawTemplateData.DrawTemplate}  {layer.LayerPropertiesData.LinetypeScale}");
+                }
             }
         }
     }
