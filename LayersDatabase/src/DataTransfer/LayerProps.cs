@@ -29,7 +29,7 @@
         /// <summary>
         /// Тип линий
         /// </summary>
-        public string? LineTypeName;
+        public string? LinetypeName;
         /// <summary>
         /// Вес линий
         /// </summary>

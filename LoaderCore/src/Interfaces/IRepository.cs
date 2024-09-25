@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LoaderCore.Interfaces
 {
@@ -16,6 +12,6 @@ namespace LoaderCore.Interfaces
 
         public bool TryGet(TKey key, [MaybeNullWhen(false)] out TValue? value);
         public bool Has(TKey key);
-
+        public IEnumerable<TKey> GetKeys();
     }
 }

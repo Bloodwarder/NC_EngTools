@@ -27,20 +27,13 @@ namespace LayerWorks.EntityFormatters
             return success ? value ! : throw new NoPropertiesException("");
         }
 
-        public IEnumerable<string> GetAll()
-        {
-            return _dictionary.Values;
-        }
+        public IEnumerable<string> GetAll() => _dictionary.Values;
 
-        public IEnumerable<KeyValuePair<string, string>> GetKeyValuePairs()
-        {
-            return _dictionary.AsEnumerable();
-        }
+        public IEnumerable<string> GetKeys() => _dictionary.Keys;
 
-        public bool Has(string key)
-        {
-            return _dictionary.ContainsKey(key);
-        }
+        public IEnumerable<KeyValuePair<string, string>> GetKeyValuePairs() => _dictionary.AsEnumerable();
+
+        public bool Has(string key) => _dictionary.ContainsKey(key);
 
         public bool TryGet(string key, [MaybeNullWhen(false)] out string? value)
         {

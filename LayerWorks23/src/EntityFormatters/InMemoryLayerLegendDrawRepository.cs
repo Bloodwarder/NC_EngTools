@@ -28,20 +28,13 @@ namespace LayerWorks.EntityFormatters
             return success ? props! : throw new NoPropertiesException("");
         }
 
-        public IEnumerable<LegendDrawTemplate> GetAll()
-        {
-            return _dictionary.Values;
-        }
+        public IEnumerable<LegendDrawTemplate> GetAll() => _dictionary.Values;
 
-        public IEnumerable<KeyValuePair<string, LegendDrawTemplate>> GetKeyValuePairs()
-        {
-            return _dictionary.AsEnumerable();
-        }
+        public IEnumerable<string> GetKeys() => _dictionary.Keys;
 
-        public bool Has(string key)
-        {
-            return _dictionary.ContainsKey(key);
-        }
+        public IEnumerable<KeyValuePair<string, LegendDrawTemplate>> GetKeyValuePairs() => _dictionary.AsEnumerable();
+
+        public bool Has(string key) => _dictionary.ContainsKey(key);
 
         public bool TryGet(string key, [MaybeNullWhen(false)] out LegendDrawTemplate? value)
         {

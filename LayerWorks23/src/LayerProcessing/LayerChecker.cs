@@ -28,8 +28,9 @@ namespace LayerWorks.LayerProcessing
                     LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
                     if (!lt!.Has(layername))
                     {
-                        var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
-                        bool propsgetsuccess = service.TryGetStandard(layername, out LayerProps? lp);
+                        var layerInfo = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GetLayerInfo(layername);
+                        var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
+                        bool propsgetsuccess = service.TryGet(layerInfo.TrueName, out LayerProps? lp);
 
                         LayerTableRecord ltRecord = AddLayer(layername, lp);
 
@@ -87,7 +88,7 @@ namespace LayerWorks.LayerProcessing
             Transaction transaction = Workstation.TransactionManager.TopTransaction;
             Database database = Workstation.Database;
 
-            bool ltgetsuccess = TryFindLinetype(lp?.LineTypeName!, out ObjectId linetypeRecordId);
+            bool ltgetsuccess = TryFindLinetype(lp?.LinetypeName!, out ObjectId linetypeRecordId);
             if (!ltgetsuccess)
             {
                 string str = $"Не найден тип линий для слоя {layername}. Назначен тип линий Continious";

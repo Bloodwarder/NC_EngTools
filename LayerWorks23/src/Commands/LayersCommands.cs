@@ -1,10 +1,12 @@
 ﻿//System
 //nanoCAD
 using HostMgd.EditorInput;
+using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 using LayerWorks.Dictionaries;
 using LayerWorks.EntityFormatters;
 using LayerWorks.LayerProcessing;
+using LoaderCore;
 using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
@@ -92,7 +94,6 @@ namespace LayerWorks.Commands
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
                     ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info => info.SwitchStatus(newStatus)));
-                    //ActiveLayerWrappers.StatusSwitch((Status)val);
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
@@ -116,6 +117,51 @@ namespace LayerWorks.Commands
         {
             Workstation.Define();
 
+            string[] parserIds = NameParser.LoadedParsers.Keys.ToArray();
+            string prefix = GetStringKeywordResult(parserIds, "Выберите глобальный классификатор");
+            var workParser = NameParser.LoadedParsers[prefix];
+            workParser.ExtractSectionInfo<PrimaryClassifierSection>(out string[] primaries, out Func<string, string> descriptions);
+            string newLayerPrimary = GetStringKeywordResult(primaries, primaries.Select(p => descriptions(p)).ToArray(), "Выберите основной классификатор");
+            IRepository<string, LayerProps> repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
+            string[][] keysArray = repository.GetKeys()
+                                           .ToArray()
+                                           .Where(s => s.StartsWith($"{newLayerPrimary}{workParser.Separator}"))
+                                           .Select(s => s.Split(workParser.Separator))
+                                           .ToArray();
+            int pointer = 1; // Потому что первичный классификатор уже обработан
+            while (keysArray.First().Length >= pointer && keysArray.Length > 1)
+            {
+                string[] selectors = keysArray.Select(k => k[pointer]).Distinct().ToArray();
+                string selector = GetStringKeywordResult(selectors, "Выберите классификатор");
+                keysArray = keysArray.Where(s => s[pointer] == selector).ToArray();
+                pointer++;
+            }
+            string layerName = $"{workParser.Prefix}{workParser.Separator}{string.Join(workParser.Separator, keysArray.First())}";
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            {
+                try
+                {
+                    LayerChecker.Check(layerName);
+
+                    LayerTable lt = (LayerTable)transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead);
+                    ObjectId layerId = lt[layerName];
+                    Workstation.Database.Clayer = layerId;
+                    var wrapper = new CurrentLayerWrapper();
+                    wrapper.Push();
+                    transaction.Commit();
+                }
+                catch (WrongLayerException ex)
+                {
+                    Workstation.Editor.WriteMessage($"Cлой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                }
+                catch (System.Exception ex)
+                {
+                    Workstation.Editor.WriteMessage(ex.Message);
+                }
+                finally
+                {
+                }
+            }
 
         }
 

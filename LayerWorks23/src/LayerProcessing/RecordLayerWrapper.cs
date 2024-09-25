@@ -54,7 +54,7 @@ namespace LayerWorks.LayerProcessing
             _ = reader.TryGetStandard(LayerInfo.TrueName, out var standard);
             StatedLayerProps layerProps = standard?.ToStatedLayerProps() ?? new();
 
-            layerProps.LineTypeName = ((LinetypeTableRecord)transaction.GetObject(BoundLayer.LinetypeObjectId, OpenMode.ForRead)).Name;
+            layerProps.LinetypeName = ((LinetypeTableRecord)transaction.GetObject(BoundLayer.LinetypeObjectId, OpenMode.ForRead)).Name;
             layerProps.Red = BoundLayer.Color.Red;
             layerProps.Green = BoundLayer.Color.Green;
             layerProps.Blue = BoundLayer.Color.Blue;
@@ -67,7 +67,7 @@ namespace LayerWorks.LayerProcessing
 
         internal void WriteLayerProps(LayerProps layerProps)
         {
-            _ = LayerChecker.TryFindLinetype(layerProps.LineTypeName, out ObjectId lttrId);
+            _ = LayerChecker.TryFindLinetype(layerProps.LinetypeName, out ObjectId lttrId);
             try
             {
                 BoundLayer.Color = layerProps.GetColor() ?? BoundLayer.Color;
