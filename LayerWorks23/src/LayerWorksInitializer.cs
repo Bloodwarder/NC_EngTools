@@ -8,6 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 using LayersIO.Xml;
 using LayersIO.Database;
 using LayersIO.Database.Readers;
+using Microsoft.Extensions.Configuration;
+using LoaderCore.Configuration;
+using NameClassifiers;
 
 namespace LayerWorks
 {
@@ -18,19 +21,23 @@ namespace LayerWorks
         {
             RegisterServices();
         }
+        public void PostInitialize()
+        {
+            LoadParsers();
+        }
 
         private static void RegisterServices()
         {
-            NcetCore.Services.AddTransient<IStandardReader<LayerProps>, InMemoryLayerPropsReader>();
-            NcetCore.Services.AddTransient<IStandardReader<LegendData>, InMemoryLayerLegendReader>();
-            NcetCore.Services.AddTransient<IStandardReader<LegendDrawTemplate>, InMemoryLayerLegendDrawReader>();
-            NcetCore.Services.AddTransient<InMemoryLayerAlterReader>();
+            NcetCore.Services.AddSingleton<IRepository<string, LayerProps>, InMemoryLayerPropsRepository>();
+            NcetCore.Services.AddSingleton<IRepository<string, LegendData>, InMemoryLayerLegendReader>();
+            NcetCore.Services.AddSingleton<IRepository<string, LegendDrawTemplate>, InMemoryLayerLegendDrawRepository>();
+            NcetCore.Services.AddSingleton<InMemoryLayerAlterRepository>();
 
             // TODO: Поменять IDictionary на репозиторий с отдельным интерфейсом
-            NcetCore.Services.AddSingleton<IDictionary<string, LayerProps>, LayerPropertiesDictionary>();
-            NcetCore.Services.AddSingleton<IDictionary<string, LegendData>, LayerLegendDictionary>();
-            NcetCore.Services.AddSingleton<IDictionary<string, LegendDrawTemplate>, LayerLegendDrawDictionary>();
-            NcetCore.Services.AddSingleton<LayerAlteringDictionary>();
+            //NcetCore.Services.AddSingleton<IDictionary<string, LayerProps>, LayerPropertiesDictionary>();
+            //NcetCore.Services.AddSingleton<IDictionary<string, LegendData>, LayerLegendDictionary>();
+            //NcetCore.Services.AddSingleton<IDictionary<string, LegendDrawTemplate>, LayerLegendDrawDictionary>();
+            //NcetCore.Services.AddSingleton<LayerAlteringDictionary>();
 
             // используются внутри фабрике (регистрируется в следующих строках)
             NcetCore.Services.AddTransient<Func<string, ILayerDataProvider<string, LayerProps>>>(p => new(path => new SQLiteLayerPropsProvider(path)));
@@ -38,11 +45,11 @@ namespace LayerWorks
             NcetCore.Services.AddTransient<Func<string, ILayerDataProvider<string, LegendDrawTemplate>>>(p => new(path => new SQLiteLegendDrawTemplateProvider(path)));
             NcetCore.Services.AddTransient<Func<string, ILayerDataProvider<string, string?>>>(p => new(path => new SQLiteAlterLayersProvider(path)));
 
-            NcetCore.Services.AddTransient<SQLiteDataProviderFactory<string, LayerProps>>();
-            NcetCore.Services.AddTransient<SQLiteDataProviderFactory<string, LegendData>>();
-            NcetCore.Services.AddTransient<SQLiteDataProviderFactory<string, LegendDrawTemplate>>();
-            NcetCore.Services.AddTransient<SQLiteDataProviderFactory<string, string?>>();
-            NcetCore.Services.AddTransient<SQLiteLayerDataContextFactory>();
+            //NcetCore.Services.AddSingleton<SQLiteDataProviderFactory<string, LayerProps>>();
+            //NcetCore.Services.AddSingleton<SQLiteDataProviderFactory<string, LegendData>>();
+            //NcetCore.Services.AddSingleton<SQLiteDataProviderFactory<string, LegendDrawTemplate>>();
+            //NcetCore.Services.AddSingleton<SQLiteDataProviderFactory<string, string?>>();
+            NcetCore.Services.AddSingleton<SQLiteLayerDataContextFactory>();
 
             NcetCore.Services.AddTransient<IDataProviderFactory<string, LayerProps>, SQLiteDataProviderFactory<string, LayerProps>>();
             NcetCore.Services.AddTransient<IDataProviderFactory<string, LegendData>, SQLiteDataProviderFactory<string, LegendData>>();
@@ -53,6 +60,21 @@ namespace LayerWorks
             NcetCore.Services.AddTransient<IDataWriterFactory<string, LegendData>, XmlDataWriterFactory<string, LegendData>>();
             NcetCore.Services.AddTransient<IDataWriterFactory<string, LegendDrawTemplate>, XmlDataWriterFactory<string, LegendDrawTemplate>>();
             NcetCore.Services.AddTransient<IDataWriterFactory<string, string>, XmlDataWriterFactory<string, string>>();
+        }
+
+        private static void LoadParsers()
+        {
+            var config = NcetCore.ServiceProvider.GetRequiredService<IConfiguration>();
+            var parsersPath = config.GetSection("LayerWorksConfiguration:NameParserPaths:LayerWorksPath")
+                                    .Get<LayerWorksPath[]>()
+                                    .Where(p => p.Type == PathRoute.Local)
+                                    .Single();
+            var parserXmlFiles = parsersPath.DirectoryInfo.GetFiles("LayerParser_*.xml").Select(p => p.FullName).ToArray();
+            foreach (var file in parserXmlFiles)
+            {
+                NameParser.Load(file);
+            }
+
         }
     }
 }

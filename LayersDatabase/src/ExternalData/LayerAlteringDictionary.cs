@@ -5,7 +5,7 @@ using LoaderCore.Utilities;
 
 namespace LayersIO.ExternalData
 {
-    public class LayerAlteringDictionary : ExternalDictionary<string, string>
+    public class LayerAlteringDictionary : ExternalRepository<string, string>
     {
         const string XmlAlterName = "Layer_Alter.xml";
         static LayerAlteringDictionary() { }
@@ -13,8 +13,8 @@ namespace LayersIO.ExternalData
         {
             try
             {
-                var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, string>>();
-                InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlAlterName)).GetData();
+                //var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, string>>();
+                //InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlAlterName)).GetData();
             }
             catch (FileNotFoundException)
             {

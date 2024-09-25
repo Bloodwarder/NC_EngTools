@@ -20,6 +20,7 @@ namespace LoaderCore.Integrity
         private Assembly? _mainAssembly = null;
         private string _mainAssemblyPath;
         private DirectoryInfo _moduleDirectory;
+        private INcetInitializer? _initializer;
         internal ModuleHandler(string name)
         {
             Name = name;
@@ -33,6 +34,8 @@ namespace LoaderCore.Integrity
                 throw new Exception("Не найдена основная сборка модуля");
         }
 
+
+
         internal string Name { get; }
         internal string DllName { get; }
 
@@ -42,7 +45,6 @@ namespace LoaderCore.Integrity
             LoadDependencies();
             RunInitializer();
         }
-
 
         internal void Update()
         {
@@ -126,6 +128,11 @@ namespace LoaderCore.Integrity
             // Обработать выше
         }
 
+        internal void PostInitialize()
+        {
+            _initializer?.PostInitialize();
+        }
+
         private void LoadMainAssembly()
         {
             bool success = TryGetAssemblyName(_mainAssemblyPath, out var assemblyName);
@@ -141,6 +148,7 @@ namespace LoaderCore.Integrity
             {
                 _mainAssembly = Assembly.LoadFrom(_mainAssemblyPath);
             }
+            _initializer = GetInitializer();
         }
         private void LoadDependencies()
         {
@@ -155,7 +163,11 @@ namespace LoaderCore.Integrity
 
         private void RunInitializer()
         {
+            _initializer?.Initialize();
+        }
 
+        private INcetInitializer? GetInitializer()
+        {
             Type targetType = typeof(INcetInitializer);
             Type? classType;
             try
@@ -165,34 +177,32 @@ namespace LoaderCore.Integrity
                                                                    && targetType.IsAssignableFrom(t));
             }
             catch (ReflectionTypeLoadException ex)
-            { 
+            {
                 // Handle types that could not be loaded, including those from missing assemblies
                 classType = ex.Types.Where(t => t != null).SingleOrDefault(t => t!.GetCustomAttribute<NcetModuleInitializerAttribute>() != null
                                                                    && targetType.IsAssignableFrom(t));
             }
             if (classType == null)
-                return;
+                return null;
             INcetInitializer? initializer = Activator.CreateInstance(classType) as INcetInitializer;
             if (initializer == null)
-                throw new Exception($"Ошибка инициализации модуля {Name}");
-            initializer.Initialize();
+                throw new Exception($"Ошибка инициализации модуля {Name}"); // если нужного класса нет, нулл уже бы вернулся до этого
+            return initializer;
         }
 
-    
-
-    private bool TryGetAssemblyName(string dllFilePath, out AssemblyName? assemblyName)
-    {
-        try
+        private bool TryGetAssemblyName(string dllFilePath, out AssemblyName? assemblyName)
         {
-            var name = AssemblyName.GetAssemblyName(dllFilePath);
-            assemblyName = name;
-            return true;
-        }
-        catch (BadImageFormatException)
-        {
-            assemblyName = null;
-            return false;
+            try
+            {
+                var name = AssemblyName.GetAssemblyName(dllFilePath);
+                assemblyName = name;
+                return true;
+            }
+            catch (BadImageFormatException)
+            {
+                assemblyName = null;
+                return false;
+            }
         }
     }
-}
 }

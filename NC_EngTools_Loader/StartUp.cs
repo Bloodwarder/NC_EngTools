@@ -21,7 +21,7 @@ namespace StartUp
                                                        .OfType<DebuggableAttribute>()
                                                        .Any(da => da.IsJITTrackingEnabled);
         private readonly FileInfo LocalStartUpAssemblyFile = new FileInfo(Assembly.GetExecutingAssembly().Location);
-        private string _sourceDirectory;
+        private string? _sourceDirectory;
         private string SourceDirectory
         {
             get
@@ -30,14 +30,13 @@ namespace StartUp
                 {
                     try
                     {
-                        XDocument xDocument = XDocument.Load(Path.Combine(LocalStartUpAssemblyFile.DirectoryName,
-                                                                          LoaderCoreDirectory,
-                                                                          ConfigurationXmlName));
+                        XDocument xDocument = XDocument.Load(ConfigurationXmlName);
                         _sourceDirectory = xDocument.Root.Element("Directories").Element("UpdateDirectory").Value;
                     }
                     catch (System.Exception)
                     {
-                        _sourceDirectory = DefaultSourceDirectory;
+                        return default;
+                        //_sourceDirectory = DefaultSourceDirectory;
                     }
                 }
                 return _sourceDirectory;
@@ -56,13 +55,9 @@ namespace StartUp
                                                                          LoaderCoreAssemblyName));
             FileInfo sourceLoaderAssemblyFile = new FileInfo(Path.Combine(SourceDirectory,
                                                                           LoaderCoreDirectory,
-                                                                          LoaderCoreAssemblyName));
-            FileInfo localConfigurationXml = new FileInfo(Path.Combine(LocalStartUpAssemblyFile.DirectoryName,
-                                                                   LoaderCoreDirectory,
-                                                                   ConfigurationXmlName));
-            FileInfo sourceConfigurationXml = new FileInfo(Path.Combine(SourceDirectory,
-                                                                    LoaderCoreDirectory,
-                                                                    ConfigurationXmlName));
+                                                                          LoaderCoreAssemblyName)); // При отсутствии директории обновлений указывает на тот же файл. Мешать не должно, но и суть неверная
+            FileInfo localConfigurationXml = new FileInfo(ConfigurationXmlName);
+            FileInfo sourceConfigurationXml = new FileInfo(Path.Combine(SourceDirectory, ConfigurationXmlName));
             try
             {
                 UpdateFile(localLoaderAssemblyFile, sourceLoaderAssemblyFile, out _);
@@ -88,7 +83,16 @@ namespace StartUp
             }
 
             Assembly loaderAssembly = Assembly.LoadFrom(localLoaderAssemblyFile.FullName);
-            Type loaderType = loaderAssembly.GetType("Loader.LoaderExtension", true);
+            Type? loaderType;
+            try
+            {
+                loaderType = loaderAssembly.GetType("LoaderCore.LoaderExtension", true);
+            }
+            catch (System.Exception ex)
+            {
+                Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"{ex.Message}");
+                return;
+            }
             MethodInfo initializeMethod = loaderType.GetMethod("Initialize");
             initializeMethod.Invoke(null, null);
         }

@@ -8,6 +8,7 @@
         Title="Автозапуск NC EngTools" Height="600" MinHeight="550" Width="700" MaxWidth="700" Closing="StartUpWindowClosing">
     <Grid>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" MinHeight="294"/>
@@ -51,7 +52,7 @@
                       Checked="IncludeCheckChanged"/>
             <CheckBox Grid.Row="3" Grid.Column="1" Name="chbAutoUpdateLayerWorks" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="LayerWorks"
                       Checked="AutoUpdateCheckChanged"/>
-            <Button Grid.Row ="3" Grid.Column="2" Name="bUpdateLayerWorks" Margin="20 5 20 5" Content="Обновить" FontSize="14" Tag="LayerWorks" Click="UpdateButtonClick"/>
+            <Button Grid.Row ="3" Grid.Column="2" Name="bUpdateLayerWorks" Margin="20 5 20 5" Content="Обновить" FontSize="14" Tag="LayerWorks" Click="UpdateButtonClick" IsEnabled="False"/>
             <DockPanel Grid.Row="3" Grid.Column="3">
                 <TextBlock DockPanel.Dock="Left" Text="LayerWorks" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
                 <Button x:Name="bCommandHelp" DockPanel.Dock="Right" Width="130" Margin="20 5 20 5" HorizontalAlignment="Right" Content="Список команд" Click="CommandHelpClick"/>
@@ -66,7 +67,7 @@
                     Content="Обновить" 
                     FontSize="14" 
                     Tag="Utilities" 
-                    Click="UpdateButtonClick"/>
+                    Click="UpdateButtonClick" IsEnabled="False"/>
             <DockPanel Grid.Row="4" Grid.Column="3">
                 <TextBlock Text="Utilities" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
                 <Button x:Name="bUpdateLog" DockPanel.Dock="Right" Width="130" Margin="20 5 20 5" HorizontalAlignment="Right" Content="Список обновлений" Click="UpdateLogClick"/>
@@ -83,7 +84,7 @@
                     Content="Обновить" 
                     FontSize="14" 
                     Tag="GeoMod" 
-                    Click="UpdateButtonClick"/>
+                    Click="UpdateButtonClick" IsEnabled="False"/>
             <DockPanel Grid.Row="5" Grid.Column="3">
                 <TextBlock Text="GeoMod" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
                 <Button x:Name="bKnownIssues" DockPanel.Dock="Right" Width="130" Margin="20 5 20 5" HorizontalAlignment="Right" Content="Известные проблемы" Click="KnownIssuesClick"/>

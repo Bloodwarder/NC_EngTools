@@ -13,7 +13,7 @@ namespace NameParserTest
         {
             FileInfo fi = new(Assembly.GetExecutingAssembly().Location);
             string path = Path.Combine(fi.Directory!.FullName, "TestData", "LayerParserTemplate.xml");
-            _parser = new NameParser(path);
+            _parser = NameParser.Load(path);
         }
         [OneTimeTearDown]
         public void TearDown()

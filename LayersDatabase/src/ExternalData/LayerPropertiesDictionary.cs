@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace LayersIO.ExternalData
 {
-    public class LayerPropertiesDictionary : ExternalDictionary<string, LayerProps>
+    public class LayerPropertiesDictionary : ExternalRepository<string, LayerProps>
     {
         const string XmlPropsName = "Layer_Props.xml";
 
@@ -16,8 +16,8 @@ namespace LayersIO.ExternalData
         {
             try
             {
-                var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LayerProps>>();
-                InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlPropsName)).GetData();
+                //var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LayerProps>>();
+                //InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlPropsName)).GetData();
 
                 defaultLayerProps.Add("сущ", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3 });
                 defaultLayerProps.Add("дем", new LayerProps { ConstantWidth = 0.4, LTScale = 0.8, LineTypeName = "Continuous", LineWeight = -3, Red = 107, Green = 107, Blue = 107 });
@@ -32,9 +32,9 @@ namespace LayersIO.ExternalData
             }
         }
 
-        public bool TryGetValue(string key, [MaybeNullWhen(false)] out LayerProps value, bool enabledefaults)
+        public bool TryGet(string key, [MaybeNullWhen(false)] out LayerProps value, bool enabledefaults)
         {
-            bool success = TryGetValue(key, out value);
+            bool success = TryGet(key, out value);
             if(!success && enabledefaults)
             {
                 value = new LayerProps { ConstantWidth = 0.4, LTScale = 1, LineTypeName = "Continuous", LineWeight = -3 };

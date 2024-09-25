@@ -10,7 +10,7 @@ namespace LayerWorks.EntityFormatters
 {
     public class StandardEntityFormatter : IEntityFormatter
     {
-        private static IStandardReader<LayerProps> _standardReader = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IStandardReader<LayerProps>>();
+        private static IRepository<string, LayerProps> _repository = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
         private static ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
         public void FormatEntity(Entity entity)
         {
@@ -22,10 +22,10 @@ namespace LayerWorks.EntityFormatters
 
         public void FormatEntity(Entity entity, string key)
         {
-            bool success = _standardReader.TryGetStandard(key, out LayerProps? props);
+            bool success = _repository.TryGet(key, out LayerProps? props);
             if (!success)
             {
-                _logger?.LogWarning($"Не удалось форматировать объект чертежа {entity}"); // UNDONE : Проверить что выводит. Создать корректное сообщение об ошибке
+                _logger?.LogWarning($"Не удалось форматировать объект чертежа {entity.GetType().Name}"); // UNDONE : Проверить что выводит. Создать корректное сообщение об ошибке
                 return;
             }
             entity.LinetypeScale = props?.LTScale ?? entity.LinetypeScale;

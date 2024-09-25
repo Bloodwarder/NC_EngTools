@@ -29,7 +29,7 @@ namespace NameClassifiers
         private Visualizers? _highliters;
 
         private List<ParserSection> _sections;
-        public NameParser(string xmlPath)
+        private NameParser(string xmlPath)
         {
             // Инициализация пути к файлу с данными парсера
             _xmlPath = xmlPath;
@@ -138,6 +138,11 @@ namespace NameClassifiers
         /// Стартовая секция цепочки обработки
         /// </summary>
         internal ParserSection? Processor { get; set; }
+
+        public static NameParser Load(string xmlPath)
+        {
+            return new NameParser(xmlPath);
+        }
 
         /// <summary>
         /// Парсинг строки имени слоя в объект LayerInfo

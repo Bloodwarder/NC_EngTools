@@ -28,7 +28,8 @@ namespace LayerWorks.LayerProcessing
         /// <param name="entity"></param>
         public EntityLayerWrapper(Entity entity) : base(entity.Layer)
         {
-            BoundEntities.Add(entity); ActiveLayerWrappers.Add(this);
+            BoundEntities.Add(entity); 
+            ActiveLayerWrappers.Add(this);
         }
         /// <summary>
         /// Коллекция связанных объектов чертежа
