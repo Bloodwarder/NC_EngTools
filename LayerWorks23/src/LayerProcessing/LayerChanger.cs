@@ -48,6 +48,10 @@ namespace LayerWorks.LayerProcessing
                 {
                     continue;
                 }
+                catch (Exception ex)
+                {
+                    
+                }
             }
         }
 

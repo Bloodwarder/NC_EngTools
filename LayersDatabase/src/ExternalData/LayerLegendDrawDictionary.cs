@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LayersIO.ExternalData
 {
-    public class LayerLegendDrawDictionary : ExternalDictionary<string, LegendDrawTemplate>
+    public class LayerLegendDrawDictionary : ExternalRepository<string, LegendDrawTemplate>
     {
         const string XmlLegendDrawName = "Layer_LegendDraw.xml";
         static LayerLegendDrawDictionary() { }
@@ -14,8 +14,8 @@ namespace LayersIO.ExternalData
         {
             try
             {
-                var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LegendDrawTemplate>>();
-                InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlLegendDrawName)).GetData();
+                //var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LegendDrawTemplate>>();
+                //InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlLegendDrawName)).GetData();
             }
             catch (FileNotFoundException)
             {

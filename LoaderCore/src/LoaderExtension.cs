@@ -92,7 +92,19 @@ namespace LoaderCore
             InitializeModules(configurationXml);
             IndexFiles();
             RegisterDependencies();
+            PostInitializeModules();
             LoggingRouter.WriteLog = null;
+        }
+
+        public static void InitializeAsLibrary()
+        {
+            XDocument configurationXml = XDocument.Load(Path.Combine(RootLocalDirectory, ConfigurationXmlFileName));
+
+            CheckConfigurationXml(configurationXml);
+            InitializeModules(configurationXml);
+            IndexFiles();
+            RegisterDependencies();
+            PostInitializeModules();
         }
 
         private static void CheckConfigurationXml(XDocument document)
@@ -218,9 +230,13 @@ namespace LoaderCore
             ServiceProvider = Services.BuildServiceProvider();
         }
 
-
-
-
+        private static void PostInitializeModules()
+        {
+            foreach (var module in Modules)
+            {
+                module.PostInitialize();
+            }
+        }
 
         private static Assembly? AssemblyResolve(object? sender, ResolveEventArgs args)
         {
@@ -238,15 +254,7 @@ namespace LoaderCore
             return null;
         }
 
-        public static void InitializeAsLibrary()
-        {
-            XDocument configurationXml = XDocument.Load(Path.Combine(RootLocalDirectory, ConfigurationXmlFileName));
 
-            CheckConfigurationXml(configurationXml);
-            InitializeModules(configurationXml);
-            IndexFiles();
-            RegisterDependencies();
-        }
 
         /// <summary>
         /// Команда вызова окна конфигурации

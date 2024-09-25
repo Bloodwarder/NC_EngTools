@@ -40,7 +40,8 @@ namespace LoaderCore.UI
             tbSourcePath.Text = _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value;
 #nullable restore
             // Вывод данных о последнем обновлении
-            using (StreamReader reader = new StreamReader(PathProvider.GetPath("Список изменений.txt")))
+            var patchNotesPath = Path.Combine(new FileInfo(_xmlConfigPath).DirectoryName, "Список изменений.txt");
+            using (StreamReader reader = new StreamReader(patchNotesPath))
             {
                 string line;
                 LoggingRouter.WriteLog("Последние обновления:");
@@ -104,9 +105,9 @@ namespace LoaderCore.UI
 
             _xmlConfig.Save(_xmlConfigPath);
 
-            DirectoryInfo checkdir = new DirectoryInfo(tbSourcePath.Text);
-            if (checkdir.Exists)
-                _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value = tbSourcePath.Text;
+            //DirectoryInfo checkdir = new DirectoryInfo(tbSourcePath.Text);
+            //if (checkdir.Exists)
+            //    _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value = tbSourcePath.Text;
             _xmlConfig.Save(_xmlConfigPath);
 #nullable restore
             LoggingRouter.WriteLog -= LogWindow;

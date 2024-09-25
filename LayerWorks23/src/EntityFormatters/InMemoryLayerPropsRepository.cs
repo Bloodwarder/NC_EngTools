@@ -1,5 +1,4 @@
 ﻿using LayersIO.DataTransfer;
-using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LoaderCore;
 using LoaderCore.Interfaces;
@@ -9,30 +8,30 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace LayerWorks.EntityFormatters
 {
-    internal class InMemoryLayerLegendReader : IRepository<string, LegendData>
+    internal class InMemoryLayerPropsRepository : IRepository<string, LayerProps>
     {
-        private static Dictionary<string, LegendData> _dictionary = null!;
+        private static Dictionary<string, LayerProps> _dictionary = null!;
 
-        public InMemoryLayerLegendReader()
+        public InMemoryLayerPropsRepository()
         {
-            var factory = NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LegendData>>();
+            var factory = NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LayerProps>>();
             var path = PathProvider.GetPath("LayerData_ИС.db"); // TODO : вставить универсальную конструкцию
             var reader = factory.CreateProvider(path);
             _dictionary = reader.GetData();
         }
 
-        public LegendData Get(string key)
+        public LayerProps Get(string key)
         {
-            bool success = _dictionary.TryGetValue(key, out var value);
-            return success ? value! : throw new NoPropertiesException("");
+            bool success = _dictionary.TryGetValue(key, out var props);
+            return success ? props! : throw new NoPropertiesException("");
         }
 
-        public IEnumerable<LegendData> GetAll()
+        public IEnumerable<LayerProps> GetAll()
         {
             return _dictionary.Values;
         }
 
-        public IEnumerable<KeyValuePair<string, LegendData>> GetKeyValuePairs()
+        public IEnumerable<KeyValuePair<string, LayerProps>> GetKeyValuePairs()
         {
             return _dictionary.AsEnumerable();
         }
@@ -42,11 +41,12 @@ namespace LayerWorks.EntityFormatters
             return _dictionary.ContainsKey(key);
         }
 
-        public bool TryGet(string key, [MaybeNullWhen(false)] out LegendData? value)
+        public bool TryGet(string key, [MaybeNullWhen(false)] out LayerProps? value)
         {
             bool success = _dictionary.TryGetValue(key, out value);
             return success;
         }
     }
 
+    
 }

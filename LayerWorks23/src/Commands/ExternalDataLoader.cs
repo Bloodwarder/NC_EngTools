@@ -102,7 +102,7 @@ namespace LayersIO.ExternalData
                     bool lpsuccess = true;
                     try
                     {
-                        lpsuccess = NcetCore.ServiceProvider.GetService<LayerPropertiesDictionary>().TryGetValue(checkedname, out lp!, false);
+                        lpsuccess = NcetCore.ServiceProvider.GetService<LayerPropertiesDictionary>().TryGet(checkedname, out lp!, false);
                     }
                     catch (NoPropertiesException)
                     {

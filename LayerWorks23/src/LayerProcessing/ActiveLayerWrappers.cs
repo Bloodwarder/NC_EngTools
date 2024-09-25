@@ -30,7 +30,10 @@ namespace LayerWorks.LayerProcessing
         }
         internal static void Push()
         {
-            foreach (LayerWrapper lp in List) { lp.Push(); }
+            foreach (LayerWrapper lp in List) 
+            { 
+                lp.Push(); 
+            }
         }
         internal static void Flush()
         {

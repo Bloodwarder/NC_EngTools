@@ -3,5 +3,7 @@
     public interface INcetInitializer
     {
         void Initialize();
+
+        void PostInitialize();
     }
 }

@@ -16,7 +16,7 @@ namespace NameParserTest
             FileInfo fi = new FileInfo(Assembly.GetExecutingAssembly().Location);
             var path = Path.Combine(fi.Directory!.FullName, "TestData", "LayerParserTemplate.xml");
             _xDocument = XDocument.Load(path);
-            _parser = new NameParser(path);
+            _parser = NameParser.Load(path);
         }
         [OneTimeTearDown]
         public void TearDown()

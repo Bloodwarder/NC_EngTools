@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LayersIO.ExternalData
 {
-    public class LayerLegendDictionary : ExternalDictionary<string, LegendData>
+    public class LayerLegendDictionary : ExternalRepository<string, LegendData>
     {
         const string XmlLegendName = "Layer_Legend.xml";
 
@@ -15,8 +15,8 @@ namespace LayersIO.ExternalData
         {
             try
             {
-                var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LegendData>>();
-                InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlLegendName)).GetData();
+                //var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LegendData>>();
+                //InstanceDictionary = service.CreateProvider(PathProvider.GetPath(XmlLegendName)).GetData();
             }
             catch (FileNotFoundException)
             {

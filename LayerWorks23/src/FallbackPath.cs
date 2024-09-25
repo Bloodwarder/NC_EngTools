@@ -29,8 +29,8 @@ namespace LayerWorks
             }
         }
 
-        internal static string? UserOverride => _configuration.LayerStandardPaths?.FirstOrDefault(lwp => lwp.Route == PathRoute.Overrides)?.Path;
-        internal static string LocalBackUp => _configuration.LayerStandardPaths.FirstOrDefault(lwp => lwp.Route == PathRoute.Local).Path;
-        internal static string CommonShared => _configuration.LayerStandardPaths.FirstOrDefault(lwp => lwp.Route == PathRoute.Shared).Path;
+        //internal static string? UserOverride => _configuration.LayerStandardPaths?.FirstOrDefault(lwp => lwp.Route == PathRoute.Overrides)?.Path;
+        //internal static string LocalBackUp => _configuration.LayerStandardPaths.FirstOrDefault(lwp => lwp.Route == PathRoute.Local).Path;
+        //internal static string CommonShared => _configuration.LayerStandardPaths.FirstOrDefault(lwp => lwp.Route == PathRoute.Shared).Path;
     }
 }
