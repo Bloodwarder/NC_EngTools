@@ -71,6 +71,7 @@
 							<xs:element name="Enabled" type="xs:boolean" />
 							<xs:element name="UpdateEnabled" type="xs:boolean" />
 							<xs:element name="Precision" type="xs:int" />
+							<xs:element name="ReducedPrecision" type="xs:int" />
 							<xs:element name="BufferParameters">
 								<xs:complexType>
 									<xs:sequence>
