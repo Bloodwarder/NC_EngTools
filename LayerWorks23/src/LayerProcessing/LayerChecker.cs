@@ -61,8 +61,8 @@ namespace LayerWorks.LayerProcessing
                     LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
                     if (!lt!.Has(layer.LayerInfo.Name))
                     {
-                        var standardService = LoaderCore.NcetCore.ServiceProvider.GetService<IStandardReader<LayerProps>>()!;
-                        bool propsgetsuccess = standardService.TryGetStandard(layer.LayerInfo.TrueName, out LayerProps? props);
+                        var standardService = LoaderCore.NcetCore.ServiceProvider.GetService<IRepository<string, LayerProps>>()!;
+                        bool propsgetsuccess = standardService.TryGet(layer.LayerInfo.TrueName, out LayerProps? props);
                         LayerTableRecord ltRecord = AddLayer(layer.LayerInfo.Name, props);
 
                         //Process new layer if isolated chapter visualization is active

@@ -48,7 +48,8 @@
 	<GeoModConfiguration Module="GeoMod">
 		<Enabled>true</Enabled>
 		<UpdateEnabled>true</UpdateEnabled>
-		<Precision>100</Precision>
+		<Precision>10000</Precision>
+		<ReducedPrecision>100</ReducedPrecision>
 		<BufferParameters>
 			<EndCapStyle>1</EndCapStyle>
 			<JoinStyle>1</JoinStyle>
