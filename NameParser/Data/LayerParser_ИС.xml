@@ -53,7 +53,7 @@
 			<Chapter Value="ЭС" Description="Электроснабжение"/>
 			<Chapter Value="ЖД" Description="Инфраструктура железнодорожного транспорта"/>
 		</PrimaryClassifier>
-		<AuxilaryData Name="Diameter" Brackets="\{\}" Description="Диаметр">
+		<AuxilaryData Name="Diameter" Brackets="{}" Description="Диаметр">
 			<!--Неправомерные основные и дополнительные классификаторы запрещают записывать дополнительную информацию с указанным ключом-->
 			<Validation>
 				<ValidPrimary>

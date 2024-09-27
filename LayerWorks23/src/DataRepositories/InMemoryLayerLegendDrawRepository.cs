@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 
-namespace LayerWorks.EntityFormatters
+namespace LayerWorks.DataRepositories
 {
     internal class InMemoryLayerLegendDrawRepository : IRepository<string, LegendDrawTemplate>
     {

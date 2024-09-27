@@ -6,7 +6,7 @@ using LoaderCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 
-namespace LayerWorks.EntityFormatters
+namespace LayerWorks.DataRepositories
 {
     internal class InMemoryLayerPropsRepository : IRepository<string, LayerProps>
     {

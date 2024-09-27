@@ -1,21 +1,20 @@
 ﻿//System
 //nanoCAD
 using HostMgd.EditorInput;
-using LayersIO.DataTransfer;
-using LayersIO.ExternalData;
-using LayerWorks.Dictionaries;
-using LayerWorks.EntityFormatters;
-using LayerWorks.LayerProcessing;
-using LoaderCore;
-using LoaderCore.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
-using NameClassifiers;
-using NameClassifiers.Sections;
-//internal modules
-using NanocadUtilities;
 using Teigha.Colors;
 using Teigha.DatabaseServices;
 using Teigha.Runtime;
+//Microsoft
+using Microsoft.Extensions.DependencyInjection;
+//internal modules
+using LayersIO.DataTransfer;
+using LayerWorks.DataRepositories;
+using LayerWorks.LayerProcessing;
+using LoaderCore;
+using LoaderCore.Interfaces;
+using NameClassifiers;
+using NameClassifiers.Sections;
+using NanocadUtilities;
 
 using static NanocadUtilities.EditorHelper;
 
@@ -28,7 +27,7 @@ namespace LayerWorks.Commands
     {
         private const string ExtProjectAuxDataKey = "ExternalProject";
         internal static string PrevStatus = "Сущ";
-        internal static string PrevExtProject = "";
+        internal static Dictionary<string, string> PreviousAssignedData = new();
         /// <summary>
         /// Переключение кальки, при необходимости добавление её в чертёж
         /// </summary>
@@ -43,13 +42,10 @@ namespace LayerWorks.Commands
                 LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForWrite, false) as LayerTable;
                 if (!lt!.Has(tgtlayer))
                 {
-                    System.Drawing.Color color = System.Drawing.Color.FromArgb(166, 255, 255, 255);
                     LayerTableRecord ltrec = new()
                     {
                         Name = tgtlayer,
-                        Color = Color.FromColor(color),
-                        //Color = Color.FromRgb(255, 255, 255),
-                        //Transparency = new Transparency(166)
+                        Color = Color.FromRgb(255, 255, 255),
                     };
                     lt.Add(ltrec);
                     transaction.AddNewlyCreatedDBObject(ltrec, true);
@@ -117,17 +113,20 @@ namespace LayerWorks.Commands
         {
             Workstation.Define();
 
+            // Выбрать парсер для загрузки слоёв
             string[] parserIds = NameParser.LoadedParsers.Keys.ToArray();
             string prefix = GetStringKeywordResult(parserIds, "Выберите глобальный классификатор");
             var workParser = NameParser.LoadedParsers[prefix];
+            // Выбрать основной классификатор
             workParser.ExtractSectionInfo<PrimaryClassifierSection>(out string[] primaries, out Func<string, string> descriptions);
             string newLayerPrimary = GetStringKeywordResult(primaries, primaries.Select(p => descriptions(p)).ToArray(), "Выберите основной классификатор");
+            // Выбрать ключи из репозитория, отфильтровать по выбранному классификатору и представить как массивы разделённых строк
             IRepository<string, LayerProps> repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
             string[][] keysArray = repository.GetKeys()
-                                           .ToArray()
                                            .Where(s => s.StartsWith($"{newLayerPrimary}{workParser.Separator}"))
                                            .Select(s => s.Split(workParser.Separator))
                                            .ToArray();
+            // Последовательно запрашивать у пользователя строку для следующего уровня фильтрации, пока не останется 1 объект
             int pointer = 1; // Потому что первичный классификатор уже обработан
             while (keysArray.First().Length >= pointer && keysArray.Length > 1)
             {
@@ -136,18 +135,15 @@ namespace LayerWorks.Commands
                 keysArray = keysArray.Where(s => s[pointer] == selector).ToArray();
                 pointer++;
             }
+
             string layerName = $"{workParser.Prefix}{workParser.Separator}{string.Join(workParser.Separator, keysArray.First())}";
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
                 {
-                    LayerChecker.Check(layerName);
-
-                    LayerTable lt = (LayerTable)transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead);
-                    ObjectId layerId = lt[layerName];
+                    ObjectId layerId = LayerChecker.Check(layerName);
                     Workstation.Database.Clayer = layerId;
-                    var wrapper = new CurrentLayerWrapper();
-                    wrapper.Push();
+                    CurrentLayerWrapper.DirectPush();
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -157,9 +153,6 @@ namespace LayerWorks.Commands
                 catch (System.Exception ex)
                 {
                     Workstation.Editor.WriteMessage(ex.Message);
-                }
-                finally
-                {
                 }
             }
 
@@ -175,17 +168,13 @@ namespace LayerWorks.Commands
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                //string str = LayerAlteringDictionary.GetValue(MainName, out bool success);
-                //if (!success) { return; }
-                //MainName = str;
-
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
                     ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info =>
                     {
-                        bool success = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<InMemoryLayerAlterRepository>()
-                                                                                 .TryGet(info.MainName, out string? name);
+                        bool success = NcetCore.ServiceProvider.GetRequiredService<InMemoryLayerAlterRepository>()
+                                                               .TryGet(info.MainName, out string? name);
                         if (success)
                             info.AlterSecondaryClassifier(name!);
                         return;
@@ -237,44 +226,48 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Назначение объекту/слою имени внешнего проекта (неутверждаемого)
         /// </summary>
-        [CommandMethod("ВНЕШПРОЕКТ", CommandFlags.Redraw)]
+        [CommandMethod("ДОПИНФО", CommandFlags.Redraw)]
         public static void ExtAssign()
         {
             Workstation.Define();
-            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
-            Editor editor = Workstation.Editor;
 
-            PromptStringOptions pso = new($"Введите имя проекта, согласно которому отображён выбранный объект")
+            NameParser workParser = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!];
+            var dataSections = workParser.AuxilaryDataKeys;
+            string dataKey = GetStringKeywordResult(dataSections.Keys.ToArray(), dataSections.Values.ToArray(), "Выберите тип дополнительных данных:");
+            if (!PreviousAssignedData.ContainsKey(dataKey))
+            {
+                PreviousAssignedData[dataKey] = "";
+            }
+            PromptStringOptions pso = new($"Введите значение:")
             {
                 AllowSpaces = true,
-                DefaultValue = PrevExtProject,
+                DefaultValue = PreviousAssignedData[dataKey],
                 UseDefaultValue = true,
             };
-            PromptResult result = editor.GetString(pso);
-            string extProjectName;
+            PromptResult result = Workstation.Editor.GetString(pso);
+            string newData;
             if (result.Status != (PromptStatus.Error | PromptStatus.Cancel))
             {
-                extProjectName = result.StringResult;
-                PrevExtProject = extProjectName;
+                newData = result.StringResult;
+                PreviousAssignedData[dataKey] = newData;
             }
             else
             {
                 return;
             }
 
-            using (Transaction transaction = tm.StartTransaction())
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info => info.ChangeAuxilaryData(ExtProjectAuxDataKey, extProjectName)));
-                    //ActiveLayerWrappers.ExtProjNameAssign(extProjectName);
+                    ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info => info.ChangeAuxilaryData(dataKey, newData)));
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
                 {
-                    editor.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                    Workstation.Editor.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
                 }
                 finally
                 {

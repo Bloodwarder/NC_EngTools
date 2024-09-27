@@ -7,35 +7,35 @@ using LoaderCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 
-namespace LayerWorks.EntityFormatters
+namespace LayerWorks.DataRepositories
 {
-    internal class InMemoryLayerAlterRepository : IRepository<string, string>
+    internal class InMemoryLayerLegendRepository : IRepository<string, LegendData>
     {
-        private static Dictionary<string, string> _dictionary = null!;
+        private static Dictionary<string, LegendData> _dictionary = null!;
 
-        public InMemoryLayerAlterRepository()
+        public InMemoryLayerLegendRepository()
         {
-            var factory = NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, string>>();
+            var factory = NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LegendData>>();
             var path = PathProvider.GetPath("LayerData_ИС.db"); // TODO : вставить универсальную конструкцию
             var reader = factory.CreateProvider(path);
             _dictionary = reader.GetData();
         }
 
-        public string Get(string key)
+        public LegendData Get(string key)
         {
             bool success = _dictionary.TryGetValue(key, out var value);
-            return success ? value ! : throw new NoPropertiesException("");
+            return success ? value! : throw new NoPropertiesException("");
         }
 
-        public IEnumerable<string> GetAll() => _dictionary.Values;
+        public IEnumerable<LegendData> GetAll() => _dictionary.Values;
 
         public IEnumerable<string> GetKeys() => _dictionary.Keys;
 
-        public IEnumerable<KeyValuePair<string, string>> GetKeyValuePairs() => _dictionary.AsEnumerable();
+        public IEnumerable<KeyValuePair<string, LegendData>> GetKeyValuePairs() => _dictionary.AsEnumerable();
 
         public bool Has(string key) => _dictionary.ContainsKey(key);
 
-        public bool TryGet(string key, [MaybeNullWhen(false)] out string? value)
+        public bool TryGet(string key, [MaybeNullWhen(false)] out LegendData? value)
         {
             bool success = _dictionary.TryGetValue(key, out value);
             return success;

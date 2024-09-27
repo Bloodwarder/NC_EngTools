@@ -129,9 +129,11 @@ namespace NameClassifiers
         /// </summary>
         public string Separator { get; internal set; } = null!;
 
+        public Dictionary<string, string> AuxilaryDataKeys => AuxilaryData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Description);
+        public Dictionary<string, string> AuxilaryClassifiersKeys => AuxilaryData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Description);
         internal PrimaryClassifierSection PrimaryClassifier => FindParserSection<PrimaryClassifierSection>();
-        internal Dictionary<string, AuxilaryClassifierSection> AuxilaryClassifiers = new();
-        internal Dictionary<string, AuxilaryDataSection> AuxilaryData = new();
+        internal Dictionary<string, AuxilaryClassifierSection> AuxilaryClassifiers { get; } = new();
+        internal Dictionary<string, AuxilaryDataSection> AuxilaryData { get; } = new();
 
         internal StatusSection Status => FindParserSection<StatusSection>();
         /// <summary>
@@ -156,14 +158,20 @@ namespace NameClassifiers
 
             int pointer = 0;
             // Запускаем обработку строки цепочкой секций парсера
-            Processor!.Process(decomposition, layerInfo, pointer);
-            return layerInfo;
+            try
+            {
+                Processor!.Process(decomposition, layerInfo, pointer);
+                return layerInfo;
+            }
+            catch (IndexOutOfRangeException)
+            {
+                throw new WrongLayerException($"Ошибка обработки слоя - элементы имени {layerName} заданы неправильно");;
+            }
         }
 
 
         internal ParserSection GetSection(Type type)
         {
-
             var section = _sections.Where(s => s.GetType() == type).Single();
             return section;
         }
@@ -192,6 +200,7 @@ namespace NameClassifiers
         {
             GetSection<T>(name).ExtractFullInfo(out keywords, out descriptions);
         }
+        
 
         public string[] GetStatusArray() => Status.GetDescriptionDictionary().Keys.ToArray();
 

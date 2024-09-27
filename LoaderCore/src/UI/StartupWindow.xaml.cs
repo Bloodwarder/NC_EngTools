@@ -127,17 +127,17 @@ namespace LoaderCore.UI
 
         private void CommandHelpClick(object sender, RoutedEventArgs e)
         {
-            string path = PathProvider.GetPath("Команды.txt");
+            string path = new DirectoryInfo(NcetCore.RootLocalDirectory).GetFiles("Команды.txt").Single().FullName;
             System.Diagnostics.Process.Start("notepad.exe", path);
         }
         private void UpdateLogClick(object sender, RoutedEventArgs e)
         {
-            string path = PathProvider.GetPath("Список изменений.txt");
+            string path = new DirectoryInfo(NcetCore.RootLocalDirectory).GetFiles("Список изменений.txt").Single().FullName;
             System.Diagnostics.Process.Start("notepad.exe", path);
         }
         private void KnownIssuesClick(object sender, RoutedEventArgs e)
         {
-            string path = PathProvider.GetPath("Известные проблемы.txt");
+            string path = new DirectoryInfo(NcetCore.RootLocalDirectory).GetFiles("Известные проблемы.txt").Single().FullName;
             System.Diagnostics.Process.Start("notepad.exe", path);
         }
     }
