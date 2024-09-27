@@ -1,6 +1,5 @@
 ﻿//System
 using LayersIO.DataTransfer;
-using LayersIO.ExternalData;
 using LoaderCore.Interfaces;
 //internal modules
 using LoaderCore.Utilities;
@@ -14,73 +13,81 @@ using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing
 {
-
     static class LayerChecker
     {
         internal static event EventHandler? LayerAddedEvent;
-        internal static void Check(string layername)
-        {
 
-            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
-            {
-                try
-                {
-                    LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
-                    if (!lt!.Has(layername))
-                    {
-                        var layerInfo = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GetLayerInfo(layername);
-                        var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
-                        bool propsgetsuccess = service.TryGet(layerInfo.TrueName, out LayerProps? lp);
-
-                        LayerTableRecord ltRecord = AddLayer(layername, lp);
-
-                        //Process new layer if isolated chapter visualization is active
-                        transaction.Commit();
-                        LayerAddedEvent?.Invoke(ltRecord, new EventArgs());
-
-                    }
-                    else
-                    {
-                        transaction.Commit();
-                        return;
-                    }
-                }
-                catch (NoPropertiesException)
-                {
-                    throw new NoPropertiesException("Проверка слоя не удалась");
-                }
-            }
-        }
-
-        internal static void Check(LayerWrapper layer)
+        /// <summary>
+        /// Ищет в таблице слоёв слой с именем, пропущенным через NameParser, и при его отсутствии добавляет его, 
+        /// используя репозиторий с данными стандартных слоёв
+        /// </summary>
+        /// <param name="layerInfo"></param>
+        /// <returns>ObjectId найденного или добавленного слоя (объекта LayerTableRecord)</returns>
+        internal static ObjectId Check(LayerInfo layerInfo)
         {
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
                 {
                     LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
-                    if (!lt!.Has(layer.LayerInfo.Name))
+                    if (!lt!.Has(layerInfo.Name))
                     {
                         var standardService = LoaderCore.NcetCore.ServiceProvider.GetService<IRepository<string, LayerProps>>()!;
-                        bool propsgetsuccess = standardService.TryGet(layer.LayerInfo.TrueName, out LayerProps? props);
-                        LayerTableRecord ltRecord = AddLayer(layer.LayerInfo.Name, props);
+                        bool propsgetsuccess = standardService.TryGet(layerInfo.TrueName, out LayerProps? props);
+                        LayerTableRecord ltRecord = AddLayer(layerInfo.Name, props);
 
                         //Process new layer if isolated chapter visualization is active
                         EventArgs e = new();
                         transaction.Commit();
                         LayerAddedEvent?.Invoke(ltRecord, e);
-
+                        return ltRecord.ObjectId;
                     }
                     else
                     {
-                        return;
+                        return lt[layerInfo.Name];
                     }
                 }
                 catch (NoPropertiesException)
                 {
-                    throw new NoPropertiesException("Проверка слоя не удалась");
+                    throw;
                 }
             }
+        }
+
+        /// <summary>
+        /// Ищет в таблице слоёв слой с указанным именем и при его отсутствии добавляет его, 
+        /// используя репозиторий с данными стандартных слоёв
+        /// </summary>
+        /// <param name="layername"></param>
+        /// <returns>ObjectId найденного или добавленного слоя (объекта LayerTableRecord)</returns>
+        internal static ObjectId Check(string layername)
+        {
+            try
+            {
+                var layerInfo = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GetLayerInfo(layername);
+                return Check(layerInfo);
+            }
+            catch (NoPropertiesException)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Ищет в таблице слоёв слой, связанный с объектом  с указанным именем и при его отсутствии добавляет его, 
+        /// используя репозиторий с данными стандартных слоёв
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <returns>ObjectId найденного или добавленного слоя (объекта LayerTableRecord)</returns>
+        internal static ObjectId Check(LayerWrapper layer) => Check(layer.LayerInfo);
+
+        internal static ObjectId ForceCheck(string layerName)
+        {
+            LayerTable layerTable = (LayerTable)Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForWrite);
+            if (!layerTable.Has(layerName))
+                return AddLayer(layerName, null).Id;
+            else
+                return layerTable[layerName];
         }
 
         private static LayerTableRecord AddLayer(string layername, LayerProps? lp)

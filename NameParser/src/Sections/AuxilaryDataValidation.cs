@@ -62,7 +62,7 @@ namespace NameClassifiers.Sections
         }
         internal HashSet<string>? ValidPrimary { get; init; }
         internal Dictionary<string, HashSet<string>>? ValidAuxilary { get; init; } = new();
-        internal HashSet<string>? ValidStatus { get; init; } = new();
+        internal HashSet<string>? ValidStatus { get; init; }// = new();
         internal Dictionary<string, string>? StatusTransformations { get; init; }
         //internal Dictionary<string, string> PrimaryTransformations { get; private set; } = new();
         //internal Dictionary<string, Dictionary<string, string>> AuxilaryTransformations { get; private set; } = new();
@@ -83,7 +83,7 @@ namespace NameClassifiers.Sections
         }
 
         private bool ValidateStatus(LayerInfo layerInfo) =>
-            (ValidStatus?.Contains(layerInfo.Status!) ?? true) || (StatusTransformations?.ContainsKey(layerInfo.Status!) ?? false);
+            (ValidStatus?.Contains(layerInfo.Status!) ?? true || !ValidStatus.Any()) || (StatusTransformations?.ContainsKey(layerInfo.Status!) ?? false);
         private bool TransoformStatus(LayerInfo layerInfo)
         {
             bool validStatus = ValidStatus?.Contains(layerInfo.Status!) ?? true;

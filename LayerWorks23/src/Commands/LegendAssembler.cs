@@ -34,7 +34,6 @@ namespace LayerWorks.Commands
         public static void Assemble()
         {
             Workstation.Define();
-            LayerChecker.Check(string.Concat(LayerWrapper.StandartPrefix, "_Условные"));
 
             //получить точку вставки
             PromptPointOptions ppo = new("Укажите точку вставки")
@@ -50,6 +49,7 @@ namespace LayerWorks.Commands
             //получить таблицу слоёв и слои
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
+                LayerChecker.ForceCheck(string.Concat(LayerWrapper.StandartPrefix, "_Условные"));
                 Workstation.Database.Cecolor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
                 // Выбрать режим поиска слоёв (весь чертёж или в границах полилинии)
                 string layerFindMode = GetStringKeywordResult(_modeKeywords, "Выберите режим поиска слоёв:");
@@ -73,8 +73,8 @@ namespace LayerWorks.Commands
                     try
                     {
                         RecordLayerWrapper rlp = new(ltr);
-                        var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IDictionary<string, LegendData>>();
-                        if (!service.ContainsKey(rlp.LayerInfo.MainName))
+                        var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LegendData>>();
+                        if (!service.Has(rlp.LayerInfo.MainName))
                         {
                             wrongLayersStringBuilder.AppendLine($"Нет данных для слоя "
                                                                 + $"{rlp.LayerInfo.Prefix}"

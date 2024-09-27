@@ -1,6 +1,5 @@
 ﻿using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
-using LayerWorks.EntityFormatters;
 using LoaderCore;
 using LoaderCore.Interfaces;
 using LoaderCore.Integrity;
@@ -11,6 +10,7 @@ using LayersIO.Database.Readers;
 using Microsoft.Extensions.Configuration;
 using LoaderCore.Configuration;
 using NameClassifiers;
+using LayerWorks.DataRepositories;
 
 namespace LayerWorks
 {

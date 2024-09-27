@@ -19,16 +19,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="Unused\NameParserFactory.cs" />
-		<Compile Remove="Unused\NameParserOld.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="Unused\NameParserFactory.cs" />
-		<None Include="Unused\NameParserOld.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Update="Data\LayerParser_ИС.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
@@ -37,10 +27,10 @@
 	<!--Переместить базовый парсер-->
 	<Target Name="CopyUserData" AfterTargets="Build">
 		<ItemGroup>
-			<UserData Include="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Data\LayerParser_ИС.xml"/>
+			<UserData Include="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Data\LayerParser_ИС.xml" />
 		</ItemGroup>
-		<Move SourceFiles="@(UserData)" DestinationFolder="..\NC_EngTools\bin\$(Configuration)\UserData"/>
-		<RemoveDir Directories="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Data"/>
+		<Move SourceFiles="@(UserData)" DestinationFolder="..\NC_EngTools\bin\$(Configuration)\UserData" />
+		<RemoveDir Directories="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Data" />
 	</Target>
 
 </Project>
