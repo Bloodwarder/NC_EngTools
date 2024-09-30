@@ -27,7 +27,7 @@ namespace LayerWorks.Commands
     {
         private const string ExtProjectAuxDataKey = "ExternalProject";
         internal static string PrevStatus = "Сущ";
-        internal static Dictionary<string, string> PreviousAssignedData = new();
+        internal static Dictionary<string, string> PreviousAssignedData { get; } = new();
         /// <summary>
         /// Переключение кальки, при необходимости добавление её в чертёж
         /// </summary>
@@ -206,7 +206,6 @@ namespace LayerWorks.Commands
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-
                     bool targetValue = !ActiveLayerWrappers.List.FirstOrDefault()!.LayerInfo.SuffixTagged["Reconstruction"];
                     ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged["Reconstruction"] = targetValue; }));
                     ActiveLayerWrappers.Push();
