@@ -12,12 +12,17 @@ namespace NameClassifiers.Sections
         private string _suffix { get; init; }
         private string _description { get; init; }
         private string _falseDescription { get; init; }
+        internal LayerInfoValidation? Validation { get; init; }
+
 
         public BooleanSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
             XAttribute valueAttr = xElement.Attribute("Value") ?? throw new NameParserInitializeException("Ошибка инициализации суффикса. Отсутствует значение");
             XAttribute descriptionAttr = xElement.Attribute("Description") ?? throw new NameParserInitializeException("Ошибка инициализации суффикса. Отсутствует описание");
             XAttribute? falseDescriptionAttr = xElement.Attribute("FalseDescription");
+            XElement? validationElement = xElement.Element("Validation");
+            if (validationElement != null)
+                Validation = new LayerInfoValidation(validationElement);
             _suffix = valueAttr.Value;
             _description = descriptionAttr.Value;
             _falseDescription = falseDescriptionAttr?.Value ?? "Обычные";

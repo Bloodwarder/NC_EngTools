@@ -1,4 +1,6 @@
-﻿namespace NameClassifiers
+﻿using NameClassifiers.Sections;
+
+namespace NameClassifiers
 {
     public class LayerInfo
     {
@@ -53,17 +55,26 @@
             // если значение нового статуса не является корректным для имеющейся дополнительной информации - сбросить информацию
             foreach (var aux in ParentParser.AuxilaryData.Values)
             {
-                var validation = aux.Validation;
+                var validation = aux.Validators;
                 if (validation == null)
                     continue;
-                if (!validation.ValidStatus?.Contains(newStatus) ?? false)
+                if (!validation?.Any(v => v.ValidateLayerInfo(this)) ?? false)
                     AuxilaryData[aux.Name] = null;
             }
         }
         public void ChangeAuxilaryData(string key, string? value)
         {
-            if (!ParentParser.AuxilaryData[key].Validation?.TryValidateAndTransform(this) ?? true)
-                throw new WrongLayerException($"Нельзя назначить {key} для указанного объекта");
+            var validators = ParentParser.AuxilaryData[key].Validators;
+            if (validators != null)
+            {
+                bool isValid = validators.TrueForAll(v => v.ValidateLayerInfo(this));
+                if (!isValid)
+                {
+                    bool isAssingedValid = validators.TrueForAll(v => v.Transform(this)); 
+                    if (!isAssingedValid)
+                        throw new WrongLayerException($"Нельзя назначить {key} для указанного объекта");
+                }
+            }
             AuxilaryData[key] = value;
         }
 
@@ -75,6 +86,14 @@
                 counter++;
             counter += AuxilaryClassifiers.Count;
             SecondaryClassifiers = string.Join(ParentParser.Separator, decomp.Skip(counter));
+        }
+
+        public void SwitchSuffix(string key, bool value)
+        {
+            var section = (BooleanSection)ParentParser.GetSection<BooleanSection>(key);
+            if (!section.Validation?.TryValidateAndTransform(this) ?? true)
+                throw new WrongLayerException($"Нельзя назначить суффикс с тегом \"{key}\" для указанного объекта");
+            SuffixTagged[key] = value;
         }
         /// <summary>
         /// Собрать строку с именем, с помощью цепочки секций парсера
