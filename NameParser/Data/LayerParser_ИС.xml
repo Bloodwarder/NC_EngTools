@@ -66,9 +66,7 @@
 					<ChapterReference Value="ЖД"/>
 				</ValidPrimary>
 				<ValidAuxilary>
-					<ClassifierReference Name ="Geometry">
-						<ClassifierValue Value="л"/>
-					</ClassifierReference>
+					<ClassifierReference Name ="Geometry" Value="л"/>
 				</ValidAuxilary>
 			</Validation>
 		</AuxilaryData>
@@ -86,7 +84,25 @@
 			<Status Value="неутв" Description="Неутв. планируемый"/>
 			<Status Value="нреорг" Description="Неутв. реорганизуемый"/>
 		</StatusClassifier>
-		<BooleanSuffix Name="Reconstruction" Value="пер" Description="Переустраиваемые" FalseDescription="Строящиеся и существующие"/>
+		<BooleanSuffix Name="Reconstruction" Value="пер" Description="Переустраиваемые" FalseDescription="Строящиеся и существующие">
+			<Validation>
+				<ValidStatuses>
+					<StatusReference Value="пр"/>
+					<StatusReference Value="неутв"/>
+					<StatusReference Value="нреорг"/>
+					<Transformations>
+						<Transformation>
+							<Source>
+								<StatusReference Value ="сущ"/>
+							</Source>
+							<Output>
+								<StatusReference Value="пр"/>
+							</Output>
+						</Transformation>
+					</Transformations>
+				</ValidStatuses>
+			</Validation>
+		</BooleanSuffix>
 	</Classifiers>
 	<LegendFilters DefaultLabel="Инженерная инфраструктура">
 		<FilterSection>

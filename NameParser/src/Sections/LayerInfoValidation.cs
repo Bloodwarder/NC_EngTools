@@ -3,13 +3,64 @@
 namespace NameClassifiers.Sections
 {
 
-    internal class AuxilaryDataValidation
+    internal class LayerInfoValidation
     {
         private const string ValidStatusesElementName = "ValidStatuses";
         private const string ValidPrimaryElementName = "ValidPrimary";
         private const string ValidAuxilaryElementName = "ValidAuxilary";
+        private const string ValidSuffixElementName = "ValidSuffix";
 
-        internal AuxilaryDataValidation(XElement validationElement)
+        internal LayerInfoValidation(XElement validationElement)
+        {
+            InitializeStatusValidation(validationElement);
+            InitializePrimaryValidation(validationElement);
+            InitializeAuxilaryClassifierValidation(validationElement);
+            InitializeSuffixValidation(validationElement);
+        }
+
+        private void InitializePrimaryValidation(XElement validationElement)
+        {
+            // Получить элемент валидации основного классификатора
+            XElement? primaryElement = validationElement.Element(ValidPrimaryElementName);
+            if (primaryElement != null)
+            {
+                ValidPrimary = primaryElement?.Elements("ChapterReference")
+                                              .Select(e => e.Attribute("Value")!.Value)
+                                              .ToHashSet();
+                // При необходимости добавить трансформации для основного и дополнительных классификаторов. В исходном варианте - не нужны
+            }
+        }
+
+        private void InitializeAuxilaryClassifierValidation(XElement validationElement)
+        {
+            XElement? auxilaryElement = validationElement.Element(ValidAuxilaryElementName);
+            if (auxilaryElement != null)
+            {
+                XElement[] references = auxilaryElement.Elements("ClassifierReference").ToArray();
+                string[] classifierKeys = references.Select(e => e.Attribute("Name")!.Value).Distinct().ToArray();
+                if (references.Length > 0)
+                    ValidAuxilary ??= new();
+                else
+                    return;
+                foreach (XElement reference in references)
+                {
+                    foreach (string classifierKey in classifierKeys)
+                    {
+                        HashSet<string> validSet = reference.Elements()
+                                                            .Where(e => e.Attribute("Name")!.Value == classifierKey)
+                                                            .Select(e => e.Attribute("Value")!.Value)
+                                                            .ToHashSet();
+                        if (validSet.Any())
+                        {
+                            ValidAuxilary.Add(reference.Attribute("Name")!.Value, validSet);
+                        }
+                    }
+                }
+                // Добавить трансформации при необходимости
+            }
+        }
+
+        private void InitializeStatusValidation(XElement validationElement)
         {
             // Получить элемент валидации статуса
             XElement? statusElement = validationElement.Element(ValidStatusesElementName);
@@ -35,37 +86,27 @@ namespace NameClassifiers.Sections
                     StatusTransformations = dict;
                 }
             }
-            // Получить элемент валидации основного классификатора
-            XElement? primaryElement = validationElement.Element(ValidPrimaryElementName);
-            if (primaryElement != null)
-            {
-                ValidPrimary = primaryElement?.Elements("ChapterReference")
-                                              .Select(e => e.Attribute("Value")!.Value)
-                                              .ToHashSet();
-                // При необходимости добавить трансформации для основного и дополнительных классификаторов. В исходном варианте - не нужны
-            }
-            XElement? auxilaryElement = validationElement.Element(ValidAuxilaryElementName);
+        }
 
-            if (auxilaryElement != null)
+        private static void InitializeSuffixValidation(XElement validationElement)
+        {
+            XElement? suffixElement = validationElement.Element(ValidSuffixElementName);
+            if (suffixElement != null)
             {
-                XElement[] references = auxilaryElement.Elements("ClassifierReference").ToArray();
-                foreach (XElement reference in references)
-                {
-                    HashSet<string> validSet = reference.Elements()
-                                                        .Select(e => e.Attribute("Value")!.Value)
-                                                        .ToHashSet();
-                    if (validSet.Any())
-                        ValidAuxilary.Add(reference.Attribute("Name")!.Value, validSet);
-                }
-                // Добавить трансформации при необходимости
+
             }
         }
-        internal HashSet<string>? ValidPrimary { get; init; }
-        internal Dictionary<string, HashSet<string>>? ValidAuxilary { get; init; } = new();
-        internal HashSet<string>? ValidStatus { get; init; }// = new();
-        internal Dictionary<string, string>? StatusTransformations { get; init; }
+
+        internal HashSet<string>? ValidPrimary { get; private set; }
+        internal Dictionary<string, HashSet<string>>? ValidAuxilary { get; private set; }
+        internal HashSet<string>? ValidStatus { get; private set; }
+        internal Dictionary<string, HashSet<bool>>? ValidSuffix { get; private set; }
+        internal Dictionary<string, string>? StatusTransformations { get; private set; }
         //internal Dictionary<string, string> PrimaryTransformations { get; private set; } = new();
         //internal Dictionary<string, Dictionary<string, string>> AuxilaryTransformations { get; private set; } = new();
+        // TODO: Реализовать валидацию и трансформацию суффиксов
+        //internal Dictionary<string, bool> SuffixTransformations { get; private set; } = new();
+
 
 
         internal bool TryValidateAndTransform(LayerInfo layerInfo)
