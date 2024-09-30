@@ -26,7 +26,10 @@ namespace NameClassifiers.Sections
         internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
         {
             if (pointer > str.Length - 1)
+            {
+                layerInfo.SuffixTagged[Name] = false;
                 return;
+            }
             if (str[pointer] == _suffix)
             {
                 layerInfo.SuffixTagged[Name] = true;
