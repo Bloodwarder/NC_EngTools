@@ -131,9 +131,11 @@ namespace NameClassifiers
 
         public Dictionary<string, string> AuxilaryDataKeys => AuxilaryData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Description);
         public Dictionary<string, string> AuxilaryClassifiersKeys => AuxilaryData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Description);
+        public Dictionary<string, string> SuffixKeys => Suffixes.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Description);
         internal PrimaryClassifierSection PrimaryClassifier => FindParserSection<PrimaryClassifierSection>();
         internal Dictionary<string, AuxilaryClassifierSection> AuxilaryClassifiers { get; } = new();
         internal Dictionary<string, AuxilaryDataSection> AuxilaryData { get; } = new();
+        internal Dictionary<string, BooleanSection> Suffixes { get; } = new();
 
         internal StatusSection Status => FindParserSection<StatusSection>();
         /// <summary>

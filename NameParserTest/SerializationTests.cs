@@ -1,8 +1,6 @@
 ﻿using NameClassifiers.Filters;
 using NameClassifiers.References;
 using NameClassifiers.SharedProperties;
-using Newtonsoft.Json.Linq;
-using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;

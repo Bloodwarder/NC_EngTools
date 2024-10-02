@@ -68,7 +68,7 @@ namespace NameClassifiers
             {
                 if (section.Validators == null || section.Validators.Count < 1)
                     continue;
-                if (!section.Validators?.Any(v => v.ValidateLayerInfo(this)) ?? false)
+                if (!section.Validators?.All(v => v.ValidateLayerInfo(this)) ?? false)
                     SuffixTagged[section.Name] = false;
             }
         }
@@ -90,10 +90,10 @@ namespace NameClassifiers
 
         public void AlterSecondaryClassifier(string newMainName)
         {
+            // TODO: Изменить логику так, чтобы не предполагалось, что статус стоит в конце, или сделать возможным получить LayerInfo без статуса
             string statusStub = ParentParser.Status.GetDescriptionDictionary().Keys.First(); // затычка, чтобы объект парсился
-            var alterLayerInfo = ParentParser.GetLayerInfo($"{Prefix}{ParentParser.Separator}{newMainName}{statusStub}");
+            var alterLayerInfo = ParentParser.GetLayerInfo($"{Prefix}{ParentParser.Separator}{newMainName}{ParentParser.Separator}{statusStub}");
             SecondaryClassifiers = alterLayerInfo.SecondaryClassifiers;
-
         }
 
         public void SwitchSuffix(string key, bool value)

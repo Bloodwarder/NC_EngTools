@@ -50,7 +50,7 @@ namespace LayerWorks.LayerProcessing
                 }
                 catch (Exception ex)
                 {
-                    
+                    Workstation.Editor.WriteMessage(ex.Message);
                 }
             }
         }

@@ -77,7 +77,7 @@
 			<Status Value="неутв" Description="Неутв. планируемый"/>
 			<Status Value="нреорг" Description="Неутв. реорганизуемый"/>
 		</StatusClassifier>
-		<BooleanSuffix Name="Reconstruction" Value="пер" Description="Переустраиваемые" FalseDescription="Строящиеся и существующие">
+		<BooleanSuffix Name="Reconstruction" Value="пер" Description="Переустройство" TrueDescription="Переустраиваемые" FalseDescription="Строящиеся и существующие">
 			<Validation>
 				<ValidSet>
 					<StatusReference Value="пр"/>
