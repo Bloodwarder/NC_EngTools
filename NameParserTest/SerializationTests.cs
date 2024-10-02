@@ -1,5 +1,8 @@
 ﻿using NameClassifiers.Filters;
+using NameClassifiers.References;
 using NameClassifiers.SharedProperties;
+using Newtonsoft.Json.Linq;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
@@ -16,7 +19,7 @@ namespace NameParserTest
         public void SetUp()
         {
             FileInfo fi = new(Assembly.GetExecutingAssembly().Location);
-            _path = Path.Combine(fi.Directory!.FullName, "TestData", "LayerParserTemplate.xml");
+            _path = Path.Combine(fi.Directory!.FullName, "TestData", "LayerParser_ИС.xml");
         }
         [OneTimeTearDown]
         public void TearDown()
@@ -57,6 +60,33 @@ namespace NameParserTest
                 Assert.That(sharedProperties.Properties, Is.Not.Null);
                 Assert.That(sharedProperties.Properties.FirstOrDefault(), Is.Not.Null);
                 Assert.That(sharedProperties.Properties[1].Groups[1].DefaultValue?.Value, Is.InstanceOf<Color>());
+            }
+        }
+
+        [Test]
+        public void ValidatorInitialTest()
+        {
+            var xDoc = XDocument.Load(_path);
+            var element = xDoc.Root!.Element("Classifiers")
+                                    .Elements("AuxilaryData")
+                                    .Single(e => e.Attribute("Name").Value == "ExternalProject")
+                                    .Element("Validation")
+                                    .Element("ValidSet");
+            if (element == null)
+                Assert.Fail("Не найден корневой Xml элемент");
+            XmlSerializer serializer = new(typeof(LayerValidator));
+            serializer.UnknownElement += Serializer_UnknownElement;
+            using (XmlReader reader = element!.CreateReader())
+            {
+
+                LayerValidator? validator = serializer.Deserialize(reader) as LayerValidator;
+                Assert.That(validator, Is.Not.Null);
+                Assert.That(validator.ValidReferences, Is.Not.Empty);
+                Assert.That(validator.Transformations, Is.Not.Null);
+                var transformation = validator.Transformations.FirstOrDefault();
+                Assert.That(transformation, Is.InstanceOf<Transformation>());
+                Assert.That(transformation.Source.First(), Is.InstanceOf<SectionReference>());
+                Assert.That(transformation.Output.First().Value, Is.EqualTo("неутв"));
             }
         }
 

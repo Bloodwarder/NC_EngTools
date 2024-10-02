@@ -22,13 +22,13 @@ namespace NameClassifiers.Sections
 
         private void InitializeValidators(XElement xElement)
         {
-            XElement? validationElement = xElement.Element("Validation");
-            if (validationElement != null)
+            IEnumerable<XElement>? validators = xElement.Element("Validation")?.Elements();
+            if (validators != null)
             {
                 XmlSerializer serializer = new(typeof(LayerValidator));
-                using (var reader = validationElement.CreateReader())
+                foreach (XElement validator in validators)
                 {
-                    while (reader.Read())
+                    using (var reader = validator.CreateReader())
                     {
                         LayerValidator? result = serializer.Deserialize(reader) as LayerValidator;
                         Validators.Add(result ?? throw new IOException("Не удалось десериализовать объект"));

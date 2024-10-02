@@ -61,6 +61,16 @@ namespace NameClassifiers
                 if (!validation?.Any(v => v.ValidateLayerInfo(this)) ?? false)
                     AuxilaryData[aux.Name] = null;
             }
+            BooleanSection[] sections = SuffixTagged.Keys.Select(k => (BooleanSection)ParentParser.GetSection<BooleanSection>(k)).ToArray();
+            if (sections == null)
+                return;
+            foreach (var section in sections) 
+            {
+                if (section.Validators == null || section.Validators.Count < 1)
+                    continue;
+                if (!section.Validators?.Any(v => v.ValidateLayerInfo(this)) ?? false)
+                    SuffixTagged[section.Name] = false;
+            }
         }
         public void ChangeAuxilaryData(string key, string? value)
         {
@@ -80,19 +90,25 @@ namespace NameClassifiers
 
         public void AlterSecondaryClassifier(string newMainName)
         {
-            string[] decomp = newMainName.Split(ParentParser.Separator);
-            int counter = 0;
-            if (decomp[0] == PrimaryClassifier)
-                counter++;
-            counter += AuxilaryClassifiers.Count;
-            SecondaryClassifiers = string.Join(ParentParser.Separator, decomp.Skip(counter));
+            string statusStub = ParentParser.Status.GetDescriptionDictionary().Keys.First(); // затычка, чтобы объект парсился
+            var alterLayerInfo = ParentParser.GetLayerInfo($"{Prefix}{ParentParser.Separator}{newMainName}{statusStub}");
+            SecondaryClassifiers = alterLayerInfo.SecondaryClassifiers;
+
         }
 
         public void SwitchSuffix(string key, bool value)
         {
-            var section = (BooleanSection)ParentParser.GetSection<BooleanSection>(key);
-            if (!section.Validation?.TryValidateAndTransform(this) ?? true)
-                throw new WrongLayerException($"Нельзя назначить суффикс с тегом \"{key}\" для указанного объекта");
+            var validators = ParentParser.GetSection<BooleanSection>(key).Validators;
+            if (validators != null)
+            {
+                bool isValid = validators.TrueForAll(v => v.ValidateLayerInfo(this));
+                if (!isValid)
+                {
+                    bool isAssingedValid = validators.TrueForAll(v => v.Transform(this));
+                    if (!isAssingedValid)
+                        throw new WrongLayerException($"Нельзя назначить суффикс с тегом \"{key}\" для указанного объекта");
+                }
+            }
             SuffixTagged[key] = value;
         }
         /// <summary>

@@ -9,7 +9,7 @@
 		<AuxilaryData Name="ExternalProject" Brackets="[]" Description="Внешний проект">
 			<!--Неправомерные статусы позволяют изменить статус на правомерный-->
 			<Validation>
-				<ValidStatuses>
+				<ValidSet>
 					<StatusReference Value="ндем"/>
 					<StatusReference Value="неутв"/>
 					<StatusReference Value="нреорг"/>
@@ -17,13 +17,6 @@
 						<Transformation>
 							<Source>
 								<StatusReference Value ="сущ"/>
-							</Source>
-							<Output>
-								<StatusReference Value="неутв"/>
-							</Output>
-						</Transformation>
-						<Transformation>
-							<Source>
 								<StatusReference Value ="пр"/>
 							</Source>
 							<Output>
@@ -39,7 +32,7 @@
 							</Output>
 						</Transformation>
 					</Transformations>
-				</ValidStatuses>
+				</ValidSet>
 			</Validation>
 		</AuxilaryData>
 		<PrimaryClassifier>
@@ -56,7 +49,7 @@
 		<AuxilaryData Name="Diameter" Brackets="{}" Description="Диаметр">
 			<!--Неправомерные основные и дополнительные классификаторы запрещают записывать дополнительную информацию с указанным ключом-->
 			<Validation>
-				<ValidPrimary>
+				<ValidSet>
 					<ChapterReference Value="ВО"/>
 					<ChapterReference Value="ВС"/>
 					<ChapterReference Value="ГС"/>
@@ -64,10 +57,10 @@
 					<ChapterReference Value="ТС"/>
 					<ChapterReference Value="ТТ"/>
 					<ChapterReference Value="ЖД"/>
-				</ValidPrimary>
-				<ValidAuxilary>
+				</ValidSet>
+				<ValidSet>
 					<ClassifierReference Name ="Geometry" Value="л"/>
-				</ValidAuxilary>
+				</ValidSet>
 			</Validation>
 		</AuxilaryData>
 		<AuxilaryClassifier Name ="Geometry">
@@ -86,7 +79,7 @@
 		</StatusClassifier>
 		<BooleanSuffix Name="Reconstruction" Value="пер" Description="Переустраиваемые" FalseDescription="Строящиеся и существующие">
 			<Validation>
-				<ValidStatuses>
+				<ValidSet>
 					<StatusReference Value="пр"/>
 					<StatusReference Value="неутв"/>
 					<StatusReference Value="нреорг"/>
@@ -100,7 +93,7 @@
 							</Output>
 						</Transformation>
 					</Transformations>
-				</ValidStatuses>
+				</ValidSet>
 			</Validation>
 		</BooleanSuffix>
 	</Classifiers>

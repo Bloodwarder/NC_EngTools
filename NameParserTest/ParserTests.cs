@@ -12,7 +12,7 @@ namespace NameParserTest
         public void Setup()
         {
             FileInfo fi = new(Assembly.GetExecutingAssembly().Location);
-            string path = Path.Combine(fi.Directory!.FullName, "TestData", "LayerParserTemplate.xml");
+            string path = Path.Combine(fi.Directory!.FullName, "TestData", "LayerParser_ИС.xml");
             _parser = NameParser.Load(path);
         }
         [OneTimeTearDown]
@@ -67,6 +67,34 @@ namespace NameParserTest
         }
 
         [Test]
+        public void LayerInfoWhenSwitchStatusShouldDiscardSuffix()
+        {
+            _layerInfo = _parser!.GetLayerInfo("ИС_[Кучино - М-7]_ГС_л_распред_0.6_неутв_пер");
+            bool? tagged = _layerInfo.SuffixTagged["Reconstruction"];
+            Assert.That(tagged, Is.EqualTo(true));
+            _layerInfo.SwitchStatus("пр");
+            Assert.That(_layerInfo.Status, Is.EqualTo("пр"));
+            Assert.That(_layerInfo.SuffixTagged["Reconstruction"], Is.EqualTo(true));
+
+            _layerInfo.SwitchStatus("сущ");
+            Assert.That(_layerInfo.SuffixTagged["Reconstruction"], Is.EqualTo(false));
+            _layerInfo.SwitchSuffix("Reconstruction", true);
+            Assert.That(_layerInfo.Status, Is.EqualTo("пр"));
+
+            _layerInfo.SwitchStatus("дем");
+            try
+            {
+                _layerInfo.SwitchSuffix("Reconstruction", true);
+                Assert.Fail();
+            }
+            catch (Exception ex)
+            {
+                Assert.That(ex, Is.InstanceOf<WrongLayerException>());
+            }
+        }
+
+
+        [Test]
         public void LayerInfoWhenProperPrefixWrongInfoShouldThrow()
         {
             try
@@ -80,5 +108,6 @@ namespace NameParserTest
             }
             Assert.Fail("Не выброшено исключение");
         }
+
     }
 }
