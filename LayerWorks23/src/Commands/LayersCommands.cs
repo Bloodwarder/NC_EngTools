@@ -25,7 +25,6 @@ namespace LayerWorks.Commands
     /// </summary>
     public class LayersCommands
     {
-        private const string ExtProjectAuxDataKey = "ExternalProject";
         internal static string PrevStatus = "Сущ";
         internal static Dictionary<string, string> PreviousAssignedData { get; } = new();
         /// <summary>
@@ -71,7 +70,7 @@ namespace LayerWorks.Commands
                 transaction.Commit();
             }
         }
-        // TODO: Изменить команду для работы с xml данными из NameParser
+
         /// <summary>
         /// Изменение статуса объекта в соответствии с данными LayerParser
         /// </summary>
@@ -173,7 +172,7 @@ namespace LayerWorks.Commands
                     SelectionHandler.UpdateActiveLayerWrappers();
                     ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info =>
                     {
-                        bool success = NcetCore.ServiceProvider.GetRequiredService<InMemoryLayerAlterRepository>()
+                        bool success = NcetCore.ServiceProvider.GetRequiredService<IRepository<string,string>>()
                                                                .TryGet(info.MainName, out string? name);
                         if (success)
                             info.AlterSecondaryClassifier(name!);
@@ -194,20 +193,23 @@ namespace LayerWorks.Commands
         }
 
         /// <summary>
-        /// Назначение объекту/слою приписки, обозначающей переустройство
+        /// Назначение объекту/слою тега с определённым значением (BooleanSuffix)
         /// </summary>
-        [CommandMethod("ПЕРЕУСТРОЙСТВО", CommandFlags.Redraw)]
+        [CommandMethod("ТЕГ", CommandFlags.Redraw)]
         public static void LayerReconstruction()
         {
             Workstation.Define();
-
+            NameParser workParser = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!];
+            string[] suffixTags = workParser.SuffixKeys.Keys.ToArray();
+            string[] descriptions = workParser.SuffixKeys.Values.ToArray();
+            string tag = GetStringKeywordResult(suffixTags, descriptions, "Выберите тип суффикса для отметки объекта");
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    bool targetValue = !ActiveLayerWrappers.List.FirstOrDefault()!.LayerInfo.SuffixTagged["Reconstruction"];
-                    ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged["Reconstruction"] = targetValue; }));
+                    bool targetValue = !ActiveLayerWrappers.List.FirstOrDefault()!.LayerInfo.SuffixTagged[tag];
+                    ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged[tag] = targetValue; }));
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
@@ -226,7 +228,7 @@ namespace LayerWorks.Commands
         /// Назначение объекту/слою имени внешнего проекта (неутверждаемого)
         /// </summary>
         [CommandMethod("ДОПИНФО", CommandFlags.Redraw)]
-        public static void ExtAssign()
+        public static void AuxDataAssign()
         {
             Workstation.Define();
 
@@ -328,15 +330,14 @@ namespace LayerWorks.Commands
             PromptResult result = Workstation.Editor.GetKeywords(pko);
             if (result.Status != PromptStatus.OK)
                 return;
-            if (result.StringResult == "Переопределить")
+            switch (result.StringResult)
             {
-                RedefinePrefix();
-                return;
-            }
-            if (result.StringResult == "Загрузить")
-            {
-                LoadNewParser();
-                return;
+                case "Переопределить":
+                    RedefinePrefix();
+                    return;
+                case "Загрузить":
+                    LoadNewParser();
+                    return;
             }
             string newprefix = result.StringResult;
             LayerWrapper.StandartPrefix = newprefix;
