@@ -72,6 +72,7 @@ namespace LoaderCore
         public static IServiceCollection Services => !_serviceProviderBuilt ?
                                                         _serviceCollection :
                                                         throw new InvalidOperationException("Провайдер сервисов уже построен");
+        public static ILogger Logger { get; private set; }
         internal static List<ModuleHandler> Modules { get; } = new();
         internal static string RootLocalDirectory { get; set; } = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.Parent!.Parent!.FullName;
         internal static string? RootUpdateDirectory { get; set; }
@@ -79,11 +80,15 @@ namespace LoaderCore
 
         public static void Initialize()
         {
+            ILogger logger = new NcetSimpleLogger();
+            Services.AddSingleton(logger);
+            Logger = logger;
             LoggingRouter.WriteLog += Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage;
 
             XDocument configurationXml = XDocument.Load(Path.Combine(RootLocalDirectory, ConfigurationXmlFileName));
 
             CheckConfigurationXml(configurationXml);
+            UpdateInfoFiles();
             DisplayAutorunConfigurationWindow(configurationXml);
 
             // Заново читаем конфиг (мог измениться)
@@ -101,6 +106,7 @@ namespace LoaderCore
             XDocument configurationXml = XDocument.Load(Path.Combine(RootLocalDirectory, ConfigurationXmlFileName));
 
             CheckConfigurationXml(configurationXml);
+            UpdateInfoFiles();
             InitializeModules(configurationXml);
             IndexFiles();
             RegisterDependencies();
@@ -115,7 +121,7 @@ namespace LoaderCore
             xmlSchemaSet.Add(null, Path.Combine(RootLocalDirectory, "ExtensionLibraries", "LoaderCore", "ConfigurationSchema.xsd"));
             document.Validate(xmlSchemaSet, (sender, e) =>
             {
-                LoggingRouter.WriteLog?.Invoke(e.Message);
+                Logger?.LogWarning(e.Message);
                 isValid = false;
             });
 
@@ -174,6 +180,33 @@ namespace LoaderCore
                 document.Save(Path.Combine(RootLocalDirectory, ConfigurationXmlFileName));
         }
 
+        private static void UpdateInfoFiles()
+        {
+            if (RootUpdateDirectory == null)
+            {
+                return;
+            }
+            var updateDir = new DirectoryInfo(RootUpdateDirectory);
+            var localDir = new DirectoryInfo(RootLocalDirectory);
+            var updateTxt = updateDir.GetFiles(".txt", SearchOption.TopDirectoryOnly).ToDictionary(fi => fi.Name);
+            var localTxt = localDir.GetFiles(".txt", SearchOption.TopDirectoryOnly).ToDictionary(fi => fi.Name);
+            foreach(var file in updateTxt.Keys)
+            {
+                try 
+                {
+                    if (!localTxt.ContainsKey(file) || localTxt[file].LastWriteTime < updateTxt[file].LastWriteTime)
+                        updateTxt[file].CopyTo(localTxt[file].FullName, true);
+                }
+                catch (System.Exception ex)
+                {
+                    Logger.LogWarning($"Ошибка обновления файла \"{file}\":\n{ex.Message}");
+                    continue;
+                }
+                if (!localTxt.ContainsKey(file) || localTxt[file].LastWriteTime < updateTxt[file].LastWriteTime)
+                    updateTxt[file].CopyTo(localTxt[file].FullName, true);
+            }
+        }
+
         private static void DisplayAutorunConfigurationWindow(XDocument configurationXml)
         {
             // Читаем конфигурацию на предмет необходимости отображения стартового окна и отображаем его
@@ -201,7 +234,7 @@ namespace LoaderCore
                 if (enable)
                 {
                     module.Load();
-                    LoggingRouter.WriteLog?.Invoke($"Модуль {module.Name} загружен");
+                    Logger.LogInformation($"Модуль {module.Name} загружен");
                 }
             }
         }
