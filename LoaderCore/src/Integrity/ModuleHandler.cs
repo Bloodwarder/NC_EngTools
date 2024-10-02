@@ -10,6 +10,7 @@ using LoaderCore.Interfaces;
 using LoaderCore.Integrity;
 using LoaderCore.Utilities;
 using Exception = System.Exception;
+using Microsoft.Extensions.Logging;
 
 namespace LoaderCore.Integrity
 {
@@ -50,12 +51,17 @@ namespace LoaderCore.Integrity
         {
             if (Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled))
             {
-                LoggingRouter.WriteLog?.Invoke("Отладочная сборка - обновление не производится");
+                NcetCore.Logger.LogInformation("Отладочная сборка - обновление не производится");
                 return;
             }
             var updateSourceDirectory = new DirectoryInfo(Path.Combine(NcetCore.RootUpdateDirectory, ModulesFolderName));
             if (!updateSourceDirectory.Exists)
-                throw new Exception("Источник обновлений недоступен");
+            {
+                string message = "Источник обновлений недоступен";
+                Exception ex = new(message);
+                NcetCore.Logger.LogCritical(ex, message);
+                throw ex;
+            }
             var sourceFilesDictionary = updateSourceDirectory.GetFiles("*", SearchOption.AllDirectories)
                                            .ToDictionary(f => f.Name);
             if (!_moduleDirectory.Exists)
@@ -73,7 +79,7 @@ namespace LoaderCore.Integrity
                                                              NcetCore.RootUpdateDirectory,
                                                              NcetCore.RootLocalDirectory),
                                                                 true);
-                    LoggingRouter.WriteLog?.Invoke($"Файл {newLocalFile.Name} обновлён ");
+                    NcetCore.Logger.LogInformation($"Файл {newLocalFile.Name} обновлён ");
                     updated = true;
                 }
             }
@@ -83,7 +89,7 @@ namespace LoaderCore.Integrity
                     localFile.Delete();
                 updated = true;
             }
-            LoggingRouter.WriteLog?.Invoke(updated ? $"Модуль {Name} обновлён" : $"Модуль {Name} в актуальном состоянии");
+            NcetCore.Logger.LogInformation(updated ? $"Модуль {Name} обновлён" : $"Модуль {Name} в актуальном состоянии");
         }
 
         internal bool CheckForUpdates()

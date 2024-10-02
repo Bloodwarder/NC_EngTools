@@ -1,5 +1,8 @@
 ﻿using HostMgd.EditorInput;
+using LoaderCore;
 using LoaderCore.Configuration;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using NanocadUtilities;
 using System.Data;
 using System.Text;
@@ -22,9 +25,11 @@ namespace Utilities
 
         static Labeler()
         {
-            var u = Configuration.Utilities;
-            LabelTextHeight = u?.DefaultLabelTextHeight ?? DefaultLabelTextHeight;
-            LabelBackgroundScaleFactor = u?.DefaultLabelBackgroundScaleFactor ?? DefaultLabelBackgroundScaleFactor;
+            IConfigurationSection? configuration = NcetCore.ServiceProvider.GetService<IConfiguration>()?.GetSection("UtilitiesConfiguration");
+            double? textHeight = configuration?.GetValue<double>("DefaultLabelTextHeight");
+            double? backgroundScaleFactor = configuration?.GetValue<double>("DefaultLabelBackgroundScaleFactor");
+            LabelTextHeight = textHeight ?? DefaultLabelTextHeight;
+            LabelBackgroundScaleFactor = backgroundScaleFactor ?? DefaultLabelBackgroundScaleFactor;
         }
 
         private static double LabelTextHeight { get; set; }
@@ -63,13 +68,26 @@ namespace Utilities
                     Vector2d v2d = GetPolylineSegment(polyline!, point).Direction;
 
                     //вводим текст для подписи
-                    PromptStringOptions pso = new($"Введите текст подписи (д или d в начале строки - знак диаметра")
+                    PromptStringOptions pso = new($"Введите текст подписи (д или d в начале строки - знак диаметра) [Высота/Фон]:")
                     {
                         AllowSpaces = true,
                         UseDefaultValue = true,
                         DefaultValue = PrevText
                     };
                     PromptResult pr = Workstation.Editor.GetString(pso);
+                    while (pr.Status == PromptStatus.Keyword)
+                    {
+                        switch (pr.StringResult)
+                        {
+                            case "Высота":
+                                AssignNewTextHeight();
+                                break;
+                            case "Фон":
+                                AssignBackgroundFactor();
+                                break;
+                        }
+                        pr = Workstation.Editor.GetString(pso);
+                    }
                     if (pr.Status != PromptStatus.OK) return;
                     string text = pr.StringResult;
                     PrevText = text;
@@ -104,6 +122,26 @@ namespace Utilities
             {
                 Highlighter.Unhighlight();
             }
+        }
+
+        private void AssignBackgroundFactor()
+        {
+            PromptDoubleResult result = Workstation.Editor.GetDouble("Введите новый коэффициент фона текста:");
+            if (result.Status != PromptStatus.OK)
+                Workstation.Editor.WriteMessage("Неверное значение");
+            double newValue = Math.Clamp(result.Value, 1d, 2d);
+            LabelBackgroundScaleFactor = newValue;
+            // TODO: обновить в файле конфигурации
+        }
+
+        private void AssignNewTextHeight()
+        {
+            PromptDoubleResult result = Workstation.Editor.GetDouble("Введите новый коэффициент фона текста:");
+            if (result.Status != PromptStatus.OK)
+                Workstation.Editor.WriteMessage("Неверное значение");
+            double newValue = Math.Max(result.Value, 0.01d);
+            LabelTextHeight = newValue;
+            // TODO: обновить в файле конфигурации
         }
 
         [CommandMethod("ТОРИЕНТ")]
@@ -357,25 +395,24 @@ namespace Utilities
             PromptEntityOptions peo = new PromptEntityOptions("Выберите объект");
             peo.AddAllowedClass(typeof(BlockReference), true);
             peo.AddAllowedClass(typeof(Circle), true);
+            peo.AddAllowedClass(typeof(Polyline), true);
 
             PromptEntityResult result = Workstation.Editor.GetEntity(peo);
             if (result.Status != PromptStatus.OK)
                 throw new CancelledByUserException();
             Entity entity = (Entity)Workstation.TransactionManager.TopTransaction.GetObject(result.ObjectId, OpenMode.ForRead);
-
-            if (entity is BlockReference bref)
+            switch (entity)
             {
-                Point3d p = bref.Position;
-                return new Point2d(p.X, p.Y);
-            }
-            else if (entity is Circle circle)
-            {
-                Point3d p = circle.Center;
-                return new Point2d(p.X, p.Y);
-            }
-            else
-            {
-                throw new NotImplementedException();
+                case BlockReference bref:
+                    return new Point2d(bref.Position.X, bref.Position.Y);
+                case Circle circle:
+                    Point3d p = circle.Center;
+                    return new Point2d(p.X, p.Y);
+                case Polyline polyline:
+                    var point = polyline.GetPointAtDist(polyline.GetDistAtPoint(polyline.GetClosestPointTo(result.PickedPoint, true)));
+                    return new Point2d(point.X, point.Y); // TODO: Тестировать
+                default:
+                    throw new NotImplementedException();
             }
         }
 

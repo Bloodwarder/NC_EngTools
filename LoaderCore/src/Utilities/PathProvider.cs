@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -16,7 +17,7 @@ namespace LoaderCore.Utilities
             {
                 bool success = _fileStructure.TryAdd(file.Name, file);
                 if (!success)
-                    LoggingRouter.WriteLog?.Invoke($"Обнаружен дублирующийся файл {file.Name}");
+                    NcetCore.Logger.LogDebug($"Обнаружен дублирующийся файл {file.Name}");
             }
         }
 

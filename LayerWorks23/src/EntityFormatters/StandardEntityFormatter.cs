@@ -31,7 +31,7 @@ namespace LayerWorks.EntityFormatters
             bool success = _repository.TryGet(key, out LayerProps? props);
             if (!success)
             {
-                _logger?.LogWarning($"Не удалось форматировать объект чертежа {entity.GetType().Name}"); // UNDONE : Проверить что выводит. Создать корректное сообщение об ошибке
+                _logger?.LogWarning($"Не удалось форматировать {entity.GetType().Name}");
                 return;
             }
             entity.LinetypeScale = props?.LinetypeScale ?? entity.LinetypeScale;
