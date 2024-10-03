@@ -1,15 +1,21 @@
-﻿using NanocadUtilities;
+﻿using LoaderCore.Interfaces;
+using LoaderCore;
+using NanocadUtilities;
 using NetTopologySuite.Geometries;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace GeoMod.GeometryExtensions
 {
     // Методы расширения для NTS геометрий
     internal static class LineStringExtension
     {
+        private static IEntityFormatter? _formatter = NcetCore.ServiceProvider.GetService<IEntityFormatter>();
+
         internal static Polyline ToDWGPolyline(this LineString lineString)
         {
+
             return ProcessGeometry(lineString);
         }
 
@@ -24,6 +30,7 @@ namespace GeoMod.GeometryExtensions
             {
                 polyline.AddVertexAt(i, new Point2d(coordinates[i].X, coordinates[i].Y), 0, 0, 0);
             }
+            _formatter?.FormatEntity(polyline);
             return polyline;
         }
 

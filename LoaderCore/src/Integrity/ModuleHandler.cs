@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
-using LoaderCore;
 using LoaderCore.Interfaces;
-using LoaderCore.Integrity;
 using LoaderCore.Utilities;
 using Exception = System.Exception;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
 
 namespace LoaderCore.Integrity
 {
@@ -51,15 +47,17 @@ namespace LoaderCore.Integrity
         {
             if (Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled))
             {
-                NcetCore.Logger.LogInformation("Отладочная сборка - обновление не производится");
+                LoggingRouter.WriteLog?.Invoke("Отладочная сборка - обновление не производится");
+                //NcetCore.Logger?.LogInformation("Отладочная сборка - обновление не производится");
                 return;
             }
-            var updateSourceDirectory = new DirectoryInfo(Path.Combine(NcetCore.RootUpdateDirectory, ModulesFolderName));
-            if (!updateSourceDirectory.Exists)
+            var updateSourceDirectory = new DirectoryInfo(Path.Combine(NcetCore.RootUpdateDirectory ?? "", ModulesFolderName));
+            if (updateSourceDirectory == null || !updateSourceDirectory.Exists)
             {
-                string message = "Источник обновлений недоступен";
+                string message = "Ошибка. Источник обновлений недоступен";
                 Exception ex = new(message);
-                NcetCore.Logger.LogCritical(ex, message);
+                LoggingRouter.WriteLog?.Invoke(message);
+                //NcetCore.Logger?.LogCritical(ex, message);
                 throw ex;
             }
             var sourceFilesDictionary = updateSourceDirectory.GetFiles("*", SearchOption.AllDirectories)
@@ -76,10 +74,11 @@ namespace LoaderCore.Integrity
                 {
                     var newLocalFile = sourceFile.CopyTo(localFile?.FullName
                                                          ?? sourceFile.FullName.Replace(
-                                                             NcetCore.RootUpdateDirectory,
+                                                             NcetCore.RootUpdateDirectory!,
                                                              NcetCore.RootLocalDirectory),
                                                                 true);
-                    NcetCore.Logger.LogInformation($"Файл {newLocalFile.Name} обновлён ");
+                    LoggingRouter.WriteLog?.Invoke($"Файл {newLocalFile.Name} обновлён");
+                    //NcetCore.Logger?.LogInformation($"Файл {newLocalFile.Name} обновлён");
                     updated = true;
                 }
             }
@@ -89,7 +88,8 @@ namespace LoaderCore.Integrity
                     localFile.Delete();
                 updated = true;
             }
-            NcetCore.Logger.LogInformation(updated ? $"Модуль {Name} обновлён" : $"Модуль {Name} в актуальном состоянии");
+            LoggingRouter.WriteLog?.Invoke(updated ? $"Модуль {Name} обновлён" : $"Модуль {Name} в актуальном состоянии");
+            //NcetCore.Logger?.LogInformation(updated ? $"Модуль {Name} обновлён" : $"Модуль {Name} в актуальном состоянии");
         }
 
         internal bool CheckForUpdates()

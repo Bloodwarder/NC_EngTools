@@ -17,6 +17,7 @@ namespace LayersIO.Database.Readers
                 if (layers.Any())
                 {
                     var kvpCollection = layers.AsNoTracking()
+                                              .Where(l => !string.IsNullOrEmpty(l.MainName) && !string.IsNullOrEmpty(l.StatusName))
                                               .Select(l => new KeyValuePair<string, LegendDrawTemplate>
                                                     (l.Name, TinyMapper.Map<LegendDrawTemplate>(l.LayerDrawTemplateData)));
 
