@@ -19,7 +19,7 @@ namespace LayerWorks.Legend
             }
             sectionsCount = globalFilters.Sections.Length;
             string[][] result = new string[sectionsCount][];
-            for (int i = 0; i < sectionsCount - 1; i++)
+            for (int i = 0; i < sectionsCount; i++)
             {
                 string[] filterKeywords = globalFilters.Sections[i].Filters.Select(f => f.Name).ToArray();
                 result[i] = filterKeywords;

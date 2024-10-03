@@ -1,18 +1,24 @@
+using LoaderCore.Interfaces;
+using LoaderCore;
 using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Teigha.DatabaseServices;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace GeoMod.GeometryExtensions
 {
 
     internal static class ClosedGeometryExtension
     {
+        private static IEntityFormatter? _formatter = NcetCore.ServiceProvider.GetService<IEntityFormatter>();
+
         internal static Polyline ToDWGPolyline(this LinearRing linearRing)
         {
             Polyline polyline = LineStringExtension.ProcessGeometry(linearRing);
             polyline.Closed = true;
+            _formatter?.FormatEntity(polyline);
             return polyline;
         }
 

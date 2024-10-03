@@ -22,11 +22,13 @@ namespace LoaderCore
 {
     public static class LoaderExtension
     {
+        /// <summary>
+        /// Инициализатор, обновляющий и загружающий зависимости сборки этого модуля
+        /// </summary>
         public static void Initialize()
         {
+            // НЕ ВСТАВЛЯТЬ СЮДА КОД С ЗАВИСИМОСТЯМИ
             var coreHandler = new ModuleHandler("LoaderCore");
-
-            // TODO : обновить txt
 
             coreHandler.Update();
             coreHandler.Load();
@@ -35,9 +37,8 @@ namespace LoaderCore
 
         public static void InitializeAsLibrary()
         {
+            // НЕ ВСТАВЛЯТЬ СЮДА КОД С ЗАВИСИМОСТЯМИ
             var coreHandler = new ModuleHandler("LoaderCore");
-
-            // TODO : обновить txt
 
             coreHandler.Update();
             coreHandler.Load();
@@ -72,7 +73,7 @@ namespace LoaderCore
         public static IServiceCollection Services => !_serviceProviderBuilt ?
                                                         _serviceCollection :
                                                         throw new InvalidOperationException("Провайдер сервисов уже построен");
-        public static ILogger Logger { get; private set; }
+        public static ILogger? Logger { get; private set; }
         internal static List<ModuleHandler> Modules { get; } = new();
         internal static string RootLocalDirectory { get; set; } = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.Parent!.Parent!.FullName;
         internal static string? RootUpdateDirectory { get; set; }
@@ -264,8 +265,8 @@ namespace LoaderCore
             configurationBuilder.AddXmlFile(Path.Combine(RootLocalDirectory, ConfigurationXmlFileName), optional: false, reloadOnChange: true);
             IConfiguration config = configurationBuilder.Build();
 
-            Services.AddSingleton(config)
-                    .AddSingleton<ILogger, NcetSimpleLogger>();
+            Services.AddSingleton(config);
+                    //.AddSingleton<ILogger, NcetSimpleLogger>();
 
             ServiceProvider = Services.BuildServiceProvider();
         }

@@ -19,7 +19,7 @@ namespace LayerWorks.Legend
         {
             Layer = layer;
 
-            var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LegendDrawTemplate>>();
+            var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LegendDrawTemplate>>(); // TODO: перенести в статику
             bool success = service.TryGet(layer.LayerInfo.TrueName, out LegendDrawTemplate? ldt);
             if (success)
                 _template = ldt;

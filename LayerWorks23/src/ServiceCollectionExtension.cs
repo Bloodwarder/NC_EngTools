@@ -56,7 +56,7 @@ namespace LayerWorks
             services.AddSingleton<IRepository<string, LayerProps>, InMemoryLayerPropsRepository>();
             services.AddSingleton<IRepository<string, LegendData>, InMemoryLayerLegendRepository>();
             services.AddSingleton<IRepository<string, LegendDrawTemplate>, InMemoryLayerLegendDrawRepository>();
-            services.AddSingleton<InMemoryLayerAlterRepository>();
+            services.AddSingleton<IRepository<string, string>, InMemoryLayerAlterRepository>();
         }
 
         private static void AddXmlDataWriters(IServiceCollection services)
