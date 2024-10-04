@@ -2,7 +2,7 @@
 
 using Teigha.DatabaseServices;
 
-namespace GeoMod.GeometryExtensions
+namespace GeoMod.GeometryConverters
 {
     internal static class BlockReferenceExtension
     {

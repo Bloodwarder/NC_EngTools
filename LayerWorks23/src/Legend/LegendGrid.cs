@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
+using NameClassifiers.Sections;
 using Teigha.Geometry;
 
 namespace LayerWorks.Legend
@@ -106,13 +107,15 @@ namespace LayerWorks.Legend
             Rows = Rows.Where(r => !r.LegendData!.IgnoreLayer).ToList();
             Rows.Sort();
             // Выбрать разделы и вставить их названия в нужные места таблицы
+            NameParser.LoadedParsers[LayerWrapper.StandartPrefix!]
+                      .ExtractSectionInfo<PrimaryClassifierSection>(out _, out Func<string, string> descriptions);
             List<string> labels = Rows.Select(r => r.LegendEntityChapterName!).Distinct().ToList();
             foreach (var label in labels)
             {
                 LegendGridRow row = new()
                 {
                     ParentGrid = this,
-                    Label = LegendInfoTable.Dictionary[label],
+                    Label = descriptions(label),
                     ItalicLabel = true
                 };
                 Rows.Insert(Rows.IndexOf(Rows.Where(r => r.LegendEntityChapterName! == label).Min()!), row);

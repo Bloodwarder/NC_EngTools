@@ -41,7 +41,7 @@ namespace Utilities
                         return;
                     }
                 }
-                if (polyline.GetPoint2dAt(0) == polyline.GetPoint2dAt(polyline.NumberOfVertices - 1)) // TODO: сделать проверки при всех импортах геометрии
+                if (polyline.GetPoint2dAt(0) == polyline.GetPoint2dAt(polyline.NumberOfVertices - 1))
                 {
                     polyline.RemoveVertexAt(polyline.NumberOfVertices - 1);
                     polyline.Closed = true;
