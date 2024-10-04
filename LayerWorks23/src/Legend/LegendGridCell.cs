@@ -42,7 +42,7 @@ namespace LayerWorks.Legend
         }
         public void CreateDrawObject()
         {
-            string typeName = string.Concat("ModelspaceDraw.", _template!.DrawTemplate, "Draw");
+            string typeName = string.Concat("LayerWorks.ModelspaceDraw.", _template!.DrawTemplate, "Draw");
             LegendObjectDraw? lod = Activator.CreateInstance(Assembly.GetCallingAssembly().FullName!, typeName)!.Unwrap() as LegendObjectDraw;
             if (lod == null)
                 throw new Exception($"Отсутствует тип с именем {typeName}");

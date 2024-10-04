@@ -9,12 +9,16 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using NetTopologySuite.Operation.Buffer;
+using NetTopologySuite.Precision;
+using NetTopologySuite.Geometries.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Teigha.DatabaseServices;
 using Teigha.Runtime;
 using NtsBufferOps = NetTopologySuite.Operation.Buffer;
+using LoaderCore;
+using Microsoft.Extensions.Logging;
 
 namespace GeoMod
 {
@@ -26,17 +30,17 @@ namespace GeoMod
         private const string RelatedConfigurationSection = "GeoModConfiguration";
 
         private static NtsGeometryServices _geometryServices = null!;
-        private static Microsoft.Extensions.Configuration.IConfigurationSection _configuration;
-        private static double _defaultBufferDistance { get; set; } = 1d;
+        private static readonly Microsoft.Extensions.Configuration.IConfigurationSection _configuration;
+        private static GeometryPrecisionReducer _reducer = null!;
+        private static BufferParameters _defaultBufferParameters;
 
-        private static BufferParameters DefaultBufferParameters;
 
         static GeoCommands()
         {
             var section = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IConfiguration>();
             _configuration = section.GetRequiredSection(RelatedConfigurationSection);
             InitializeNetTopologySuite();
-            DefaultBufferParameters = _configuration.GetValue<BufferParameters>("BufferParameters") ?? new()
+            _defaultBufferParameters = _configuration.GetValue<BufferParameters>("BufferParameters") ?? new()
             {
                 EndCapStyle = EndCapStyle.Round,
                 JoinStyle = NtsBufferOps.JoinStyle.Round,
@@ -46,6 +50,7 @@ namespace GeoMod
             };
         }
 
+        private static double DefaultBufferDistance { get; set; } = 1d;
 
         /// <summary>
         /// Создание WKT текста из выбранных геометрий dwg и помещение его в буфер обмена
@@ -83,11 +88,24 @@ namespace GeoMod
             string fromClipboard = System.Windows.Clipboard.GetText();
 
             // отфильтровать текст, описывающий wkt геометрию
-            string[] matches = Regex.Matches(fromClipboard, @"[a-zA-Z]*\s?\([^A-Za-zА-Яа-я]*\)").Select(m => m.Value).ToArray();
+            string[] matches = Regex.Matches(fromClipboard, @"[a-zA-Z]+\s?\([^A-Za-zА-Яа-я]*\)").Select(m => m.Value).ToArray();
             WKTReader reader = new(_geometryServices);
 
             // создать геометрию, преобразовать в объекты dwg и поместить в модель
-            Geometry[] geometries = matches.Select(m => reader.Read(m)).ToArray();  // TODO: обработать ошибки на случай, если некорректная строка всё же проскочит через регулярку
+            List<Geometry> geometries = new();
+            foreach(var match in matches)
+            {
+                try
+                {
+                    Geometry geometry = reader.Read(match);
+                    geometries.Add(geometry);
+                }
+                catch (System.Exception ex)
+                {
+                    NcetCore.Logger?.LogDebug(ex, "Некорректная строка WKT: \"{match}\"", match);
+                    continue;
+                }
+            }
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 BlockTable? blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
@@ -135,14 +153,14 @@ namespace GeoMod
                     AllowNegative = false,
                     AllowZero = false,
                     AllowNone = false,
-                    DefaultValue = _defaultBufferDistance,
+                    DefaultValue = DefaultBufferDistance,
                     AppendKeywordsToMessage = true,
                 };
 
                 PromptDoubleResult result = Workstation.Editor.GetDouble(pdo);
                 if (result.Status == PromptStatus.Keyword)
                 {
-                    BufferParametersWindow window = new BufferParametersWindow(ref DefaultBufferParameters);
+                    BufferParametersWindow window = new BufferParametersWindow(ref _defaultBufferParameters);
                     Application.ShowModalWindow(window);
                     pdo.Message = "Введите размер буферной зоны:";
                     result = Workstation.Editor.GetDouble(pdo);
@@ -150,10 +168,10 @@ namespace GeoMod
                 if (result.Status != PromptStatus.OK)
                     return;
                 double bufferDistance = result.Value;
-                _defaultBufferDistance = bufferDistance;
+                DefaultBufferDistance = bufferDistance;
 
                 // Создать геометрию буферных зон и объединить
-                Geometry[] buffers = geometries.Select(g => g!.Buffer(bufferDistance, DefaultBufferParameters)).ToArray();
+                Geometry[] buffers = geometries.Select(g => g!.Buffer(bufferDistance, _defaultBufferParameters)).ToArray();
                 Geometry union = geometryFactory.CreateGeometryCollection(buffers).Union();
 
                 // Поместить в модель
@@ -204,7 +222,7 @@ namespace GeoMod
                         return;
                     if (result.Status == PromptStatus.Keyword)
                     {
-                        BufferParametersWindow window = new BufferParametersWindow(ref DefaultBufferParameters);
+                        BufferParametersWindow window = new BufferParametersWindow(ref _defaultBufferParameters);
                         Application.ShowModalWindow(window);
                         pdo.Message = $"Введите размер буферной зоны для слоя {layer}:";
                         result = Workstation.Editor.GetDouble(pdo);
@@ -218,7 +236,7 @@ namespace GeoMod
                 var buffers = (from Entity entity in entities
                                where entity is Polyline
                                let pl = entity as Polyline
-                               let buffer = pl.ToNTSGeometry(geometryFactory).Buffer(bufferSizes[pl.Layer], DefaultBufferParameters) as Polygon
+                               let buffer = pl.ToNTSGeometry(geometryFactory).Buffer(bufferSizes[pl.Layer], _defaultBufferParameters) as Polygon
                                select buffer).ToArray();
                 if (buffers.Length == 0)
                     return;
@@ -338,6 +356,67 @@ namespace GeoMod
                 return null;
             }
         }
+
+        // TODO: Тестировать команду ОКРУГЛКООРД
+        [CommandMethod("ОКРУГЛКООРД", CommandFlags.UsePickSet)]
+        public void ReduceCoordinatePrecision()
+        {
+            Workstation.Define();
+            var geometryFactory = _geometryServices.CreateGeometryFactory();
+
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            {
+                // Получить выбранные объекты, отфильтровать полилинии и создать из них nts полигоны
+                PromptSelectionResult psr = Workstation.Editor.GetSelection();
+                if (psr.Status != PromptStatus.OK)
+                    return;
+                ObjectId[] entitiesIds = psr.Value.GetObjectIds();
+                var polylines = (from ObjectId id in entitiesIds
+                                 let entity = transaction.GetObject(id, OpenMode.ForWrite) as Entity
+                                 where entity is Polyline pl
+                                 select entity as Polyline).ToArray();
+                // Вывести предупреждения о необработанных объектах
+                if (polylines.Length == 0)
+                {
+                    Workstation.Editor.WriteMessage("Нет полилиний в наборе");
+                    return;
+                }
+                if (polylines.Length < entitiesIds.Length)
+                    Workstation.Editor.WriteMessage($"Не обработано {entitiesIds.Length - polylines.Length} объектов, не являющихся полилиниями");
+
+                // Провести валидацию геометрии и уменьшить точность координат, при этом сохраняя связь с исходными полилиниями
+                Dictionary<Geometry, Polyline>  geometries = polylines.Select(p => (p, p.ToNTSGeometry(geometryFactory)))
+                                                                      .Select(t => (t.p, t.Item2.IsValid ? t.Item2 : GeometryFixer.Fix(t.Item2)))
+                                                                      .Select(t => (t.p, _reducer.Reduce(t.Item2)))
+                                                                      .ToDictionary(t => t.Item2, t => t.p);
+
+                // Объединить геометрию, создать из неё полилинии и поместить в модель
+                BlockTable? blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
+                BlockTableRecord? modelSpace = transaction.GetObject(blockTable![BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+
+                // получить все полилинии, сохраняя свойства исходных полилиний
+                geometries.Keys.SelectMany(g => g.ToDWGPolylines().Select(p => CopySourceProperties(p, geometries[g])))
+                               .ToList()
+                               .ForEach(pl => modelSpace!.AppendEntity(pl));
+
+                // Удалить исходные полилинии
+                foreach (Polyline pl in polylines)
+                    pl.Erase();
+                
+                transaction.Commit();
+            }
+        }
+
+        private Polyline CopySourceProperties(Polyline p, Polyline source)
+        {
+            p.Layer = source.Layer;
+            p.ConstantWidth = source.ConstantWidth;
+            p.LinetypeScale = source.LinetypeScale;
+            p.LineWeight = source.LineWeight;
+            p.Color = source.Color;
+            return p;
+        }
+
         private static void InitializeNetTopologySuite()
         {
             double precision = _configuration.GetValue<double>("Precision");
@@ -353,6 +432,10 @@ namespace GeoMod
                                                         new CoordinateEqualityComparer()
                                                        );
             _geometryServices = NtsGeometryServices.Instance;
+
+            double reducedPrecision = _configuration.GetValue<double>("ReducedPrecision");
+            PrecisionModel precisionModel = new(reducedPrecision);
+            _reducer = new GeometryPrecisionReducer(precisionModel);
         }
     }
 }

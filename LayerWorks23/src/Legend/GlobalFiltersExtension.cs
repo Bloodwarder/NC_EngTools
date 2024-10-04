@@ -60,7 +60,7 @@ namespace LayerWorks.Legend
                 }
                 int gridsNumber = fullGridList.Count;
                 gridData[i] = new GridData[gridsNumber];
-                for (int j = 0; j < gridsNumber - 1; j++)
+                for (int j = 0; j < gridsNumber; j++)
                 {
                     GridFilter gridFilter = fullGridList[j];
                     Func<LayerInfo, bool> predicate = gridFilter.GetPredicate();
@@ -73,7 +73,7 @@ namespace LayerWorks.Legend
 
         private static bool ValidateKeywordsArray(GlobalFilters filters, string[] filterKeywords) => (filters.Sections?.Length ?? 0) == filterKeywords.Length;
 
-        private static string ProcessName(string? nameString, string? defaultName) => nameString?.Replace("*", defaultName ?? "ERROR") ?? defaultName ?? "ERROR";
+        private static string ProcessName(string? nameString, string? defaultName) => nameString?.Replace(@"*", defaultName ?? "ERROR") ?? defaultName ?? "ERROR";
 
         private static IEnumerable<GridData> MultiplyGridDataArrays(this GlobalFilters filter, IEnumerable<GridData> data1, IEnumerable<GridData> data2)
         {
@@ -83,7 +83,7 @@ namespace LayerWorks.Legend
                 {
                     GridData resultData = new GridData();
                     resultData.Predicate = c => item1.Predicate(c) && item2.Predicate(c);
-                    resultData.GridName = ProcessName(item1.GridName, item2.GridName ?? filter.DefaultLabel);
+                    resultData.GridName = ProcessName(item1.GridName, item2.GridName ?? filter.DefaultLabel); // почему-то проскакивает звёздочка
                     yield return resultData;
                 }
             }

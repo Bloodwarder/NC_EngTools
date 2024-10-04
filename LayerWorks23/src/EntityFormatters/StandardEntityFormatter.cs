@@ -1,4 +1,5 @@
 ﻿using LayersIO.DataTransfer;
+using LoaderCore;
 using LoaderCore.Interfaces;
 using LoaderCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,8 +23,16 @@ namespace LayerWorks.EntityFormatters
         {
             string layerName = entity.Layer;
             var parser = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!];
-            string key = parser.GetLayerInfo(layerName).TrueName;
-            FormatEntity(entity, key);
+            try
+            {
+                string key = parser.GetLayerInfo(layerName).TrueName;
+                FormatEntity(entity, key);
+            }
+            catch (WrongLayerException ex)
+            {
+                NcetCore.Logger?.LogDebug(ex, $"Форматирование объекта {entity.GetType().Name} слоя {layerName} не выполнено. Не подходящий слой");
+                return;
+            }
         }
 
         public void FormatEntity(Entity entity, string key)

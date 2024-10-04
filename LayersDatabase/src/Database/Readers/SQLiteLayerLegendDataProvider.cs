@@ -16,6 +16,7 @@ namespace LayersIO.Database.Readers
                 if (layers.Any())
                 {
                     var kvpCollection = layers.AsNoTracking()
+                                              .Where(l => l.LayerLegendData != null)
                                               .Select(l => new KeyValuePair<string, LegendData>(l.MainName, TinyMapper.Map<LegendData>(l.LayerLegendData)));
                     return new Dictionary<string, LegendData>(kvpCollection!);
                 }
