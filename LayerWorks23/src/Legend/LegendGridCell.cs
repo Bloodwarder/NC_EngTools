@@ -12,8 +12,10 @@ namespace LayerWorks.Legend
 {
     internal class LegendGridCell : ICloneable
     {
+        private static Dictionary<string, Type> _legendDrawTypes = new();
         List<LegendObjectDraw> _draw = new List<LegendObjectDraw>();
         private LegendDrawTemplate? _template;
+
 
         internal LegendGridCell(RecordLayerWrapper layer)
         {
@@ -42,16 +44,30 @@ namespace LayerWorks.Legend
         }
         public void CreateDrawObject()
         {
-            string typeName = string.Concat("LayerWorks.ModelspaceDraw.", _template!.DrawTemplate, "Draw");
-            LegendObjectDraw? lod = Activator.CreateInstance(Assembly.GetCallingAssembly().FullName!, typeName)!.Unwrap() as LegendObjectDraw;
-            if (lod == null)
-                throw new Exception($"Отсутствует тип с именем {typeName}");
-
-            lod.LegendDrawTemplate = _template;
-            lod.Layer = Layer;
+            bool success = _legendDrawTypes.TryGetValue(_template!.DrawTemplate!, out Type? templateType);
+            if (!success)
+            {
+                templateType = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.Name == string.Concat(_template.DrawTemplate,"Draw")).FirstOrDefault();
+                if (templateType != null)
+                {
+                    _legendDrawTypes.Add(_template!.DrawTemplate!, templateType);
+                }
+                else
+                {
+                    throw new Exception("Тип отсутствует в сборке");
+                }
+            }
             double x = ParentGrid!.BasePoint.X + TableIndex.X * (LegendGrid.CellWidth + LegendGrid.WidthInterval) + LegendGrid.CellWidth / 2;
             double y = ParentGrid!.BasePoint.Y - TableIndex.Y * (LegendGrid.CellHeight + LegendGrid.HeightInterval) + LegendGrid.CellHeight / 2;
-            lod.Basepoint = new Point2d(x, y);
+            Point2d point = new(x, y);
+            //string typeName = string.Concat("LayerWorks.ModelspaceDraw.", _template!.DrawTemplate, "Draw");
+            LegendObjectDraw? lod = Activator.CreateInstance(templateType!, point, Layer, _template) as LegendObjectDraw;
+            if (lod == null)
+                throw new Exception($"Отсутствует тип");
+
+            //lod.LegendDrawTemplate = _template;
+            //lod.Layer = Layer;
+            //lod.Basepoint = new Point2d(x, y);
             _draw.Add(lod);
         }
 

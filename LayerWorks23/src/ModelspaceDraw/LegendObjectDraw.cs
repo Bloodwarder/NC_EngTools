@@ -6,6 +6,7 @@ using LayersIO.DataTransfer;
 using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
+using LoaderCore;
 using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Teigha.Colors;
@@ -18,7 +19,15 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public abstract class LegendObjectDraw : ObjectDraw
     {
+
+        private static IRepository<string, LegendDrawTemplate> _repository;
         private LegendDrawTemplate? _legendDrawTemplate;
+        
+        static LegendObjectDraw()
+        {
+            _repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LegendDrawTemplate>>();
+        }
+
         /// <summary>
         /// Структура с данными для отрисовки объекта
         /// </summary>
@@ -40,14 +49,13 @@ namespace LayerWorks.ModelspaceDraw
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
-        internal LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
+        public LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
         {
-            var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LegendDrawTemplate>>();
-            bool success = service.TryGet(Layer.LayerInfo.TrueName, out var legendDrawTemplate);
+            bool success = _repository.TryGet(Layer.LayerInfo.TrueName, out var legendDrawTemplate);
             if (success)
                 LegendDrawTemplate = legendDrawTemplate;
         }
-        internal LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
+        public LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }

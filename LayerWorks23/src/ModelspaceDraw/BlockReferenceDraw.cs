@@ -54,11 +54,11 @@ namespace LayerWorks.ModelspaceDraw
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
 
-        internal BlockReferenceDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
+        public BlockReferenceDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
         {
             TemplateSetEventHandler += QueueImportBlockTableRecord;
         }
-        internal BlockReferenceDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
+        public BlockReferenceDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }
@@ -72,7 +72,7 @@ namespace LayerWorks.ModelspaceDraw
                 ImportRecords(out HashSet<string> failedImports);
                 foreach (string str in failedImports)
                     Workstation.Editor.WriteMessage($"Не удалось импортировать блок {str}");
-                _blocksImported = true;
+                _blocksImported = true; // BUG: При ошибке в верхней транзакции значение остаётся true, а блоки не импортируются
             }
             // Отрисовываем объект
             ObjectId btrId = BoundBlockTable[BlockName];
@@ -107,38 +107,43 @@ namespace LayerWorks.ModelspaceDraw
         private static void ImportRecords(out HashSet<string> failedBlockImports)
         {
             failedBlockImports = new HashSet<string>();
-            Transaction transaction = Workstation.TransactionManager.TopTransaction;
-            // По одному разу открываем базу данных каждого файла с блоками для условных
-            foreach (string file in QueuedFiles)
+
+
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                using (Database importDatabase = new Database(false, true))
+                // По одному разу открываем базу данных каждого файла с блоками для условных
+                foreach (string file in QueuedFiles)
                 {
-                    try
+                    using (Database importDatabase = new Database(false, true))
                     {
-                        importDatabase.ReadDwgFile(file, FileOpenMode.OpenForReadAndAllShare, false, null);
-                        // Ищем все нужные нам блоки
-                        BlockTable? importBlockTable = transaction.GetObject(importDatabase.BlockTableId, OpenMode.ForRead) as BlockTable;
-                        var importedBlocks = (from ObjectId blockId in importBlockTable!
-                                              let block = transaction.GetObject(blockId, OpenMode.ForRead) as BlockTableRecord
-                                              where QueuedBlocks[file].Contains(block.Name)
-                                              select block).ToList();
-                        // Заполняем сет с ненайденными блоками
-                        foreach (BlockTableRecord block in importedBlocks)
+                        try
                         {
-                            if (!QueuedBlocks[file].Contains(block.Name))
-                                failedBlockImports.Add(block.Name);
+                            importDatabase.ReadDwgFile(file, FileOpenMode.OpenForReadAndAllShare, false, null);
+                            // Ищем все нужные нам блоки
+                            BlockTable? importBlockTable = transaction.GetObject(importDatabase.BlockTableId, OpenMode.ForRead) as BlockTable;
+                            var importedBlocks = (from ObjectId blockId in importBlockTable!
+                                                  let block = transaction.GetObject(blockId, OpenMode.ForRead) as BlockTableRecord
+                                                  where QueuedBlocks[file].Contains(block.Name)
+                                                  select block).ToList();
+                            // Заполняем сет с ненайденными блоками
+                            foreach (BlockTableRecord block in importedBlocks)
+                            {
+                                if (!QueuedBlocks[file].Contains(block.Name))
+                                    failedBlockImports.Add(block.Name);
+                            }
+                            // Добавляем все найденные блоки в таблицу блоков текущего чертежа
+                            importBlockTable!.Database.WblockCloneObjects(new ObjectIdCollection(importedBlocks.Select(b => b.ObjectId).ToArray()), BoundBlockTable.ObjectId, new IdMapping(), DuplicateRecordCloning.Ignore, false);
                         }
-                        // Добавляем все найденные блоки в таблицу блоков текущего чертежа
-                        importBlockTable!.Database.WblockCloneObjects(new ObjectIdCollection(importedBlocks.Select(b => b.ObjectId).ToArray()), BoundBlockTable.ObjectId, new IdMapping(), DuplicateRecordCloning.Ignore, false);
-                    }
-                    catch (Exception)
-                    {
-                        Workstation.Editor.WriteMessage($"\nОшибка импорта блоков из файла \"{file}\"\n");
-                    }
-                    finally
-                    {
-                        // Убираем файл из очереди
-                        QueuedBlocks.Remove(file);
+                        catch (Exception)
+                        {
+                            Workstation.Editor.WriteMessage($"\nОшибка импорта блоков из файла \"{file}\"\n");
+                            transaction.Abort();
+                        }
+                        finally
+                        {
+                            // Убираем файл из очереди
+                            QueuedBlocks.Remove(file);
+                        }
                     }
                 }
             }

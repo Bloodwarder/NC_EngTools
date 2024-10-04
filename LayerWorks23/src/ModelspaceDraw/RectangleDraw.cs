@@ -19,8 +19,8 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public class RectangleDraw : AreaDraw
     {
-        internal RectangleDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer) { }
-        internal RectangleDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
+        public RectangleDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer) { }
+        public RectangleDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }

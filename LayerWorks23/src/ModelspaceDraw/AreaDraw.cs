@@ -20,8 +20,8 @@ namespace LayerWorks.ModelspaceDraw
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
         /// </summary>
-        internal AreaDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer) { }
-        internal AreaDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
+        public AreaDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer) { }
+        public AreaDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }

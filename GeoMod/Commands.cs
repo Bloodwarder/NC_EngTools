@@ -1,4 +1,4 @@
-using GeoMod.GeometryExtensions;
+using GeoMod.GeometryConverters;
 using GeoMod.UI;
 using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
@@ -22,6 +22,8 @@ using Microsoft.Extensions.Logging;
 
 namespace GeoMod
 {
+    // TODO: Реструктурировать файл с командами
+
     /// <summary>
     /// Класс, содержащий гео-команды и вспомогательные данные для их функционирования
     /// </summary>
@@ -37,7 +39,7 @@ namespace GeoMod
 
         static GeoCommands()
         {
-            var section = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IConfiguration>();
+            var section = NcetCore.ServiceProvider.GetRequiredService<IConfiguration>();
             _configuration = section.GetRequiredSection(RelatedConfigurationSection);
             InitializeNetTopologySuite();
             _defaultBufferParameters = _configuration.GetValue<BufferParameters>("BufferParameters") ?? new()
@@ -114,7 +116,7 @@ namespace GeoMod
                 List<Polyline> polylines = new();
                 foreach (Geometry geom in geometries)
                 {
-                    polylines.AddRange(geom.ToDWGPolylines());
+                    polylines.AddRange(GeometryToDwgConverter.ToDWGPolylines(geom));
                 }
                 if (polylines.Count > 0)
                 {
@@ -178,7 +180,7 @@ namespace GeoMod
                 BlockTable? blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
                 BlockTableRecord? modelSpace = transaction.GetObject(blockTable![BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
 
-                foreach (Polyline pl in union.ToDWGPolylines())
+                foreach (Polyline pl in GeometryToDwgConverter.ToDWGPolylines(union))
                 {
                     modelSpace!.AppendEntity(pl);
                 }
@@ -246,7 +248,7 @@ namespace GeoMod
                 BlockTable? blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
                 BlockTableRecord? modelSpace = transaction.GetObject(blockTable![BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
 
-                foreach (Polyline pl in union.ToDWGPolylines())
+                foreach (Polyline pl in GeometryToDwgConverter.ToDWGPolylines(union))
                 {
                     modelSpace!.AppendEntity(pl);
                 }
@@ -282,7 +284,7 @@ namespace GeoMod
 
                 // Провести валидацию геометрии
                 Polygon?[] polygons = closedPolylines.Select(pl => pl.ToNTSGeometry(geometryFactory) as Polygon).ToArray();
-                Geometry?[] fixedPolygons = polygons.Select(g => g!.IsValid ? g : NetTopologySuite.Geometries.Utilities.GeometryFixer.Fix(g)).ToArray();
+                Geometry?[] fixedPolygons = polygons.Select(g => g!.IsValid ? g : GeometryFixer.Fix(g)).ToArray();
 
                 // Удалить исходные полилинии
                 foreach (Polyline pl in closedPolylines)
@@ -294,7 +296,7 @@ namespace GeoMod
                 BlockTable? blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
                 BlockTableRecord? modelSpace = transaction.GetObject(blockTable![BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
 
-                foreach (Polyline pl in union.ToDWGPolylines())
+                foreach (Polyline pl in GeometryToDwgConverter.ToDWGPolylines(union))
                 {
                     modelSpace!.AppendEntity(pl);
                 }
@@ -357,7 +359,7 @@ namespace GeoMod
             }
         }
 
-        // TODO: Тестировать команду ОКРУГЛКООРД
+        // TODO: реализовать добавление точек при частичном совпадении сторон полигонов
         [CommandMethod("ОКРУГЛКООРД", CommandFlags.UsePickSet)]
         public void ReduceCoordinatePrecision()
         {
@@ -395,7 +397,7 @@ namespace GeoMod
                 BlockTableRecord? modelSpace = transaction.GetObject(blockTable![BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
 
                 // получить все полилинии, сохраняя свойства исходных полилиний
-                geometries.Keys.SelectMany(g => g.ToDWGPolylines().Select(p => CopySourceProperties(p, geometries[g])))
+                geometries.Keys.SelectMany(g => GeometryToDwgConverter.ToDWGPolylines(g).Select(p => CopySourceProperties(p, geometries[g])))
                                .ToList()
                                .ForEach(pl => modelSpace!.AppendEntity(pl));
 

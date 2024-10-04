@@ -21,10 +21,10 @@ namespace LayerWorks.ModelspaceDraw
         internal string MarkChar => LegendDrawTemplate?.MarkChar ?? "ОШБК";
         private double _width;
 
-        internal MarkedLineDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
+        public MarkedLineDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
         {
         }
-        internal MarkedLineDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
+        public MarkedLineDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }

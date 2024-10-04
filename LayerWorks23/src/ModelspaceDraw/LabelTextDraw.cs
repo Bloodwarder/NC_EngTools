@@ -28,7 +28,7 @@ namespace LayerWorks.ModelspaceDraw
             LayerChecker.LayerAddedEvent -= listener;
             _layer = layerWrapper;
         }
-        internal LabelTextDraw(Point2d basepoint, string label, bool italic = false) : base(basepoint, _layer!)
+        public LabelTextDraw(Point2d basepoint, string label, bool italic = false) : base(basepoint, _layer!)
         {
             _italic = italic;
             _text = label;

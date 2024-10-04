@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
 
-namespace GeoMod.GeometryExtensions
+namespace GeoMod.GeometryConverters
 {
     // Методы расширения для DWG геометрий
 

@@ -27,6 +27,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="GeometryExtensions\ClosedGeometryExtension.cs" />
+	  <Compile Remove="GeometryExtensions\LineStringExtension.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Reference Include="hostdbmgd">
 			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostdbmgd.dll</HintPath>
 			<Private>False</Private>
@@ -56,6 +61,11 @@
 
 	<ItemGroup>
 		<Folder Include="Properties\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="GeometryExtensions\ClosedGeometryExtension.cs" />
+	  <None Include="GeometryExtensions\LineStringExtension.cs" />
 	</ItemGroup>
 
 </Project>
