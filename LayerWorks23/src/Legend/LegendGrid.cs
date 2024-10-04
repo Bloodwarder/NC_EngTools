@@ -118,7 +118,7 @@ namespace LayerWorks.Legend
                 Rows.Insert(Rows.IndexOf(Rows.Where(r => r.LegendEntityChapterName! == label).Min()!), row);
             }
             // И то же самое для подразделов
-            var sublabels = Rows.Select(r => r.LegendData!.SubLabel).Where(s => s != null).Distinct().ToList();
+            var sublabels = Rows.Select(r => r.LegendData?.SubLabel).Where(s => s != null).Distinct().ToList();
             foreach (var label in sublabels)
             {
                 LegendGridRow row = new()
@@ -126,7 +126,7 @@ namespace LayerWorks.Legend
                     ParentGrid = this,
                     Label = label
                 };
-                var labeledRows = Rows.Where(r => r.LegendData!.SubLabel == label).ToList();
+                var labeledRows = Rows.Where(r => r.LegendData?.SubLabel == label).ToList();
                 int minindex = Rows.IndexOf(labeledRows.Min()!);
                 int maxindex = Rows.IndexOf(labeledRows.Max()!);
                 for (int i = minindex; i < maxindex; i++)
@@ -139,7 +139,7 @@ namespace LayerWorks.Legend
             LegendGridRow gridLabel = new()
             {
                 ParentGrid = this,
-                Label = $"{{\\fArial|b1|i0|c204|p34;{Name.ToUpper()}}}"   // TODO: ИМЯ ДОБАВЛЕНО, ОСТАЛОСЬ ОБРАБОТАТЬ СТИЛЬ
+                Label = $"{{\\fArial|b1|i0|c204|p34;{Name.ToUpper()}}}"   // TODO: ПРОСКАКИВАЕТ ЗВЁЗДОЧКА! НАЙТИ МЕСТО, ГДЕ ЕЁ ЗАМЕНИТЬ! ИМЯ ДОБАВЛЕНО, ОСТАЛОСЬ ОБРАБОТАТЬ СТИЛЬ.
             };
             if (Rows.Count != 0)
                 Rows.Insert(0, gridLabel);

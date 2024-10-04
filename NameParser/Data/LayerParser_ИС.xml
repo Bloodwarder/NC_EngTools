@@ -100,8 +100,7 @@
 	<LegendFilters DefaultLabel="Инженерная инфраструктура">
 		<FilterSection>
 			<Filter Name="Общий">
-				<Grid>
-				</Grid>
+				<Grid/>
 			</Filter>
 			<Filter Name="Существующие">
 				<Grid>
@@ -142,6 +141,9 @@
 			</Filter>
 		</FilterSection>
 		<FilterSection>
+			<Filter Name="Общий">
+				<Grid/>
+			</Filter>
 			<Filter Name="ИПТ">
 				<Grid Label="Инженерная подготовка территории">
 					<ChapterReference Value="ДК"/>
