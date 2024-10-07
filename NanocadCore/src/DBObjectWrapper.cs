@@ -43,7 +43,8 @@ namespace NanocadUtilities
 
         private T DirectGet()
         {
-            return _object;
+            bool isAccessable = _openMode == OpenMode.ForWrite ? _object.IsWriteEnabled : _object.IsReadEnabled;
+            return isAccessable? _object : OpenAndGet();
         }
 
         private T OpenAndGet()

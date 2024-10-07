@@ -22,8 +22,8 @@ namespace LayerWorks.ModelspaceDraw
         /// Базовая точка для вставки объектов в целевой чертёж
         /// </summary>
         public Point2d Basepoint { get; set; }
-        internal RecordLayerWrapper Layer { get; set; }
         internal static Color s_byLayer = Color.FromColorIndex(ColorMethod.ByLayer, 256);
+        internal ObjectId LayerId { get; set; }
 
         /// <summary>
         /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
@@ -31,7 +31,13 @@ namespace LayerWorks.ModelspaceDraw
         public ObjectDraw(Point2d basepoint, RecordLayerWrapper layer)
         {
             Basepoint = basepoint;
-            Layer = layer;
+            LayerId = layer.BoundLayer.Id;
+        }
+
+        public ObjectDraw(Point2d basepoint, ObjectId layerId)
+        {
+            Basepoint = basepoint;
+            LayerId = layerId;
         }
         /// <summary>
         /// Создать объекты чертежа для отрисовки (последующей вставки в модель целевого чертежа). После выполнения доступны через свойство EntitiesList.

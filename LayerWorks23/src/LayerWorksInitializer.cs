@@ -47,6 +47,7 @@ namespace LayerWorks
 
         private static void InitializeRepositories()
         {
+            // TODO: по возможности сделать асинхронным - вызывает короткое подвисание (потому что читает всю базу)
             // Заранее инициализировать репозитории, чтобы не было задержки при первом выполнении команды, запрашивающей данные из репозитория
             _ = NcetCore.ServiceProvider.GetService<IRepository<string, LayerProps>>();
             _ = NcetCore.ServiceProvider.GetService<IRepository<string, LegendData>>();

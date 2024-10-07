@@ -32,11 +32,11 @@ namespace LayerWorks.ModelspaceDraw
                 try
                 {
                     BlockTable bt = _blockTables[Workstation.Document].Get();
-                    if (!bt.IsWriteEnabled)
-                    {
-                        throw new System.Exception("Не открыта для чтения");
-                    }
-                    // TODO: исполнить более правильно - через DBObjectWrapper например
+                    //if (!bt.IsWriteEnabled)
+                    //{
+                    //    throw new System.Exception("Не открыта для чтения");
+                    //}
+                    // TODO: исполнить более правильно - через DBObjectWrapper например. Сделано - тестировать
                     return bt;
                 }
                 catch

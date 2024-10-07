@@ -17,14 +17,15 @@ namespace LayerWorks.Legend
         static LegendGrid()
         {
             var config = LoaderCore.NcetCore.ServiceProvider.GetService<IConfiguration>();
-            var lgp = config?.GetSection("LayerWorksConfiguration").GetValue<LegendGridParameters>("LegendGridParameters");
+            var lgp = config?.GetSection("LayerWorksConfiguration:LegendGridParameters").Get<LegendGridParameters>();
+            // TODO: проскакивают дефолтные значения - тестировать.
             _legendGridParameters = lgp ?? LegendGridParameters.GetDefault();
         }
-        internal LegendGrid(IEnumerable<LegendGridCell> cells, Point3d basepoint, string name = DefaultLegendHeader)
+        internal LegendGrid(IEnumerable<LegendGridCell> cells, Point3d basepoint, string name)
         {
             AddCells(cells);
             BasePoint = basepoint;
-            Name = name;
+            Name = name.Replace("*", DefaultLegendHeader);
         }
 
         internal LegendGrid(IEnumerable<LegendGridCell> cells, Point3d basepoint, LegendGridParameters parameters, string name = DefaultLegendHeader) : this(cells, basepoint, name)
