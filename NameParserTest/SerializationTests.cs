@@ -65,10 +65,10 @@ namespace NameParserTest
         public void ValidatorInitialTest()
         {
             var xDoc = XDocument.Load(_path);
-            var element = xDoc.Root!.Element("Classifiers")
-                                    .Elements("AuxilaryData")
-                                    .Single(e => e.Attribute("Name").Value == "ExternalProject")
-                                    .Element("Validation")
+            var element = xDoc.Root!.Element("Classifiers")?
+                                    .Elements("AuxilaryData")?
+                                    .SingleOrDefault(e => e.Attribute("Name")?.Value == "ExternalProject")?
+                                    .Element("Validation")?
                                     .Element("ValidSet");
             if (element == null)
                 Assert.Fail("Не найден корневой Xml элемент");
