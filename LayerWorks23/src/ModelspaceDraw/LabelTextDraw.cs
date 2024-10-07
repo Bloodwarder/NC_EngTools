@@ -21,14 +21,11 @@ namespace LayerWorks.ModelspaceDraw
         private readonly string _text;
         static LabelTextDraw()
         {
-            RecordLayerWrapper? layerWrapper = null;
-            EventHandler listener = (object? o, EventArgs e) => { layerWrapper = new((LayerTableRecord)o!); };
-            LayerChecker.LayerAddedEvent += listener;
-            LayerChecker.Check(string.Concat(LayerWrapper.StandartPrefix, "_Условные"));
-            LayerChecker.LayerAddedEvent -= listener;
-            _layer = layerWrapper;
+            ObjectId layerId = LayerChecker.ForceCheck(string.Concat(LayerWrapper.StandartPrefix, "_Условные"));
+            LayerTableRecord ltr = (LayerTableRecord)Workstation.TransactionManager.TopTransaction.GetObject(layerId, OpenMode.ForRead);
+            _layer = new RecordLayerWrapper(ltr);
         }
-        public LabelTextDraw(Point2d basepoint, string label, bool italic = false) : base(basepoint, _layer!)
+        public LabelTextDraw(Point2d basepoint, string label, bool italic = false) : base(basepoint, _layer!) // BREAKING BUG: слой с условными не парсится (и не должен)
         {
             _italic = italic;
             _text = label;
