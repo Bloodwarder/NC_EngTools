@@ -67,12 +67,19 @@ namespace LayerWorks.Legend
         public List<Entity> Draw()
         {
             string? label = _islabelrow ? _label : (IsSublabeledList ? string.Concat(LegendData?.Label, ";") : LegendData?.Label); //переписать эту лесенку
-            _draw = new LabelTextDraw(
-                new Point2d(
-                ParentGrid!.BasePoint.X + (ParentGrid.Width - LegendGrid.TextWidth) + LegendGrid.WidthInterval,
-                ParentGrid.BasePoint.Y - YIndex * (LegendGrid.CellHeight + LegendGrid.HeightInterval) + LegendGrid.CellHeight / 2),
-                label ?? "ОШИБКА. НЕ ПОЛУЧЕНЫ ДАННЫЕ ПОДПИСИ",
-                ItalicLabel);
+            double xCoord = ParentGrid!.BasePoint.X + (ParentGrid.Width - LegendGrid.TextWidth) + LegendGrid.WidthInterval;
+            double yCoord = ParentGrid.BasePoint.Y - YIndex * (LegendGrid.CellHeight + LegendGrid.HeightInterval) + LegendGrid.CellHeight / 2;
+            Point2d point = new(xCoord, yCoord);
+            try
+            {
+                _draw = new LabelTextDraw(point, label ?? "ОШИБКА. НЕ ПОЛУЧЕНЫ ДАННЫЕ ПОДПИСИ", ItalicLabel);
+            }
+            catch (Exception ex)
+            {
+                // UNDONE: блок добавлен, чтобы ловить во время отладки. Пересмотреть.
+                throw;
+            }
+
             List<Entity> list = new List<Entity>();
             _draw.Draw();
             list.AddRange(_draw.EntitiesList);

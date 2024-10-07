@@ -31,7 +31,13 @@ namespace LayerWorks.ModelspaceDraw
             {
                 try
                 {
-                    return _blockTables[Workstation.Document].Get();
+                    BlockTable bt = _blockTables[Workstation.Document].Get();
+                    if (!bt.IsWriteEnabled)
+                    {
+                        throw new System.Exception("Не открыта для чтения");
+                    }
+                    // TODO: исполнить более правильно - через DBObjectWrapper например
+                    return bt;
                 }
                 catch
                 {
