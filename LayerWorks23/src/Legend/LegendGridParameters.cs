@@ -11,12 +11,12 @@ namespace LayerWorks.Legend
         private const double _defaultTextWidth = 150;
         private const double _defaultTextHeight = 4;
 
-        internal double CellWidth { get; set; } = _defaultCellWidth;
-        internal double CellHeight { get; set; } = _defaultCellHeight;
-        internal double WidthInterval { get; set; } = _defaultWidthInterval;
-        internal double HeightInterval { get; set; } = _defaultHeightInterval;
-        internal double TextWidth { get; set; } = _defaultTextWidth;
-        internal double TextHeight { get; set; } = _defaultTextHeight;
+        internal double CellWidth { get; set; }
+        internal double CellHeight { get; set; }
+        internal double WidthInterval { get; set; }
+        internal double HeightInterval { get; set; }
+        internal double TextWidth { get; set; }
+        internal double TextHeight { get; set; }
 
         internal static LegendGridParameters GetDefault()
         {

@@ -16,14 +16,12 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public class LabelTextDraw : ObjectDraw
     {
-        private static readonly RecordLayerWrapper? _layer;
+        private static readonly ObjectId _layer;
         private readonly bool _italic = false;
         private readonly string _text;
         static LabelTextDraw()
         {
-            ObjectId layerId = LayerChecker.ForceCheck(string.Concat(LayerWrapper.StandartPrefix, "_Условные"));
-            LayerTableRecord ltr = (LayerTableRecord)Workstation.TransactionManager.TopTransaction.GetObject(layerId, OpenMode.ForRead);
-            _layer = new RecordLayerWrapper(ltr);
+            _layer = LayerChecker.ForceCheck(string.Concat(LayerWrapper.StandartPrefix, "_Условные"));
         }
         public LabelTextDraw(Point2d basepoint, string label, bool italic = false) : base(basepoint, _layer!) // BREAKING BUG: слой с условными не парсится (и не должен)
         {
@@ -35,14 +33,12 @@ namespace LayerWorks.ModelspaceDraw
         public override void Draw()
         {
             var txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
-            string legendTextLayer = string.Concat(LayerWrapper.StandartPrefix, "_Условные");
-            LayerChecker.Check(legendTextLayer);
             MText mtext = new()
             {
                 Contents = _italic ? $"{{\\fArial|b0|i1|c204|p34;{_text}}}" : _text,
                 TextStyleId = txtstyletable!["Standard"],
                 TextHeight = LegendGrid.TextHeight,
-                Layer = legendTextLayer,
+                LayerId = _layer,
                 Color = s_byLayer,
                 LineSpacingFactor = 0.8d
             };

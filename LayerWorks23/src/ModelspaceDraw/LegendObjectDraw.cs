@@ -51,17 +51,21 @@ namespace LayerWorks.ModelspaceDraw
         /// </summary>
         public LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
         {
+            Layer = layer;
             bool success = _repository.TryGet(Layer.LayerInfo.TrueName, out var legendDrawTemplate);
             if (success)
                 LegendDrawTemplate = legendDrawTemplate;
         }
-        public LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
+        public LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : this(basepoint, layer)
         {
             LegendDrawTemplate = template;
         }
 
         internal static double CellWidth => LegendGrid.CellWidth;
         internal static double CellHeight => LegendGrid.CellHeight;
+
+        internal RecordLayerWrapper Layer { get; set; }
+
 
         private protected static double ParseRelativeValue(string value, double absolute)
         {

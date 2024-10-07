@@ -28,8 +28,10 @@ namespace LayerWorks.Legend
             _basepoint = basepoint;
             GlobalFilters globalFilters = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GlobalFilters;
             IEnumerable<GridData> grids = globalFilters.GetGridData(_keywords);
-            foreach (var grid in grids)
+            foreach (GridData grid in grids)
+            {
                 AddGrid(grid);
+            }
         }
         private void AddGrid(GridData gridData)
         {
@@ -43,6 +45,9 @@ namespace LayerWorks.Legend
             // Посчитать точку вставки на основании уже вставленных сеток
             double deltax = Grids.Select(g => g.Width).Sum() + SeparatedGridsOffset * Grids.Count;
             // Собрать сетку и добавить в список созданных сеток
+            GlobalFilters globalFilters = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GlobalFilters;
+            string? defaultName = globalFilters.DefaultLabel;
+            string gridName = gridData.GridName.Replace("*", defaultName ?? "*");
             LegendGrid grid = new(cells, new Point3d(_basepoint.X + deltax, _basepoint.Y, 0d), gridData.GridName);
             grid.Assemble();
             Grids.Add(grid);
