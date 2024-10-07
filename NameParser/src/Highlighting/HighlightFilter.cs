@@ -7,7 +7,7 @@ namespace NameClassifiers.Highlighting
     {
         public HighlightFilter() { }
 
-        [XmlAttribute(AttributeName = "Name", Type = typeof(string))]
+        [XmlAttribute(AttributeName = "Name")]
         public string Name { get; set; } = null!;
 
         [XmlElement(ElementName = "Highlight", Type = typeof(FilterModeHandler))]
