@@ -6,6 +6,6 @@ namespace LoaderCore.Configuration
     {
         public List<LayerWorksPath> NameParserPaths;
         public List<LayerWorksPath> LayerStandardPaths;
-        public LegendGridParameters? LegendGridParameters { get; set; }
+        //public LegendGridParameters? LegendGridParameters { get; set; }
     }
 }

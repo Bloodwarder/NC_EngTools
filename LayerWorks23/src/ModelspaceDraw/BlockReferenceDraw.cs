@@ -16,14 +16,32 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public class BlockReferenceDraw : LegendObjectDraw
     {
-        private string BlockName => LegendDrawTemplate!.BlockName ?? throw new NoPropertiesException("Нет наименования блока в шаблоне");
-        private string FilePath => LegendDrawTemplate!.BlockPath ?? throw new NoPropertiesException("Нет пути к файлу с блоком в шаблоне");
+        private static bool _blocksImported = false;
+
+
+        /// <summary>
+        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
+        /// </summary>
+        static BlockReferenceDraw()
+        {
+            BoundBlockTable = (BlockTable)Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite);
+        }
+
+        public BlockReferenceDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
+        {
+            TemplateSetEventHandler += QueueImportBlockTableRecord;
+        }
+        public BlockReferenceDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
+        {
+            LegendDrawTemplate = template;
+            QueueImportBlockTableRecord();
+        }
+
 
         // Списки файлов и блоков для единоразовой обработки
-        internal static HashSet<string> QueuedFiles = new HashSet<string>();
-        internal static Dictionary<string, HashSet<string>> QueuedBlocks = new Dictionary<string, HashSet<string>>();
+        internal static HashSet<string> QueuedFiles { get; set; } = new HashSet<string>();
+        internal static Dictionary<string, HashSet<string>> QueuedBlocks { get; set; } = new Dictionary<string, HashSet<string>>();
         // Проверка, выполнен ли иморт блоков
-        private static bool _blocksImported = false;
         private static Dictionary<Document, DBObjectWrapper<BlockTable>> _blockTables = new Dictionary<Document, DBObjectWrapper<BlockTable>>();
         private static BlockTable BoundBlockTable
         {
@@ -51,23 +69,9 @@ namespace LayerWorks.ModelspaceDraw
                 _blockTables[Workstation.Document] = new DBObjectWrapper<BlockTable>(value, OpenMode.ForWrite);
             }
         }
+        private string BlockName => LegendDrawTemplate!.BlockName ?? throw new NoPropertiesException("Нет наименования блока в шаблоне");
+        private string FilePath => LegendDrawTemplate!.BlockPath ?? throw new NoPropertiesException("Нет пути к файлу с блоком в шаблоне");
 
-        static BlockReferenceDraw()
-        {
-            BoundBlockTable = (BlockTable)Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite);
-        }
-        /// <summary>
-        /// Конструктор класса без параметров. После вызова задайте базовую точку и шаблон данных отрисовки LegendDrawTemplate
-        /// </summary>
-
-        public BlockReferenceDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
-        {
-            TemplateSetEventHandler += QueueImportBlockTableRecord;
-        }
-        public BlockReferenceDraw(Point2d basepoint, RecordLayerWrapper layer, LegendDrawTemplate template) : base(basepoint, layer)
-        {
-            LegendDrawTemplate = template;
-        }
 
         /// <inheritdoc/>
         public override void Draw()
@@ -78,18 +82,22 @@ namespace LayerWorks.ModelspaceDraw
                 ImportRecords(out HashSet<string> failedImports);
                 foreach (string str in failedImports)
                     Workstation.Editor.WriteMessage($"Не удалось импортировать блок {str}");
-                _blocksImported = true; // BUG: При ошибке в верхней транзакции значение остаётся true, а блоки не импортируются
+                _blocksImported = true;
             }
             // Отрисовываем объект
             ObjectId btrId = BoundBlockTable[BlockName];
-            BlockReference bref = new BlockReference(new Point3d(Basepoint.X + LegendDrawTemplate!.BlockXOffset, Basepoint.Y + LegendDrawTemplate.BlockYOffset, 0d), btrId)
+            double x = Basepoint.X + LegendDrawTemplate!.BlockXOffset;
+            double y = Basepoint.Y + LegendDrawTemplate.BlockYOffset;
+            BlockReference bref = new(new Point3d(x, y, 0d), btrId)
             {
                 Layer = Layer.BoundLayer.Name
             };
             EntitiesList.Add(bref);
         }
 
-        private void QueueImportBlockTableRecord(object? sender, EventArgs e)
+        private void QueueImportBlockTableRecord(object? sender, EventArgs e) => QueueImportBlockTableRecord();
+
+        private void QueueImportBlockTableRecord()
         {
             if (BoundBlockTable.Has(BlockName))
                 return;
@@ -139,6 +147,7 @@ namespace LayerWorks.ModelspaceDraw
                             }
                             // Добавляем все найденные блоки в таблицу блоков текущего чертежа
                             importBlockTable!.Database.WblockCloneObjects(new ObjectIdCollection(importedBlocks.Select(b => b.ObjectId).ToArray()), BoundBlockTable.ObjectId, new IdMapping(), DuplicateRecordCloning.Ignore, false);
+                            transaction.Commit();
                         }
                         catch (Exception)
                         {

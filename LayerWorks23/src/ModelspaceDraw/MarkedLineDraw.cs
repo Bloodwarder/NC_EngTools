@@ -47,7 +47,7 @@ namespace LayerWorks.ModelspaceDraw
             {
                 Contents = MarkChar,
                 TextStyleId = txtstyletable!["Standard"],
-                TextHeight = LegendGrid.TextHeight,
+                TextHeight = LegendGrid.MarkedLineTextHeight,
                 Layer = Layer.BoundLayer.Name,
                 Color = s_byLayer,
             };
