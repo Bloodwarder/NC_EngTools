@@ -100,7 +100,7 @@
 	<LegendFilters DefaultLabel="Инженерная инфраструктура">
 		<FilterSection>
 			<Filter Name="Общий">
-				<Grid/>
+				<Grid Label="*"/>
 			</Filter>
 			<Filter Name="Существующие">
 				<Grid>
@@ -115,7 +115,7 @@
 				</Grid>
 			</Filter>
 			<Filter Name="Утв_и_неутв">
-				<Grid>
+				<Grid Label="*">
 					<StatusReference Value="сущ"/>
 					<StatusReference Value="дем"/>
 					<StatusReference Value="пр"/>
@@ -126,7 +126,7 @@
 				</Grid>
 			</Filter>
 			<Filter Name="Разделённые">
-				<Grid>
+				<Grid Label ="*">
 					<StatusReference Value="сущ"/>
 					<StatusReference Value="дем"/>
 					<StatusReference Value="пр"/>

@@ -43,6 +43,7 @@
 			<HeightInterval>5</HeightInterval>
 			<TextWidth>250</TextWidth>
 			<TextHeight>6</TextHeight>
+			<MarkedLineTextHeight>4</MarkedLineTextHeight>
 		</LegendGridParameters>
 	</LayerWorksConfiguration>
 	<GeoModConfiguration Module="GeoMod">

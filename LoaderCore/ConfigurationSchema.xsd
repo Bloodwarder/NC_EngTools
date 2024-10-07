@@ -58,6 +58,7 @@
 										<xs:element name="HeightInterval" type="xs:double" />
 										<xs:element name="TextWidth" type="xs:double" />
 										<xs:element name="TextHeight" type="xs:double" />
+										<xs:element name="MarkedLineTextHeight" type="xs:double" />
 									</xs:sequence>
 								</xs:complexType>
 							</xs:element>

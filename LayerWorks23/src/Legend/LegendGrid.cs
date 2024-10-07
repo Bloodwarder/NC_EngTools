@@ -17,8 +17,8 @@ namespace LayerWorks.Legend
         static LegendGrid()
         {
             var config = LoaderCore.NcetCore.ServiceProvider.GetService<IConfiguration>();
-            var lgp = config?.GetSection("LayerWorksConfiguration:LegendGridParameters").Get<LegendGridParameters>();
-            // TODO: проскакивают дефолтные значения - тестировать.
+            LegendGridParameters lgp = new();
+            config?.GetSection("LayerWorksConfiguration:LegendGridParameters").Bind(lgp);
             _legendGridParameters = lgp ?? LegendGridParameters.GetDefault();
         }
         internal LegendGrid(IEnumerable<LegendGridCell> cells, Point3d basepoint, string name)
@@ -39,6 +39,7 @@ namespace LayerWorks.Legend
         internal static double HeightInterval => LegendGridParameters.HeightInterval;
         internal static double TextWidth => LegendGridParameters.TextWidth;
         internal static double TextHeight => LegendGridParameters.TextHeight;
+        internal static double MarkedLineTextHeight => LegendGridParameters.MarkedLineTextHeight;
         private static LegendGridParameters LegendGridParameters { get => _legendGridParameters; set => _legendGridParameters = value; }
 
         internal string Name { get; }
@@ -78,7 +79,10 @@ namespace LayerWorks.Legend
 
         internal static void ReloadGridParameters()
         {
-            _legendGridParameters = Configuration.LayerWorks.GetLegendGridParameters();
+            var config = LoaderCore.NcetCore.ServiceProvider.GetService<IConfiguration>();
+            LegendGridParameters lgp = new();
+            config?.GetSection("LayerWorksConfiguration:LegendGridParameters").Bind(lgp);
+            _legendGridParameters = lgp ?? LegendGridParameters.GetDefault();
         }
 
         private void AddRow(LegendGridRow row)

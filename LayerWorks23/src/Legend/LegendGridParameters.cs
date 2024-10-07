@@ -2,21 +2,23 @@
 
 namespace LayerWorks.Legend
 {
-    internal class LegendGridParameters
+    public class LegendGridParameters
     {
-        private const double _defaultCellWidth = 30;
-        private const double _defaultCellHeight = 9;
-        private const double _defaultWidthInterval = 5;
-        private const double _defaultHeightInterval = 5;
-        private const double _defaultTextWidth = 150;
-        private const double _defaultTextHeight = 4;
+        private const double _defaultCellWidth = 30d;
+        private const double _defaultCellHeight = 9d;
+        private const double _defaultWidthInterval = 5d;
+        private const double _defaultHeightInterval = 5d;
+        private const double _defaultTextWidth = 150d;
+        private const double _defaultTextHeight = 4d;
+        private const double _defaultMarkedLineTextHeight = 4d;
 
-        internal double CellWidth { get; set; }
-        internal double CellHeight { get; set; }
-        internal double WidthInterval { get; set; }
-        internal double HeightInterval { get; set; }
-        internal double TextWidth { get; set; }
-        internal double TextHeight { get; set; }
+        public double CellWidth { get; set; }
+        public double CellHeight { get; set; }
+        public double WidthInterval { get; set; }
+        public double HeightInterval { get; set; }
+        public double TextWidth { get; set; }
+        public double TextHeight { get; set; }
+        public double MarkedLineTextHeight { get; set; }
 
         internal static LegendGridParameters GetDefault()
         {
@@ -27,28 +29,9 @@ namespace LayerWorks.Legend
                 WidthInterval = _defaultWidthInterval,
                 HeightInterval = _defaultHeightInterval,
                 TextWidth = _defaultTextWidth,
-                TextHeight = _defaultTextHeight
+                TextHeight = _defaultTextHeight,
+                MarkedLineTextHeight = _defaultMarkedLineTextHeight
             };
-        }
-    }
-
-    internal static class LayerWorksConfigurationExtension
-    {
-        internal static LegendGridParameters GetLegendGridParameters(this LayerWorksConfiguration config)
-        {
-            if (config.LegendGridParameters == null)
-                return new LegendGridParameters();
-
-            LegendGridParameters parameters = new()
-            {
-                CellHeight = config.LegendGridParameters.CellHeight,
-                CellWidth = config.LegendGridParameters.CellWidth,
-                HeightInterval = config.LegendGridParameters.HeightInterval,
-                TextHeight = config.LegendGridParameters.TextHeight,
-                TextWidth = config.LegendGridParameters.TextWidth,
-                WidthInterval = config.LegendGridParameters.WidthInterval
-            };
-            return parameters;
         }
     }
 }
