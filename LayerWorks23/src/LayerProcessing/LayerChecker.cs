@@ -33,7 +33,7 @@ namespace LayerWorks.LayerProcessing
                     if (!lt!.Has(layerInfo.Name))
                     {
                         var standardService = LoaderCore.NcetCore.ServiceProvider.GetService<IRepository<string, LayerProps>>()!;
-                        bool propsgetsuccess = standardService.TryGet(layerInfo.TrueName, out LayerProps? props);
+                        bool propsGetSuccess = standardService.TryGet(layerInfo.TrueName, out LayerProps? props);
                         LayerTableRecord ltRecord = AddLayer(layerInfo.Name, props);
 
                         //Process new layer if isolated chapter visualization is active
@@ -64,8 +64,15 @@ namespace LayerWorks.LayerProcessing
         {
             try
             {
-                var layerInfo = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GetLayerInfo(layername);
-                return Check(layerInfo);
+                var layerInfoResult = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GetLayerInfo(layername);
+                if (layerInfoResult.Status == LayerInfoParseStatus.Success)
+                {
+                    return Check(layerInfoResult.Value);
+                }
+                else
+                {
+                    throw layerInfoResult.GetExceptions().First();
+                }
             }
             catch (NoPropertiesException)
             {

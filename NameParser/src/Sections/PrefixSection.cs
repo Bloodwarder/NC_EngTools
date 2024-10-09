@@ -17,15 +17,15 @@ namespace NameClassifiers.Sections
             parentParser.Prefix = prefix;
         }
 
-        internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
+        internal override void Process(string[] str, LayerInfoResult layerInfoResult, int pointer)
         {
             // Проверяем совпадение префикса (вообще по идее сюда попасть не должно)
-            if (str[pointer] != layerInfo.ParentParser.Prefix)
+            if (str[pointer] != layerInfoResult.Value.ParentParser.Prefix)
                 throw new WrongLayerException("Не совпадает префикс");
             // Назначаем префикс
-            layerInfo.Prefix = layerInfo.ParentParser.Prefix;
+            layerInfoResult.Value.Prefix = layerInfoResult.Value.ParentParser.Prefix;
             pointer++;
-            NextSection?.Process(str, layerInfo, pointer);
+            NextSection?.Process(str, layerInfoResult, pointer);
         }
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {

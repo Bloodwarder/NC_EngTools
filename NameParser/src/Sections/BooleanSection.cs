@@ -30,23 +30,23 @@ namespace NameClassifiers.Sections
         internal string Description { get; init; }
 
 
-        internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
+        internal override void Process(string[] str, LayerInfoResult layerInfoResult, int pointer)
         {
             if (pointer > str.Length - 1)
             {
-                layerInfo.SuffixTagged[Name] = false;
+                layerInfoResult.Value.SuffixTagged[Name] = false;
                 return;
             }
             if (str[pointer] == _suffix)
             {
-                layerInfo.SuffixTagged[Name] = true;
+                layerInfoResult.Value.SuffixTagged[Name] = true;
                 pointer++;
             }
             else
             {
-                layerInfo.SuffixTagged[Name] = false;
+                layerInfoResult.Value.SuffixTagged[Name] = false;
             }
-            NextSection?.Process(str, layerInfo, pointer);
+            NextSection?.Process(str, layerInfoResult, pointer);
         }
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {

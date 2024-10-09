@@ -11,26 +11,29 @@ namespace LayerWorks.EntityFormatters
 {
     public class StandardEntityFormatter : IEntityFormatter
     {
-        private static IRepository<string, LayerProps> _repository;
-        private static ILogger? _logger;
+        private static readonly IRepository<string, LayerProps> _repository;
+        private static readonly ILogger? _logger;
 
-        public StandardEntityFormatter()
+        static StandardEntityFormatter()
         {
-            _repository = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
-            _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
+            _repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
+            _logger = NcetCore.ServiceProvider.GetService<ILogger>();
         }
         public void FormatEntity(Entity entity)
         {
             string layerName = entity.Layer;
             var parser = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!];
-            try
+            var layerInfoResult = parser.GetLayerInfo(layerName);
+            if (layerInfoResult.Status == LayerInfoParseStatus.Success)
             {
-                string key = parser.GetLayerInfo(layerName).TrueName;
+                string key = layerInfoResult.Value.TrueName;
                 FormatEntity(entity, key);
             }
-            catch (WrongLayerException ex)
+            else
             {
-                NcetCore.Logger?.LogDebug(ex, $"Форматирование объекта {entity.GetType().Name} слоя {layerName} не выполнено. Не подходящий слой");
+                _logger?.LogDebug("Форматирование объекта {EntityType} слоя {LayerName} не выполнено. Не подходящий слой", entity.GetType().Name, layerName);
+                foreach (Exception ex in layerInfoResult.GetExceptions())
+                    _logger?.LogTrace(ex, "Ошибка: {exceptionMessage}", ex.Message);
                 return;
             }
         }

@@ -24,13 +24,13 @@ namespace NameClassifiers.Sections
             parentParser.AuxilaryData.Add(Name, this);
         }
 
-        internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
+        internal override void Process(string[] str, LayerInfoResult layerInfoResult, int pointer)
         {
             // Проверить текущую строку массива на начало с нужной скобки, если нет, проверить следующий классификатор
             if (!str[pointer].StartsWith(Brackets[0]))
             {
-                layerInfo.AuxilaryData[Name] = null;
-                NextSection?.Process(str, layerInfo, pointer);
+                layerInfoResult.Value.AuxilaryData[Name] = null;
+                NextSection?.Process(str, layerInfoResult, pointer);
                 return;
             }
             // Если да - установить счётчик элементов на 1 и увеличивать пока не будет найдена закрывающая скобка
@@ -42,10 +42,10 @@ namespace NameClassifiers.Sections
             // Объединить строки, переместить указатель вперёд на число полученных элементов
             string auxData = string.Join(ParentParser.Separator, str.Skip(pointer).Take(elementsCounter).ToArray());
             string formattedAuxData = auxData.Replace(Brackets[0].ToString(), "").Replace(Brackets[1].ToString(), "");
-            layerInfo.AuxilaryData[Name] = formattedAuxData;
+            layerInfoResult.Value.AuxilaryData[Name] = formattedAuxData;
             pointer += elementsCounter;
 
-            NextSection?.Process(str, layerInfo, pointer);
+            NextSection?.Process(str, layerInfoResult, pointer);
         }
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {

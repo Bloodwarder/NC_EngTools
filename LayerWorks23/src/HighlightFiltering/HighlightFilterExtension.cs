@@ -6,7 +6,7 @@ namespace LayerWorks.HighlightFiltering
 {
     internal static class HighlightFilterExtension
     {
-        public static void Method(this HighlightFilter filter, IEnumerable<VisualizerLayerWrapper> wrappers)
+        public static void ApplyFilter(this HighlightFilter filter, IEnumerable<VisualizerLayerWrapper> wrappers)
         {
             StatedLayerProps propsDisable = new() { IsOff = true };
             StatedLayerProps propsEnable = new() { IsOff = false };

@@ -153,21 +153,31 @@ namespace NameClassifiers
         /// </summary>
         /// <param name="layerName">Имя слоя для обработки</param>
         /// <returns></returns>
-        public LayerInfo GetLayerInfo(string layerName)
+        public LayerInfoResult GetLayerInfo(string layerName)
         {
             LayerInfo layerInfo = new(this);
             string[] decomposition = layerName.Split(Separator);
-
+            LayerInfoResult layerInfoResult = new(layerInfo);
             int pointer = 0;
             // Запускаем обработку строки цепочкой секций парсера
             try
             {
-                Processor!.Process(decomposition, layerInfo, pointer);
-                return layerInfo;
+                Processor!.Process(decomposition, layerInfoResult, pointer);
+                layerInfoResult.Status = LayerInfoParseStatus.Success;
+                return layerInfoResult;
             }
-            catch (IndexOutOfRangeException)
+            catch (IndexOutOfRangeException ex)
             {
-                throw new WrongLayerException($"Ошибка обработки слоя - элементы имени {layerName} заданы неправильно");;
+                layerInfoResult.Exceptions.Add(new WrongLayerException($"Ошибка обработки слоя - элементы имени {layerName} заданы неправильно"));
+                layerInfoResult.Exceptions.Add(ex);
+                layerInfoResult.Status = LayerInfoParseStatus.Failure;
+                return layerInfoResult;
+            }
+            catch (Exception ex)
+            {
+                layerInfoResult.Exceptions.Add(ex);
+                layerInfoResult.Status = LayerInfoParseStatus.Failure;
+                return layerInfoResult;
             }
         }
 

@@ -23,21 +23,21 @@ namespace NameClassifiers.Sections
             }
         }
 
-        internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
+        internal override void Process(string[] str, LayerInfoResult layerInfoResult, int pointer)
         {
             // Проверяем наличие текущего элемента массива в словарях дополнительных классификаторов. Если есть, добавляем в layerInfo
             // Если нет - проверяем добавляем null и проверяем следующий словарь
             if (_descriptionDict.ContainsKey(str[pointer]))
             {
-                layerInfo.AuxilaryClassifiers.Add(Name, str[pointer]);
+                layerInfoResult.Value.AuxilaryClassifiers.Add(Name, str[pointer]);
                 pointer++;
             }
             else
             {
-                throw new WrongLayerException($"Классификатор \"{str[pointer]}\" отсутствует в списке допустимых");
-                //layerInfo.AuxilaryClassifiers.Add(Name, null);
+                layerInfoResult.Exceptions.Add(new WrongLayerException($"Классификатор \"{str[pointer]}\" отсутствует в списке допустимых"));
+                layerInfoResult.Status = LayerInfoParseStatus.PartialFailure;
             }
-            NextSection?.Process(str, layerInfo, pointer);
+            NextSection?.Process(str, layerInfoResult, pointer);
         }
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {

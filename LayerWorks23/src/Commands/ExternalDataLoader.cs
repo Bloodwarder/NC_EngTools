@@ -3,8 +3,10 @@ using LayersIO.Excel;
 using LayersIO.Xml;
 using LayerWorks.LayerProcessing;
 using LoaderCore;
+using LoaderCore.Interfaces;
 using LoaderCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NameClassifiers;
 using NanocadUtilities;
 using Teigha.DatabaseServices;
@@ -88,27 +90,23 @@ namespace LayersIO.ExternalData
                 foreach (LayerTableRecord ltr in layers)
                 {
                     string checkedname = "";
-                    LayerProps lp = new();
+
                     // Попытка распарсить имя слоя для поиска существующих сохранённых свойств
-                    LayerInfo? checkinfo = LayerWrapper.GetInfoFromString(ltr.Name, out string? exceptionMessage);
-                    if (checkinfo != null)
+                    LayerInfoResult checkinfo = LayerWrapper.GetInfoFromString(ltr.Name);
+                    if (checkinfo.Status == LayerInfoParseStatus.Success)
                     {
-                        checkedname = checkinfo.TrueName;
+                        checkedname = checkinfo.Value.TrueName;
                     }
                     else
                     {
-                        Workstation.Editor.WriteMessage(exceptionMessage);
+                        var exception = checkinfo.GetExceptions().First();
+                        Logger?.LogWarning(exception, "{Message}", exception.Message);
                     }
-                    bool lpsuccess = true;
-                    try
-                    {
-                        lpsuccess = NcetCore.ServiceProvider.GetService<LayerPropertiesDictionary>().TryGet(checkedname, out lp!, false);
-                    }
-                    catch (NoPropertiesException)
-                    {
-                        lpsuccess = false;
-                    }
-                    props.Add(lp!);
+
+                    var service = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
+                    bool lpsuccess = service.TryGet(checkedname, out var lp);
+                    if (lpsuccess)
+                        props.Add(lp!);
 
                     throw new NotImplementedException();
                     //((Excel.Range)((Excel.Range)workbook.Worksheets[1]).Cells[i, 1]).Value = checkedname != "" ? checkedname : ltr.Name;

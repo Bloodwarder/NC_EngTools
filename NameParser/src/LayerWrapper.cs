@@ -31,7 +31,15 @@ namespace NameClassifiers
             string prefix = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])").Value;
             if (!NameParser.LoadedParsers.ContainsKey(prefix))
                 throw new WrongLayerException($"Нет данных для интерпретации слоя с префиксом {prefix}");
-            LayerInfo = NameParser.LoadedParsers[prefix].GetLayerInfo(layerName);
+            var layerInfoResult = NameParser.LoadedParsers[prefix].GetLayerInfo(layerName);
+            if (layerInfoResult.Status == LayerInfoParseStatus.Success)
+            {
+                LayerInfo = layerInfoResult.Value;
+            }
+            else
+            {
+                throw layerInfoResult.Exceptions.First();
+            }
         }
 
         public void AlterLayerInfo(Action<LayerInfo, string> action, string value)
@@ -49,21 +57,10 @@ namespace NameClassifiers
 
         public abstract void Push();
 
-        public static LayerInfo? GetInfoFromString(string layerName, out string? exceptionMessage)
+        public static LayerInfoResult GetInfoFromString(string layerName)
         {
             string prefix = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])").Value;
-            LayerInfo? info = null;
-            try
-            {
-                info = NameParser.LoadedParsers[prefix].GetLayerInfo(layerName);
-            }
-            catch (WrongLayerException e)
-            {
-                exceptionMessage = e.Message;
-                return info;
-            }
-            exceptionMessage = null;
-            return info;
+            return NameParser.LoadedParsers[prefix].GetLayerInfo(layerName);
         }
     }
 }

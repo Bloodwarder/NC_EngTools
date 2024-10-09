@@ -24,9 +24,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="src\LayerProcessing\LayerWrapperOld.cs" />
 	  <Compile Remove="src\LayerProcessing\Status.cs" />
-	  <None Include="src\LayerProcessing\LayerWrapperOld.cs" />
 	  <None Include="src\LayerProcessing\Status.cs" />
 	</ItemGroup>
 

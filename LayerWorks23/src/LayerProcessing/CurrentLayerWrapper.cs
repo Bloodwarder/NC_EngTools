@@ -47,15 +47,16 @@ namespace LayerWorks.LayerProcessing
         public static void DirectPush()
         {
             string layerName = Clayername();
-            var layerInfo = GetInfoFromString(layerName, out string? ex);
-            if (layerInfo != null)
+            var layerInfoResult = GetInfoFromString(layerName);
+            if (layerInfoResult.Status == LayerInfoParseStatus.Success)
             {
-                StandartizeCurrentValues(layerInfo);
+                StandartizeCurrentValues(layerInfoResult.Value);
             }
             else
             {
                 ILogger? logger = NcetCore.ServiceProvider.GetService<ILogger>();
-                logger?.LogWarning(ex);
+                var exception = layerInfoResult.GetExceptions().First();
+                logger?.LogWarning(exception, "{Message}", exception.Message);
             }
         }
 
