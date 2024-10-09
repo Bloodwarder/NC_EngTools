@@ -3,6 +3,7 @@
 //nanoCAD
 using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
+using LayerWorks.HighlightFiltering;
 using LayerWorks.LayerProcessing;
 using NameClassifiers;
 using NameClassifiers.Highlighting;
@@ -80,7 +81,9 @@ namespace LayerWorks.Commands
                 string filterName = GetStringKeywordResult(filters, "Выберите фильтр");
                 HighlightFilter chosenFilter = visualizers.Filters.Where(f => f.Name == filterName).Single();
 
+                //chosenFilter.ApplyFilter(VisualizerLayerWrappers.StoredLayerStates[Workstation.Document]); ПЕРЕСОБРАТЬ С ЭТИМ И ТЕСТИРОВАТЬ
 
+                // UNDONE: Работает по-старому! Собрано просто, чтобы было не сломано. Взять логику из визуализаторов
                 var layerchapters = VisualizerLayerWrappers.StoredLayerStates[doc]
                                                               .Where(l => l.LayerInfo.PrimaryClassifier != null)
                                                               .Select(l => l.LayerInfo.PrimaryClassifier)

@@ -41,7 +41,7 @@ namespace NameClassifiers.Sections
         internal protected List<LayerValidator> Validators { get; private set; } = new();
         protected NameParser ParentParser { get; init; }
 
-        internal abstract void Process(string[] str, LayerInfo layerInfo, int pointer);
+        internal abstract void Process(string[] str, LayerInfoResult layerInfo, int pointer);
         internal abstract void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType);
         internal abstract bool ValidateString(string str);
         internal abstract void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptions);

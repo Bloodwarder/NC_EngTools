@@ -12,6 +12,16 @@ namespace NameClassifiers.References
     [XmlInclude(typeof(BoolReference))]
     public abstract class SectionReference : ICloneable
     {
+        internal protected static readonly Dictionary<Type, Type> _referencedSections = new()
+        {
+            [typeof(ChapterReference)] = typeof(PrimaryClassifierSection),
+            [typeof(StatusReference)] = typeof(StatusSection),
+            [typeof(ClassifierReference)] = typeof(AuxilaryClassifierSection),
+            [typeof(DataReference)] = typeof(AuxilaryDataSection),
+            [typeof(BoolReference)] = typeof(BooleanSection)
+        };
+
+
         [XmlAttribute("Value")]
         public string? Value { get; set; }
 
@@ -56,7 +66,7 @@ namespace NameClassifiers.References
 
         public virtual void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptions)
         {
-            ParserSection section = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GetSection(this.GetType());
+            ParserSection section = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GetSection(_referencedSections[this.GetType()]);
             section.ExtractDistinctInfo(layerInfos, out keywords, out descriptions);
         }
 

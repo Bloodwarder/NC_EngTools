@@ -13,7 +13,7 @@ namespace NameClassifiers.Sections
         {
         }
 
-        internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
+        internal override void Process(string[] str, LayerInfoResult layerInfoResult, int pointer)
         {
             // Установить счётчик элементов на 0 и увеличивать пока не будет найден элемент, содержащий следующий классификатор,
             // затем передать значения и переместить указатель вперёд
@@ -26,8 +26,8 @@ namespace NameClassifiers.Sections
             }
             string secondary = string.Join(ParentParser.Separator, str.Skip(pointer).Take(elementsCounter).ToArray());
             pointer += elementsCounter;
-            layerInfo.SecondaryClassifiers = secondary;
-            NextSection?.Process(str, layerInfo, pointer);
+            layerInfoResult.Value.SecondaryClassifiers = secondary;
+            NextSection?.Process(str, layerInfoResult, pointer);
         }
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {

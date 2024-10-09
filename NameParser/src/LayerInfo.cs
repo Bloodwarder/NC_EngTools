@@ -1,19 +1,15 @@
-﻿using NameClassifiers.Sections;
+﻿using NameClassifiers.References;
+using NameClassifiers.Sections;
 
 namespace NameClassifiers
 {
-    public class LayerInfo
+    public class LayerInfo : ICloneable
     {
         public LayerInfo(NameParser parser)
         {
             ParentParser = parser;
         }
-        public enum NameType
-        {
-            FullName,
-            MainName,
-            TrueName
-        }
+
         public NameParser ParentParser { get; }
         public string? Prefix { get; internal set; }
         public string? PrimaryClassifier { get; internal set; }
@@ -64,7 +60,7 @@ namespace NameClassifiers
             BooleanSection[] sections = SuffixTagged.Keys.Select(k => (BooleanSection)ParentParser.GetSection<BooleanSection>(k)).ToArray();
             if (sections == null)
                 return;
-            foreach (var section in sections) 
+            foreach (var section in sections)
             {
                 if (section.Validators == null || section.Validators.Count < 1)
                     continue;
@@ -80,7 +76,7 @@ namespace NameClassifiers
                 bool isValid = validators.TrueForAll(v => v.ValidateLayerInfo(this));
                 if (!isValid)
                 {
-                    bool isAssingedValid = validators.TrueForAll(v => v.Transform(this)); 
+                    bool isAssingedValid = validators.TrueForAll(v => v.Transform(this));
                     if (!isAssingedValid)
                         throw new WrongLayerException($"Нельзя назначить {key} для указанного объекта");
                 }
@@ -91,9 +87,15 @@ namespace NameClassifiers
         public void AlterSecondaryClassifier(string newMainName)
         {
             // TODO: Изменить логику так, чтобы не предполагалось, что статус стоит в конце, или сделать возможным получить LayerInfo без статуса
-            string statusStub = ParentParser.Status.GetDescriptionDictionary().Keys.First(); // затычка, чтобы объект парсился
-            var alterLayerInfo = ParentParser.GetLayerInfo($"{Prefix}{ParentParser.Separator}{newMainName}{ParentParser.Separator}{statusStub}");
-            SecondaryClassifiers = alterLayerInfo.SecondaryClassifiers;
+            //string statusStub = ParentParser.Status.GetDescriptionDictionary().Keys.First(); // затычка, чтобы объект парсился
+            //var alterLayerInfo = ParentParser.GetLayerInfo($"{Prefix}{ParentParser.Separator}{newMainName}{ParentParser.Separator}{statusStub}");
+
+            // TODO: Тестировать
+            var alterResult = ParentParser.GetLayerInfo(newMainName);
+            if (alterResult.Status != LayerInfoParseStatus.Failure && alterResult.Value.SecondaryClassifiers != null)
+                SecondaryClassifiers = alterResult.Value.SecondaryClassifiers;
+            else
+                throw new WrongLayerException("Неверное основное имя для замены");
         }
 
         public void SwitchSuffix(string key, bool value)
@@ -104,13 +106,37 @@ namespace NameClassifiers
                 bool isValid = validators.TrueForAll(v => v.ValidateLayerInfo(this));
                 if (!isValid)
                 {
-                    bool isAssingedValid = validators.TrueForAll(v => v.Transform(this));
+                    bool isAssingedValid = validators.TrueForAll(v => v.Transform(this)); // TODO: Метод, изменяющий состояние в проверке. Изменить.
                     if (!isAssingedValid)
                         throw new WrongLayerException($"Нельзя назначить суффикс с тегом \"{key}\" для указанного объекта");
                 }
             }
             SuffixTagged[key] = value;
         }
+
+        public void AssignReferenceValue(SectionReference reference)
+        {
+            switch (reference)
+            {
+                case ChapterReference:
+                    this.PrimaryClassifier = reference.Value;
+                    break;
+                case StatusReference:
+                    this.Status = reference.Value;
+                    break;
+                case DataReference dRef:
+                    this.AuxilaryData[dRef.Name] = dRef.Value;
+                    break;
+                case BoolReference bRef:
+                    this.AuxilaryData[bRef.Name] = bRef.Value;
+                    break;
+                case ClassifierReference clRef:
+                    this.AuxilaryData[clRef.Name] = clRef.Value;
+                    break;
+            }
+        }
+
+
         /// <summary>
         /// Собрать строку с именем, с помощью цепочки секций парсера
         /// </summary>
@@ -122,6 +148,31 @@ namespace NameClassifiers
             ParentParser.Processor!.ComposeName(members, this, nameType);
             string sep = ParentParser.Separator;
             return string.Join(sep, members);
+        }
+
+        public object Clone()
+        {
+            LayerInfo layerInfo = new(ParentParser)
+            {
+                Prefix = Prefix,
+                PrimaryClassifier = PrimaryClassifier,
+                Status = Status,
+                SecondaryClassifiers = SecondaryClassifiers
+            };
+            foreach (var key in AuxilaryClassifiers.Keys)
+                layerInfo.AuxilaryClassifiers[key] = AuxilaryClassifiers[key];
+            foreach (var key in AuxilaryData.Keys)
+                layerInfo.AuxilaryData[key] = AuxilaryData[key];
+            foreach (var key in SuffixTagged.Keys)
+                layerInfo.SuffixTagged[key] = SuffixTagged[key];
+            return layerInfo;
+        }
+
+        public enum NameType
+        {
+            FullName,
+            MainName,
+            TrueName
         }
     }
 }

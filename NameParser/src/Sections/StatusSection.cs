@@ -25,13 +25,19 @@ namespace NameClassifiers.Sections
         }
 
         internal Dictionary<string, string> GetDescriptionDictionary() => _descriptionDict;
-        internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
+        internal override void Process(string[] str, LayerInfoResult layerInfoResult, int pointer)
         {
-            if (!_descriptionDict.ContainsKey(str[pointer]))
-                throw new WrongLayerException("Не найден статус");
-            layerInfo.Status = str[pointer];
-            pointer++;
-            NextSection?.Process(str, layerInfo, pointer);
+            if (_descriptionDict.ContainsKey(str[pointer]))
+            {
+                layerInfoResult.Value.Status = str[pointer];
+                pointer++;
+            }
+            else
+            {
+                layerInfoResult.Exceptions.Add(new WrongLayerException("Не найден статус"));
+                layerInfoResult.Status = LayerInfoParseStatus.PartialFailure;
+            }
+            NextSection?.Process(str, layerInfoResult, pointer);
         }
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {

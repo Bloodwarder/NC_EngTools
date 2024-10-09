@@ -10,10 +10,7 @@ namespace LayerWorks.LayerProcessing
         public bool? IsFrozen { get; set; }
         public bool? IsLocked { get; set; }
 
-        public object Clone()
-        {
-            return this.MemberwiseClone();
-        }
+        public object Clone() => this.MemberwiseClone();
     }
 
     public static class LayerPropsExtension

@@ -48,24 +48,7 @@ namespace NameClassifiers.References
             {
                 var transformation = Transformations.Where(t => t.Source.Any(r => r.Match(layerInfo))).Single();
                 var reference = transformation.Output.Single();
-                switch (reference)
-                {
-                    case ChapterReference:
-                        layerInfo.PrimaryClassifier = reference.Value;
-                        break;
-                    case StatusReference:
-                        layerInfo.Status = reference.Value;
-                        break;
-                    case DataReference dRef:
-                        layerInfo.AuxilaryData[dRef.Name] = dRef.Value;
-                        break;
-                    case BoolReference bRef:
-                        layerInfo.AuxilaryData[bRef.Name] = bRef.Value;
-                        break;
-                    case ClassifierReference clRef:
-                        layerInfo.AuxilaryData[clRef.Name] = clRef.Value;
-                        break;
-                }
+                layerInfo.AssignReferenceValue(reference);
                 return true;
             }
             return false;

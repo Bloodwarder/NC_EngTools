@@ -23,11 +23,11 @@ namespace NameClassifiers.Sections
             }
         }
 
-        internal override void Process(string[] str, LayerInfo layerInfo, int pointer)
+        internal override void Process(string[] str, LayerInfoResult layerInfoResult, int pointer)
         {
-            layerInfo.PrimaryClassifier = str[pointer];
+            layerInfoResult.Value.PrimaryClassifier = str[pointer];
             pointer++;
-            NextSection?.Process(str, layerInfo, pointer);
+            NextSection?.Process(str, layerInfoResult, pointer);
         }
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {

@@ -167,12 +167,12 @@
 						</Value>
 					</Assign>
 					<Assign>
-						<StatusReference Value="пр"/>
+						<StatusReference Value="неутв"/>
 						<Value>
 							<Color>
 								<Red>0</Red>
-								<Green>255</Green>
-								<Blue>255</Blue>
+								<Green>153</Green>
+								<Blue>153</Blue>
 							</Color>
 						</Value>
 					</Assign>

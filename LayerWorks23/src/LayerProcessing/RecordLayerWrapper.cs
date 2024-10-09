@@ -13,9 +13,15 @@ namespace LayerWorks.LayerProcessing
     /// </summary>
     public class RecordLayerWrapper : LayerWrapper
     {
+        private static IRepository<string, LayerProps> _repository;
         private DBObjectWrapper<LayerTableRecord> _boundLayer = null!;
 
         protected static EventHandler? LayerStandartizedEvent;
+        
+        static RecordLayerWrapper()
+        {
+            _repository = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
+        }
         /// <summary>
         /// Связанный слой (объект LayerTableRecord)
         /// </summary>
@@ -39,8 +45,7 @@ namespace LayerWorks.LayerProcessing
         /// <exception cref="NotImplementedException">Метод не реализован (пока не понадобился)</exception>
         public override void Push()
         {
-            var standardReader = LoaderCore.NcetCore.ServiceProvider.GetService<IRepository<string, LayerProps>>();
-            bool success = standardReader!.TryGet(LayerInfo.TrueName, out var props);
+            bool success = _repository.TryGet(LayerInfo.TrueName, out var props);
             if (!success)
                 throw new NoPropertiesException($"Отсутствует стандарт для слоя {BoundLayer.Name}");
             WriteLayerProps(props!);
@@ -50,8 +55,7 @@ namespace LayerWorks.LayerProcessing
         internal StatedLayerProps ReadLayerProps()
         {
             var transaction = Workstation.TransactionManager.TopTransaction;
-            IRepository<string, LayerProps> reader = LoaderCore.NcetCore.ServiceProvider.GetService<IRepository<string, LayerProps>>()!;
-            _ = reader.TryGet(LayerInfo.TrueName, out var standard);
+            _ = _repository.TryGet(LayerInfo.TrueName, out var standard);
             StatedLayerProps layerProps = standard?.ToStatedLayerProps() ?? new();
 
             layerProps.LinetypeName = ((LinetypeTableRecord)transaction.GetObject(BoundLayer.LinetypeObjectId, OpenMode.ForRead)).Name;

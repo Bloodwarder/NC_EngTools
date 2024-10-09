@@ -30,7 +30,7 @@ namespace NameParserTest
         [Test]
         public void LayerInfoTestWhenProper()
         {
-            _layerInfo = _parser!.GetLayerInfo("ИС_ЭС_л_КЛ_0.4кВ_пр");
+            _layerInfo = _parser!.GetLayerInfo("ИС_ЭС_л_КЛ_0.4кВ_пр").Value;
             Assert.That(_layerInfo, Is.Not.Null);
             _layerInfo.ChangeAuxilaryData("ExternalProject", "ВСМ-2017");
             Assert.That(_layerInfo.Name, Is.EqualTo("ИС_[ВСМ-2017]_ЭС_л_КЛ_0.4кВ_неутв"));
@@ -57,7 +57,7 @@ namespace NameParserTest
         [Test]
         public void LayerInfoWhenSwitchStatusShouldDiscardAuxData()
         {
-            _layerInfo = _parser!.GetLayerInfo("ИС_[Кучино - М-7]_ГС_л_распред_0.6_неутв");
+            _layerInfo = _parser!.GetLayerInfo("ИС_[Кучино - М-7]_ГС_л_распред_0.6_неутв").Value;
             string? aux = _layerInfo.AuxilaryData["ExternalProject"];
             Assert.That(aux, Is.EqualTo("Кучино - М-7"));
             _layerInfo.SwitchStatus("пр");
@@ -69,7 +69,7 @@ namespace NameParserTest
         [Test]
         public void LayerInfoWhenSwitchStatusShouldDiscardSuffix()
         {
-            _layerInfo = _parser!.GetLayerInfo("ИС_[Кучино - М-7]_ГС_л_распред_0.6_неутв_пер");
+            _layerInfo = _parser!.GetLayerInfo("ИС_[Кучино - М-7]_ГС_л_распред_0.6_неутв_пер").Value;
             bool? tagged = _layerInfo.SuffixTagged["Reconstruction"];
             Assert.That(tagged, Is.EqualTo(true));
             _layerInfo.SwitchStatus("пр");
