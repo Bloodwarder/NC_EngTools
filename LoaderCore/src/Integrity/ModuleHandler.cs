@@ -45,6 +45,8 @@ namespace LoaderCore.Integrity
 
         internal void Update()
         {
+            /// Вызовы логгера напрямую, так как в этом методе не должно быть зависимостей
+
             if (Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled))
             {
                 LoggingRouter.LogInformation?.Invoke("Отладочная сборка - обновление не производится");
