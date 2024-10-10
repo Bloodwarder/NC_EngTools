@@ -19,7 +19,7 @@ namespace LayerWorks.Legend
             var config = LoaderCore.NcetCore.ServiceProvider.GetService<IConfiguration>();
             LegendGridParameters lgp = new();
             config?.GetSection("LayerWorksConfiguration:LegendGridParameters").Bind(lgp);
-            _legendGridParameters = lgp ?? LegendGridParameters.GetDefault();
+            _legendGridParameters = lgp ?? LegendGridParameters.GetDefault(); // TODO: бесполезная строка - lgp в худшем случае будет с нулевыми величинами. Убрать или сменить на валидацию
         }
         internal LegendGrid(IEnumerable<LegendGridCell> cells, Point3d basepoint, string name)
         {

@@ -1,13 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <сonfiguration>
-<ShowStartup>true</ShowStartup>
+	<ShowStartup>true</ShowStartup>
 	<Directories>
 		<LocalDirectory></LocalDirectory>
 		<UpdateDirectory></UpdateDirectory>
 	</Directories>
+	<Logging>
+		<EditorLogLevel>Information</EditorLogLevel>
+		<CommandLogLevel>Trace</CommandLogLevel>
+	</Logging>
 	<LayerWorksConfiguration Module="LayerWorks">
 		<Enabled>true</Enabled>
 		<UpdateEnabled>true</UpdateEnabled>
+		<DefaultParsers>
+			<Parser>ИС</Parser>
+		</DefaultParsers>
 		<NameParserPaths>
 			<LayerWorksPath>
 				<Type>Shared</Type>

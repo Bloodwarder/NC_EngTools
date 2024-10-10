@@ -16,11 +16,26 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
+				<xs:element name="Logging">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="EditorLogLevel" type="xs:string"/>
+							<xs:element name="CommandLogLevel" type="xs:string"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
 				<xs:element name="LayerWorksConfiguration">
 					<xs:complexType>
 						<xs:sequence>
 							<xs:element name="Enabled" type="xs:boolean" />
 							<xs:element name="UpdateEnabled" type="xs:boolean" />
+							<xs:element name="DefaultParsers">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element maxOccurs="unbounded" name="Parser" type="xs:string"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
 							<xs:element name="NameParserPaths">
 								<xs:complexType>
 									<xs:sequence>

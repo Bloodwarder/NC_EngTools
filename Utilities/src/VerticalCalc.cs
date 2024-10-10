@@ -1,5 +1,8 @@
 ﻿using HostMgd.EditorInput;
+using LoaderCore;
 using LoaderCore.Configuration;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using NanocadUtilities;
 using System.Data;
 using System.Text;
@@ -19,14 +22,16 @@ namespace Utilities
 
         static VerticalCalc()
         {
-            var v = Configuration.Utilities.Vertical;
+            var configSection = NcetCore.ServiceProvider.GetRequiredService<IConfiguration>().GetSection("UtilitiesConfiguration:Vertical");
+            Vertical parameters = new Vertical();
+            configSection.Bind(parameters);
 
-            BlackMarkTag = v.BlackMarkTag ?? "СУЩ_ОТМ";
-            RedMarkTag = v.RedMarkTag ?? "КР_ОТМ";
-            SlopeTag = v.SlopeTag ?? "УКЛОН";
-            DistanceTag = v.DistanceTag ?? "РАССТОЯНИЕ";
-            ElevationMarkBlockName = v.ElevationMarkBlockName ?? "ВП_отметки_блок_241120";
-            SlopeBlockName = v.SlopeBlockName ?? "ВП уклоны блок_041219";
+            BlackMarkTag = parameters.BlackMarkTag ?? "СУЩ_ОТМ";
+            RedMarkTag = parameters.RedMarkTag ?? "КР_ОТМ";
+            SlopeTag = parameters.SlopeTag ?? "УКЛОН";
+            DistanceTag = parameters.DistanceTag ?? "РАССТОЯНИЕ";
+            ElevationMarkBlockName = parameters.ElevationMarkBlockName ?? "ВП_отметки_блок_241120";
+            SlopeBlockName = parameters.SlopeBlockName ?? "ВП уклоны блок_041219";
 
         }
 

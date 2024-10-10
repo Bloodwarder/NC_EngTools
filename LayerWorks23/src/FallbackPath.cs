@@ -10,15 +10,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static LoaderCore.Configuration.Configuration;
 
 namespace LayerWorks
 {
     internal static class FallbackPath
     {
         private const string RelatedConfigSection = "LayerWorksConfiguration";
-        private static LayerWorksConfiguration _configuration = 
-            LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IConfiguration>().GetValue<LayerWorksConfiguration>(RelatedConfigSection);
+        //private static LayerWorksConfiguration _configuration = 
+        //    LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IConfiguration>().GetValue<LayerWorksConfiguration>(RelatedConfigSection);
         internal static string? DocumentOverride
         {
             get

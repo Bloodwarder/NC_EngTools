@@ -106,7 +106,7 @@ namespace NameClassifiers
                 bool isValid = validators.TrueForAll(v => v.ValidateLayerInfo(this));
                 if (!isValid)
                 {
-                    bool isAssingedValid = validators.TrueForAll(v => v.Transform(this)); // TODO: Метод, изменяющий состояние в проверке. Изменить.
+                    bool isAssingedValid = validators.TrueForAll(v => v.Transform(this)); // TODO: Метод, изменяющий состояние, в проверке. Изменить.
                     if (!isAssingedValid)
                         throw new WrongLayerException($"Нельзя назначить суффикс с тегом \"{key}\" для указанного объекта");
                 }
