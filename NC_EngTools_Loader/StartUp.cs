@@ -11,7 +11,7 @@ namespace StartUp
 {
     public class StartUp : IExtensionApplication
     {
-        const string DefaultSourceDirectory = @"\\Comp575\обмен - коновалов\NC_EngTools";
+        const string DefaultSourceDirectory = @"\\Comp575\обмен - коновалов\NC_EngTools 2.0";
         const string LoaderCoreDirectory = @"ExtensionLibraries\LoaderCore";
         const string LoaderCoreAssemblyName = "LoaderCore.dll";
         const string ConfigurationXmlName = "Configuration.xml";
@@ -35,7 +35,7 @@ namespace StartUp
                     }
                     catch (System.Exception)
                     {
-                        return default;
+                        return DefaultSourceDirectory;
                         //_sourceDirectory = DefaultSourceDirectory;
                     }
                 }
@@ -50,18 +50,17 @@ namespace StartUp
         public void Initialize()
         {
             Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage("Загрузка NC_EngTools");
-            FileInfo localLoaderAssemblyFile = new FileInfo(Path.Combine(LocalStartUpAssemblyFile.DirectoryName,
+            FileInfo localLoaderAssemblyFile = new(Path.Combine(LocalStartUpAssemblyFile.DirectoryName,
                                                                          LoaderCoreDirectory,
                                                                          LoaderCoreAssemblyName));
-            FileInfo sourceLoaderAssemblyFile = new FileInfo(Path.Combine(SourceDirectory,
+            FileInfo sourceLoaderAssemblyFile = new(Path.Combine(SourceDirectory,
                                                                           LoaderCoreDirectory,
                                                                           LoaderCoreAssemblyName)); // При отсутствии директории обновлений указывает на тот же файл. Мешать не должно, но и суть неверная
-            FileInfo localConfigurationXml = new FileInfo(ConfigurationXmlName);
-            FileInfo sourceConfigurationXml = new FileInfo(Path.Combine(SourceDirectory, ConfigurationXmlName));
+            FileInfo localConfigurationXml = new(ConfigurationXmlName);
+            FileInfo sourceConfigurationXml = new(Path.Combine(SourceDirectory, ConfigurationXmlName));
             try
             {
                 UpdateFile(localLoaderAssemblyFile, sourceLoaderAssemblyFile, out _);
-                //UpdateFile(localConfigurationXml, sourceConfigurationXml, out bool xmlupdated);
             }
             catch (System.Exception ex)
             {
@@ -94,7 +93,7 @@ namespace StartUp
                 return;
             }
             MethodInfo initializeMethod = loaderType.GetMethod("Initialize");
-            initializeMethod.Invoke(null, null);
+            initializeMethod?.Invoke(null, null);
         }
 
         /// <summary>

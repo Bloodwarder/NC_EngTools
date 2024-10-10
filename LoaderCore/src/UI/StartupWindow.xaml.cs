@@ -25,7 +25,7 @@ namespace LoaderCore.UI
 
             InitializeComponent();
 
-            LoggingRouter.WriteLog += LogWindow;
+            LoggingRouter.LogInformation += LogWindow;
 
 #nullable disable warnings
             chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("ShowStartup").Value);
@@ -44,12 +44,12 @@ namespace LoaderCore.UI
             using (StreamReader reader = new StreamReader(patchNotesPath))
             {
                 string line;
-                LoggingRouter.WriteLog("Последние обновления:");
+                LoggingRouter.LogInformation("Последние обновления:");
                 while ((line = reader.ReadLine()) != "" || reader.EndOfStream)
                 {
-                    LoggingRouter.WriteLog(line.Replace("\t", ""));
+                    LoggingRouter.LogInformation(line.Replace("\t", ""));
                 }
-                LoggingRouter.WriteLog("\n");
+                LoggingRouter.LogInformation("\n");
             }
         }
 
@@ -110,7 +110,7 @@ namespace LoaderCore.UI
             //    _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value = tbSourcePath.Text;
             _xmlConfig.Save(_xmlConfigPath);
 #nullable restore
-            LoggingRouter.WriteLog -= LogWindow;
+            LoggingRouter.LogInformation -= LogWindow;
         }
 
         private void UpdateButtonClick(object sender, RoutedEventArgs e)

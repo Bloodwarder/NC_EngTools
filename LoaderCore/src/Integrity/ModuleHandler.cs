@@ -47,7 +47,7 @@ namespace LoaderCore.Integrity
         {
             if (Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled))
             {
-                LoggingRouter.WriteLog?.Invoke("Отладочная сборка - обновление не производится");
+                LoggingRouter.LogInformation?.Invoke("Отладочная сборка - обновление не производится");
                 //NcetCore.Logger?.LogInformation("Отладочная сборка - обновление не производится");
                 return;
             }
@@ -56,7 +56,7 @@ namespace LoaderCore.Integrity
             {
                 string message = "Ошибка. Источник обновлений недоступен";
                 Exception ex = new(message);
-                LoggingRouter.WriteLog?.Invoke(message);
+                LoggingRouter.LogInformation?.Invoke(message);
                 //NcetCore.Logger?.LogCritical(ex, message);
                 throw ex;
             }
@@ -77,7 +77,7 @@ namespace LoaderCore.Integrity
                                                              NcetCore.RootUpdateDirectory!,
                                                              NcetCore.RootLocalDirectory),
                                                                 true);
-                    LoggingRouter.WriteLog?.Invoke($"Файл {newLocalFile.Name} обновлён");
+                    LoggingRouter.LogInformation?.Invoke($"Файл {newLocalFile.Name} обновлён");
                     //NcetCore.Logger?.LogInformation($"Файл {newLocalFile.Name} обновлён");
                     updated = true;
                 }
@@ -88,7 +88,7 @@ namespace LoaderCore.Integrity
                     localFile.Delete();
                 updated = true;
             }
-            LoggingRouter.WriteLog?.Invoke(updated ? $"Модуль {Name} обновлён" : $"Модуль {Name} в актуальном состоянии");
+            LoggingRouter.LogInformation?.Invoke(updated ? $"Модуль {Name} обновлён" : $"Модуль {Name} в актуальном состоянии");
             //NcetCore.Logger?.LogInformation(updated ? $"Модуль {Name} обновлён" : $"Модуль {Name} в актуальном состоянии");
         }
 
