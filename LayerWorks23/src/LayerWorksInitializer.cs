@@ -20,7 +20,8 @@ namespace LayerWorks
         public void PostInitialize()
         {
             LoadParsers();
-            InitializeRepositories();
+            //InitializeRepositories();
+            _ = InitializeRepositoriesAsync();
         }
 
         private static void RegisterServices()
@@ -53,6 +54,11 @@ namespace LayerWorks
             _ = NcetCore.ServiceProvider.GetService<IRepository<string, LegendData>>();
             _ = NcetCore.ServiceProvider.GetService<IRepository<string, LegendDrawTemplate>>();
             _ = NcetCore.ServiceProvider.GetService<IRepository<string, string>>();
+        }
+
+        private static async Task InitializeRepositoriesAsync()
+        {
+            await Task.Run(() => InitializeRepositories());
         }
     }
 }
