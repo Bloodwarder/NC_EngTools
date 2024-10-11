@@ -20,7 +20,6 @@ namespace LayerWorks
         public void PostInitialize()
         {
             LoadParsers();
-            //InitializeRepositories();
             _ = InitializeRepositoriesAsync();
         }
 
@@ -39,7 +38,14 @@ namespace LayerWorks
                                     .Get<LayerWorksPath[]>()!
                                     .Where(p => p.Type == PathRoute.Local)
                                     .Single();
-            var parserXmlFiles = parsersPath.DirectoryInfo!.GetFiles("LayerParser_*.xml").Select(p => p.FullName).ToArray();
+            var defaultLoadedParsers = config.GetSection("LayerWorksConfiguration:DefaultParsers:Parser")?.Get<string[]>();
+            
+            Func<string, bool> predicate = defaultLoadedParsers == null ? s => true : s => defaultLoadedParsers.Any(p => s.EndsWith(p));
+
+            var parserXmlFiles = parsersPath.DirectoryInfo!.GetFiles("LayerParser_*.xml")
+                                                           .Select(p => p.FullName)
+                                                           .Where(predicate)
+                                                           .ToArray();
             foreach (var file in parserXmlFiles)
             {
                 NameParser.Load(file);
@@ -48,7 +54,6 @@ namespace LayerWorks
 
         private static void InitializeRepositories()
         {
-            // TODO: по возможности сделать асинхронным - вызывает короткое подвисание (потому что читает всю базу)
             // Заранее инициализировать репозитории, чтобы не было задержки при первом выполнении команды, запрашивающей данные из репозитория
             _ = NcetCore.ServiceProvider.GetService<IRepository<string, LayerProps>>();
             _ = NcetCore.ServiceProvider.GetService<IRepository<string, LegendData>>();
