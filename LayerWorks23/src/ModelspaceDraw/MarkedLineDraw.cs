@@ -3,8 +3,7 @@ using LayersIO.DataTransfer;
 
 //Modules
 using LayerWorks.LayerProcessing;
-using LoaderCore.Configuration;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 using LayerWorks.Legend;
 //nanoCAD
 using Teigha.DatabaseServices;

@@ -1,15 +1,6 @@
-﻿using HostMgd.ApplicationServices;
-using LoaderCore.Configuration;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using NameClassifiers;
-using NanocadUtilities;
-using System;
-using System.Collections.Generic;
+﻿using NameClassifiers;
+using LoaderCore.NanocadUtilities;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LayerWorks
 {

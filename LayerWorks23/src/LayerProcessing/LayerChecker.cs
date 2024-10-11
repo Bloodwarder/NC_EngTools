@@ -5,7 +5,7 @@ using LoaderCore.Interfaces;
 using LoaderCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 using System.IO;
 using Teigha.Colors;
 //nanoCAD

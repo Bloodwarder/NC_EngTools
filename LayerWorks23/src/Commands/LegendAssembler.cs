@@ -6,16 +6,16 @@ using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
 using LoaderCore.Interfaces;
+using LoaderCore.NanocadUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
-using NanocadUtilities;
 using System.Text;
 using Teigha.Colors;
 using Teigha.DatabaseServices;
 //internal modules
 using Teigha.Geometry;
 using Teigha.Runtime;
-using static NanocadUtilities.EditorHelper;
+using static LoaderCore.NanocadUtilities.EditorHelper;
 
 namespace LayerWorks.Commands
 {
@@ -30,11 +30,8 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Автосборка условных обозначений на основе слоёв чертежа и логики LayerParser
         /// </summary>
-        [CommandMethod("АВТОСБОРКА")]
         public static void Assemble()
         {
-            Workstation.Define();
-
             //получить точку вставки
             PromptPointOptions ppo = new("Укажите точку вставки")
             {

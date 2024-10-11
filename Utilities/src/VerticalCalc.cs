@@ -3,12 +3,13 @@ using LoaderCore;
 using LoaderCore.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 using System.Data;
 using System.Text;
 using Teigha.Colors;
 using Teigha.DatabaseServices;
 using Teigha.Runtime;
+
 using static Utilities.EntitySelector;
 
 namespace Utilities
@@ -16,7 +17,7 @@ namespace Utilities
     /// <summary>
     /// Класс команд для вертикальной планировки
     /// </summary>
-    public class VerticalCalc
+    public static class VerticalCalc
     {
         const string WrongEntityErrorString = "Выбран неверный объект. Завершение команды";
 
@@ -44,11 +45,8 @@ namespace Utilities
 
         private static double LastHorStep { get; set; } = 0.2d;
 
-        [CommandMethod("УКЛОН")]
         public static void SlopeCalc()
         {
-            Workstation.Define();
-
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
@@ -82,10 +80,8 @@ namespace Utilities
             }
         }
 
-        [CommandMethod("СЛ_ОТМ")]
         public static void NextMark()
         {
-            Workstation.Define();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
@@ -126,10 +122,8 @@ namespace Utilities
             }
         }
 
-        [CommandMethod("СР_ОТМ")]
         public static void AverageLevel()
         {
-            Workstation.Define();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
@@ -166,10 +160,8 @@ namespace Utilities
             }
         }
 
-        [CommandMethod("ГОРИЗ_РАСЧ")]
         public static void HorizontalCalc()
         {
-            Workstation.Define();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
@@ -244,10 +236,8 @@ namespace Utilities
 
         }
 
-        [CommandMethod("КРАСН_ЧЕРН_УРАВН", CommandFlags.Redraw)]
         public static void RedBlackEqual()
         {
-            Workstation.Define();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 PromptSelectionResult result = Workstation.Editor.SelectImplied();

@@ -4,11 +4,9 @@ using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Teigha.DatabaseServices;
 using Microsoft.Extensions.DependencyInjection;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 using Teigha.Geometry;
 
 namespace GeoMod.GeometryConverters

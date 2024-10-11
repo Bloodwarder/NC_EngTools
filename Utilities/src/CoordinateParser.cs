@@ -1,6 +1,6 @@
 ﻿using LoaderCore.Interfaces;
 using LoaderCore;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 using System.Text.RegularExpressions;
 using System.Windows;
 using Teigha.DatabaseServices;
@@ -13,10 +13,8 @@ namespace Utilities
 {
     public static class CoordinateParser
     {
-        [CommandMethod("ПЛЭКСЕЛЬ")]
         public static void ExcelCoordinatesToPolyline()
         {
-            Workstation.Define();
             string? clipboardText = Clipboard.GetText();
             string? clipboardModified = clipboardText.Replace(",", ".");
             var matches = Regex.Matches(clipboardModified, @"(\d*\.\d{1,4})\t(\d*\.\d{1,4})"); // ищет пары координат, разделённые табуляцией

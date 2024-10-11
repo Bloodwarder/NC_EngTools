@@ -2,7 +2,7 @@
 using LoaderCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 using System.Text.RegularExpressions;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
@@ -14,7 +14,7 @@ namespace Utilities
     /// <summary>
     /// Класс для создания подписей сегментам полилинии
     /// </summary>
-    public class Labeler
+    public static class Labeler
     {
         private const double DefaultLabelTextHeight = 3.6d;
         private const double DefaultLabelBackgroundScaleFactor = 1.1d;
@@ -35,9 +35,8 @@ namespace Utilities
         /// Создать подпись для сегмента полилинии
         /// </summary>
         [CommandMethod("ПОДПИСЬ")]
-        public void LabelDraw()
+        public static void LabelDraw()
         {
-            Workstation.Define();
             try
             {
                 using (Transaction tr = Workstation.TransactionManager.StartTransaction())
@@ -120,7 +119,7 @@ namespace Utilities
             }
         }
 
-        private void AssignBackgroundFactor()
+        private static void AssignBackgroundFactor()
         {
             PromptDoubleResult result = Workstation.Editor.GetDouble("Введите новый коэффициент фона текста:");
             if (result.Status != PromptStatus.OK)
@@ -130,7 +129,7 @@ namespace Utilities
             // TODO: обновить в файле конфигурации
         }
 
-        private void AssignNewTextHeight()
+        private static void AssignNewTextHeight()
         {
             PromptDoubleResult result = Workstation.Editor.GetDouble("Введите новый коэффициент фона текста:");
             if (result.Status != PromptStatus.OK)
@@ -143,7 +142,6 @@ namespace Utilities
         [CommandMethod("ТОРИЕНТ")]
         public static void TextOrientBy2Points()
         {
-            Workstation.Define();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
@@ -181,9 +179,8 @@ namespace Utilities
         }
 
         [CommandMethod("ПЛТОРИЕНТ")]
-        public void TextOrientByPolilineSegment()
+        public static void TextOrientByPolilineSegment()
         {
-            Workstation.Define();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
@@ -213,7 +210,7 @@ namespace Utilities
 
         }
 
-        private bool SegmentCheck(Point2d point, LineSegment2d entity)
+        private static bool SegmentCheck(Point2d point, LineSegment2d entity)
         {
             Point2d p1 = entity.StartPoint;
             Point2d p2 = entity.EndPoint;
@@ -237,12 +234,12 @@ namespace Utilities
             return (point.X > minx & point.X < maxx) & (point.Y > miny & point.Y < maxy);
         }
 
-        private double CalculateTextOrient(Vector2d v2d)
+        private static double CalculateTextOrient(Vector2d v2d)
         {
             return (v2d.Angle * 180 / Math.PI > 270 || v2d.Angle * 180 / Math.PI < 90) ? v2d.Angle : v2d.Angle + Math.PI;
         }
 
-        private LineSegment2d GetPolylineSegment(Polyline polyline, Point3d point)
+        private static LineSegment2d GetPolylineSegment(Polyline polyline, Point3d point)
         {
             Point3d pointonline = polyline.GetClosestPointTo(point, false);
 

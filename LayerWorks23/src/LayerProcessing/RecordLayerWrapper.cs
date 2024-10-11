@@ -3,7 +3,7 @@ using LayersIO.DataTransfer;
 using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing

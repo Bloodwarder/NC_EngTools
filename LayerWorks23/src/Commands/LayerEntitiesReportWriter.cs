@@ -1,15 +1,8 @@
-﻿using HostMgd.EditorInput;
-using HostMgd.Runtime;
-using LayersIO.Excel;
+﻿using LayersIO.Excel;
 using LayerWorks.LayerProcessing;
 using NameClassifiers;
-using NanocadUtilities;
-using System;
-using System.Collections.Generic;
+using LoaderCore.NanocadUtilities;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Teigha.DatabaseServices;
 using Teigha.Runtime;
 
@@ -19,7 +12,6 @@ namespace LayerWorks.Commands
     {
 
 
-        [CommandMethod("СЛОЙОТЧЕТ")]
         public static void WriteReport()
         {
             Workstation.Define();
@@ -58,7 +50,7 @@ namespace LayerWorks.Commands
                                           .ToArray();
                 string dwgPath = Workstation.Database.Filename;
                 var dir = new FileInfo(dwgPath).Directory;
-                var reportPath = Path.Combine(dir!.FullName, $"LayerReport_{DateTime.Now.ToShortTimeString().Replace(":","_")}.xlsx");
+                var reportPath = Path.Combine(dir!.FullName, $"LayerReport_{DateTime.Now.ToLongTimeString().Replace(":","-")}.xlsx");
                 var writer = new ExcelSimpleReportWriter<LayerEntityReport>(reportPath, "Report");
                 writer.ExportToExcel(foo.ToArray());
 

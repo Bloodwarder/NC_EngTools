@@ -8,22 +8,21 @@ using Teigha.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 //internal modules
 using LayersIO.DataTransfer;
-using LayerWorks.DataRepositories;
 using LayerWorks.LayerProcessing;
 using LoaderCore;
 using LoaderCore.Interfaces;
 using NameClassifiers;
 using NameClassifiers.Sections;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 
-using static NanocadUtilities.EditorHelper;
+using static LoaderCore.NanocadUtilities.EditorHelper;
 
 namespace LayerWorks.Commands
 {
     /// <summary>
     /// Класс с командами для работы с классифицированными слоями
     /// </summary>
-    public class LayersCommands
+    public class LayerAlterer
     {
         internal static string PrevStatus = "Сущ";
         internal static Dictionary<string, string> PreviousAssignedData { get; } = new();
@@ -33,7 +32,6 @@ namespace LayerWorks.Commands
         [CommandMethod("КАЛЬКА")]
         public static void TransparentOverlayToggle()
         {
-            Workstation.Define();
             string tgtlayer = LayerWrapper.StandartPrefix + "_Калька";
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
@@ -74,11 +72,8 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Изменение статуса объекта в соответствии с данными LayerParser
         /// </summary>
-        [CommandMethod("ИЗМСТАТУС", CommandFlags.Redraw)]
         public static void LayerStatusChange()
         {
-            Workstation.Define();
-
             NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].ExtractSectionInfo<StatusSection>(out string[] statuses,
                                                                                                      out Func<string, string> descriptions);
             string newStatus = GetStringKeywordResult(statuses, statuses.Select(s => descriptions(s)).ToArray(), $"Укажите статус объекта <{PrevStatus}>");
@@ -107,11 +102,8 @@ namespace LayerWorks.Commands
             }
         }
 
-        [CommandMethod("НОВСТАНДСЛОЙ")]
         public static void NewStandardLayer()
         {
-            Workstation.Define();
-
             // Выбрать парсер для загрузки слоёв
             string[] parserIds = NameParser.LoadedParsers.Keys.ToArray();
             string prefix = GetStringKeywordResult(parserIds, "Выберите глобальный классификатор");
@@ -160,11 +152,8 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Изменение типа объекта на альтернативный в соответствии с таблицей
         /// </summary>
-        [CommandMethod("АЛЬТЕРНАТИВНЫЙ", CommandFlags.Redraw)]
         public static void LayerAlter()
         {
-            Workstation.Define();
-
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
@@ -195,8 +184,7 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Назначение объекту/слою тега с определённым значением (BooleanSuffix)
         /// </summary>
-        [CommandMethod("ТЕГ", CommandFlags.Redraw)]
-        public static void LayerReconstruction()
+        public static void LayerTag()
         {
             Workstation.Define();
             NameParser workParser = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!];
@@ -227,7 +215,6 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Назначение объекту/слою имени внешнего проекта (неутверждаемого)
         /// </summary>
-        [CommandMethod("ДОПИНФО", CommandFlags.Redraw)]
         public static void AuxDataAssign()
         {
             Workstation.Define();
@@ -280,10 +267,8 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Приведение свойств объекта или текущих переменных чертежа к стандарту (ширина и масштаб типов линий)
         /// </summary>
-        [CommandMethod("СВС", CommandFlags.Redraw)]
         public static void StandartLayerValues()
         {
-            Workstation.Define();
             TransactionManager tm = Workstation.TransactionManager;
             Editor editor = Workstation.Editor;
 
@@ -310,10 +295,8 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Изменение обрабатываемого префикса слоёв
         /// </summary>
-        [CommandMethod("ПРЕФИКС")]
-        public void ChangePrefix()
+        public static void ChangePrefix()
         {
-            Workstation.Define();
             List<string> additionalOptions = new()
             {
                 "Переопределить",
@@ -343,12 +326,12 @@ namespace LayerWorks.Commands
             LayerWrapper.StandartPrefix = newprefix;
         }
 
-        private void RedefinePrefix()
+        private static void RedefinePrefix()
         {
             throw new NotImplementedException();
         }
 
-        private void LoadNewParser()
+        private static void LoadNewParser()
         {
             throw new NotImplementedException();
         }
