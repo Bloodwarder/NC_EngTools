@@ -4,7 +4,7 @@
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
 using NameClassifiers;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;

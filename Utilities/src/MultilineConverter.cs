@@ -2,7 +2,7 @@
 using LoaderCore;
 using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 using System.Data;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
@@ -13,15 +13,13 @@ namespace Utilities
     /// <summary>
     /// Конвертер мультилиний в полилинии
     /// </summary>
-    public class MultilineConverter
+    public static class MultilineConverter
     {
         /// <summary>
         /// Получить мультилинии с чертежа и конвертировать их в полилинии
         /// </summary>
-        [CommandMethod("МЛИНВПЛИН", CommandFlags.UsePickSet)]
-        public void ConvertMultilineToPolyline()
+        public static void ConvertMultilineToPolyline()
         {
-            Workstation.Define();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 // Получить объекты и отфильтровать мультилинии

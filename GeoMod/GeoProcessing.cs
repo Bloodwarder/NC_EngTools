@@ -1,24 +1,30 @@
-using GeoMod.GeometryConverters;
-using GeoMod.UI;
-using HostMgd.ApplicationServices;
-using HostMgd.EditorInput;
+//System
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+//Microsoft
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NanocadUtilities;
+// Nanocad
+using HostMgd.ApplicationServices;
+using HostMgd.EditorInput;
+using Teigha.DatabaseServices;
+using Teigha.Runtime;
+//Internal
+using LoaderCore;
+using LoaderCore.NanocadUtilities;
+using GeoMod.GeometryConverters;
+using GeoMod.UI;
+//NTS
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using NetTopologySuite.Operation.Buffer;
 using NetTopologySuite.Precision;
 using NetTopologySuite.Geometries.Utilities;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using Teigha.DatabaseServices;
-using Teigha.Runtime;
+
 using NtsBufferOps = NetTopologySuite.Operation.Buffer;
-using LoaderCore;
-using Microsoft.Extensions.Logging;
 
 namespace GeoMod
 {
@@ -27,7 +33,7 @@ namespace GeoMod
     /// <summary>
     /// Класс, содержащий гео-команды и вспомогательные данные для их функционирования
     /// </summary>
-    public class GeoCommands
+    public class GeoProcessing
     {
         private const string RelatedConfigurationSection = "GeoModConfiguration";
 
@@ -37,7 +43,7 @@ namespace GeoMod
         private static BufferParameters _defaultBufferParameters;
 
 
-        static GeoCommands()
+        static GeoProcessing()
         {
             var section = NcetCore.ServiceProvider.GetRequiredService<IConfiguration>();
             _configuration = section.GetRequiredSection(RelatedConfigurationSection);
@@ -57,10 +63,8 @@ namespace GeoMod
         /// <summary>
         /// Создание WKT текста из выбранных геометрий dwg и помещение его в буфер обмена
         /// </summary>
-        [CommandMethod("ВКТЭКСПОРТ", CommandFlags.UsePickSet)]
         public static void WktToClipboard()
         {
-            Workstation.Define();
             var geometryFactory = _geometryServices.CreateGeometryFactory();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
@@ -82,10 +86,8 @@ namespace GeoMod
             }
         }
 
-        [CommandMethod("ВКТИМПОРТ")]
         public static void GeometryFromClipboardWkt()
         {
-            Workstation.Define();
             var geometryFactory = _geometryServices.CreateGeometryFactory();
             string fromClipboard = System.Windows.Clipboard.GetText();
 
@@ -132,10 +134,8 @@ namespace GeoMod
         /// <summary>
         /// Создать буферную зону заданной величины от выбранных объектов
         /// </summary>
-        [CommandMethod("ЗОНА", CommandFlags.UsePickSet)]
         public static void SimpleZone()
         {
-            Workstation.Define();
             var geometryFactory = _geometryServices.CreateGeometryFactory();
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
@@ -191,10 +191,8 @@ namespace GeoMod
         /// <summary>
         /// Создать буферную зону от выбранных объектов с заданием величины для каждого слоя выбранных объектов
         /// </summary>
-        [CommandMethod("ЗОНАДИФФ", CommandFlags.UsePickSet)]
         public static void DiverseZone()
         {
-            Workstation.Define();
             var geometryFactory = _geometryServices.CreateGeometryFactory();
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
@@ -256,10 +254,8 @@ namespace GeoMod
             }
         }
 
-        [CommandMethod("ЗОНОБЪЕД", CommandFlags.UsePickSet)]
         public static void ZoneJoin()
         {
-            Workstation.Define();
             var geometryFactory = _geometryServices.CreateGeometryFactory();
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
@@ -360,10 +356,8 @@ namespace GeoMod
         }
 
         // TODO: реализовать добавление точек при частичном совпадении сторон полигонов
-        [CommandMethod("ОКРУГЛКООРД", CommandFlags.UsePickSet)]
-        public void ReduceCoordinatePrecision()
+        public static void ReduceCoordinatePrecision()
         {
-            Workstation.Define();
             var geometryFactory = _geometryServices.CreateGeometryFactory();
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
@@ -409,7 +403,7 @@ namespace GeoMod
             }
         }
 
-        private Polyline CopySourceProperties(Polyline p, Polyline source)
+        private static Polyline CopySourceProperties(Polyline p, Polyline source)
         {
             p.Layer = source.Layer;
             p.ConstantWidth = source.ConstantWidth;

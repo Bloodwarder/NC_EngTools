@@ -2,11 +2,10 @@
 
 //Modules
 using LayersIO.DataTransfer;
-using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;

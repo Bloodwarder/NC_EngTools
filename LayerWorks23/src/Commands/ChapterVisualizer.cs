@@ -3,15 +3,13 @@
 //nanoCAD
 using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
-using LayerWorks.HighlightFiltering;
+//internal modules
 using LayerWorks.LayerProcessing;
 using NameClassifiers;
 using NameClassifiers.Highlighting;
-//internal modules
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 using Teigha.DatabaseServices;
-using Teigha.Runtime;
-using static NanocadUtilities.EditorHelper;
+using static LoaderCore.NanocadUtilities.EditorHelper;
 
 namespace LayerWorks.Commands
 {
@@ -36,10 +34,8 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Подсветить слои для выбранного раздела (выключить остальные и визуализировать переустройство)
         /// </summary>
-        [CommandMethod("ВИЗРАЗДЕЛ")]
-        public void Visualizer()
+        public static void Visualizer()
         {
-            Workstation.Define();
             Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
             Editor editor = Workstation.Editor;
             Document doc = Workstation.Document;
@@ -106,7 +102,7 @@ namespace LayerWorks.Commands
         }
 
 
-        internal void NewLayerHighlight(object? sender, EventArgs e)
+        internal static void NewLayerHighlight(object? sender, EventArgs e)
         {
             Document doc = Workstation.Document;
 
@@ -118,7 +114,7 @@ namespace LayerWorks.Commands
             }
 
         }
-        private void ApplyVisualizer(Document doc, string result)
+        private static void ApplyVisualizer(Document doc, string result)
         {
             if (result == "Сброс")
             {

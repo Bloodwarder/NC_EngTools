@@ -1,12 +1,10 @@
 ﻿using LayersIO.DataTransfer;
-using LayersIO.ExternalData;
 using LoaderCore;
 using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NameClassifiers;
-using NanocadUtilities;
-using System.Security.Cryptography.X509Certificates;
+using LoaderCore.NanocadUtilities;
 using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing

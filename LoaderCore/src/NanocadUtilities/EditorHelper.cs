@@ -1,7 +1,7 @@
 ﻿using HostMgd.EditorInput;
+using System.Linq;
 
-
-namespace NanocadUtilities
+namespace LoaderCore.NanocadUtilities
 {
     public class EditorHelper
     {

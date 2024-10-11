@@ -2,7 +2,7 @@
 
 //Modules
 using LayerWorks.LayerProcessing;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 using Teigha.Colors;
 //nanoCAD
 using Teigha.DatabaseServices;

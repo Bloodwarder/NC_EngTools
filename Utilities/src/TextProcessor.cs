@@ -1,5 +1,5 @@
 ﻿using HostMgd.EditorInput;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 using System.Data;
 using System.Text.RegularExpressions;
 using Teigha.DatabaseServices;
@@ -18,7 +18,6 @@ namespace Utilities
         [CommandMethod("СМТ", CommandFlags.UsePickSet)]
         public static void StripMText()
         {
-            Workstation.Define();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 PromptSelectionOptions pso = new PromptSelectionOptions()
@@ -54,7 +53,6 @@ namespace Utilities
         [CommandMethod("НУЛЕВАЯШИРИНАТЕКСТА")]
         public static void AssignZeroWidth()
         {
-            Workstation.Define();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 PromptSelectionOptions pso = new PromptSelectionOptions()

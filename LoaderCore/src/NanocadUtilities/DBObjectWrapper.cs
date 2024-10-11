@@ -1,7 +1,8 @@
-﻿using Teigha.DatabaseServices;
+﻿using System;
+using Teigha.DatabaseServices;
 
 
-namespace NanocadUtilities
+namespace LoaderCore.NanocadUtilities
 {
 
     /// <summary>
@@ -13,7 +14,7 @@ namespace NanocadUtilities
         private readonly ObjectId _id;
         private readonly OpenMode _openMode;
         private readonly T _object;
-        private Getter _getHandler;
+        private Getter _getHandler = null!;
 
         public DBObjectWrapper(ObjectId id, OpenMode openMode)
         {

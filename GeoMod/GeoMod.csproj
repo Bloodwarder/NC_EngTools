@@ -52,11 +52,6 @@
 			<Private>False</Private>
 			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 		</ProjectReference>
-		<ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj">
-			<PrivateAssets>All</PrivateAssets>
-			<Private>False</Private>
-			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
-		</ProjectReference>
 	</ItemGroup>
 
 	<ItemGroup>

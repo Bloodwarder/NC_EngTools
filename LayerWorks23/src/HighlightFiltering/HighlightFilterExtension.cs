@@ -1,6 +1,6 @@
 ﻿using LayerWorks.LayerProcessing;
 using NameClassifiers.Highlighting;
-using static NanocadUtilities.EditorHelper;
+using static LoaderCore.NanocadUtilities.EditorHelper;
 
 namespace LayerWorks.HighlightFiltering
 {

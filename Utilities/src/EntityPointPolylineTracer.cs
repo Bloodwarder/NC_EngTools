@@ -2,19 +2,18 @@
 using LoaderCore;
 using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using Teigha.Runtime;
 
 namespace Utilities
 {
-    public class EntityPointPolylineTracer
+    public static partial class EntityPointPolylineTracer
     {
         [CommandMethod("ОБЪЕКТСОЕД")]
-        public void TracePolyline()
+        public static void TracePolyline()
         {
-            Workstation.Define();
             // Объявить переменную для сохранения id создаваемой полилинии
             ObjectId polylineId;
             // Получаем первые 2 объекта и создаём полилинию из двух точек
@@ -97,10 +96,6 @@ namespace Utilities
                 default:
                     throw new NotImplementedException();
             }
-        }
-
-        internal class CancelledByUserException : System.Exception
-        {
         }
     }
 

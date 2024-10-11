@@ -1,5 +1,5 @@
 ﻿using HostMgd.EditorInput;
-using NanocadUtilities;
+using LoaderCore.NanocadUtilities;
 using Teigha.DatabaseServices;
 
 namespace Utilities

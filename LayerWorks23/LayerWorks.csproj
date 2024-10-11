@@ -41,10 +41,6 @@
 			<PrivateAssets>All</PrivateAssets>
 			<Private>False</Private>
 		</ProjectReference>
-		<ProjectReference Include="..\NanocadCore\NanocadUtilities.csproj">
-			<PrivateAssets>All</PrivateAssets>
-			<Private>False</Private>
-		</ProjectReference>
 	</ItemGroup>
 
 	<ItemGroup>
