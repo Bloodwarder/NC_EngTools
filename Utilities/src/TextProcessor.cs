@@ -15,7 +15,6 @@ namespace Utilities
         /// <summary>
         /// Убирает форматирование из МТекста, если оно задано не стилем, а внутри текста
         /// </summary>
-        [CommandMethod("СМТ", CommandFlags.UsePickSet)]
         public static void StripMText()
         {
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
@@ -50,7 +49,6 @@ namespace Utilities
         /// <summary>
         /// Назначает тексту нулевую ширину для удобства автоматической обработки выравнивания и фона
         /// </summary>
-        [CommandMethod("НУЛЕВАЯШИРИНАТЕКСТА")]
         public static void AssignZeroWidth()
         {
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())

@@ -34,9 +34,13 @@ namespace NameClassifiers
 
 
         public bool IsValid => Prefix != null
-                       && PrimaryClassifier != null
-                       && SecondaryClassifiers != null
-                       && Status != null;
+                               && PrimaryClassifier != null
+                               && AuxilaryClassifiers.All(kvp => kvp.Value != null)
+                               && (AuxilaryClassifiers.Any()
+                                   && ParentParser.AuxilaryClassifiers.All(a => AuxilaryClassifiers.ContainsKey(a.Key))
+                                   || !ParentParser.AuxilaryClassifiers.Keys.Any())
+                               && SecondaryClassifiers != null
+                               && (Status != null || ParentParser.Status == null);
         /// <summary>
         /// Изменить статус
         /// </summary>

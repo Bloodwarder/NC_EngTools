@@ -1,6 +1,5 @@
 ﻿//System
 using LayersIO.DataTransfer;
-using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
 using LoaderCore.Interfaces;

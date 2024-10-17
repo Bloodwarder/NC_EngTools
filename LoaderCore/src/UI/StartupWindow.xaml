@@ -91,7 +91,8 @@
             </DockPanel>
         </Grid>
         <ScrollViewer Grid.Row="1" Margin="3,5,3,3" BorderBrush="#FF4A4A4A" Background="Gainsboro">
-            <FlowDocument x:Name="fdLog" FontSize="12" Foreground="Blue" TextAlignment="Left"/>
+            <FlowDocument x:Name="fdLog" FontSize="14" Foreground="Blue" TextAlignment="Left" FontFamily="Corbel" ColumnWidth="650" LineHeight="5">
+            </FlowDocument>
             <!--<TextBlock x:Name="tbLog" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="12" Foreground="Blue" TextWrapping="Wrap"/>-->
         </ScrollViewer>
     </Grid>

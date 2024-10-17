@@ -1,5 +1,4 @@
 ﻿using LayersIO.DataTransfer;
-using LayersIO.ExternalData;
 using LayerWorks.ModelspaceDraw;
 using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;

@@ -18,7 +18,6 @@ namespace NameClassifiers.Sections
         {
             XAttribute bracketsAttr = xElement.Attribute("Brackets") ?? throw new NameParserInitializeException("Отсутствуют скобки для дополнительных данных");
             XAttribute descriptionAttr = xElement.Attribute("Description") ?? throw new NameParserInitializeException("Отсутcтвует описание дополнительных данных");
-            //Validation = new LayerInfoValidation(validationElement);
             Description = descriptionAttr.Value;
             Brackets = new[] { bracketsAttr.Value[0], bracketsAttr.Value[1] };
             parentParser.AuxilaryData.Add(Name, this);

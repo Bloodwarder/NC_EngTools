@@ -1,12 +1,11 @@
 ﻿//System
-
+//Microsoft
+using Microsoft.Extensions.DependencyInjection;
 //Modules
-//nanoCAD
 using LayersIO.DataTransfer;
-using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LoaderCore.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
+//nanoCAD
 using Teigha.Colors;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;

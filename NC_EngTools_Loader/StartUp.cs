@@ -31,7 +31,7 @@ namespace StartUp
                     try
                     {
                         XDocument xDocument = XDocument.Load(ConfigurationXmlName);
-                        _sourceDirectory = xDocument.Root.Element("Directories").Element("UpdateDirectory").Value;
+                        _sourceDirectory = xDocument.Root?.Element("Directories")?.Element("UpdateDirectory")?.Value;
                     }
                     catch (System.Exception)
                     {
@@ -50,12 +50,12 @@ namespace StartUp
         public void Initialize()
         {
             Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage("Загрузка NC_EngTools");
-            FileInfo localLoaderAssemblyFile = new(Path.Combine(LocalStartUpAssemblyFile.DirectoryName,
-                                                                         LoaderCoreDirectory,
-                                                                         LoaderCoreAssemblyName));
+            FileInfo localLoaderAssemblyFile = new(Path.Combine(LocalStartUpAssemblyFile.DirectoryName!,
+                                                                LoaderCoreDirectory,
+                                                                LoaderCoreAssemblyName));
             FileInfo sourceLoaderAssemblyFile = new(Path.Combine(SourceDirectory,
-                                                                          LoaderCoreDirectory,
-                                                                          LoaderCoreAssemblyName)); // При отсутствии директории обновлений указывает на тот же файл. Мешать не должно, но и суть неверная
+                                                                 LoaderCoreDirectory,
+                                                                 LoaderCoreAssemblyName)); // При отсутствии директории обновлений указывает на тот же файл. Мешать не должно, но и суть неверная
             FileInfo localConfigurationXml = new(ConfigurationXmlName);
             FileInfo sourceConfigurationXml = new(Path.Combine(SourceDirectory, ConfigurationXmlName));
             try

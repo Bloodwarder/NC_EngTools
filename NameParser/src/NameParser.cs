@@ -130,7 +130,7 @@ namespace NameClassifiers
         public string Separator { get; internal set; } = null!;
 
         public Dictionary<string, string> AuxilaryDataKeys => AuxilaryData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Description);
-        public Dictionary<string, string> AuxilaryClassifiersKeys => AuxilaryData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Description);
+        public Dictionary<string, string> AuxilaryClassifiersKeys => AuxilaryClassifiers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Description);
         public Dictionary<string, string> SuffixKeys => Suffixes.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Description);
         internal PrimaryClassifierSection PrimaryClassifier => FindParserSection<PrimaryClassifierSection>();
         internal Dictionary<string, AuxilaryClassifierSection> AuxilaryClassifiers { get; } = new();
@@ -163,7 +163,8 @@ namespace NameClassifiers
             try
             {
                 Processor!.Process(decomposition, layerInfoResult, pointer);
-                layerInfoResult.Status = LayerInfoParseStatus.Success;
+                if (layerInfoResult.Status == LayerInfoParseStatus.NotProcessed)
+                    layerInfoResult.Status = LayerInfoParseStatus.Success;
                 return layerInfoResult;
             }
             catch (IndexOutOfRangeException ex)
@@ -182,9 +183,9 @@ namespace NameClassifiers
         }
 
 
-        internal ParserSection GetSection(Type type)
+        internal ParserSection? GetSection(Type type)
         {
-            var section = _sections.Where(s => s.GetType() == type).Single();
+            var section = _sections.Where(s => s.GetType() == type).SingleOrDefault();
             return section;
         }
         internal ParserSection GetSection(Type type, string name)
@@ -212,7 +213,7 @@ namespace NameClassifiers
         {
             GetSection<T>(name).ExtractFullInfo(out keywords, out descriptions);
         }
-        
+
 
         public string[] GetStatusArray() => Status.GetDescriptionDictionary().Keys.ToArray();
 

@@ -17,7 +17,7 @@ namespace LoaderCore.Utilities
             {
                 bool success = _fileStructure.TryAdd(file.Name, file);
                 if (!success)
-                    NcetCore.Logger.LogDebug($"Обнаружен дублирующийся файл {file.Name}");
+                    ;//NcetCore.Logger.LogDebug($"Обнаружен дублирующийся файл {file.Name}");
             }
         }
 

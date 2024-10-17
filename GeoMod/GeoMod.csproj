@@ -14,22 +14,24 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DebugType>none</DebugType>
+		<RootOutputPath>D:\NC_EngTools_2.0_Build</RootOutputPath>
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+		<DebugType>embedded</DebugType>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
-		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\GeoMod</OutputPath>
+		<OutputPath>$(RootOutputPath)\ExtensionLibraries\GeoMod</OutputPath>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <Compile Remove="GeometryExtensions\ClosedGeometryExtension.cs" />
-	  <Compile Remove="GeometryExtensions\LineStringExtension.cs" />
-	</ItemGroup>
+	<PropertyGroup>
+		<Deterministic>True</Deterministic>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<Reference Include="hostdbmgd">
@@ -48,19 +50,13 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
-			<PrivateAssets>All</PrivateAssets>
-			<Private>False</Private>
-			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+			<IncludeAssets>compile</IncludeAssets>
+			<Private>false</Private>
 		</ProjectReference>
 	</ItemGroup>
 
 	<ItemGroup>
 		<Folder Include="Properties\" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="GeometryExtensions\ClosedGeometryExtension.cs" />
-	  <None Include="GeometryExtensions\LineStringExtension.cs" />
 	</ItemGroup>
 
 </Project>

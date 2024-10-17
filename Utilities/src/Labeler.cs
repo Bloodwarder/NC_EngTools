@@ -34,7 +34,6 @@ namespace Utilities
         /// <summary>
         /// Создать подпись для сегмента полилинии
         /// </summary>
-        [CommandMethod("ПОДПИСЬ")]
         public static void LabelDraw()
         {
             try
@@ -139,7 +138,6 @@ namespace Utilities
             // TODO: обновить в файле конфигурации
         }
 
-        [CommandMethod("ТОРИЕНТ")]
         public static void TextOrientBy2Points()
         {
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
@@ -178,7 +176,6 @@ namespace Utilities
 
         }
 
-        [CommandMethod("ПЛТОРИЕНТ")]
         public static void TextOrientByPolilineSegment()
         {
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())

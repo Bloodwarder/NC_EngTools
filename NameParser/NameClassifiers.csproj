@@ -11,11 +11,17 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<RootOutputPath>D:\NC_EngTools_2.0_Build</RootOutputPath>
 		<DebugType>none</DebugType>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
+	</PropertyGroup>
+
 	<PropertyGroup>
-		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries</OutputPath>
+		<Deterministic>True</Deterministic>
+		<OutputPath>$(RootOutputPath)\ExtensionLibraries</OutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -27,11 +33,11 @@
 	<!--Переместить базовый парсер-->
 	<Target Name="CopyUserData" AfterTargets="Build">
 		<ItemGroup>
-			<UserData Include="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Data\LayerParser_ИС.xml" />
+			<UserData Include="$(RootOutputPath)\ExtensionLibraries\Data\LayerParser_ИС.xml" />
 		</ItemGroup>
-		<Copy SourceFiles="@(UserData)" DestinationFolder="..\..\NC_EngTools\NameParserTest\bin\Debug\net6.0-windows\TestData"/>
-		<Move SourceFiles="@(UserData)" DestinationFolder="..\NC_EngTools\bin\$(Configuration)\UserData" />
-		<RemoveDir Directories="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Data" />
+		<Copy SourceFiles="@(UserData)" Condition="'$(Configuration)'=='Debug'" DestinationFolder="..\..\NC_EngTools\NameParserTest\bin\Debug\net6.0-windows\TestData"/>
+		<Move SourceFiles="@(UserData)" DestinationFolder="$(RootOutputPath)\UserData" />
+		<RemoveDir Directories="$(RootOutputPath)\ExtensionLibraries\Data" />
 	</Target>
 
 </Project>

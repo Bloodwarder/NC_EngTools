@@ -23,7 +23,7 @@ namespace LayerWorks.ModelspaceDraw
         {
             _layer = LayerChecker.ForceCheck(string.Concat(LayerWrapper.StandartPrefix, "_Условные"));
         }
-        public LabelTextDraw(Point2d basepoint, string label, bool italic = false) : base(basepoint, _layer!) // BREAKING BUG: слой с условными не парсится (и не должен)
+        public LabelTextDraw(Point2d basepoint, string label, bool italic = false) : base(basepoint, _layer!)
         {
             _italic = italic;
             _text = label;

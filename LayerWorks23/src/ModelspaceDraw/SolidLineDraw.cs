@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 //Modules
 using LayersIO.DataTransfer;
-using LayersIO.ExternalData;
 using LayerWorks.LayerProcessing;
 using LoaderCore.Interfaces;
 //nanoCAD

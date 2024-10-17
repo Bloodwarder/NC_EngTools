@@ -14,16 +14,16 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DebugType>none</DebugType>
+		<RootOutputPath>D:\NC_EngTools_2.0_Build</RootOutputPath>
+		<DebugType>embedded</DebugType>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
-		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
 		<OutputPath>$(RootOutputPath)\ExtensionLibraries\LayerWorks</OutputPath>
 	</PropertyGroup>
 
@@ -33,14 +33,12 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\LayersDatabase\LayersIO.csproj">
-			<PrivateAssets>All</PrivateAssets>
+			<IncludeAssets>compile</IncludeAssets>
 			<Private>False</Private>
-			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 		</ProjectReference>
 		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
-			<PrivateAssets>All</PrivateAssets>
+			<IncludeAssets>compile</IncludeAssets>
 			<Private>False</Private>
-			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
 		</ProjectReference>
 
 	</ItemGroup>
