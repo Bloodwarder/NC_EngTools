@@ -1,11 +1,6 @@
 ﻿using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LayersIO.Excel
 {
@@ -49,17 +44,20 @@ namespace LayersIO.Excel
             headerFont.FontName = "TimesNewRoman";
             headerFont.FontHeightInPoints = 12;
             headerStyle.SetFont(headerFont);
+            headerStyle.WrapText = true;
+            headerStyle.VerticalAlignment = VerticalAlignment.Center;
+            headerStyle.Alignment = HorizontalAlignment.Center;
+            SetBorderStyle(headerStyle, BorderStyle.Thin);
 
             IFont dataFont = workbook.CreateFont();
             dataFont.CloneStyleFrom(headerFont);
             dataFont.IsBold = false;
 
             ICellStyle dataStyle = workbook.CreateCellStyle();
-            dataStyle.BorderBottom = BorderStyle.Thin;
-            dataStyle.BorderLeft = BorderStyle.Thin;
-            dataStyle.BorderRight = BorderStyle.Thin;
-            dataStyle.BorderTop = BorderStyle.Thin;
+            SetBorderStyle(dataStyle, BorderStyle.Thin);
+            dataStyle.VerticalAlignment = VerticalAlignment.Center;
             dataStyle.Alignment = HorizontalAlignment.Center;
+            dataStyle.WrapText = true;
             dataStyle.SetFont(dataFont);
 
             for (int i = 0; i < properties.Length; i++)
@@ -67,6 +65,8 @@ namespace LayersIO.Excel
                 ICell cell = headerRow.CreateCell(i);
                 cell.SetCellValue(properties[i].Name);
                 cell.CellStyle = headerStyle;
+                if (properties[i].Name.Contains("name", StringComparison.InvariantCultureIgnoreCase))
+                    sheet.SetColumnWidth(i, 256 * 50);
             }
 
             // Populate data rows
@@ -76,7 +76,8 @@ namespace LayersIO.Excel
                 for (int j = 0; j < properties.Length; j++)
                 {
                     ICell cell = dataRow.CreateCell(j, _cellTypes[properties[j].PropertyType]);
-                    cell.SetCellValue(properties[j].GetValue(data[i])?.ToString());
+                    dynamic value = properties[j].GetValue(data[i]);
+                    cell.SetCellValue(value);
                     cell.CellStyle = dataStyle;
                 }
             }
@@ -92,21 +93,21 @@ namespace LayersIO.Excel
 
         private static void OpenExcelFile(string filePath)
         {
-            Process[] processes = Process.GetProcessesByName("excel");
+            //Process[] processes = Process.GetProcessesByName("excel");
 
-            if (processes.Length > 0)
-            {
-                foreach (Process process in processes)
-                {
-                    if (!process.HasExited)
-                    {
-                        process.StartInfo.FileName = "excel.exe";
-                        process.StartInfo.Arguments = "\"" + filePath + "\"";
-                        process.Start();
-                        return;
-                    }
-                }
-            }
+            //if (processes.Length > 0)
+            //{
+            //    foreach (Process process in processes)
+            //    {
+            //        if (!process.HasExited)
+            //        {
+            //            process.StartInfo.FileName = "excel.exe";
+            //            process.StartInfo.Arguments = "\"" + filePath + "\"";
+            //            process.Start();
+            //            return;
+            //        }
+            //    }
+            //}
 
             ProcessStartInfo startInfo = new()
             {
@@ -116,6 +117,14 @@ namespace LayersIO.Excel
             };
 
             Process.Start(startInfo);
+        }
+
+        private static void SetBorderStyle(ICellStyle style, BorderStyle borderStyle)
+        {
+            style.BorderBottom = borderStyle;
+            style.BorderLeft = borderStyle;
+            style.BorderRight = borderStyle;
+            style.BorderTop = borderStyle;
         }
     }
 }

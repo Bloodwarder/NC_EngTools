@@ -14,12 +14,16 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DebugType>none</DebugType>
+		<RootOutputPath>D:\NC_EngTools_2.0_Build</RootOutputPath>
+		<DebugType>embedded</DebugType>
 	</PropertyGroup>
-	
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
+	</PropertyGroup>
+
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
-		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
 		<OutputPath>$(RootOutputPath)\ExtensionLibraries\LayerWorks</OutputPath>
 	</PropertyGroup>
 
@@ -30,11 +34,11 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\LayersDatabase\LayersIO.csproj">
-			<PrivateAssets>All</PrivateAssets>
+			<IncludeAssets>compile</IncludeAssets>
 			<Private>False</Private>
 		</ProjectReference>
 	  <ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
-		  <PrivateAssets>All</PrivateAssets>
+		  <IncludeAssets>compile</IncludeAssets>
 		  <Private>False</Private>
 	  </ProjectReference>
 		<ProjectReference Include="..\NameParser\NameClassifiers.csproj">
@@ -77,10 +81,10 @@
 
 	<Target Name="CopyUserData" AfterTargets="Build">
 		<ItemGroup>
-			<UserData Include="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\LayerWorks\LayersData\*.*" />
+			<UserData Include="$(RootOutputPath)\ExtensionLibraries\LayerWorks\LayersData\*.*" />
 		</ItemGroup>
-		<Move SourceFiles="@(UserData)" DestinationFolder="..\NC_EngTools\bin\$(Configuration)\UserData" />
-		<RemoveDir Directories="..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\LayerWorks\LayersData" />
+		<Move SourceFiles="@(UserData)" DestinationFolder="$(RootOutputPath)\UserData" />
+		<RemoveDir Directories="$(RootOutputPath)\ExtensionLibraries\LayerWorks\LayersData" />
 	</Target>
 	
 	

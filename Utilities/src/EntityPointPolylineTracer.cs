@@ -11,7 +11,6 @@ namespace Utilities
 {
     public static partial class EntityPointPolylineTracer
     {
-        [CommandMethod("ОБЪЕКТСОЕД")]
         public static void TracePolyline()
         {
             // Объявить переменную для сохранения id создаваемой полилинии

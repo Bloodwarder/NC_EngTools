@@ -23,6 +23,7 @@ namespace NameClassifiers
 
     public enum LayerInfoParseStatus
     {
+        NotProcessed = 0,
         Success = 1,
         PartialFailure = 2,
         Failure = 3

@@ -29,7 +29,6 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Переключение кальки, при необходимости добавление её в чертёж
         /// </summary>
-        [CommandMethod("КАЛЬКА")]
         public static void TransparentOverlayToggle()
         {
             string tgtlayer = LayerWrapper.StandartPrefix + "_Калька";

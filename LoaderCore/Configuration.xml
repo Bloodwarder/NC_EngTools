@@ -3,7 +3,7 @@
 	<ShowStartup>true</ShowStartup>
 	<Directories>
 		<LocalDirectory></LocalDirectory>
-		<UpdateDirectory></UpdateDirectory>
+		<UpdateDirectory>D:\Обмен - Коновалов\NC_EngTools 2.0</UpdateDirectory>
 	</Directories>
 	<Logging>
 		<EditorLogLevel>Information</EditorLogLevel>

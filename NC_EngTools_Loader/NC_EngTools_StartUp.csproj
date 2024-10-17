@@ -14,16 +14,18 @@
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<RootOutputPath>D:\NC_EngTools_2.0_Build</RootOutputPath>
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
+	</PropertyGroup>
+
 	<PropertyGroup>
-		<OutputPath>..\NC_EngTools\bin\$(Configuration)\</OutputPath>
+		<OutputPath>$(RootOutputPath)</OutputPath>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<DebugType>none</DebugType>
-	</PropertyGroup>
-
 
 	<ItemGroup>
 		<None Update="Известные проблемы.txt">

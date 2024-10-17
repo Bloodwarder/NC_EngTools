@@ -8,9 +8,13 @@ namespace NameClassifiers.Sections
     /// </summary>
     public class AuxilaryClassifierSection : NamedParserSection
     {
-        private Dictionary<string, string> _descriptionDict { get; } = new();
+        private Dictionary<string, string> _descriptionDict = new();
+        internal string Description { get; init; }
         public AuxilaryClassifierSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
+            XAttribute classifierDescriptionAttr = xElement.Attribute("Description") ?? throw new NameParserInitializeException("Отсутcтвует описание дополнительного классификатора");
+            Description = classifierDescriptionAttr.Value;
+
             foreach (XElement classifier in xElement.Elements("Classifier"))
             {
                 XAttribute? keyAttr = classifier.Attribute("Value");
@@ -21,6 +25,7 @@ namespace NameClassifiers.Sections
                 else
                     throw new NameParserInitializeException("Ошибка инициализации дополнительного классификатора. Неверный ключ или описание");
             }
+            ParentParser.AuxilaryClassifiers.Add(Name, this);
         }
 
         internal override void Process(string[] str, LayerInfoResult layerInfoResult, int pointer)

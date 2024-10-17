@@ -40,16 +40,16 @@ namespace LoaderCore.UI
             tbSourcePath.Text = _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value;
 #nullable restore
             // Вывод данных о последнем обновлении
-            var patchNotesPath = Path.Combine(new FileInfo(_xmlConfigPath).DirectoryName, "Список изменений.txt");
-            using (StreamReader reader = new StreamReader(patchNotesPath))
+            var patchNotesPath = Path.Combine(new FileInfo(_xmlConfigPath).DirectoryName!, "Список изменений.txt");
+            using (StreamReader reader = new(patchNotesPath))
             {
                 string line;
                 LoggingRouter.LogInformation("Последние обновления:");
                 while ((line = reader.ReadLine()) != "" || reader.EndOfStream)
                 {
-                    LoggingRouter.LogInformation(line.Replace("\t", ""));
+                    LoggingRouter.LogInformation(line);
                 }
-                LoggingRouter.LogInformation("\n");
+                //LoggingRouter.LogInformation("\n");
             }
         }
 
@@ -121,7 +121,7 @@ namespace LoaderCore.UI
 
         private void LogWindow(string message)
         {
-            fdLog.Blocks.Add(new Paragraph(new Run($"{message}\n")));
+            fdLog.Blocks.Add(new Paragraph(new Run($"{message}")));
             //tbLog.Text += $"\n{message}";
         }
 

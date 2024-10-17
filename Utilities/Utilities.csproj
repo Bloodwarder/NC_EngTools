@@ -10,15 +10,23 @@
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 		<SignAssembly>false</SignAssembly>
 	</PropertyGroup>
-	
-	<PropertyGroup>
-		<OutputPath>..\NC_EngTools\bin\$(Configuration)\ExtensionLibraries\Utilities</OutputPath>
-	</PropertyGroup>
-	
+
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<RootOutputPath>D:\NC_EngTools_2.0_Build</RootOutputPath>
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
 		<DebugType>none</DebugType>
 	</PropertyGroup>
-	
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Deterministic>True</Deterministic>
+		<OutputPath>$(RootOutputPath)\ExtensionLibraries\Utilities</OutputPath>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<Reference Include="hostdbmgd">
 			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostdbmgd.dll</HintPath>
@@ -29,11 +37,12 @@
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
-	
+
 	<ItemGroup>
 		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
-			<PrivateAssets>All</PrivateAssets>
-			<Private>False</Private>
+			<IncludeAssets>compile</IncludeAssets>
+			<Private>false</Private>
 		</ProjectReference>
+
 	</ItemGroup>
 </Project>

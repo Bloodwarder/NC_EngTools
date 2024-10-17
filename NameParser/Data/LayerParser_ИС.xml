@@ -63,7 +63,7 @@
 				</ValidSet>
 			</Validation>
 		</AuxilaryData>
-		<AuxilaryClassifier Name ="Geometry">
+		<AuxilaryClassifier Name ="Geometry" Description="Тип геометрии">
 			<Classifier Value ="л" Description="Линейный"/>
 			<Classifier Value ="п" Description="Площадной"/>
 			<Classifier Value ="т" Description="Точечный"/>
