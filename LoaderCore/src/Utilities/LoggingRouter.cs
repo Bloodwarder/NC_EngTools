@@ -19,18 +19,33 @@ namespace LoaderCore.Utilities
             {
                 case LogLevel.Trace:
                     LogTrace += action;
+                    LogDebug += action;
+                    LogInformation += action;
+                    LogWarning += action;
+                    LogError += action;
+                    LogCritical += action;
                     break;
                 case LogLevel.Debug:
                     LogDebug += action;
+                    LogInformation += action;
+                    LogWarning += action;
+                    LogError += action;
+                    LogCritical += action;
                     break;
                 case LogLevel.Information:
                     LogInformation += action;
+                    LogWarning += action;
+                    LogError += action;
+                    LogCritical += action;
                     break;
                 case LogLevel.Warning:
                     LogWarning += action;
+                    LogError += action;
+                    LogCritical += action;
                     break;
                 case LogLevel.Error:
                     LogError += action;
+                    LogCritical += action;
                     break;
                 case LogLevel.Critical:
                     LogCritical += action;

@@ -47,5 +47,6 @@ namespace LoaderCore.Utilities
         {
             return _fileStructure.TryGetValue(fileName, out file);
         }
+
     }
 }
