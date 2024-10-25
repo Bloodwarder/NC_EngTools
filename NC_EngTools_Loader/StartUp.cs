@@ -92,7 +92,7 @@ namespace StartUp
                 Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage($"{ex.Message}");
                 return;
             }
-            MethodInfo initializeMethod = loaderType.GetMethod("Initialize");
+            MethodInfo? initializeMethod = loaderType!.GetMethod("Initialize");
             initializeMethod?.Invoke(null, null);
         }
 

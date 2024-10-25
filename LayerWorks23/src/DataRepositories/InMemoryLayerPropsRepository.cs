@@ -12,9 +12,8 @@ namespace LayerWorks.DataRepositories
     {
         private static Dictionary<string, LayerProps> _dictionary = null!;
 
-        public InMemoryLayerPropsRepository()
+        public InMemoryLayerPropsRepository(IDataProviderFactory<string, LayerProps> factory)
         {
-            var factory = NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LayerProps>>();
             var path = PathProvider.GetPath("LayerData_ИС.db"); // TODO : вставить универсальную конструкцию
             var reader = factory.CreateProvider(path);
             _dictionary = reader.GetData();

@@ -54,7 +54,7 @@ namespace LoaderCore
 
         public static void Initialize()
         {
-            ILogger logger = new NcetSimpleLogger();
+            ILogger logger = new NcetEditorConsoleLogger();
             Services.AddSingleton(logger);
             Logger = logger;
             LoggingRouter.RegisterLogMethod(LogLevel.Information, Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage);
@@ -73,7 +73,7 @@ namespace LoaderCore
             RegisterDependencies();
             PostInitializeModules();
 
-            ReloadLoggerNc();
+            //ReloadLoggerNc();
 
         }
 
@@ -243,7 +243,9 @@ namespace LoaderCore
             configurationBuilder.AddXmlFile(Path.Combine(RootLocalDirectory, ConfigurationXmlFileName), optional: false, reloadOnChange: true);
             IConfiguration config = configurationBuilder.Build();
 
-            Services.AddSingleton(config);
+            Services.AddSingleton(config)
+                    .AddTransient<ILogger<NcetCommand>>(provider => new NcetFileCommandLogger());
+
             //.AddSingleton<ILogger, NcetSimpleLogger>();
 
             ServiceProvider = Services.BuildServiceProvider();
@@ -298,7 +300,6 @@ namespace LoaderCore
         /// <summary>
         /// Команда вызова окна конфигурации
         /// </summary>
-        [CommandMethod("NCET_CONFIG")]
         public static void ConfigureAutorun()
         {
             StartUpWindow window = new(PathProvider.GetPath(ConfigurationXmlFileName));

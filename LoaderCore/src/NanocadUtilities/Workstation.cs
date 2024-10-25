@@ -2,6 +2,7 @@
 
 using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
+using Microsoft.Extensions.Logging;
 using Teigha.DatabaseServices;
 
 
@@ -22,6 +23,11 @@ namespace LoaderCore.NanocadUtilities
         public static Database Database => _database;
         public static Teigha.DatabaseServices.TransactionManager TransactionManager => _transactionManager;
         public static Editor Editor => _editor;
+        public static ILogger? Logger { get; internal set; } = NcetCore.Logger;
+
+
+        internal static bool IsCommandLoggingEnabled = false;
+
 
         /// <summary>
         /// Определяет основные элементы управления для открытого активного чертежа
@@ -32,6 +38,12 @@ namespace LoaderCore.NanocadUtilities
             _database = HostApplicationServices.WorkingDatabase;
             _transactionManager = Database.TransactionManager;
             _editor = Document.Editor;
+        }
+
+        public static void Define(ILogger logger)
+        {
+            Logger = logger;
+            Define();
         }
     }
 
