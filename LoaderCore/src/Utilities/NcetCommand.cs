@@ -8,14 +8,13 @@ namespace LoaderCore.Utilities
     public class NcetCommand : IDisposable
     {
         private Action _commandAction;
-        private IDisposable _commandScope;
 
         public NcetCommand(Action commandAction)
         {
+            Workstation.Define();
             _commandAction = commandAction;
         }
 
-        private ILogger? Logger { get; set; }
         private IDisposable? Scope;
         public static void ExecuteCommand(Action commandAction)
         {
@@ -25,7 +24,7 @@ namespace LoaderCore.Utilities
                 {
                     var logger = NcetCore.ServiceProvider.GetRequiredService<ILogger<NcetCommand>>();
                     command.Scope = logger.BeginScope(commandAction.Method.Name);
-                    command.Logger = logger;
+                    Workstation.SetLogger(logger);
                 }
                 command.Execute();
             }
@@ -33,18 +32,13 @@ namespace LoaderCore.Utilities
 
         public void Dispose()
         {
-            this.Logger?.LogInformation("Завершение лога команды");
             Scope?.Dispose();
             Workstation.Logger = NcetCore.Logger;
             Workstation.IsCommandLoggingEnabled = false;
         }
 
-        public void Execute()
+        internal void Execute()
         {
-            if (Logger != null)
-                Workstation.Define(Logger);
-            else
-                Workstation.Define();
             try
             {
                 _commandAction.Invoke();
@@ -53,7 +47,6 @@ namespace LoaderCore.Utilities
             {
                 Workstation.Logger!.LogError(ex, "Команда не выполнена. Ошибка: {ExceptionMessage}", ex.Message);
             }
-
         }
     }
 }

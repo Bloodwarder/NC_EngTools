@@ -52,9 +52,8 @@ namespace LayerWorks.LayerProcessing
             }
             else
             {
-                ILogger? logger = NcetCore.ServiceProvider.GetService<ILogger>();
                 var exception = layerInfoResult.GetExceptions().First();
-                logger?.LogWarning(exception, "{Message}", exception.Message);
+                Workstation.Logger?.LogWarning(exception, "{Message}", exception.Message);
             }
         }
 

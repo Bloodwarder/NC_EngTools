@@ -18,6 +18,10 @@ namespace LoaderCore.NanocadUtilities
         private static Teigha.DatabaseServices.TransactionManager _transactionManager;
         private static Editor _editor;
 
+        static Workstation()
+        {
+            Define();
+        }
 
         public static Document Document => _document;
         public static Database Database => _database;
@@ -40,10 +44,9 @@ namespace LoaderCore.NanocadUtilities
             _editor = Document.Editor;
         }
 
-        public static void Define(ILogger logger)
+        public static void SetLogger(ILogger logger)
         {
             Logger = logger;
-            Define();
         }
     }
 

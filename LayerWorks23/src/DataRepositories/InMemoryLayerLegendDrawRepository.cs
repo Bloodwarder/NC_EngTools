@@ -13,9 +13,8 @@ namespace LayerWorks.DataRepositories
     {
         private static Dictionary<string, LegendDrawTemplate> _dictionary = null!;
 
-        public InMemoryLayerLegendDrawRepository()
+        public InMemoryLayerLegendDrawRepository(IDataProviderFactory<string, LegendDrawTemplate> factory)
         {
-            var factory = NcetCore.ServiceProvider.GetRequiredService<IDataProviderFactory<string, LegendDrawTemplate>>();
             var path = PathProvider.GetPath("LayerData_ИС.db"); // TODO : вставить универсальную конструкцию
             var reader = factory.CreateProvider(path);
             _dictionary = reader.GetData();
