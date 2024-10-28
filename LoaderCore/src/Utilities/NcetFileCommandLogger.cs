@@ -12,14 +12,13 @@ namespace LoaderCore.Utilities
         readonly FileInfo _logFile;
         readonly LogLevel _logLevel;
         readonly StreamWriter _writer;
-        public NcetFileCommandLogger()
+        public NcetFileCommandLogger(IConfiguration configuration)
         {
             FileInfo dwgFile = new(Workstation.Database.Filename);
             string dateTime = DateTime.Now.ToLongTimeString().Replace(":", "-");
             _logFile = new(Path.Combine(dwgFile.DirectoryName!, $"CommandLog_{dateTime}.txt"));
 
-            var config = NcetCore.ServiceProvider.GetRequiredService<IConfiguration>();
-            _logLevel = config.GetValue<LogLevel>("Logging:CommandLogLevel");
+            _logLevel = configuration.GetValue<LogLevel>("Logging:CommandLogLevel");
             _writer = _logFile.CreateText();
         }
 

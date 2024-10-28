@@ -11,13 +11,13 @@ namespace LayerWorks.EntityFormatters
 {
     public class StandardEntityFormatter : IEntityFormatter
     {
-        private static readonly IRepository<string, LayerProps> _repository;
-        private static readonly ILogger? _logger;
+        private readonly IRepository<string, LayerProps> _repository;
+        private readonly ILogger? _logger;
 
-        static StandardEntityFormatter()
+        public StandardEntityFormatter(IRepository<string, LayerProps> repository, ILogger logger)
         {
-            _repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
-            _logger = NcetCore.ServiceProvider.GetService<ILogger>();
+            _repository = repository;
+            _logger = logger;
         }
         public void FormatEntity(Entity entity)
         {

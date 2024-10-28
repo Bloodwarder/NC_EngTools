@@ -7,6 +7,7 @@ namespace LoaderCore.Utilities
 {
     public class NcetEditorConsoleLogger : ILogger
     {
+
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull => default!;
 
 

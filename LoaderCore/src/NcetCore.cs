@@ -240,7 +240,7 @@ namespace LoaderCore
         {
 
             IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-            configurationBuilder.AddXmlFile(Path.Combine(RootLocalDirectory, ConfigurationXmlFileName), optional: false, reloadOnChange: true);
+            configurationBuilder.AddXmlFile(PathProvider.GetPath(ConfigurationXmlFileName), optional: false, reloadOnChange: true);
             IConfiguration config = configurationBuilder.Build();
 
             Services.AddSingleton(config)
