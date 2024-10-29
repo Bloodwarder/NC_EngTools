@@ -1,6 +1,7 @@
 ﻿using LayersIO.DataTransfer;
 using LoaderCore;
 using LoaderCore.Interfaces;
+using LoaderCore.NanocadUtilities;
 using LoaderCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,12 +13,10 @@ namespace LayerWorks.EntityFormatters
     public class StandardEntityFormatter : IEntityFormatter
     {
         private readonly IRepository<string, LayerProps> _repository;
-        private readonly ILogger? _logger;
 
-        public StandardEntityFormatter(IRepository<string, LayerProps> repository, ILogger logger)
+        public StandardEntityFormatter(IRepository<string, LayerProps> repository)
         {
             _repository = repository;
-            _logger = logger;
         }
         public void FormatEntity(Entity entity)
         {
@@ -31,9 +30,9 @@ namespace LayerWorks.EntityFormatters
             }
             else
             {
-                _logger?.LogDebug("Форматирование объекта {EntityType} слоя {LayerName} не выполнено. Не подходящий слой", entity.GetType().Name, layerName);
+                Workstation.Logger?.LogDebug("Форматирование объекта {EntityType} слоя {LayerName} не выполнено. Не подходящий слой", entity.GetType().Name, layerName);
                 foreach (Exception ex in layerInfoResult.GetExceptions())
-                    _logger?.LogTrace(ex, "Ошибка: {exceptionMessage}", ex.Message);
+                    Workstation.Logger?.LogTrace(ex, "Ошибка: {exceptionMessage}", ex.Message);
                 return;
             }
         }
@@ -43,7 +42,7 @@ namespace LayerWorks.EntityFormatters
             bool success = _repository.TryGet(key, out LayerProps? props);
             if (!success)
             {
-                _logger?.LogWarning($"Не удалось форматировать {entity.GetType().Name}");
+                Workstation.Logger?.LogDebug("Не удалось форматировать {EntityName}", entity.GetType().Name);
                 return;
             }
             entity.LinetypeScale = props?.LinetypeScale ?? entity.LinetypeScale;
@@ -53,7 +52,7 @@ namespace LayerWorks.EntityFormatters
                     polyline.ConstantWidth = props?.ConstantWidth ?? polyline.ConstantWidth;
                     break;
                 case Hatch hatch:
-                    _logger?.LogWarning($"Форматирование штриховок не реализовано"); // UNDONE : Реализовать форматирование штриховок
+                    Workstation.Logger?.LogWarning($"Форматирование штриховок не реализовано"); // UNDONE : Реализовать форматирование штриховок
                     break;
             }
         }

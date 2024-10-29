@@ -16,6 +16,7 @@ using NameClassifiers.Sections;
 using LoaderCore.NanocadUtilities;
 
 using static LoaderCore.NanocadUtilities.EditorHelper;
+using Microsoft.Extensions.Logging;
 
 namespace LayerWorks.Commands
 {
@@ -76,6 +77,8 @@ namespace LayerWorks.Commands
             NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].ExtractSectionInfo<StatusSection>(out string[] statuses,
                                                                                                      out Func<string, string> descriptions);
             string newStatus = GetStringKeywordResult(statuses, statuses.Select(s => descriptions(s)).ToArray(), $"Укажите статус объекта <{PrevStatus}>");
+
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Выбран статус \"{Status}\"", nameof(LayerAlterer), newStatus);
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
