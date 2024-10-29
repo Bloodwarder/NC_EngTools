@@ -40,18 +40,10 @@ namespace NameParserTest
             Assert.That(_layerInfo.Name, Is.EqualTo("ИС_ЭС_л_КЛ_0.4кВ_неутв_пер"));
         }
         [Test]
-        public void LayerInfoWhenWrongShouldThrow()
+        public void LayerInfoWhenWrongShouldFailResult()
         {
-            try
-            {
-                _ = _parser!.GetLayerInfo("вап_ыык44_аклвю341");
-            }
-            catch (Exception ex)
-            {
-                Assert.That(ex, Is.InstanceOf<WrongLayerException>());
-                return;
-            }
-            Assert.Fail("Не выброшено исключение");
+            var result = _parser!.GetLayerInfo("вап_ыык44_аклвю341");
+            Assert.That(result.Status, Is.EqualTo(LayerInfoParseStatus.Failure));
         }
 
         [Test]
@@ -95,18 +87,20 @@ namespace NameParserTest
 
 
         [Test]
-        public void LayerInfoWhenProperPrefixWrongInfoShouldThrow()
+        public void LayerInfoWhenProperPrefixWrongInfoShouldFailResult()
         {
-            try
-            {
-                _ = _parser!.GetLayerInfo("ИС_какая-то_рандомная_[хрень]_пер");
-            }
-            catch (Exception ex)
-            {
-                Assert.That(ex, Is.InstanceOf<WrongLayerException>());
-                return;
-            }
-            Assert.Fail("Не выброшено исключение");
+            var result = _parser!.GetLayerInfo("ИС_какая-то_рандомная_[хрень]_пер");
+            Assert.That(result.Status, Is.AnyOf(LayerInfoParseStatus.PartialFailure, LayerInfoParseStatus.Failure));
+        }
+
+        [Test]
+        public void LayerInfoWhenSuffixChangeShouldTransform()
+        {
+            var result = _parser!.GetLayerInfo("ИС_ЭС_л_КЛ_20кВ_сущ");
+            Assert.That(result.Status, Is.EqualTo(LayerInfoParseStatus.Success));
+            LayerInfo layerInfo = result.Value;
+            layerInfo.SwitchSuffix("Reconstruction", true);
+            Assert.That(layerInfo.Name, Is.EqualTo("ИС_ЭС_л_КЛ_20кВ_пр_пер"));
         }
 
     }

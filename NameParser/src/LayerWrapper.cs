@@ -7,24 +7,8 @@ namespace NameClassifiers
 
     public abstract class LayerWrapper
     {
-        private static string? _standartPrefix;
+        static LayerWrapper() { }
 
-        public LayerInfo LayerInfo { get; private set; }
-        public static string? StandartPrefix
-        {
-            get => _standartPrefix;
-            set
-            {
-                if (NameParser.LoadedParsers.ContainsKey(value!))
-                    _standartPrefix = value;
-                else
-                    throw new Exception($"Не загружен интерпретатор для префикса {value}");
-            }
-        }
-        static LayerWrapper()
-        {
-            StandartPrefix ??= NameParser.LoadedParsers.FirstOrDefault().Key;
-        }
         public LayerWrapper(string layerName)
         {
             // Поиск префикса по любому возможному разделителю
@@ -42,21 +26,19 @@ namespace NameClassifiers
             }
         }
 
-        public void AlterLayerInfo(Action<LayerInfo, string> action, string value)
-        {
-            action(LayerInfo, value);
-        }
-        public void AlterLayerInfo(Action<LayerInfo, string, string> action, string key, string value)
-        {
-            action(LayerInfo, key, value);
-        }
-        public void AlterLayerInfo(Action<LayerInfo> action)
-        {
-            action(LayerInfo);
-        }
+        public LayerInfo LayerInfo { get; private set; }
 
+        /// <summary>
+        /// Изменяет привязанный объект в переопределённом классе в соответствии с текущими данными LayerInfo
+        /// </summary>
         public abstract void Push();
 
+
+        /// <summary>
+        /// Распознаёт префикс и запрашивает результат метода GetLayerInfo соответствующего парсера, если он загружен
+        /// </summary>
+        /// <param name="layerName">Имя слоя</param>
+        /// <returns></returns>
         public static LayerInfoResult GetInfoFromString(string layerName)
         {
             string prefix = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])").Value;

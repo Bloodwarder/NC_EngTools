@@ -41,7 +41,7 @@ namespace LayerWorks.Commands
             Document doc = Workstation.Document;
             Database db = Workstation.Database;
 
-            string? prefix = LayerWrapper.StandartPrefix;
+            string? prefix = NameParser.Current.Prefix;
             if (prefix == null)
             {
                 editor.WriteMessage("Не задан префикс слоёв для выполнения команды");
@@ -53,7 +53,7 @@ namespace LayerWorks.Commands
                 LayerTable lt = (LayerTable)transaction.GetObject(db.LayerTableId, OpenMode.ForRead, false);
                 var layers = from ObjectId elem in lt
                              let ltr = tm.GetObject(elem, OpenMode.ForWrite, false) as LayerTableRecord
-                             where ltr.Name.StartsWith(LayerWrapper.StandartPrefix + NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].Separator)
+                             where ltr.Name.StartsWith(NameParser.Current + NameParser.Current.Separator)
                              select ltr;
                 int errorCount = 0;
                 int successCount = 0;

@@ -40,10 +40,10 @@ namespace LayerWorks.ModelspaceDraw
             rectangle.AddVertexAt(2, GetRelativePoint(width / 2, height / 2), 0, 0d, 0d);
             rectangle.AddVertexAt(3, GetRelativePoint(width / 2, -height / 2), 0, 0d, 0d);
             rectangle.Closed = true;
-            string separator = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].Separator;
+            string separator = NameParser.Current.Separator;
             if (layer != null)
-                LayerChecker.Check($"{LayerWrapper.StandartPrefix}{separator}{layer}"); //ПОКА ЗАВЯЗАНО НА ЧЕКЕР ИЗ ДРУГОГО МОДУЛЯ. ПРОАНАЛИЗИРОВАТЬ ВОЗМОЖНОСТИ ОПТИМИЗАЦИИ
-            rectangle.Layer = layer == null ? Layer.BoundLayer.Name : $"{LayerWrapper.StandartPrefix}{separator}{layer}";
+                LayerChecker.Check($"{NameParser.Current.Prefix}{separator}{layer}"); //ПОКА ЗАВЯЗАНО НА ЧЕКЕР ИЗ ДРУГОГО МОДУЛЯ. ПРОАНАЛИЗИРОВАТЬ ВОЗМОЖНОСТИ ОПТИМИЗАЦИИ
+            rectangle.Layer = layer == null ? Layer.BoundLayer.Name : $"{NameParser.Current.Prefix}{separator}{layer}";
 
             var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
             formatter?.FormatEntity(rectangle, Layer.LayerInfo.TrueName);

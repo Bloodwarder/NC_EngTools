@@ -66,7 +66,7 @@ namespace NameClassifiers.References
 
         public virtual void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptions)
         {
-            ParserSection section = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GetSection(_referencedSections[this.GetType()]);
+            ParserSection? section = NameParser.Current.GetSection(_referencedSections[this.GetType()]);
             section.ExtractDistinctInfo(layerInfos, out keywords, out descriptions);
         }
 

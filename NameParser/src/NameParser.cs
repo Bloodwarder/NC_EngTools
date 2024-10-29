@@ -23,12 +23,15 @@ namespace NameClassifiers
             [Classifier.StatusClassifier] = (x, p) => new StatusSection(x, p),
             [Classifier.BooleanSuffix] = (x, p) => new BooleanSection(x, p)
         };
+
         private string _xmlPath;
+        private static NameParser? _currentParser;
         private GlobalFilters? _globalFilters;
         private SharedPropertiesCollection? _sharedPropertiesCollection;
         private Visualizers? _highliters;
 
         private List<ParserSection> _sections;
+
         private NameParser(string xmlPath)
         {
             // Инициализация пути к файлу с данными парсера
@@ -78,7 +81,28 @@ namespace NameClassifiers
             _sections = GetParserSections();
             // Добавить созданный парсер в словарь с загруженными парсерами
             LoadedParsers.Add(Prefix, this);
-            LayerWrapper.StandartPrefix ??= Prefix;
+            _currentParser ??= this;
+        }
+
+        public static NameParser Current 
+        { 
+            get 
+            { 
+                if (_currentParser != null)
+                {
+                    return _currentParser;
+                }
+                else if(LoadedParsers.Any())
+                {
+                    _currentParser = LoadedParsers.Values.First();
+                    return _currentParser;
+                }
+                else
+                {
+                    throw new Exception("Не загружены парсеры");
+                }
+            } 
+            private set => _currentParser = value; 
         }
 
         /// <summary>
@@ -148,6 +172,15 @@ namespace NameClassifiers
             return new NameParser(xmlPath);
         }
 
+        public static void SetCurrentParser(string key)
+        {
+            bool success = LoadedParsers.TryGetValue(key, out var parser);
+            if (success)
+                Current = parser!;
+            else
+                throw new Exception("Парсер с указанным префиксом не загружен");
+        }
+
         /// <summary>
         /// Парсинг строки имени слоя в объект LayerInfo
         /// </summary>
@@ -181,7 +214,6 @@ namespace NameClassifiers
                 return layerInfoResult;
             }
         }
-
 
         internal ParserSection? GetSection(Type type)
         {

@@ -73,7 +73,7 @@ namespace LayerWorks.LayerProcessing
         {
             try
             {
-                var layerInfoResult = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GetLayerInfo(layername);
+                var layerInfoResult = NameParser.Current.GetLayerInfo(layername);
                 if (layerInfoResult.Status == LayerInfoParseStatus.Success)
                 {
                     return Check(layerInfoResult.Value);

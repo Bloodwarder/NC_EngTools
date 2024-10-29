@@ -42,7 +42,7 @@ namespace LayerWorks.Legend
             if (success)
                 LegendData = ld;
             else
-                throw new Exception($"Нет данных для слоя {string.Concat(LayerWrapper.StandartPrefix, mainname)}");
+                throw new Exception($"Нет данных для слоя {string.Concat(NameParser.Current.Prefix,NameParser.Current.Separator, mainname)}");
 
         }
         internal List<LegendGridCell> Cells { get; set; } = new List<LegendGridCell>();
