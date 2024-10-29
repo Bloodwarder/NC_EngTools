@@ -1,9 +1,6 @@
 ﻿using LayersIO.DataTransfer;
-using LoaderCore;
 using LoaderCore.Interfaces;
 using LoaderCore.NanocadUtilities;
-using LoaderCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NameClassifiers;
 using Teigha.DatabaseServices;
@@ -21,7 +18,7 @@ namespace LayerWorks.EntityFormatters
         public void FormatEntity(Entity entity)
         {
             string layerName = entity.Layer;
-            var parser = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!];
+            var parser = NameParser.Current;
             var layerInfoResult = parser.GetLayerInfo(layerName);
             if (layerInfoResult.Status == LayerInfoParseStatus.Success)
             {

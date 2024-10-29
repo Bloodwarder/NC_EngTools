@@ -13,8 +13,8 @@ namespace LayerWorks
         {
             get
             {
-                FileInfo document = new(Workstation.Document.Name); // UNDONE: проверить какое выдаёт имя.
-                FileInfo? target = document.Directory?.GetFiles($"{document.Name}*{LayerWrapper.StandartPrefix}*.db").FirstOrDefault();
+                FileInfo document = new(Workstation.Database.Filename);
+                FileInfo? target = document.Directory?.GetFiles($"{document.Name}*{NameParser.Current.Prefix}*.db").FirstOrDefault();
                 return target?.FullName;
             }
         }

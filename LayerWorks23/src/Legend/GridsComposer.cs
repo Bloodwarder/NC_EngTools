@@ -26,7 +26,7 @@ namespace LayerWorks.Legend
         internal void Compose(Point3d basepoint)
         {
             _basepoint = basepoint;
-            GlobalFilters globalFilters = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GlobalFilters;
+            GlobalFilters globalFilters = NameParser.Current.GlobalFilters;
             IEnumerable<GridData> grids = globalFilters.GetGridData(_keywords);
             foreach (GridData grid in grids)
             {
@@ -45,7 +45,7 @@ namespace LayerWorks.Legend
             // Посчитать точку вставки на основании уже вставленных сеток
             double deltax = Grids.Select(g => g.Width).Sum() + SeparatedGridsOffset * Grids.Count;
             // Собрать сетку и добавить в список созданных сеток
-            GlobalFilters globalFilters = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GlobalFilters;
+            GlobalFilters globalFilters = NameParser.Current.GlobalFilters;
             string? defaultName = globalFilters.DefaultLabel;
             string gridName = gridData.GridName.Replace("*", defaultName ?? "*");
             LegendGrid grid = new(cells, new Point3d(_basepoint.X + deltax, _basepoint.Y, 0d), gridData.GridName);

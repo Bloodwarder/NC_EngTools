@@ -32,7 +32,7 @@ namespace LayerWorks.Commands
         /// </summary>
         public static void TransparentOverlayToggle()
         {
-            string tgtlayer = LayerWrapper.StandartPrefix + "_Калька";
+            string tgtlayer = NameParser.Current.Prefix + "_Калька";
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
@@ -74,7 +74,7 @@ namespace LayerWorks.Commands
         /// </summary>
         public static void LayerStatusChange()
         {
-            NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].ExtractSectionInfo<StatusSection>(out string[] statuses,
+            NameParser.Current.ExtractSectionInfo<StatusSection>(out string[] statuses,
                                                                                                      out Func<string, string> descriptions);
             string newStatus = GetStringKeywordResult(statuses, statuses.Select(s => descriptions(s)).ToArray(), $"Укажите статус объекта <{PrevStatus}>");
 
@@ -85,17 +85,18 @@ namespace LayerWorks.Commands
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info => info.SwitchStatus(newStatus)));
+                    ActiveLayerWrappers.List.ForEach(w => w.LayerInfo.SwitchStatus(newStatus));
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
                 {
-                    Workstation.Editor.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                    Workstation.Logger?.LogInformation(ex, "Текущий слой не принадлежит к списку обрабатываемых слоёв ({Exception})", ex.Message);
                 }
                 catch (System.Exception ex)
                 {
-                    Workstation.Editor.WriteMessage(ex.Message);
+                    Workstation.Logger?.LogError(ex, "{ProcessingObject}: Ошибка - {Exception}", nameof(LayerAlterer), ex.Message);
+
                 }
                 finally
                 {
@@ -141,11 +142,11 @@ namespace LayerWorks.Commands
                 }
                 catch (WrongLayerException ex)
                 {
-                    Workstation.Editor.WriteMessage($"Cлой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                    Workstation.Logger?.LogInformation(ex, "Текущий слой не принадлежит к списку обрабатываемых слоёв ({Exception})", ex.Message);
                 }
                 catch (System.Exception ex)
                 {
-                    Workstation.Editor.WriteMessage(ex.Message);
+                    Workstation.Logger?.LogError(ex, "{ProcessingObject}: Ошибка - {Exception}", nameof(LayerAlterer), ex.Message);
                 }
             }
 
@@ -160,21 +161,21 @@ namespace LayerWorks.Commands
             {
                 try
                 {
+                    var repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, string>>();
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info =>
+                    foreach(LayerWrapper wrapper in ActiveLayerWrappers.List)
                     {
-                        bool success = NcetCore.ServiceProvider.GetRequiredService<IRepository<string,string>>()
-                                                               .TryGet(info.MainName, out string? name);
+                        bool success = repository.TryGet(wrapper.LayerInfo.MainName, out string? newMainName);
                         if (success)
-                            info.AlterSecondaryClassifier(name!);
-                        return;
-                    }));
+                            wrapper.LayerInfo.AlterSecondaryClassifier(newMainName!);
+                    }
+
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
                 {
-                    Workstation.Editor.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                    Workstation.Logger?.LogInformation(ex, "Текущий слой не принадлежит к списку обрабатываемых слоёв ({Exception})", ex.Message);
                 }
                 finally
                 {
@@ -189,7 +190,7 @@ namespace LayerWorks.Commands
         public static void LayerTag()
         {
             Workstation.Define();
-            NameParser workParser = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!];
+            NameParser workParser = NameParser.Current;
             string[] suffixTags = workParser.SuffixKeys.Keys.ToArray();
             string[] descriptions = workParser.SuffixKeys.Values.ToArray();
             string tag = GetStringKeywordResult(suffixTags, descriptions, "Выберите тип суффикса для отметки объекта");
@@ -198,14 +199,14 @@ namespace LayerWorks.Commands
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    bool targetValue = !ActiveLayerWrappers.List.FirstOrDefault()!.LayerInfo.SuffixTagged[tag];
-                    ActiveLayerWrappers.List.ForEach(l => l.AlterLayerInfo(info => { info.SuffixTagged[tag] = targetValue; }));
+                    bool targetValue = !ActiveLayerWrappers.List.First().LayerInfo.SuffixTagged[tag];
+                    ActiveLayerWrappers.List.ForEach(l => l.LayerInfo.SwitchSuffix(tag, targetValue));
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
                 {
-                    Workstation.Editor.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                    Workstation.Logger?.LogInformation(ex, "Текущий слой не принадлежит к списку обрабатываемых слоёв ({Exception})", ex.Message);
                 }
                 finally
                 {
@@ -219,9 +220,7 @@ namespace LayerWorks.Commands
         /// </summary>
         public static void AuxDataAssign()
         {
-            Workstation.Define();
-
-            NameParser workParser = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!];
+            NameParser workParser = NameParser.Current;
             var dataSections = workParser.AuxilaryDataKeys;
             string dataKey = GetStringKeywordResult(dataSections.Keys.ToArray(), dataSections.Values.ToArray(), "Выберите тип дополнительных данных:");
             if (!PreviousAssignedData.ContainsKey(dataKey))
@@ -251,7 +250,7 @@ namespace LayerWorks.Commands
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    ActiveLayerWrappers.List.ForEach(w => w.AlterLayerInfo(info => info.ChangeAuxilaryData(dataKey, newData)));
+                    ActiveLayerWrappers.List.ForEach(w => w.LayerInfo.ChangeAuxilaryData(dataKey, newData));
                     ActiveLayerWrappers.Push();
                     transaction.Commit();
                 }
@@ -306,7 +305,7 @@ namespace LayerWorks.Commands
             };
             List<string> prefixes = NameParser.LoadedParsers.Keys.OrderBy(k => k).Concat(additionalOptions).ToList();
 
-            PromptKeywordOptions pko = new($"Выберите префикс обрабатываемых слоёв <{LayerWrapper.StandartPrefix}> [{string.Join("/", prefixes)}", string.Join(" ", prefixes))
+            PromptKeywordOptions pko = new($"Выберите префикс обрабатываемых слоёв <{NameParser.Current.Prefix}> [{string.Join("/", prefixes)}", string.Join(" ", prefixes))
             {
                 AppendKeywordsToMessage = true,
                 AllowNone = false,
@@ -325,7 +324,7 @@ namespace LayerWorks.Commands
                     return;
             }
             string newprefix = result.StringResult;
-            LayerWrapper.StandartPrefix = newprefix;
+            NameParser.SetCurrentParser(newprefix);
         }
 
         private static void RedefinePrefix()

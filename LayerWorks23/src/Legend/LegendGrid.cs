@@ -10,7 +10,7 @@ namespace LayerWorks.Legend
     internal class LegendGrid
     {
         private const string DefaultLegendHeader = "УСЛОВНЫЕ ОБОЗНАЧЕНИЯ";
-        
+
         private static LegendGridParameters _legendGridParameters;
         private int _columns;
 
@@ -112,8 +112,7 @@ namespace LayerWorks.Legend
             Rows = Rows.Where(r => !r.LegendData!.IgnoreLayer).ToList();
             Rows.Sort();
             // Выбрать разделы и вставить их названия в нужные места таблицы
-            NameParser.LoadedParsers[LayerWrapper.StandartPrefix!]
-                      .ExtractSectionInfo<PrimaryClassifierSection>(out _, out Func<string, string> descriptions);
+            NameParser.Current.ExtractSectionInfo<PrimaryClassifierSection>(out _, out Func<string, string> descriptions);
             List<string> labels = Rows.Select(r => r.LegendEntityChapterName!).Distinct().ToList();
             foreach (var label in labels)
             {
@@ -161,7 +160,7 @@ namespace LayerWorks.Legend
         private void ProcessColumns()
         {
             // Назначить целочисленные X координаты ячейкам таблицы на основе их статусов
-            var statusArray = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!].GetStatusArray();
+            var statusArray = NameParser.Current.GetStatusArray();
             List<string?> statuses = Cells.Select(c => c.Layer.LayerInfo.Status).Distinct().OrderBy(s => Array.IndexOf(statusArray, s)).ToList();
             _columns = statuses.Count;
             //statuses.Sort();

@@ -21,7 +21,7 @@ namespace LayerWorks.ModelspaceDraw
         private readonly string _text;
         static LabelTextDraw()
         {
-            _layer = LayerChecker.ForceCheck(string.Concat(LayerWrapper.StandartPrefix, "_Условные"));
+            _layer = LayerChecker.ForceCheck(string.Concat(NameParser.Current.Prefix, "_Условные"));
         }
         public LabelTextDraw(Point2d basepoint, string label, bool italic = false) : base(basepoint, _layer!)
         {

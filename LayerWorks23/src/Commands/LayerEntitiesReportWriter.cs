@@ -20,7 +20,7 @@ namespace LayerWorks.Commands
             {
                 BlockTable blocktable = (BlockTable)transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead, false);
                 BlockTableRecord modelspace = (BlockTableRecord)transaction.GetObject(blocktable![BlockTableRecord.ModelSpace], OpenMode.ForWrite, false);
-                var parser = NameParser.LoadedParsers[LayerWrapper.StandartPrefix!];
+                var parser = NameParser.Current;
                 var entities = modelspace.Cast<ObjectId>()
                                          .Select(id => (Entity)transaction.GetObject(id, OpenMode.ForRead))
                                          .Where(e => e.Layer.StartsWith(parser.Prefix + parser.Separator))
