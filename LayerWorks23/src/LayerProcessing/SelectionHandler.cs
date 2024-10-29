@@ -1,4 +1,5 @@
-﻿//nanoCAD
+﻿using Microsoft.Extensions.Logging;
+//nanoCAD
 using HostMgd.EditorInput;
 using NameClassifiers;
 //internal modules
@@ -13,11 +14,15 @@ namespace LayerWorks.LayerProcessing
 
         internal static void UpdateActiveLayerWrappers()
         {
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Получение выбранных объектов", nameof(SelectionHandler));
             PromptSelectionResult result = Workstation.Editor.SelectImplied();
 
             if (result.Status == PromptStatus.OK)
             {
+
                 SelectionSet selectionSet = result.Value;
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Выбрано {Count} объектов", nameof(SelectionHandler), selectionSet.Count);
+
                 if (selectionSet.Count < MaxSimple)
                 {
                     ProcessSimple(selectionSet);
@@ -29,6 +34,7 @@ namespace LayerWorks.LayerProcessing
             }
             else
             {
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Объекты не выбраны. Применение к текущему слою", nameof(SelectionHandler));
                 new CurrentLayerWrapper();
             }
         }
@@ -43,14 +49,24 @@ namespace LayerWorks.LayerProcessing
                 try
                 {
                     EntityLayerWrapper entlp = new EntityLayerWrapper(entity);
+                    Workstation.Logger?.LogDebug("{ProcessingObject}: Создан EntityLayerWrapper для объекта {ObjectType} слоя {LayerName}",
+                                                 nameof(SelectionHandler),
+                                                 entity.GetType().Name,
+                                                 entity.Layer);
                 }
-                catch (WrongLayerException)
+                catch (WrongLayerException ex)
                 {
+                    Workstation.Logger?.LogDebug(
+                        "{ProcessingObject}: Объект {ObjectType} слоя {LayerName} не обработан: {Exception}",
+                        nameof(SelectionHandler),
+                        entity.GetType().Name,
+                        entity.Layer,
+                        ex.Message);
                     continue;
                 }
                 catch (Exception ex)
                 {
-                    Workstation.Editor.WriteMessage(ex.Message);
+                    Workstation.Logger?.LogWarning("Ошибка: {Exception}", ex.Message);
                 }
             }
         }
@@ -65,15 +81,18 @@ namespace LayerWorks.LayerProcessing
                 if (dct.ContainsKey(entity.Layer))
                 {
                     dct[entity.Layer].BoundEntities.Add(entity);
+                    Workstation.Logger?.LogDebug("{ProcessingObject}: Объект {ObjectType} слоя {LayerName} добавлен к существующему EntityLayerWrapper", nameof(SelectionHandler), entity.GetType().Name, entity.Layer);
                 }
                 else
                 {
                     try
                     {
                         dct.Add(entity.Layer, new EntityLayerWrapper(entity));
+                        Workstation.Logger?.LogDebug("{ProcessingObject}: Создан EntityLayerWrapper для объекта {ObjectType} слоя {LayerName}", nameof(SelectionHandler), entity.GetType().Name, entity.Layer);
                     }
-                    catch (WrongLayerException)
+                    catch (WrongLayerException ex)
                     {
+                        Workstation.Logger?.LogDebug("{ProcessingObject}: Объект {ObjectType} слоя {LayerName} не обработан: {Exception}", nameof(SelectionHandler), entity.GetType().Name, entity.Layer, ex.Message);
                         continue;
                     }
                 }

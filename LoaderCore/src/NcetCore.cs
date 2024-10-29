@@ -54,10 +54,7 @@ namespace LoaderCore
 
         public static void Initialize()
         {
-            ILogger logger = new NcetEditorConsoleLogger();
-            Services.AddSingleton(logger);
-            Logger = logger;
-            LoggingRouter.RegisterLogMethod(LogLevel.Information, Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage);
+            Logger = new NcetEditorConsoleLogger();
 
             XDocument configurationXml = XDocument.Load(Path.Combine(RootLocalDirectory, ConfigurationXmlFileName));
 
@@ -72,9 +69,6 @@ namespace LoaderCore
             IndexFiles();
             RegisterDependencies();
             PostInitializeModules();
-
-            //ReloadLoggerNc();
-
         }
 
         public static void InitializeAsLibrary()
@@ -120,7 +114,7 @@ namespace LoaderCore
             // везде восклицательные знаки, так как уже проверили по xsd
             XElement localDirectoryElement = document.Root!.Element("Directories")!.Element("LocalDirectory")!;
 
-            DirectoryInfo? localDir =  !string.IsNullOrEmpty(localDirectoryElement.Value) ? new(localDirectoryElement.Value) : null;
+            DirectoryInfo? localDir = !string.IsNullOrEmpty(localDirectoryElement.Value) ? new(localDirectoryElement.Value) : null;
 
             bool isUpdated = false;
 
@@ -169,9 +163,9 @@ namespace LoaderCore
             var localDir = new DirectoryInfo(RootLocalDirectory);
             var updateTxt = updateDir.GetFiles(".txt", SearchOption.TopDirectoryOnly).ToDictionary(fi => fi.Name);
             var localTxt = localDir.GetFiles(".txt", SearchOption.TopDirectoryOnly).ToDictionary(fi => fi.Name);
-            foreach(var file in updateTxt.Keys)
+            foreach (var file in updateTxt.Keys)
             {
-                try 
+                try
                 {
                     if (!localTxt.ContainsKey(file) || localTxt[file].LastWriteTime < updateTxt[file].LastWriteTime)
                         updateTxt[file].CopyTo(localTxt[file].FullName, true);
@@ -186,6 +180,10 @@ namespace LoaderCore
             }
         }
 
+        /// <summary>
+        /// Отобразить стартовое окно и дать пользователю отредактировать конфигурацию
+        /// </summary>
+        /// <param name="configurationXml"></param>
         private static void DisplayAutorunConfigurationWindow(XDocument configurationXml)
         {
             // Читаем конфигурацию на предмет необходимости отображения стартового окна и отображаем его
@@ -197,6 +195,10 @@ namespace LoaderCore
             }
         }
 
+        /// <summary>
+        /// Загрузить сборки и их зависимости, при необходимости обновить
+        /// </summary>
+        /// <param name="configurationXml"></param>
         private static void InitializeModules(XDocument configurationXml)
         {
             XElement[] moduleElements = configurationXml.Root!.Elements().Where(e => e.Attribute("Module") != null).ToArray();
@@ -218,6 +220,9 @@ namespace LoaderCore
             }
         }
 
+        /// <summary>
+        /// Инициализировать PathProvider
+        /// </summary>
         private static void IndexFiles()
         {
             PathProvider.InitializeStructure(RootLocalDirectory);
@@ -238,37 +243,18 @@ namespace LoaderCore
 
         private static void RegisterDependencies()
         {
-
-            IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-            configurationBuilder.AddXmlFile(PathProvider.GetPath(ConfigurationXmlFileName), optional: false, reloadOnChange: true);
-            IConfiguration config = configurationBuilder.Build();
+            var configPath = PathProvider.GetPath(ConfigurationXmlFileName);
+            IConfiguration config = new ConfigurationBuilder().AddXmlFile(configPath, optional: false, reloadOnChange: true)
+                                                              .Build();
 
             Services.AddSingleton(config)
-                    .AddTransient<ILogger<NcetCommand>>(provider => new NcetFileCommandLogger());
-
-            //.AddSingleton<ILogger, NcetSimpleLogger>();
+                    .AddSingleton<ILogger, NcetEditorConsoleLogger>()
+                    .AddTransient<ILogger<NcetCommand>, NcetFileCommandLogger>();
 
             ServiceProvider = Services.BuildServiceProvider();
-        }
+            _serviceProviderBuilt = true;
 
-
-        /// <summary>
-        /// Перезагрузка логгера с командной строкой nanoCAD
-        /// </summary>
-        private static void ReloadLoggerNc()
-        {
-            IConfiguration config = ServiceProvider.GetRequiredService<IConfiguration>();
-            LoggingRouter.ClearLoggers();
-            LogLevel editorLevel = config.GetSection("Logging").GetValue<LogLevel>("EditorLogLevel");
-            LogLevel commandLevel = config.GetSection("Logging").GetValue<LogLevel>("CommandLogLevel");
-            LoggingRouter.RegisterLogMethod(editorLevel, Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage);
-            // TODO: Реализовать логгирование команд в файл по необходимости
-            //LoggingRouter.RegisterLogMethod(commandLevel, IMPLEMENT SINGLE COMMAND FILE LOGGING);
-        }
-
-        private static void ReloadLoggerLib()
-        {
-            LoggingRouter.ClearLoggers();
+            Logger = ServiceProvider.GetRequiredService<ILogger>();
         }
 
         private static void PostInitializeModules()

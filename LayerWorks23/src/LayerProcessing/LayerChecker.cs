@@ -10,11 +10,14 @@ using System.IO;
 using Teigha.Colors;
 //nanoCAD
 using Teigha.DatabaseServices;
+using Microsoft.Extensions.Logging;
 
 namespace LayerWorks.LayerProcessing
 {
     static class LayerChecker
     {
+        private const string LineTypeFileName = "STANDARD1.lin";
+
         internal static event EventHandler? LayerAddedEvent;
 
         /// <summary>
@@ -30,25 +33,31 @@ namespace LayerWorks.LayerProcessing
                 try
                 {
                     LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead, false) as LayerTable;
-                    if (!lt!.Has(layerInfo.Name))
+                    string layerName = layerInfo.Name;
+                    if (!lt!.Has(layerName))
                     {
-                        var standardService = LoaderCore.NcetCore.ServiceProvider.GetService<IRepository<string, LayerProps>>()!;
+                        Workstation.Logger?.LogDebug("{ProcessingObject}: Слоя {LayerName} нет в таблице слоёв. Попытка создания слоя", nameof(LayerChecker), layerName);
+
+                        var standardService = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
                         bool propsGetSuccess = standardService.TryGet(layerInfo.TrueName, out LayerProps? props);
                         LayerTableRecord ltRecord = AddLayer(layerInfo.Name, props);
 
                         //Process new layer if isolated chapter visualization is active
-                        EventArgs e = new();
                         transaction.Commit();
-                        LayerAddedEvent?.Invoke(ltRecord, e);
+                        LayerAddedEvent?.Invoke(ltRecord, new());
+
+                        Workstation.Logger?.LogDebug("{ProcessingObject}: Слой {LayerName} успешно добавлен", nameof(LayerChecker), layerName);
                         return ltRecord.ObjectId;
                     }
                     else
                     {
+                        Workstation.Logger?.LogDebug("{ProcessingObject}: Слой {LayerName} успешно добавлен", nameof(LayerChecker), layerName);
                         return lt[layerInfo.Name];
                     }
                 }
-                catch (NoPropertiesException)
+                catch (NoPropertiesException ex)
                 {
+                    Workstation.Logger?.LogDebug("{ProcessingObject}: {Message}", nameof(LayerChecker), ex.Message);
                     throw;
                 }
             }
@@ -74,8 +83,9 @@ namespace LayerWorks.LayerProcessing
                     throw layerInfoResult.GetExceptions().First();
                 }
             }
-            catch (NoPropertiesException)
+            catch (NoPropertiesException ex)
             {
+                Workstation.Logger?.LogDebug("{ProcessingObject}: {Message}", nameof(LayerChecker), ex.Message);
                 throw;
             }
         }
@@ -105,8 +115,7 @@ namespace LayerWorks.LayerProcessing
             bool ltgetsuccess = TryFindLinetype(lp?.LinetypeName!, out ObjectId linetypeRecordId);
             if (!ltgetsuccess)
             {
-                string str = $"Не найден тип линий для слоя {layername}. Назначен тип линий Continious";
-                Workstation.Editor.WriteMessage(str);
+                Workstation.Logger?.LogInformation("Не найден тип линий для слоя {LayerName}. Назначен тип линий Continious", layername);
             }
             LayerTableRecord ltRecord = new()
             {
@@ -134,7 +143,7 @@ namespace LayerWorks.LayerProcessing
             LinetypeTable? ltt = tm.TopTransaction.GetObject(Workstation.Database.LinetypeTableId, OpenMode.ForWrite, false) as LinetypeTable;
             if (!ltt!.Has(linetypename))
             {
-                FileInfo fi = new(PathProvider.GetPath("STANDARD1.lin"));
+                FileInfo fi = new(PathProvider.GetPath(LineTypeFileName));
                 try
                 {
                     Workstation.Database.LoadLineTypeFile(linetypename, fi.FullName);
@@ -142,7 +151,7 @@ namespace LayerWorks.LayerProcessing
                 catch
                 {
                     lineTypeId = defaultLinetypeId;
-                    Workstation.Editor.WriteMessage("Ошибка чтения файла типов линий. Назначен тип линий по умолчанию");
+                    Workstation.Logger?.LogWarning("Ошибка чтения файла типов линий. Назначен тип линий по умолчанию");
                     return false;
                 }
             }
