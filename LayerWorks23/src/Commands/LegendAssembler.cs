@@ -60,7 +60,7 @@ namespace LayerWorks.Commands
                 // Выбрать режим поиска слоёв (весь чертёж или в границах полилинии)
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Выбор режима поиска слоёв", nameof(LegendAssembler));
 
-                string layerSearchMode = GetStringKeywordResult(_modeKeywords, "Выберите режим поиска слоёв:");
+                string layerSearchMode = GetStringKeyword(_modeKeywords, "Выберите режим поиска слоёв:");
 
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Выбран режим \"{SearchMode}\"", nameof(LegendAssembler), layerSearchMode);
 
@@ -129,7 +129,7 @@ namespace LayerWorks.Commands
                     {
                         try
                         {
-                            chosenKeywords[i] = GetStringKeywordResult(filterKeywords[i], "Выберите режим компоновки:");
+                            chosenKeywords[i] = GetStringKeyword(filterKeywords[i], "Выберите режим компоновки:");
                         }
                         catch (System.Exception ex)
                         {

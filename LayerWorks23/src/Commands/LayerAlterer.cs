@@ -75,7 +75,7 @@ namespace LayerWorks.Commands
         public static void LayerStatusChange()
         {
             NameParser.Current.ExtractSectionInfo<StatusSection>(out string[] statuses, out Func<string, string> descriptions);
-            string newStatus = GetStringKeywordResult(statuses, statuses.Select(s => descriptions(s)).ToArray(), $"Укажите статус объекта <{PrevStatus}>");
+            string newStatus = GetStringKeyword(statuses, statuses.Select(s => descriptions(s)).ToArray(), $"Укажите статус объекта <{PrevStatus}>");
             PrevStatus = newStatus;
 
             Workstation.Logger?.LogDebug("{ProcessingObject}: Выбран статус \"{Status}\"", nameof(LayerAlterer), newStatus);
@@ -109,11 +109,11 @@ namespace LayerWorks.Commands
         {
             // Выбрать парсер для загрузки слоёв
             string[] parserIds = NameParser.LoadedParsers.Keys.ToArray();
-            string prefix = GetStringKeywordResult(parserIds, "Выберите глобальный классификатор");
+            string prefix = GetStringKeyword(parserIds, "Выберите глобальный классификатор");
             var workParser = NameParser.LoadedParsers[prefix];
             // Выбрать основной классификатор
             workParser.ExtractSectionInfo<PrimaryClassifierSection>(out string[] primaries, out Func<string, string> descriptions);
-            string newLayerPrimary = GetStringKeywordResult(primaries, primaries.Select(p => descriptions(p)).ToArray(), "Выберите основной классификатор");
+            string newLayerPrimary = GetStringKeyword(primaries, primaries.Select(p => descriptions(p)).ToArray(), "Выберите основной классификатор");
             // Выбрать ключи из репозитория, отфильтровать по выбранному классификатору и представить как массивы разделённых строк
             IRepository<string, LayerProps> repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
             string[][] keysArray = repository.GetKeys()
@@ -125,7 +125,7 @@ namespace LayerWorks.Commands
             while (keysArray.First().Length >= pointer && keysArray.Length > 1)
             {
                 string[] selectors = keysArray.Select(k => k[pointer]).Distinct().ToArray();
-                string selector = GetStringKeywordResult(selectors, "Выберите классификатор");
+                string selector = GetStringKeyword(selectors, "Выберите классификатор");
                 keysArray = keysArray.Where(s => s[pointer] == selector).ToArray();
                 pointer++;
             }
@@ -193,7 +193,7 @@ namespace LayerWorks.Commands
             NameParser workParser = NameParser.Current;
             string[] suffixTags = workParser.SuffixKeys.Keys.ToArray();
             string[] descriptions = workParser.SuffixKeys.Values.ToArray();
-            string tag = GetStringKeywordResult(suffixTags, descriptions, "Выберите тип суффикса для отметки объекта");
+            string tag = GetStringKeyword(suffixTags, descriptions, "Выберите тип суффикса для отметки объекта");
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
@@ -222,7 +222,7 @@ namespace LayerWorks.Commands
         {
             NameParser workParser = NameParser.Current;
             var dataSections = workParser.AuxilaryDataKeys;
-            string dataKey = GetStringKeywordResult(dataSections.Keys.ToArray(), dataSections.Values.ToArray(), "Выберите тип дополнительных данных:");
+            string dataKey = GetStringKeyword(dataSections.Keys.ToArray(), dataSections.Values.ToArray(), "Выберите тип дополнительных данных:");
             if (!PreviousAssignedData.ContainsKey(dataKey))
             {
                 PreviousAssignedData[dataKey] = "";

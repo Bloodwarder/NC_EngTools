@@ -43,7 +43,7 @@ namespace LayerWorks.HighlightFiltering
             IEnumerable<VisualizerLayerWrapper>? filteredWrappers = null;
             if (needChoice)
             {
-                string keyword = GetStringKeywordResult(keywords!, descriptions!, "Выберите раздел для фильтрации подсветки");
+                string keyword = GetStringKeyword(keywords!, descriptions!, "Выберите раздел для фильтрации подсветки");
                 filteredWrappers = handler.FilterByKeyword(wrappers, keyword);
             }
             filteredWrappers ??= wrappers;

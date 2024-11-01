@@ -5,9 +5,9 @@ namespace LoaderCore.NanocadUtilities
 {
     public class EditorHelper
     {
-        public static string GetStringKeywordResult(string[] keywordsArray, string message) => GetStringKeywordResult(keywordsArray, keywordsArray, message);
+        public static string GetStringKeyword(string[] keywordsArray, string message) => GetStringKeyword(keywordsArray, keywordsArray, message);
 
-        public static string GetStringKeywordResult(string[] keywordsArray, string[] descriptionArray, string message)
+        public static string GetStringKeyword(string[] keywordsArray, string[] descriptionArray, string message)
         {
             // Длины массивов ключей и описаний должны соответствовать
             if (keywordsArray.Length != descriptionArray.Length)
@@ -27,16 +27,16 @@ namespace LoaderCore.NanocadUtilities
             return keywordResult.StringResult;
         }
 
-        public static string GetStringKeywordResult(string[] keywordsArray, string[] descriptionArray, string message, params string[] additional)
+        public static string GetStringKeyword(string[] keywordsArray, string[] descriptionArray, string message, params string[] additional)
         {
             var newKeywords = keywordsArray.Concat(additional).ToArray();
             var newDescriptions = descriptionArray.Concat(additional).ToArray();
-            return GetStringKeywordResult(newKeywords, newDescriptions, message);
+            return GetStringKeyword(newKeywords, newDescriptions, message);
         }
-        public static string GetStringKeywordResult(string[] keywordsArray, string message, params string[] additional)
+        public static string GetStringKeyword(string[] keywordsArray, string message, params string[] additional)
         {
             var newKeywords = keywordsArray.Concat(additional).ToArray();
-            return GetStringKeywordResult(newKeywords, message);
+            return GetStringKeyword(newKeywords, message);
         }
     }
 }
