@@ -1,20 +1,20 @@
 ﻿//System
-//nanoCAD
-using HostMgd.EditorInput;
-using LayersIO.DataTransfer;
-using LayerWorks.LayerProcessing;
-using LayerWorks.Legend;
-using LoaderCore.Interfaces;
-using LoaderCore.NanocadUtilities;
+using System.Text;
+//Microsoft
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NameClassifiers;
-using System.Text;
+//nanoCAD
+using HostMgd.EditorInput;
 using Teigha.Colors;
 using Teigha.DatabaseServices;
-//internal modules
 using Teigha.Geometry;
-using Teigha.Runtime;
+//internal modules
+using LoaderCore.Interfaces;
+using LoaderCore.NanocadUtilities;
+using LayerWorks.LayerProcessing;
+using LayerWorks.Legend;
+using NameClassifiers;
+using LayersIO.DataTransfer;
 using static LoaderCore.NanocadUtilities.EditorHelper;
 
 namespace LayerWorks.Commands
@@ -46,6 +46,7 @@ namespace LayerWorks.Commands
                 return;
             }
             Point3d p3d = pointResult.Value;
+
             Workstation.Logger?.LogDebug("{ProcessingObject}: Точка назначена - X:{XCoord}, Y:{YCoord}", nameof(LegendAssembler), p3d.X, p3d.Y);
             Workstation.Logger?.LogDebug("{ProcessingObject}: Начало транзакции", nameof(LegendAssembler));
 
@@ -61,7 +62,7 @@ namespace LayerWorks.Commands
 
                 string layerSearchMode = GetStringKeywordResult(_modeKeywords, "Выберите режим поиска слоёв:");
 
-                Workstation.Logger?.LogDebug("{ProcessingObject}: Выбран режим \"{SearchMode}\"}", nameof(LegendAssembler), layerSearchMode);
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Выбран режим \"{SearchMode}\"", nameof(LegendAssembler), layerSearchMode);
 
                 int modeIndex = Array.IndexOf(_modeKeywords, layerSearchMode);
                 // Получить записи таблицы слоёв в зависимости от режима поиска
@@ -98,11 +99,18 @@ namespace LayerWorks.Commands
                     }
                     catch (WrongLayerException ex)
                     {
-                        Workstation.Logger?.LogDebug(ex, "{ProcessingObject}: {Error}", nameof(LegendAssembler), ex.Message);
-                        wrongLayersStringBuilder.AppendLine(ex.Message);
+                        Workstation.Logger?.LogDebug(ex, "{ProcessingObject}: Слой {Layer} не обработан. {Error}", nameof(LegendAssembler), ltr.Name, ex.Message);
+                        wrongLayersStringBuilder.AppendLine($"Слой {ltr.Name} не обработан. {ex.Message}");
                         continue;
                     }
                 }
+
+                if (!layersList.Any())
+                {
+                    Workstation.Logger?.LogInformation("Нет подходящих слоёв. Завершение команды");
+                    return;
+                }
+
                 // Создать шаблон ячейки для каждого успешно обработанного слоя
                 List<LegendGridCell> cells = new();
                 foreach (RecordLayerWrapper rlp in layersList)
@@ -131,7 +139,7 @@ namespace LayerWorks.Commands
                     }
                 }
                 // Запустить компоновщик таблиц условных и получить созданные объекты чертежа для вставки в ModelSpace
-                Workstation.Logger?.LogDebug("{ProcessingObject}: Выбранные фильтры {FilterKeywords}", nameof(LegendAssembler), chosenKeywords);
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Выбранные фильтры {FilterKeywords}", nameof(LegendAssembler), string.Join(", ", chosenKeywords));
                 List<Entity> entitiesList;
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Создание компоновщика сеток GridComposer", nameof(LegendAssembler));
 
@@ -146,29 +154,29 @@ namespace LayerWorks.Commands
                     entitiesList = composer.DrawGrids();
                 }
                 // Получить таблицу блоков и ModelSpace, затем вставить объекты таблиц условных в чертёж
-                BlockTable? blocktable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
-                BlockTableRecord? modelspace = transaction.GetObject(blocktable![BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                BlockTableRecord modelSpace = Workstation.ModelSpace;
                 Workstation.Database.Cecolor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
 
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Добавление объектов в чертёж", nameof(LegendAssembler));
 
                 foreach (Entity e in entitiesList)
                 {
-                    modelspace!.AppendEntity(e);
+                    modelSpace!.AppendEntity(e);
                     transaction.AddNewlyCreatedDBObject(e, true); // и в транзакцию
                 }
                 // Поднять наверх в таблице порядка прорисовки все созданные объекты кроме штриховок
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Подъём объектов над штриховками в таблице отрисовки", nameof(LegendAssembler));
 
-                DrawOrderTable drawOrderTable = (DrawOrderTable)transaction.GetObject(modelspace!.DrawOrderTableId, OpenMode.ForWrite);
+                DrawOrderTable drawOrderTable = (DrawOrderTable)transaction.GetObject(modelSpace!.DrawOrderTableId, OpenMode.ForWrite);
                 drawOrderTable.MoveToTop(new ObjectIdCollection(entitiesList.Where(e => e is not Hatch).Select(e => e.ObjectId).ToArray()));
                 // Уничтожить парсеры
                 foreach (RecordLayerWrapper rlp in layersList)
                     rlp.BoundLayer.Dispose();
                 // Завершить транзакцию и вывести список необработанных слоёв в консоль
                 transaction.Commit();
-                Workstation.Logger?.LogDebug("{ProcessingObject}: Транзакция завершена: Вывод сообщения о необработанных слоях", nameof(LegendAssembler));
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Транзакция завершена: Вывод сообщений о необработанных слоях:", nameof(LegendAssembler));
                 Workstation.Logger?.LogInformation("{WrongLayersMessage}", wrongLayersStringBuilder.ToString());
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Команда выполнена.", nameof(LegendAssembler));
             }
         }
 
@@ -182,7 +190,7 @@ namespace LayerWorks.Commands
             LayerTable? layertable = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead) as LayerTable;
             var layers = from ObjectId elem in layertable!
                          let ltr = transaction.GetObject(elem, OpenMode.ForWrite, false) as LayerTableRecord
-                         where ltr.Name.StartsWith(NameParser.Current + NameParser.Current.Separator)
+                         where ltr.Name.StartsWith(NameParser.Current.Prefix + NameParser.Current.Separator)
                          select ltr;
             return layers;
         }

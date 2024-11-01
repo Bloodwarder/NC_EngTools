@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Linq;
 using LoaderCore.Interfaces;
 using LoaderCore.Utilities;
 using Exception = System.Exception;
@@ -45,25 +46,22 @@ namespace LoaderCore.Integrity
 
         internal void Update()
         {
-            /// Вызовы логгера напрямую, так как в этом методе не должно быть зависимостей
-
-            if (Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled))
+            bool isDebugAssembly = Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
+            if (isDebugAssembly)
             {
-                LoggingRouter.LogInformation?.Invoke("Отладочная сборка - обновление не производится");
-                //NcetCore.Logger?.LogInformation("Отладочная сборка - обновление не производится");
+                PreInitializeSimpleLogger.Log?.Invoke("Отладочная сборка - обновление не производится");
                 return;
             }
-            var updateSourceDirectory = new DirectoryInfo(Path.Combine(NcetCore.RootUpdateDirectory ?? "", ModulesFolderName));
+            var updateSourceDirectory = new DirectoryInfo(Path.Combine(NcetCore.RootUpdateDirectory ?? UpdatePathDirectResolve(), ModulesFolderName, Name));
             if (updateSourceDirectory == null || !updateSourceDirectory.Exists)
             {
                 string message = "Ошибка. Источник обновлений недоступен";
                 Exception ex = new(message);
-                LoggingRouter.LogInformation?.Invoke(message);
-                //NcetCore.Logger?.LogCritical(ex, message);
+                PreInitializeSimpleLogger.Log?.Invoke(message);
                 throw ex;
             }
-            var sourceFilesDictionary = updateSourceDirectory.GetFiles("*", SearchOption.AllDirectories)
-                                           .ToDictionary(f => f.Name);
+            var sourceFiles = updateSourceDirectory.GetFiles("*", SearchOption.AllDirectories);
+            var sourceFilesDictionary = sourceFiles.ToDictionary(f => f.Name);
             if (!_moduleDirectory.Exists)
                 _moduleDirectory.Create();
             var localFilesDictionary = _moduleDirectory.GetFiles("*", SearchOption.AllDirectories)
@@ -76,22 +74,30 @@ namespace LoaderCore.Integrity
                 {
                     var newLocalFile = sourceFile.CopyTo(localFile?.FullName
                                                          ?? sourceFile.FullName.Replace(
-                                                             NcetCore.RootUpdateDirectory!,
-                                                             NcetCore.RootLocalDirectory),
+                                                             updateSourceDirectory.FullName,
+                                                             _moduleDirectory.FullName),
                                                                 true);
-                    LoggingRouter.LogInformation?.Invoke($"Файл {newLocalFile.Name} обновлён");
-                    //NcetCore.Logger?.LogInformation($"Файл {newLocalFile.Name} обновлён");
+                    PreInitializeSimpleLogger.Log?.Invoke($"Файл {newLocalFile.Name} обновлён");
                     updated = true;
                 }
             }
             foreach (var localFile in localFilesDictionary.Values)
             {
                 if (!sourceFilesDictionary.ContainsKey(localFile.Name))
-                    localFile.Delete();
-                updated = true;
+                {
+                    try
+                    {
+                        localFile.Delete();
+                        PreInitializeSimpleLogger.Log?.Invoke($"Файл {localFile.Name} удалён");
+                        updated = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        PreInitializeSimpleLogger.Log?.Invoke($"Не удалось удалить файл {localFile.Name}: {ex.Message}");
+                    }
+                }
             }
-            LoggingRouter.LogInformation?.Invoke(updated ? $"Модуль {Name} обновлён" : $"Модуль {Name} в актуальном состоянии");
-            //NcetCore.Logger?.LogInformation(updated ? $"Модуль {Name} обновлён" : $"Модуль {Name} в актуальном состоянии");
+            PreInitializeSimpleLogger.Log?.Invoke(updated ? $"Модуль {Name} обновлён" : $"Модуль {Name} в актуальном состоянии");
         }
 
         internal bool CheckForUpdates()
@@ -210,6 +216,21 @@ namespace LoaderCore.Integrity
             {
                 assemblyName = null;
                 return false;
+            }
+        }
+
+        private string UpdatePathDirectResolve()
+        {
+            var configXmlFile = _moduleDirectory.Parent!.Parent!.GetFiles("Configuration.xml").Single().FullName;
+            XDocument configXml = XDocument.Load(configXmlFile);
+            XElement? localPathElement = configXml.Root?.Element("Directories")?.Element("UpdateDirectory");
+            if (localPathElement != null)
+            {
+                return localPathElement.Value;
+            }
+            else
+            {
+                throw new Exception("Ошибка чтения файла конфигурации");
             }
         }
     }

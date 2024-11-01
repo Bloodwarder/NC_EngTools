@@ -22,7 +22,7 @@ namespace LayersDatabaseEditor
         {
             
             InitializeComponent();
-            LoggingRouter.LogInformation += LogWrite;
+            PreInitializeSimpleLogger.Log += LogWrite;
         }
 
         private async void miTestRun_Click(object sender, RoutedEventArgs e)

@@ -1,4 +1,6 @@
-﻿using NPOI.SS.UserModel;
+﻿using LoaderCore.NanocadUtilities;
+using Microsoft.Extensions.Logging;
+using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System.Diagnostics;
 
@@ -86,6 +88,7 @@ namespace LayersIO.Excel
             using (FileStream fileStream = new FileStream(_fileInfo.FullName, FileMode.CreateNew, FileAccess.Write))
             {
                 workbook.Write(fileStream);
+                Workstation.Logger?.LogInformation("Файл {ExcelFile} сохранён в папке с чертежом", _fileInfo.Name);
             }
 
             OpenExcelFile(_fileInfo.FullName);

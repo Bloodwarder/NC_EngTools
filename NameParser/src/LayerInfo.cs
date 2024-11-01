@@ -75,7 +75,7 @@ namespace NameClassifiers
         public void ChangeAuxilaryData(string key, string? value)
         {
             var validators = ParentParser.AuxilaryData[key].Validators;
-            if (validators != null)
+            if (value != null && validators != null)
             {
                 bool isValid = validators.TrueForAll(v => v.ValidateLayerInfo(this));
                 if (!isValid)
@@ -90,11 +90,7 @@ namespace NameClassifiers
 
         public void AlterSecondaryClassifier(string newMainName)
         {
-            // TODO: Изменить логику так, чтобы не предполагалось, что статус стоит в конце, или сделать возможным получить LayerInfo без статуса
-            //string statusStub = ParentParser.Status.GetDescriptionDictionary().Keys.First(); // затычка, чтобы объект парсился
-            //var alterLayerInfo = ParentParser.GetLayerInfo($"{Prefix}{ParentParser.Separator}{newMainName}{ParentParser.Separator}{statusStub}");
-
-            // TODO: Тестировать
+            // TODO: Тестировать изменение дополнительного классификатора
             var alterResult = ParentParser.GetLayerInfo(newMainName);
             if (alterResult.Status != LayerInfoParseStatus.Failure && alterResult.Value.SecondaryClassifiers != null)
                 SecondaryClassifiers = alterResult.Value.SecondaryClassifiers;

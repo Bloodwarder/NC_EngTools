@@ -3,6 +3,7 @@ using LoaderCore.Interfaces;
 using LoaderCore.NanocadUtilities;
 using Microsoft.Extensions.Logging;
 using NameClassifiers;
+using System.Text.RegularExpressions;
 using Teigha.DatabaseServices;
 
 namespace LayerWorks.EntityFormatters
@@ -18,18 +19,30 @@ namespace LayerWorks.EntityFormatters
         public void FormatEntity(Entity entity)
         {
             string layerName = entity.Layer;
-            var parser = NameParser.Current;
-            var layerInfoResult = parser.GetLayerInfo(layerName);
-            if (layerInfoResult.Status == LayerInfoParseStatus.Success)
+            string prefix = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])").Value; // TODO: протестировать на ошибки для слоёв вообще без префикса
+            bool parserGetSuccess = NameParser.LoadedParsers.TryGetValue(prefix, out var parser);
+            if (!parserGetSuccess)
+            {
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Форматирование объекта {EntityType} слоя {LayerName} не выполнено. Не загружен парсер",
+                                             nameof(StandardEntityFormatter),
+                                             entity.GetType().Name,
+                                             layerName);
+                return;
+            }
+            var layerInfoResult = parser?.GetLayerInfo(layerName);
+            if (layerInfoResult!.Status == LayerInfoParseStatus.Success)
             {
                 string key = layerInfoResult.Value.TrueName;
                 FormatEntity(entity, key);
             }
             else
             {
-                Workstation.Logger?.LogDebug("Форматирование объекта {EntityType} слоя {LayerName} не выполнено. Не подходящий слой", entity.GetType().Name, layerName);
-                foreach (Exception ex in layerInfoResult.GetExceptions())
-                    Workstation.Logger?.LogTrace(ex, "Ошибка: {exceptionMessage}", ex.Message);
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Форматирование объекта {EntityType} слоя {LayerName} не выполнено. Не подходящий слой",
+                                             nameof(StandardEntityFormatter),
+                                             entity.GetType().Name,
+                                             layerName);
+                foreach (Exception ex in layerInfoResult!.GetExceptions())
+                    Workstation.Logger?.LogTrace(ex, "{ProcessingObject}: Ошибка: {exceptionMessage}", nameof(StandardEntityFormatter), ex.Message);
                 return;
             }
         }
@@ -39,7 +52,7 @@ namespace LayerWorks.EntityFormatters
             bool success = _repository.TryGet(key, out LayerProps? props);
             if (!success)
             {
-                Workstation.Logger?.LogDebug("Не удалось форматировать {EntityName}", entity.GetType().Name);
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Не удалось форматировать {EntityName}", nameof(StandardEntityFormatter), entity.GetType().Name);
                 return;
             }
             entity.LinetypeScale = props?.LinetypeScale ?? entity.LinetypeScale;

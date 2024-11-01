@@ -37,7 +37,7 @@ namespace LoaderCore.Utilities
                 catch (AccessViolationException ex)
                 {
                     string str = ex.Message;
-                    // TODO: понять из-за чего прилетает и обработать
+                    // TODO: понять из-за чего прилетает и обработать. Upd - с новым логгером не прилетает
                 }
             }
         }
