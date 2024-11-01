@@ -81,7 +81,7 @@ namespace LayerWorks.Commands
 
                 Visualizers visualizers = NameParser.Current.Visualizers;
                 string[] filters = visualizers.Filters.Select(x => x.Name).ToArray();
-                string filterName = GetStringKeywordResult(filters, "Выберите фильтр");
+                string filterName = GetStringKeyword(filters, "Выберите фильтр");
                 HighlightFilter chosenFilter = visualizers.Filters.Where(f => f.Name == filterName).Single();
 
                 //chosenFilter.ApplyFilter(VisualizerLayerWrappers.StoredLayerStates[Workstation.Document]); //ПЕРЕСОБРАТЬ С ЭТИМ И ТЕСТИРОВАТЬ
