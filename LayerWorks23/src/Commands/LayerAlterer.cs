@@ -76,7 +76,7 @@ namespace LayerWorks.Commands
         {
             NameParser.Current.ExtractSectionInfo<StatusSection>(out string[] statuses, out Func<string, string> descriptions);
             string newStatus = GetStringKeyword(statuses, statuses.Select(s => descriptions(s)).ToArray(), $"Укажите статус объекта <{PrevStatus}>");
-            PrevStatus = newStatus;
+            PrevStatus = descriptions(newStatus);
 
             Workstation.Logger?.LogDebug("{ProcessingObject}: Выбран статус \"{Status}\"", nameof(LayerAlterer), newStatus);
 
@@ -227,29 +227,38 @@ namespace LayerWorks.Commands
             {
                 PreviousAssignedData[dataKey] = "";
             }
-            PromptKeywordOptions pko = new($"Введите значение: <{PreviousAssignedData[dataKey]}>")
+            PromptKeywordOptions pko = new($"Введите значение [Сброс]: <{PreviousAssignedData[dataKey]}>", "Сброс")
             {
                 AllowArbitraryInput = true,
                 AllowNone = true,
+                AppendKeywordsToMessage = false
             };
             PromptResult result = Workstation.Editor.GetKeywords(pko);
-            //PromptStringOptions pso = new($"Введите значение:")
-            //{
-            //    AllowSpaces = true,
-            //    DefaultValue = PreviousAssignedData[dataKey],
-            //    UseDefaultValue = true,
-            //};
-            //PromptResult result = Workstation.Editor.GetString(pso);
+
             string? newData;
             if (result.Status == PromptStatus.None)
             {
-                PreviousAssignedData[dataKey] = string.Empty;
-                newData = null;
+                if (PreviousAssignedData[dataKey] != "")
+                {
+                    newData = PreviousAssignedData[dataKey];
+                }
+                else
+                {
+                    newData = null;
+                }
             }
             else if (result.Status != PromptStatus.Error && result.Status != PromptStatus.Cancel)
             {
-                newData = result.StringResult;
-                PreviousAssignedData[dataKey] = newData;
+                if (result.StringResult == "Сброс")
+                {
+                    newData = null;
+                    PreviousAssignedData[dataKey] = "";
+                }
+                else
+                {
+                    newData = result.StringResult;
+                    PreviousAssignedData[dataKey] = newData;
+                }
             }
             else
             {
