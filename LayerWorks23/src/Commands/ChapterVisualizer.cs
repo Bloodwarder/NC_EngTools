@@ -10,6 +10,8 @@ using NameClassifiers.Highlighting;
 using LoaderCore.NanocadUtilities;
 using Teigha.DatabaseServices;
 using static LoaderCore.NanocadUtilities.EditorHelper;
+using Microsoft.Extensions.Logging;
+using LayerWorks.HighlightFiltering;
 
 namespace LayerWorks.Commands
 {
@@ -51,17 +53,22 @@ namespace LayerWorks.Commands
             using (Transaction transaction = tm.StartTransaction())
             {
                 LayerTable lt = (LayerTable)transaction.GetObject(db.LayerTableId, OpenMode.ForRead, false);
-                var layers = from ObjectId elem in lt
+                var layers = (from ObjectId elem in lt
                              let ltr = tm.GetObject(elem, OpenMode.ForWrite, false) as LayerTableRecord
-                             where ltr.Name.StartsWith(NameParser.Current + NameParser.Current.Separator)
-                             select ltr;
+                             where ltr.Name.StartsWith(NameParser.Current.Prefix + NameParser.Current.Separator)
+                             select ltr).ToArray();
+                if (layers.Length == 0)
+                {
+                    Workstation.Logger?.LogInformation("Нет подходящих слоёв. Завершение команды");
+                    return;
+                }
                 int errorCount = 0;
                 int successCount = 0;
                 foreach (LayerTableRecord ltr in layers)
                 {
                     try
                     {
-                        VisualizerLayerWrapper.Create(ltr);
+                        VisualizerLayerWrapper.Create(ltr); // BUG: Это место тормозит. Выяснить.
                         successCount++;
                     }
                     catch (WrongLayerException)
@@ -70,16 +77,16 @@ namespace LayerWorks.Commands
                         continue;
                     }
                 }
-                Workstation.Editor.WriteMessage($"Фильтр включен для {successCount} слоёв. Число необработанных слоёв: {errorCount}");
+                Workstation.Logger?.LogInformation("Фильтр включен для {SuccessCount} слоёв. Число необработанных слоёв: {ErrorCount}", successCount, errorCount);
 
-                Visualizers visualizers = NameParser.LoadedParsers[prefix].Visualizers;
+                Visualizers visualizers = NameParser.Current.Visualizers;
                 string[] filters = visualizers.Filters.Select(x => x.Name).ToArray();
                 string filterName = GetStringKeywordResult(filters, "Выберите фильтр");
                 HighlightFilter chosenFilter = visualizers.Filters.Where(f => f.Name == filterName).Single();
 
-                //chosenFilter.ApplyFilter(VisualizerLayerWrappers.StoredLayerStates[Workstation.Document]); ПЕРЕСОБРАТЬ С ЭТИМ И ТЕСТИРОВАТЬ
+                //chosenFilter.ApplyFilter(VisualizerLayerWrappers.StoredLayerStates[Workstation.Document]); //ПЕРЕСОБРАТЬ С ЭТИМ И ТЕСТИРОВАТЬ
 
-                // UNDONE: Работает по-старому! Собрано просто, чтобы было не сломано. Взять логику из визуализаторов
+                // UNDONE: Работает по-старому! Собрано просто, чтобы было не сломано. Взять логику из визуализаторов ^^^
                 var layerchapters = VisualizerLayerWrappers.StoredLayerStates[doc]
                                                               .Where(l => l.LayerInfo.PrimaryClassifier != null)
                                                               .Select(l => l.LayerInfo.PrimaryClassifier)
@@ -129,7 +136,7 @@ namespace LayerWorks.Commands
             {
                 ActiveChapterState[doc] = result;
                 VisualizerLayerWrappers.Highlight(ActiveChapterState[doc]);
-                LayerChecker.LayerAddedEvent += NewLayerHighlight;
+                LayerChecker.LayerAddedEvent ??= NewLayerHighlight;
             }
         }
     }

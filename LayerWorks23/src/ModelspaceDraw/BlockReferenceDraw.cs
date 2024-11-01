@@ -5,6 +5,7 @@ using HostMgd.ApplicationServices;
 using LayersIO.DataTransfer;
 using LayerWorks.LayerProcessing;
 using LoaderCore.NanocadUtilities;
+using Microsoft.Extensions.Logging;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
@@ -50,11 +51,6 @@ namespace LayerWorks.ModelspaceDraw
                 try
                 {
                     BlockTable bt = _blockTables[Workstation.Document].Get();
-                    //if (!bt.IsWriteEnabled)
-                    //{
-                    //    throw new System.Exception("Не открыта для чтения");
-                    //}
-                    // TODO: исполнить более правильно - через DBObjectWrapper например. Сделано - тестировать
                     return bt;
                 }
                 catch
@@ -81,7 +77,7 @@ namespace LayerWorks.ModelspaceDraw
             {
                 ImportRecords(out HashSet<string> failedImports);
                 foreach (string str in failedImports)
-                    Workstation.Editor.WriteMessage($"Не удалось импортировать блок {str}");
+                    Workstation.Logger?.LogWarning("Не удалось импортировать блок {Block}", str);
                 _blocksImported = true;
             }
             // Отрисовываем объект
@@ -93,6 +89,7 @@ namespace LayerWorks.ModelspaceDraw
                 Layer = Layer.BoundLayer.Name
             };
             EntitiesList.Add(bref);
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Объект слоя {Layer} добавлен в список для отрисовки", nameof(BlockReferenceDraw), bref.Layer);
         }
 
         private void QueueImportBlockTableRecord(object? sender, EventArgs e) => QueueImportBlockTableRecord();
@@ -100,7 +97,12 @@ namespace LayerWorks.ModelspaceDraw
         private void QueueImportBlockTableRecord()
         {
             if (BoundBlockTable.Has(BlockName))
+            {
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Блок {Block} присутствует в таблице чертежа. Пропуск постановки в очередь", nameof(BlockReferenceDraw), BlockName);
                 return;
+            }
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Постановка блока {Block} в очередь импорта", nameof(BlockReferenceDraw), BlockName);
+
 
             if (QueuedFiles.Count == 0)
             {
@@ -111,17 +113,20 @@ namespace LayerWorks.ModelspaceDraw
             }
 
             // Заполняем очереди блоков и файлов для импорта
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Файл для импорта блока - {File}", nameof(BlockReferenceDraw), LegendDrawTemplate!.BlockPath!);
             QueuedFiles.Add(LegendDrawTemplate!.BlockPath!);
             bool success = QueuedBlocks.TryGetValue(FilePath, out HashSet<string>? blocksQueue);
             if (!success)
                 QueuedBlocks.Add(FilePath, blocksQueue = new HashSet<string>());
             blocksQueue!.Add(BlockName);
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Блок {Block} поставлен в очередь импорта", nameof(BlockReferenceDraw), BlockName);
         }
 
         private static void ImportRecords(out HashSet<string> failedBlockImports)
         {
-            failedBlockImports = new HashSet<string>();
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Начало импорта блоков", nameof(BlockReferenceDraw));
 
+            failedBlockImports = new HashSet<string>();
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
@@ -132,6 +137,7 @@ namespace LayerWorks.ModelspaceDraw
                     {
                         try
                         {
+                            Workstation.Logger?.LogDebug("{ProcessingObject}: Открытие файла {File}", nameof(BlockReferenceDraw), file);
                             importDatabase.ReadDwgFile(file, FileOpenMode.OpenForReadAndAllShare, false, null);
                             // Ищем все нужные нам блоки
                             BlockTable? importBlockTable = transaction.GetObject(importDatabase.BlockTableId, OpenMode.ForRead) as BlockTable;
@@ -139,29 +145,43 @@ namespace LayerWorks.ModelspaceDraw
                                                   let block = transaction.GetObject(blockId, OpenMode.ForRead) as BlockTableRecord
                                                   where QueuedBlocks[file].Contains(block.Name)
                                                   select block).ToList();
+                            string blockNames = string.Join(", ", importedBlocks.Select(b => b.Name));
                             // Заполняем сет с ненайденными блоками
                             foreach (BlockTableRecord block in importedBlocks)
                             {
                                 if (!QueuedBlocks[file].Contains(block.Name))
+                                {
+                                    Workstation.Logger?.LogDebug("{ProcessingObject}: Не найден блок {Block}", nameof(BlockReferenceDraw), block.Name);
                                     failedBlockImports.Add(block.Name);
+                                }
                             }
+                            Workstation.Logger?.LogDebug("{ProcessingObject}: Выбраны блоки для копирования: {Blocks}", nameof(BlockReferenceDraw), blockNames);
+                            Workstation.Logger?.LogDebug("{ProcessingObject}: Импорт блоков", nameof(BlockReferenceDraw));
                             // Добавляем все найденные блоки в таблицу блоков текущего чертежа
-                            importBlockTable!.Database.WblockCloneObjects(new ObjectIdCollection(importedBlocks.Select(b => b.ObjectId).ToArray()), BoundBlockTable.ObjectId, new IdMapping(), DuplicateRecordCloning.Ignore, false);
+                            importBlockTable!.Database.WblockCloneObjects(new ObjectIdCollection(importedBlocks.Select(b => b.ObjectId).ToArray()),
+                                                                          BoundBlockTable.ObjectId,
+                                                                          new IdMapping(),
+                                                                          DuplicateRecordCloning.Ignore,
+                                                                          false);
+
                             transaction.Commit();
+                            Workstation.Logger?.LogDebug("{ProcessingObject}: Транзакция завершена", nameof(BlockReferenceDraw));
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            Workstation.Editor.WriteMessage($"\nОшибка импорта блоков из файла \"{file}\"\n");
+                            Workstation.Logger?.LogWarning(ex, "Ошибка импорта блоков из файла \"{File}\": {Message}", file, ex.Message);
                             transaction.Abort();
                         }
                         finally
                         {
                             // Убираем файл из очереди
+                            Workstation.Logger?.LogDebug("{ProcessingObject}: Удаление файла {File} из очереди обработки", nameof(BlockReferenceDraw), file);
                             QueuedBlocks.Remove(file);
                         }
                     }
                 }
             }
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Очистка очереди файлов для импорта блоков", nameof(BlockReferenceDraw));
             QueuedFiles.Clear();
         }
     }

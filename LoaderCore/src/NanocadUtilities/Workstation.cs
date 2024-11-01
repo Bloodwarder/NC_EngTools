@@ -13,10 +13,10 @@ namespace LoaderCore.NanocadUtilities
     /// </summary>
     public static class Workstation
     {
-        private static Document _document;
-        private static Database _database;
-        private static Teigha.DatabaseServices.TransactionManager _transactionManager;
-        private static Editor _editor;
+        private static Document _document = null!;
+        private static Database _database = null!;
+        private static Teigha.DatabaseServices.TransactionManager _transactionManager = null!;
+        private static Editor _editor = null!;
 
         static Workstation()
         {
@@ -27,6 +27,16 @@ namespace LoaderCore.NanocadUtilities
         public static Database Database => _database;
         public static Teigha.DatabaseServices.TransactionManager TransactionManager => _transactionManager;
         public static Editor Editor => _editor;
+        public static BlockTable BlockTable => (BlockTable)_transactionManager.TopTransaction.GetObject(Database.BlockTableId, OpenMode.ForWrite);
+        public static BlockTableRecord ModelSpace
+        {
+            get
+            {
+                var blockTable = (BlockTable)_transactionManager.TopTransaction.GetObject(Database.BlockTableId, OpenMode.ForRead);
+                return (BlockTableRecord)_transactionManager.TopTransaction.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite);
+            }
+        }
+
         public static ILogger? Logger { get; internal set; } = NcetCore.Logger;
 
 

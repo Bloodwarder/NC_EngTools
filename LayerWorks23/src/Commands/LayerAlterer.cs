@@ -25,7 +25,7 @@ namespace LayerWorks.Commands
     /// </summary>
     public class LayerAlterer
     {
-        internal static string PrevStatus = "Сущ";
+        internal static string PrevStatus = "";
         internal static Dictionary<string, string> PreviousAssignedData { get; } = new();
         /// <summary>
         /// Переключение кальки, при необходимости добавление её в чертёж
@@ -74,9 +74,9 @@ namespace LayerWorks.Commands
         /// </summary>
         public static void LayerStatusChange()
         {
-            NameParser.Current.ExtractSectionInfo<StatusSection>(out string[] statuses,
-                                                                                                     out Func<string, string> descriptions);
+            NameParser.Current.ExtractSectionInfo<StatusSection>(out string[] statuses, out Func<string, string> descriptions);
             string newStatus = GetStringKeywordResult(statuses, statuses.Select(s => descriptions(s)).ToArray(), $"Укажите статус объекта <{PrevStatus}>");
+            PrevStatus = newStatus;
 
             Workstation.Logger?.LogDebug("{ProcessingObject}: Выбран статус \"{Status}\"", nameof(LayerAlterer), newStatus);
 
@@ -163,7 +163,7 @@ namespace LayerWorks.Commands
                 {
                     var repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, string>>();
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    foreach(LayerWrapper wrapper in ActiveLayerWrappers.List)
+                    foreach (LayerWrapper wrapper in ActiveLayerWrappers.List)
                     {
                         bool success = repository.TryGet(wrapper.LayerInfo.MainName, out string? newMainName);
                         if (success)
@@ -227,15 +227,26 @@ namespace LayerWorks.Commands
             {
                 PreviousAssignedData[dataKey] = "";
             }
-            PromptStringOptions pso = new($"Введите значение:")
+            PromptKeywordOptions pko = new($"Введите значение: <{PreviousAssignedData[dataKey]}>")
             {
-                AllowSpaces = true,
-                DefaultValue = PreviousAssignedData[dataKey],
-                UseDefaultValue = true,
+                AllowArbitraryInput = true,
+                AllowNone = true,
             };
-            PromptResult result = Workstation.Editor.GetString(pso);
-            string newData;
-            if (result.Status != (PromptStatus.Error | PromptStatus.Cancel))
+            PromptResult result = Workstation.Editor.GetKeywords(pko);
+            //PromptStringOptions pso = new($"Введите значение:")
+            //{
+            //    AllowSpaces = true,
+            //    DefaultValue = PreviousAssignedData[dataKey],
+            //    UseDefaultValue = true,
+            //};
+            //PromptResult result = Workstation.Editor.GetString(pso);
+            string? newData;
+            if (result.Status == PromptStatus.None)
+            {
+                PreviousAssignedData[dataKey] = string.Empty;
+                newData = null;
+            }
+            else if (result.Status != PromptStatus.Error && result.Status != PromptStatus.Cancel)
             {
                 newData = result.StringResult;
                 PreviousAssignedData[dataKey] = newData;

@@ -1,6 +1,7 @@
 ﻿using LayersIO.DataTransfer;
 using LayerWorks.LayerProcessing;
 using LayerWorks.ModelspaceDraw;
+using LoaderCore;
 using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -12,16 +13,18 @@ namespace LayerWorks.Legend
     internal class LegendGridCell : ICloneable
     {
         private static Dictionary<string, Type> _legendDrawTypes = new();
+        private static IRepository<string, LegendDrawTemplate> _repository;
         List<LegendObjectDraw> _draw = new List<LegendObjectDraw>();
         private LegendDrawTemplate? _template;
 
-
+        static LegendGridCell()
+        {
+            _repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LegendDrawTemplate>>();
+        }
         internal LegendGridCell(RecordLayerWrapper layer)
         {
             Layer = layer;
-
-            var service = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LegendDrawTemplate>>(); // TODO: перенести в статику
-            bool success = service.TryGet(layer.LayerInfo.TrueName, out LegendDrawTemplate? ldt);
+            bool success = _repository.TryGet(layer.LayerInfo.TrueName, out LegendDrawTemplate? ldt);
             if (success)
                 _template = ldt;
             else
@@ -59,14 +62,9 @@ namespace LayerWorks.Legend
             double x = ParentGrid!.BasePoint.X + TableIndex.X * (LegendGrid.CellWidth + LegendGrid.WidthInterval) + LegendGrid.CellWidth / 2;
             double y = ParentGrid!.BasePoint.Y - TableIndex.Y * (LegendGrid.CellHeight + LegendGrid.HeightInterval) + LegendGrid.CellHeight / 2;
             Point2d point = new(x, y);
-            //string typeName = string.Concat("LayerWorks.ModelspaceDraw.", _template!.DrawTemplate, "Draw");
             LegendObjectDraw? lod = Activator.CreateInstance(templateType!, point, Layer, _template) as LegendObjectDraw;
             if (lod == null)
                 throw new Exception($"Отсутствует тип");
-
-            //lod.LegendDrawTemplate = _template;
-            //lod.Layer = Layer;
-            //lod.Basepoint = new Point2d(x, y);
             _draw.Add(lod);
         }
 
