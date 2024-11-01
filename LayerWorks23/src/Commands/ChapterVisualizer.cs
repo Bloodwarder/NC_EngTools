@@ -68,7 +68,7 @@ namespace LayerWorks.Commands
                 {
                     try
                     {
-                        VisualizerLayerWrapper.Create(ltr); // BUG: Это место тормозит. Выяснить.
+                        VisualizerLayerWrapper.Create(ltr); // BUG: Это место тормозит. Выяснить. Тормозит только при включенной отладке
                         successCount++;
                     }
                     catch (WrongLayerException)
@@ -136,7 +136,7 @@ namespace LayerWorks.Commands
             {
                 ActiveChapterState[doc] = result;
                 VisualizerLayerWrappers.Highlight(ActiveChapterState[doc]);
-                LayerChecker.LayerAddedEvent ??= NewLayerHighlight;
+                LayerChecker.LayerAddedEvent += NewLayerHighlight;
             }
         }
     }
