@@ -227,20 +227,21 @@ namespace LayerWorks.Commands
             {
                 PreviousAssignedData[dataKey] = "";
             }
-            PromptKeywordOptions pko = new($"Введите значение [Сброс]: <{PreviousAssignedData[dataKey]}>", "Сброс")
+            string previousAssignedData = PreviousAssignedData[dataKey];
+            PromptKeywordOptions pko = new($"Введите значение [{previousAssignedData}/Сброс]: <{previousAssignedData}>", $"{previousAssignedData} Сброс")
             {
                 AllowArbitraryInput = true,
                 AllowNone = true,
-                AppendKeywordsToMessage = false
+                AppendKeywordsToMessage = true
             };
             PromptResult result = Workstation.Editor.GetKeywords(pko);
 
             string? newData;
             if (result.Status == PromptStatus.None)
             {
-                if (PreviousAssignedData[dataKey] != "")
+                if (previousAssignedData != "")
                 {
-                    newData = PreviousAssignedData[dataKey];
+                    newData = previousAssignedData;
                 }
                 else
                 {
@@ -249,7 +250,7 @@ namespace LayerWorks.Commands
             }
             else if (result.Status != PromptStatus.Error && result.Status != PromptStatus.Cancel)
             {
-                if (result.StringResult == "Сброс")
+                if (result.StringResult == "Сброс" || result.StringResult == "")
                 {
                     newData = null;
                     PreviousAssignedData[dataKey] = "";
