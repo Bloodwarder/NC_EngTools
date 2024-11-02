@@ -12,11 +12,12 @@ namespace LayerWorks.Commands
 {
     public static class LayerEntitiesReportWriter
     {
-        private static Color _byLayerColor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
+        private static readonly Color _byLayerColor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
 
         public static void WriteReport()
         {
             // TODO: Пока сделано "в лоб", чтобы работало. Много вариантов для оптимизации. Вынести логику фильтрации в xml
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Начало подготовки отчёта", nameof(LayerEntitiesReportWriter));
             using (var transaction = Workstation.TransactionManager.StartTransaction())
             {
                 BlockTable blocktable = (BlockTable)transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead, false);
@@ -85,7 +86,6 @@ namespace LayerWorks.Commands
                 var reportPath = Path.Combine(dir!.FullName, $"LayerReport_{DateTime.Now.ToLongTimeString().Replace(":", "-")}.xlsx");
                 var writer = new ExcelSimpleReportWriter<LayerEntityReport>(reportPath, "Report");
                 writer.ExportToExcel(reports.ToArray());
-
             }
         }
 

@@ -143,8 +143,9 @@ namespace LayerWorks.ModelspaceDraw
                             BlockTable? importBlockTable = transaction.GetObject(importDatabase.BlockTableId, OpenMode.ForRead) as BlockTable;
                             var importedBlocks = (from ObjectId blockId in importBlockTable!
                                                   let block = transaction.GetObject(blockId, OpenMode.ForRead) as BlockTableRecord
-                                                  where QueuedBlocks[file].Contains(block.Name)
+                                                  where QueuedBlocks[file].Contains(block.Name) // TODO: НЕ ОБРАБАТЫВАЕТ ДИНАМИЧЕСКИЕ БЛОКИ. Исправить позже, а пока не использовать в файле шаблона
                                                   select block).ToList();
+                            
                             string blockNames = string.Join(", ", importedBlocks.Select(b => b.Name));
                             // Заполняем сет с ненайденными блоками
                             foreach (BlockTableRecord block in importedBlocks)
