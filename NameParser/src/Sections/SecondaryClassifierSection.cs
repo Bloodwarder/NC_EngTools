@@ -18,12 +18,15 @@ namespace NameClassifiers.Sections
             // Установить счётчик элементов на 0 и увеличивать пока не будет найден элемент, содержащий следующий классификатор,
             // затем передать значения и переместить указатель вперёд
             int elementsCounter = 0;
-            while (NextSection != null && !NextSection.ValidateString(str[pointer + elementsCounter]))
+            if (NextSection != null)
             {
-                elementsCounter++;
-                if (pointer + elementsCounter > str.Length)
-                    break;
-            }
+                do
+                {
+                    elementsCounter++;
+                    if (pointer + elementsCounter > str.Length)
+                        break;
+                } while (!NextSection.ValidateString(str[pointer + elementsCounter]));
+            }   
             string secondary = string.Join(ParentParser.Separator, str.Skip(pointer).Take(elementsCounter).ToArray());
             pointer += elementsCounter;
             layerInfoResult.Value.SecondaryClassifiers = secondary;

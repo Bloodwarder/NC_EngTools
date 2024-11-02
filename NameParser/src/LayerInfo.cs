@@ -91,7 +91,7 @@ namespace NameClassifiers
         public void AlterSecondaryClassifier(string newMainName)
         {
             // TODO: Тестировать изменение дополнительного классификатора
-            var alterResult = ParentParser.GetLayerInfo(newMainName);
+            var alterResult = ParentParser.GetLayerInfo($"{ParentParser.Prefix}{ParentParser.Separator}{newMainName}");
             if (alterResult.Status != LayerInfoParseStatus.Failure && alterResult.Value.SecondaryClassifiers != null)
                 SecondaryClassifiers = alterResult.Value.SecondaryClassifiers;
             else
