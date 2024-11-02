@@ -23,10 +23,10 @@ namespace NameClassifiers.Sections
                 do
                 {
                     elementsCounter++;
-                    if (pointer + elementsCounter > str.Length)
+                    if (pointer + elementsCounter > str.Length - 1)
                         break;
                 } while (!NextSection.ValidateString(str[pointer + elementsCounter]));
-            }   
+            }
             string secondary = string.Join(ParentParser.Separator, str.Skip(pointer).Take(elementsCounter).ToArray());
             pointer += elementsCounter;
             layerInfoResult.Value.SecondaryClassifiers = secondary;
@@ -53,7 +53,7 @@ namespace NameClassifiers.Sections
         internal override void ExtractFullInfo(out string[] keywords, out Func<string, string> descriptions)
         {
             keywords = Array.Empty<string>();
-            descriptions = s => string.Empty;            
+            descriptions = s => string.Empty;
         }
     }
 }
