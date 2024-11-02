@@ -27,7 +27,7 @@ namespace NameClassifiers.Sections
         internal Dictionary<string, string> GetDescriptionDictionary() => _descriptionDict;
         internal override void Process(string[] str, LayerInfoResult layerInfoResult, int pointer)
         {
-            if (pointer <= str.Length && _descriptionDict.ContainsKey(str[pointer]))
+            if (pointer <= str.Length - 1 && _descriptionDict.ContainsKey(str[pointer]))
             {
                 layerInfoResult.Value.Status = str[pointer];
                 pointer++;
