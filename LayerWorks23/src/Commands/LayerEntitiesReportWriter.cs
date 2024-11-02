@@ -6,6 +6,7 @@ using System.IO;
 using Teigha.DatabaseServices;
 using Teigha.Runtime;
 using Teigha.Colors;
+using Microsoft.Extensions.Logging;
 
 namespace LayerWorks.Commands
 {
@@ -24,39 +25,61 @@ namespace LayerWorks.Commands
                 var entities = modelspace.Cast<ObjectId>()
                                          .Select(id => (Entity)transaction.GetObject(id, OpenMode.ForRead))
                                          .Where(e => e.Layer.StartsWith(parser.Prefix + parser.Separator))
-                                         .Where(e => e is Polyline);
-                List<EntityLayerWrapper> wrappers = new();
-                HashSet<string> filteredStatus = new() { "пр", "дем" };
-
+                                         .Where(e => e is Polyline && e.Color == _byLayerColor);
+                HashSet<string?> filteredStatus = new() { "пр", "дем" };
+                Dictionary<string, EntityLayerWrapper> wrappersDictionary = new();
+                HashSet<string> wrongLayers = new();
                 foreach (var entity in entities)
                 {
+                    string layerName = entity.Layer;
                     try
                     {
-                        var wrapper = new EntityLayerWrapper(entity);
-                        if (wrapper.LayerInfo.IsValid
-                            && filteredStatus.Contains(wrapper.LayerInfo.Status)
-                            && wrapper.BoundEntities.All(e => e.Color == _byLayerColor))
-                            wrappers.Add(new(entity));
+                        if (wrappersDictionary.ContainsKey(layerName))
+                        {
+                            wrappersDictionary[layerName].BoundEntities.Add(entity);
+                            Workstation.Logger?.LogDebug("{ProcessingObject}: Объект {Entity} слоя {Layer} добавлен к существующему LayerWrapper",
+                                                         nameof(LayerEntitiesReportWriter),
+                                                         entity.GetType().Name,
+                                                         layerName);
+                        }
+                        else if (!wrongLayers.Contains(layerName))
+                        {
+                            var wrapper = new EntityLayerWrapper(entity);
+                            if (wrapper.LayerInfo.IsValid
+                                && filteredStatus.Contains(wrapper.LayerInfo.Status))
+                                wrappersDictionary.Add(layerName, wrapper);
+                            Workstation.Logger?.LogDebug("{ProcessingObject}: Объект {Entity} слоя {Layer} добавлен к новому LayerWrapper",
+                                                         nameof(LayerEntitiesReportWriter),
+                                                         entity.GetType().Name,
+                                                         layerName);
+                        }
                     }
-                    catch
+                    catch (WrongLayerException ex)
                     {
+                        Workstation.Logger?.LogDebug(ex,
+                                                     "{ProcessingObject}: Слой {Layer} не обработан - {Message}",
+                                                     nameof(LayerEntitiesReportWriter),
+                                                     layerName,
+                                                     ex.Message);
+                        wrongLayers.Add(entity.Layer);
                         continue;
                     }
                 }
+                var wrappers = wrappersDictionary.Values;
                 var reports = wrappers.GroupBy(w => new { w.LayerInfo.MainName, w.LayerInfo.Status, Reconstruction = w.LayerInfo.SuffixTagged["Reconstruction"] })
-                                          .Select(group => new LayerEntityReport()
-                                          {
-                                              MainName = group.Key.MainName,
-                                              Status = group.Key.Status,
-                                              Reconstruction = (group.Key.Reconstruction == true || group.Key.Status == "дем") ? "Переустройство" : "Новое строительство",
-                                              CumulativeLength = group.SelectMany(w => w.BoundEntities)
+                                      .Select(group => new LayerEntityReport()
+                                      {
+                                          MainName = group.Key.MainName,
+                                          Status = group.Key.Status,
+                                          Reconstruction = (group.Key.Reconstruction == true || group.Key.Status == "дем") ? "Переустройство" : "Новое строительство",
+                                          CumulativeLength = group.SelectMany(w => w.BoundEntities)
                                                                       .Select(e => (Polyline)e)
                                                                       .Sum(pl => Math.Round(pl.Length / 1000, 3))
-                                          })
-                                          .OrderBy(r => r.MainName)
-                                          .ThenBy(r => r.Reconstruction)
-                                          .ThenBy(r => r.Status)
-                                          .ToArray();
+                                      })
+                                      .OrderBy(r => r.MainName)
+                                      .ThenBy(r => r.Reconstruction)
+                                      .ThenBy(r => r.Status)
+                                      .ToArray();
                 string dwgPath = Workstation.Database.Filename;
                 var dir = new FileInfo(dwgPath).Directory;
                 var reportPath = Path.Combine(dir!.FullName, $"LayerReport_{DateTime.Now.ToLongTimeString().Replace(":", "-")}.xlsx");
