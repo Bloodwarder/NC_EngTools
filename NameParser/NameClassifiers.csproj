@@ -12,7 +12,7 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<RootOutputPath>D:\NC_EngTools_2.0_Build</RootOutputPath>
-		<DebugType>none</DebugType>
+		<DebugType>embedded</DebugType>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

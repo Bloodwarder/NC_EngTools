@@ -42,8 +42,8 @@ namespace LayerWorks.ModelspaceDraw
             rectangle.Closed = true;
             string separator = NameParser.Current.Separator;
             if (layer != null)
-                LayerChecker.Check($"{NameParser.Current.Prefix}{separator}{layer}"); //ПОКА ЗАВЯЗАНО НА ЧЕКЕР ИЗ ДРУГОГО МОДУЛЯ. ПРОАНАЛИЗИРОВАТЬ ВОЗМОЖНОСТИ ОПТИМИЗАЦИИ
-            rectangle.Layer = layer == null ? Layer.BoundLayer.Name : $"{NameParser.Current.Prefix}{separator}{layer}";
+                LayerChecker.Check(layer);
+            rectangle.Layer = layer == null ? Layer.BoundLayer.Name : layer;
 
             var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
             formatter?.FormatEntity(rectangle, Layer.LayerInfo.TrueName);

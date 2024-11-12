@@ -5,6 +5,7 @@
 using LayersIO.DataTransfer;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Legend;
+using NameClassifiers;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
 
@@ -15,7 +16,9 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public class HatchedFencedRectangleDraw : RectangleDraw
     {
-        string FenceLayer => LegendDrawTemplate?.FenceLayer ?? Layer.BoundLayer.Name;
+        string FenceLayer => LegendDrawTemplate?.FenceLayer != null ? 
+                             $"{NameParser.Current.Prefix}{NameParser.Current.Separator}{LegendDrawTemplate?.FenceLayer}" : 
+                             Layer.BoundLayer.Name;
         internal double FenceWidth => ParseRelativeValue(LegendDrawTemplate?.FenceWidth ?? "1*", LegendGrid.CellWidth);
         internal double FenceHeight => ParseRelativeValue(LegendDrawTemplate?.FenceHeight ?? "1*", LegendGrid.CellHeight);
         /// <summary>
