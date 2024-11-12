@@ -5,6 +5,7 @@ using LoaderCore.NanocadUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Data;
+using System.Globalization;
 using System.Text;
 using Teigha.Colors;
 using Teigha.DatabaseServices;
@@ -62,8 +63,8 @@ namespace Utilities
                     { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
 
 
-                    double red1 = double.Parse(GetBlockAttribute(mark1!, RedMarkTag));
-                    double red2 = double.Parse(GetBlockAttribute(mark2!, RedMarkTag));
+                    double red1 = double.Parse(GetBlockAttribute(mark1!, RedMarkTag), CultureInfo.InvariantCulture);
+                    double red2 = double.Parse(GetBlockAttribute(mark2!, RedMarkTag), CultureInfo.InvariantCulture);
                     double l1 = axis!.Length;
                     // Расчёт уклона
                     double slope = Math.Abs(red2 - red1) / l1 * 1000;
@@ -104,7 +105,7 @@ namespace Utilities
 
 
 
-                    double red1 = double.Parse(GetBlockAttribute(mark1!, RedMarkTag));
+                    double red1 = double.Parse(GetBlockAttribute(mark1!, RedMarkTag), CultureInfo.InvariantCulture);
                     double l1 = axis!.Length;
 
                     double redNext = red1 + l1 * slope * 0.001d;
@@ -140,8 +141,8 @@ namespace Utilities
                     { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
 
                     // Получить значения для расчёта
-                    double red1 = double.Parse(GetBlockAttribute(mark1!, RedMarkTag));
-                    double red2 = double.Parse(GetBlockAttribute(mark2!, RedMarkTag));
+                    double red1 = double.Parse(GetBlockAttribute(mark1!, RedMarkTag), CultureInfo.InvariantCulture);
+                    double red2 = double.Parse(GetBlockAttribute(mark2!, RedMarkTag), CultureInfo.InvariantCulture);
                     double l1 = axis1!.Length;
                     double l2 = axis2!.Length;
 
@@ -187,8 +188,8 @@ namespace Utilities
                     LastHorStep = horStep;
 
                     // Получить значения для расчёта
-                    double red1 = double.Parse(GetBlockAttribute(mark1!, RedMarkTag));
-                    double red2 = double.Parse(GetBlockAttribute(mark2!, RedMarkTag));
+                    double red1 = double.Parse(GetBlockAttribute(mark1!, RedMarkTag), CultureInfo.InvariantCulture);
+                    double red2 = double.Parse(GetBlockAttribute(mark2!, RedMarkTag), CultureInfo.InvariantCulture);
                     double l1 = axis!.Length;
 
                     bool upwards = red2 > red1;
@@ -251,7 +252,7 @@ namespace Utilities
                                          select entity).ToList();
                 foreach (Entity entity in entities)
                 {
-                    double elevation = double.Parse(GetBlockAttribute((BlockReference)entity, BlackMarkTag));
+                    double elevation = double.Parse(GetBlockAttribute((BlockReference)entity, BlackMarkTag), CultureInfo.InvariantCulture);
                     SetBlockAttribute((BlockReference)entity, RedMarkTag, elevation.ToString());
                 }
                 transaction.Commit();
@@ -268,7 +269,8 @@ namespace Utilities
                           select rfr).FirstOrDefault();
             if (atrref != null)
             {
-                return atrref.TextString.Replace(".", ",") ?? "";
+                //return atrref.TextString.Replace(".", ",") ?? "";
+                return atrref.TextString ?? "";
             }
             else
             {
