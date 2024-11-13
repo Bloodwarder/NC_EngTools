@@ -28,7 +28,7 @@ namespace LayerWorks.ModelspaceDraw
         }
 
         /// <inheritdoc/>
-        public override void Draw()
+        protected override void CreateEntities()
         {
             List<Polyline> rectangle = new()
             {

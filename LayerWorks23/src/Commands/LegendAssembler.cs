@@ -154,7 +154,9 @@ namespace LayerWorks.Commands
                     entitiesList = composer.DrawGrids();
                 }
                 // Получить таблицу блоков и ModelSpace, затем вставить объекты таблиц условных в чертёж
-                BlockTableRecord modelSpace = Workstation.ModelSpace;
+                BlockTable blockTable = (BlockTable)transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead, false);
+                BlockTableRecord modelSpace = (BlockTableRecord)transaction.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false);
+                //BlockTableRecord modelSpace = Workstation.ModelSpace;
                 Workstation.Database.Cecolor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
 
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Добавление объектов в чертёж", nameof(LegendAssembler));

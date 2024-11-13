@@ -20,7 +20,7 @@ namespace LayerWorks.ModelspaceDraw
             LegendDrawTemplate = template;
         }
         /// <inheritdoc/>
-        public override void Draw()
+        protected override void CreateEntities()
         {
             List<Polyline> rectangle = new() { DrawRectangle(RectangleWidth,
                                                              RectangleHeight,

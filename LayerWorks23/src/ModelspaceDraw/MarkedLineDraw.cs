@@ -28,7 +28,7 @@ namespace LayerWorks.ModelspaceDraw
             LegendDrawTemplate = template;
         }
         /// <inheritdoc/>
-        public override void Draw()
+        protected override void CreateEntities()
         {
             DrawText();
             List<Polyline> polylines = DrawLines();

@@ -70,7 +70,7 @@ namespace LayerWorks.ModelspaceDraw
 
 
         /// <inheritdoc/>
-        public override void Draw()
+        protected override void CreateEntities()
         {
             // Перед отрисовкой первого объекта импортируем все блоки в очереди
             if (!_blocksImported)
@@ -89,7 +89,7 @@ namespace LayerWorks.ModelspaceDraw
                 Layer = Layer.BoundLayer.Name
             };
             EntitiesList.Add(bref);
-            Workstation.Logger?.LogDebug("{ProcessingObject}: Объект слоя {Layer} добавлен в список для отрисовки", nameof(BlockReferenceDraw), bref.Layer);
+            //Workstation.Logger?.LogDebug("{ProcessingObject}: Объект слоя {Layer} добавлен в список для отрисовки", nameof(BlockReferenceDraw), bref.Layer);
         }
 
         private void QueueImportBlockTableRecord(object? sender, EventArgs e) => QueueImportBlockTableRecord();
