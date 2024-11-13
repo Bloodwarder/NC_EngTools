@@ -71,7 +71,7 @@ namespace LayerWorks.ModelspaceDraw
 
         public sealed override void Draw()
         {
-            Workstation.Logger?.LogDebug("{ProcessingObject}: Отрисовка объекта слоя {LayerName}", this.GetType().Name, Layer.BoundLayer.Name);
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Начало отрисовки объекта слоя {LayerName}", this.GetType().Name, Layer.BoundLayer.Name);
             try
             {
                 CreateEntities();

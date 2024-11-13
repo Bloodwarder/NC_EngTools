@@ -66,7 +66,7 @@ namespace NameParserTest
             Assert.That(tagged, Is.EqualTo(true));
             _layerInfo.SwitchStatus("пр");
             Assert.That(_layerInfo.Status, Is.EqualTo("пр"));
-            Assert.That(_layerInfo.SuffixTagged["Reconstruction"], Is.EqualTo(true));
+            Assert.That(_layerInfo.SuffixTagged["Reconstruction"], Is.True);
 
             _layerInfo.SwitchStatus("сущ");
             Assert.That(_layerInfo.SuffixTagged["Reconstruction"], Is.EqualTo(false));
@@ -103,5 +103,22 @@ namespace NameParserTest
             Assert.That(layerInfo.Name, Is.EqualTo("ИС_ЭС_л_КЛ_20кВ_пр_пер"));
         }
 
+        [Test]
+        public void LayerInfoWhenExceedProperElementsShouldPartialFail()
+        {
+            var result1 = _parser!.GetLayerInfo("ИС_ВО_л_быт_напор_пр_лишняя_штука");
+            var result2 = _parser!.GetLayerInfo("ИС_ЭС_л_КЛ_0.4кВ_пр_пер_невпер");
+            var result3 = _parser!.GetLayerInfo("ИС_СС_л_кабели_дем_неутв_сущ");
+            Assert.Multiple(() =>
+            {
+                Assert.That(result1.Status, Is.EqualTo(LayerInfoParseStatus.PartialFailure));
+                Assert.That(result1.Value.Status, Is.EqualTo("пр"));
+                Assert.That(result2.Status, Is.EqualTo(LayerInfoParseStatus.PartialFailure));
+                Assert.That(result2.Value.Status, Is.EqualTo("пр"));
+                Assert.That(result2.Value.SuffixTagged["Reconstruction"], Is.True);
+                Assert.That(result3.Status, Is.EqualTo(LayerInfoParseStatus.PartialFailure));
+                Assert.That(result3.Value.Status, Is.EqualTo("дем"));
+            });
+        }
     }
 }

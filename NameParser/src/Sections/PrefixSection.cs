@@ -17,7 +17,7 @@ namespace NameClassifiers.Sections
             parentParser.Prefix = prefix;
         }
 
-        internal override void Process(string[] str, LayerInfoResult layerInfoResult, int pointer)
+        internal override void Process(string[] str, LayerInfoResult layerInfoResult, ref int pointer)
         {
             // Проверяем совпадение префикса (вообще по идее сюда попасть не должно)
             if (str[pointer] != layerInfoResult.Value.ParentParser.Prefix)
@@ -25,7 +25,14 @@ namespace NameClassifiers.Sections
             // Назначаем префикс
             layerInfoResult.Value.Prefix = layerInfoResult.Value.ParentParser.Prefix;
             pointer++;
-            NextSection?.Process(str, layerInfoResult, pointer);
+            NextSection?.Process(str, layerInfoResult, ref pointer);
+            // Если в строке ещё остались элементы, а все секции уже отработаны - значит они лишние
+            if (pointer < str.Length)
+            {
+                layerInfoResult.Status = LayerInfoParseStatus.PartialFailure;
+                var ex = new WrongLayerException("Лишняя информация в имени слоя, не относящаяся к заданым классификаторам");
+                layerInfoResult.Exceptions.Add(ex);
+            }
         }
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {
