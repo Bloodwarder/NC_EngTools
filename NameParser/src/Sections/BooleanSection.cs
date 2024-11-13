@@ -30,7 +30,7 @@ namespace NameClassifiers.Sections
         internal string Description { get; init; }
 
 
-        internal override void Process(string[] str, LayerInfoResult layerInfoResult, int pointer)
+        internal override void Process(string[] str, LayerInfoResult layerInfoResult, ref int pointer)
         {
             if (pointer > str.Length - 1)
             {
@@ -46,7 +46,7 @@ namespace NameClassifiers.Sections
             {
                 layerInfoResult.Value.SuffixTagged[Name] = false;
             }
-            NextSection?.Process(str, layerInfoResult, pointer);
+            NextSection?.Process(str, layerInfoResult, ref pointer);
         }
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {

@@ -83,7 +83,8 @@ namespace LayerWorks.Legend
                 {
                     GridData resultData = new GridData();
                     resultData.Predicate = c => item1.Predicate(c) && item2.Predicate(c);
-                    resultData.GridName = ProcessName(item1.GridName, item2.GridName ?? filter.DefaultLabel); // почему-то проскакивает звёздочка
+                    string? defaultLabel = item2.GridName?.Replace(@"*", filter.DefaultLabel) ?? filter.DefaultLabel;
+                    resultData.GridName = ProcessName(item1.GridName, defaultLabel); // BUG: почему-то проскакивает звёздочка
                     yield return resultData;
                 }
             }
