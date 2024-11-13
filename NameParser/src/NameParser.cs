@@ -195,7 +195,7 @@ namespace NameClassifiers
             // Запускаем обработку строки цепочкой секций парсера
             try
             {
-                Processor!.Process(decomposition, layerInfoResult, pointer);
+                Processor!.Process(decomposition, layerInfoResult, ref pointer);
                 if (layerInfoResult.Status == LayerInfoParseStatus.NotProcessed)
                     layerInfoResult.Status = LayerInfoParseStatus.Success;
                 return layerInfoResult;

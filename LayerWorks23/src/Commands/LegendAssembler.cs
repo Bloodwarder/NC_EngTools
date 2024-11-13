@@ -45,7 +45,7 @@ namespace LayerWorks.Commands
                 Workstation.Logger?.LogInformation("Точка не назначена. Команда отменена");
                 return;
             }
-            Point3d p3d = pointResult.Value;
+            Point3d p3d = pointResult.Value; // BUG: В одном чертеже было замечено, что Y улетает в 0. Разобраться. Впрочем, скорее всего это к нанокаду
 
             Workstation.Logger?.LogDebug("{ProcessingObject}: Точка назначена - X:{XCoord}, Y:{YCoord}", nameof(LegendAssembler), p3d.X, p3d.Y);
             Workstation.Logger?.LogDebug("{ProcessingObject}: Начало транзакции", nameof(LegendAssembler));
@@ -154,9 +154,7 @@ namespace LayerWorks.Commands
                     entitiesList = composer.DrawGrids();
                 }
                 // Получить таблицу блоков и ModelSpace, затем вставить объекты таблиц условных в чертёж
-                BlockTable blockTable = (BlockTable)transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead, false);
-                BlockTableRecord modelSpace = (BlockTableRecord)transaction.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite, false);
-                //BlockTableRecord modelSpace = Workstation.ModelSpace;
+                BlockTableRecord modelSpace = Workstation.ModelSpace;
                 Workstation.Database.Cecolor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
 
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Добавление объектов в чертёж", nameof(LegendAssembler));
