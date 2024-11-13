@@ -27,7 +27,7 @@ namespace LayerWorks.ModelspaceDraw
         internal double RectangleWidth => ParseRelativeValue(LegendDrawTemplate!.Width ?? "1*", LegendGrid.CellWidth);
         internal double RectangleHeight => ParseRelativeValue(LegendDrawTemplate!.Height ?? "1*", LegendGrid.CellHeight);
         /// <inheritdoc/>
-        public override void Draw()
+        protected override void CreateEntities()
         {
             DrawRectangle(RectangleWidth, RectangleHeight);
         }

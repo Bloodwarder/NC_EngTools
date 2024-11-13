@@ -32,7 +32,7 @@ namespace LoaderCore.NanocadUtilities
         {
             get
             {
-                var blockTable = (BlockTable)_transactionManager.TopTransaction.GetObject(Database.BlockTableId, OpenMode.ForRead);
+                var blockTable = (BlockTable)_transactionManager.TopTransaction.GetObject(Database.BlockTableId, OpenMode.ForWrite);
                 return (BlockTableRecord)_transactionManager.TopTransaction.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite);
             }
         }

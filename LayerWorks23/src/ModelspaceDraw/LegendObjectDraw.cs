@@ -11,6 +11,9 @@ using LoaderCore.Interfaces;
 //nanoCAD
 using Teigha.Colors;
 using Teigha.Geometry;
+using Teigha.DatabaseServices;
+using LoaderCore.NanocadUtilities;
+using Microsoft.Extensions.Logging;
 
 namespace LayerWorks.ModelspaceDraw
 {
@@ -66,6 +69,28 @@ namespace LayerWorks.ModelspaceDraw
 
         internal RecordLayerWrapper Layer { get; set; }
 
+        public sealed override void Draw()
+        {
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Отрисовка объекта слоя {LayerName}", this.GetType().Name, Layer.BoundLayer.Name);
+            try
+            {
+                CreateEntities();
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Успешная отрисовка объекта слоя {LayerName}. Создано {Count} объектов",
+                                             this.GetType().Name,
+                                             Layer.BoundLayer.Name,
+                                             EntitiesList.Count);
+            }
+            catch (Exception ex)
+            {
+                Workstation.Logger?.LogWarning(ex,
+                                               "{ProcessingObject}: Не удалась отрисовка объекта слоя {LayerName}. Ошибка - {Exception}",
+                                               this.GetType().Name,
+                                               Layer.BoundLayer.Name,
+                                               ex.Message);
+            }
+        }
+
+        protected abstract void CreateEntities(); 
 
         private protected static double ParseRelativeValue(string value, double absolute)
         {

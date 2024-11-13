@@ -17,7 +17,7 @@ namespace LayerWorks.ModelspaceDraw
     {
         public SimpleTestObjectDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer) { }
 
-        public override void Draw()
+        protected override void CreateEntities()
         {
             Database db = Workstation.Database;
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())

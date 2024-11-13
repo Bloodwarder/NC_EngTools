@@ -26,7 +26,7 @@ namespace LayerWorks.ModelspaceDraw
             LegendDrawTemplate = template;
         }
         /// <inheritdoc/>
-        public override void Draw()
+        protected override void CreateEntities()
         {
             Polyline pl = new Polyline();
             pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);

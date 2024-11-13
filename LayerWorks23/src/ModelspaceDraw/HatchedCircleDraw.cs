@@ -27,7 +27,7 @@ namespace LayerWorks.ModelspaceDraw
             LegendDrawTemplate = template;
         }
         /// <inheritdoc/>
-        public override void Draw()
+        protected override void CreateEntities()
         {
             List<Polyline> circle = new() { DrawCircle(Radius) };
             DrawHatch(circle,
