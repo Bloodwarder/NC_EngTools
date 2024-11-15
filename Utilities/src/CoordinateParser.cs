@@ -8,6 +8,7 @@ using Teigha.Geometry;
 using Teigha.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
+using Microsoft.Extensions.Logging;
 
 namespace Utilities
 {
@@ -35,6 +36,7 @@ namespace Utilities
                     }
                     catch (System.Exception ex)
                     {
+                        Workstation.Logger?.LogWarning(ex, "Ошибка построения полилинии по координатам: {Message}", ex.Message);
                         transaction.Abort();
                         return;
                     }

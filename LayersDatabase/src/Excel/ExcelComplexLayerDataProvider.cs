@@ -15,7 +15,7 @@ namespace LayersIO.Excel
             if (typeof(T).IsPrimitive)
                 return (T)_valueHandler[typeof(T)](rng);
 
-            T strct = new T();
+            T strct = new();
             object o = strct;
 
             FieldInfo[] fieldInfo = typeof(T).GetFields();

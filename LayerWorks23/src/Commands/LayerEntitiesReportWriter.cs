@@ -91,6 +91,7 @@ namespace LayerWorks.Commands
 
         class LayerEntityReport
         {
+            public LayerEntityReport() { }
             public string MainName { get; set; }
             public string Status { get; set; }
             public string Reconstruction { get; set; }

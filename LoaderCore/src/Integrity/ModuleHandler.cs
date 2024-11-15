@@ -16,8 +16,8 @@ namespace LoaderCore.Integrity
         private const string ModulesFolderName = "ExtensionLibraries";
 
         private Assembly? _mainAssembly = null;
-        private string _mainAssemblyPath;
-        private DirectoryInfo _moduleDirectory;
+        private readonly string _mainAssemblyPath;
+        private readonly DirectoryInfo _moduleDirectory;
         private INcetInitializer? _initializer;
         internal ModuleHandler(string name)
         {
@@ -198,13 +198,12 @@ namespace LoaderCore.Integrity
             }
             if (classType == null)
                 return null;
-            INcetInitializer? initializer = Activator.CreateInstance(classType) as INcetInitializer;
-            if (initializer == null)
-                throw new Exception($"Ошибка инициализации модуля {Name}"); // если нужного класса нет, нулл уже бы вернулся до этого
+            INcetInitializer? initializer = Activator.CreateInstance(classType) as INcetInitializer
+                                            ?? throw new Exception($"Ошибка инициализации модуля {Name}");
             return initializer;
         }
 
-        private bool TryGetAssemblyName(string dllFilePath, out AssemblyName? assemblyName)
+        private static bool TryGetAssemblyName(string dllFilePath, out AssemblyName? assemblyName)
         {
             try
             {

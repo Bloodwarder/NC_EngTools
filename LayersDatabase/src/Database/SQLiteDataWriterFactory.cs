@@ -4,7 +4,7 @@ namespace LayersIO.Database
 {
     public class SQLiteDataWriterFactory<TKey, TValue> where TKey : notnull
     {
-        private Func<string, ILayerDataWriter<TKey, TValue>> _writerFactioryMethod;
+        private readonly Func<string, ILayerDataWriter<TKey, TValue>> _writerFactioryMethod;
 
         public SQLiteDataWriterFactory(Func<string, ILayerDataWriter<TKey, TValue>> writerFactioryMethod)
         {

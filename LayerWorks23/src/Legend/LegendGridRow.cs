@@ -42,7 +42,7 @@ namespace LayerWorks.Legend
             if (success)
                 LegendData = ld;
             else
-                throw new Exception($"Нет данных для слоя {string.Concat(NameParser.Current.Prefix,NameParser.Current.Separator, mainname)}");
+                throw new Exception($"Нет данных для слоя {string.Concat(NameParser.Current.Prefix, NameParser.Current.Separator, mainname)}");
 
         }
         internal List<LegendGridCell> Cells { get; set; } = new List<LegendGridCell>();
@@ -69,15 +69,8 @@ namespace LayerWorks.Legend
             double xCoord = ParentGrid!.BasePoint.X + (ParentGrid.Width - LegendGrid.TextWidth) + LegendGrid.WidthInterval;
             double yCoord = ParentGrid.BasePoint.Y - YIndex * (LegendGrid.CellHeight + LegendGrid.HeightInterval) + LegendGrid.CellHeight / 2;
             Point2d point = new(xCoord, yCoord);
-            try
-            {
-                _draw = new LabelTextDraw(point, label ?? "ОШИБКА. НЕ ПОЛУЧЕНЫ ДАННЫЕ ПОДПИСИ", ItalicLabel);
-            }
-            catch (Exception ex)
-            {
-                // UNDONE: блок добавлен, чтобы ловить во время отладки. Пересмотреть.
-                throw;
-            }
+            _draw = new LabelTextDraw(point, label ?? "ОШИБКА. НЕ ПОЛУЧЕНЫ ДАННЫЕ ПОДПИСИ", ItalicLabel);
+
 
             List<Entity> list = new List<Entity>();
             _draw.Draw();

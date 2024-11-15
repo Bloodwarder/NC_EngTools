@@ -7,7 +7,7 @@ namespace LoaderCore.Utilities
 {
     public class NcetCommand : IDisposable
     {
-        private Action _commandAction;
+        private readonly Action _commandAction;
 
         public NcetCommand(Action commandAction)
         {

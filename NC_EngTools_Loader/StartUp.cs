@@ -20,7 +20,7 @@ namespace StartUp
                                                        .GetCustomAttributes(false)
                                                        .OfType<DebuggableAttribute>()
                                                        .Any(da => da.IsJITTrackingEnabled);
-        private readonly FileInfo LocalStartUpAssemblyFile = new FileInfo(Assembly.GetExecutingAssembly().Location);
+        private readonly FileInfo LocalStartUpAssemblyFile = new(Assembly.GetExecutingAssembly().Location);
         private string? _sourceDirectory;
         private string SourceDirectory
         {
@@ -71,8 +71,8 @@ namespace StartUp
             try
             {
                 XDocument configXml = XDocument.Load(localConfigurationXml.FullName);
-                XElement localPathElement = configXml.Root.Element("Directories").Element("LocalDirectory");
-                localPathElement.Value = LocalStartUpAssemblyFile.Directory.FullName;
+                XElement? localPathElement = configXml.Root?.Element("Directories")?.Element("LocalDirectory");
+                localPathElement.Value = LocalStartUpAssemblyFile.Directory!.FullName;
                 configXml.Save(localConfigurationXml.FullName);
             }
             catch (System.Exception)

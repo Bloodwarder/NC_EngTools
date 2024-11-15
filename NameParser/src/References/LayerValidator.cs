@@ -5,13 +5,17 @@ namespace NameClassifiers.References
     [XmlRoot(ElementName ="ValidSet")]
     public class LayerValidator
     {
-        //[XmlElement(Type = typeof(SectionReference))]
+#nullable disable warnings
+        public LayerValidator() { }
+#nullable restore
+
         [XmlElement(Type = typeof(StatusReference))]
         [XmlElement(Type = typeof(ChapterReference))]
         [XmlElement(Type = typeof(ClassifierReference))]
         [XmlElement(Type = typeof(DataReference))]
         [XmlElement(Type = typeof(BoolReference))]
         public SectionReference[] ValidReferences { get; set; }
+
 
         [XmlElement(ElementName = nameof(Transformations) ,Type = typeof(Transformation[]))]
         public Transformation[] Transformations { get; set; }

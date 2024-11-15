@@ -8,6 +8,7 @@ using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using Teigha.Runtime;
 using static Utilities.EntitySelector;
+using Microsoft.Extensions.Logging;
 
 namespace Utilities
 {
@@ -41,18 +42,19 @@ namespace Utilities
                 using (Transaction tr = Workstation.TransactionManager.StartTransaction())
                 {
                     //выбираем полилинию
-                    PromptEntityOptions peo = new PromptEntityOptions("Выберите полилинию")
+                    PromptEntityOptions promptEntityOptions = new("Выберите полилинию")
                     { };
+                    PromptEntityOptions peo = promptEntityOptions;
                     peo.AddAllowedClass(typeof(Polyline), true);
                     PromptEntityResult result = Workstation.Editor.GetEntity(peo);
                     if (result.Status != PromptStatus.OK)
                     {
-                        Workstation.Editor.WriteMessage("Ошибка выбора");
+                        Workstation.Logger?.LogWarning("Ошибка выбора");
                         return;
                     }
 
                     //выбираем точку вставки подписи и находим ближайшую точку на полилинии
-                    PromptPointOptions ppo = new PromptPointOptions("Укажите точку вставки подписи рядом с сегментом полилинии");
+                    PromptPointOptions ppo = new("Укажите точку вставки подписи рядом с сегментом полилинии");
                     PromptPointResult pointresult = Workstation.Editor.GetPoint(ppo);
                     if (result.Status != PromptStatus.OK)
                         return;
@@ -68,27 +70,37 @@ namespace Utilities
                         UseDefaultValue = true,
                         DefaultValue = PrevText
                     };
-                    PromptResult pr = Workstation.Editor.GetString(pso);
-                    while (pr.Status == PromptStatus.Keyword)
+                    PromptResult pr;
+                    bool isKeyword;
+                    do
                     {
-                        switch (pr.StringResult)
-                        {
-                            case "Высота":
-                                AssignNewTextHeight();
-                                break;
-                            case "Фон":
-                                AssignBackgroundFactor();
-                                break;
-                        }
                         pr = Workstation.Editor.GetString(pso);
-                    }
-                    if (pr.Status != PromptStatus.OK) return;
+                        isKeyword = false;
+                        if (pr.Status == PromptStatus.OK)
+                        {
+                            switch (pr.StringResult)
+                            {
+                                case "Высота":
+                                    AssignNewTextHeight();
+                                    isKeyword = true;
+                                    break;
+                                case "Фон":
+                                    AssignBackgroundFactor();
+                                    isKeyword = true;
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            Workstation.Logger?.LogWarning("Неверный ввод");
+                            return;
+                        }
+                    } while (isKeyword);
                     string text = pr.StringResult;
                     PrevText = text;
 
                     //ищем таблицу блоков и моделспейс
-                    BlockTable? blocktable = tr.GetObject(Workstation.Database.BlockTableId, OpenMode.ForWrite, false) as BlockTable;
-                    BlockTableRecord? modelspace = tr.GetObject(blocktable![BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
+                    var modelSpace = Workstation.ModelSpace;
                     //создаём текст
                     MText mtext = new()
                     {
@@ -106,7 +118,7 @@ namespace Utilities
                     mtext.Layer = polyline.Layer; //устанавливаем цвет и слой как у полилинии
                     mtext.Rotation = CalculateTextOrient(v2d); //вычисляем угол поворота с учётом читаемости
                                                                //добавляем в модель и в транзакцию
-                    modelspace!.AppendEntity(mtext);
+                    modelSpace!.AppendEntity(mtext);
                     tr.AddNewlyCreatedDBObject(mtext, true); // и в транзакцию
 
                     tr.Commit();
@@ -122,7 +134,7 @@ namespace Utilities
         {
             PromptDoubleResult result = Workstation.Editor.GetDouble("Введите новый коэффициент фона текста:");
             if (result.Status != PromptStatus.OK)
-                Workstation.Editor.WriteMessage("Неверное значение");
+                Workstation.Logger?.LogWarning("Неверное значение");
             double newValue = Math.Clamp(result.Value, 1d, 2d);
             LabelBackgroundScaleFactor = newValue;
             // TODO: обновить в файле конфигурации
@@ -132,7 +144,7 @@ namespace Utilities
         {
             PromptDoubleResult result = Workstation.Editor.GetDouble("Введите новый коэффициент фона текста:");
             if (result.Status != PromptStatus.OK)
-                Workstation.Editor.WriteMessage("Неверное значение");
+                Workstation.Logger?.LogWarning("Неверное значение");
             double newValue = Math.Max(result.Value, 0.01d);
             LabelTextHeight = newValue;
             // TODO: обновить в файле конфигурации
@@ -148,7 +160,7 @@ namespace Utilities
                     { Workstation.Editor.WriteMessage("Ошибка выбора"); return; }
 
                     //выбираем точку вставки подписи и находим ближайшую точку на полилинии
-                    PromptPointOptions ppo = new PromptPointOptions("Укажите первую точку")
+                    PromptPointOptions ppo = new("Укажите первую точку")
                     {
                         UseBasePoint = false
                     };
@@ -172,8 +184,6 @@ namespace Utilities
                 }
                 transaction.Commit();
             }
-
-
         }
 
         public static void TextOrientByPolilineSegment()
@@ -183,15 +193,18 @@ namespace Utilities
                 try
                 {
                     if (!TryGetEntity("Выберите МТекст", out MText? mText))
-                    { Workstation.Editor.WriteMessage("Ошибка выбора"); return; }
+                    { 
+                        Workstation.Logger?.LogWarning("Ошибка выбора"); 
+                        return;
+                    }
 
-                    PromptEntityOptions peo = new PromptEntityOptions("Выберите полилинию")
+                    PromptEntityOptions peo = new("Выберите полилинию")
                     { };
                     peo.AddAllowedClass(typeof(Polyline), true);
                     PromptEntityResult result = Workstation.Editor.GetEntity(peo);
                     if (result.Status != PromptStatus.OK)
                     {
-                        Workstation.Editor.WriteMessage("Ошибка выбора");
+                        Workstation.Logger?.LogWarning("Ошибка выбора");
                         return;
                     }
                     Polyline polyline = (Polyline)transaction.GetObject(result.ObjectId, OpenMode.ForRead);
@@ -241,7 +254,7 @@ namespace Utilities
             Point3d pointonline = polyline.GetClosestPointTo(point, false);
 
             //проверяем, какому сегменту принадлежит точка и вычисляем его направление
-            LineSegment2d ls = new LineSegment2d();
+            LineSegment2d ls = new();
             for (int i = 0; i < polyline.NumberOfVertices - 1; i++)
             {
                 ls = polyline.GetLineSegment2dAt(i);

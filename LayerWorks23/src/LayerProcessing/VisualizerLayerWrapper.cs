@@ -1,4 +1,5 @@
-﻿using Teigha.DatabaseServices;
+﻿using LoaderCore.NanocadUtilities;
+using Teigha.DatabaseServices;
 
 namespace LayerWorks.LayerProcessing
 {
@@ -22,6 +23,7 @@ namespace LayerWorks.LayerProcessing
                 if ((LayerTableRecord)o! == BoundLayer)
                     StoredLayerProps = ReadLayerProps();
             };
+            BoundLayer.Erased += (sender, e) => VisualizerLayerWrappers.StoredLayerStates[Workstation.Document].Remove(this); // TODO: Протестировать удаление из очереди обработки при удалении слоя
         }
 
         public static void Create(LayerTableRecord record)
@@ -34,7 +36,6 @@ namespace LayerWorks.LayerProcessing
         /// </summary>
         public void Reset()
         {
-            //BoundLayer = Workstation.TransactionManager.TopTransaction.GetObject(BoundLayer.Id, OpenMode.ForWrite) as LayerTableRecord;
             WriteLayerProps(StoredLayerProps);
         }
         /// <summary>

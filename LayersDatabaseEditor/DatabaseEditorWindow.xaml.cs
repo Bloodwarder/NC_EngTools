@@ -17,7 +17,7 @@ namespace LayersDatabaseEditor
     /// </summary>
     public partial class DatabaseEditorWindow : Window
     {
-        ILogger? _logger = NcetCore.ServiceProvider.GetService<ILogger>();
+        readonly ILogger? _logger = NcetCore.ServiceProvider.GetService<ILogger>();
         public DatabaseEditorWindow()
         {
             
@@ -64,7 +64,7 @@ namespace LayersDatabaseEditor
             fdLog.Blocks.Add(new Paragraph(new Run(message)) { Margin = new(0d) });
         }
 
-        private void LogClear(string message)
+        private void LogClear()
         {
             fdLog.Blocks.Clear();
         }
@@ -117,7 +117,7 @@ namespace LayersDatabaseEditor
                 var layers = db.Layers.Skip(25).Take(5).ToArray();
                 foreach (var layer in layers)
                 {
-                    LogWrite($"{layer.Name}   {layer.LayerDrawTemplateData.DrawTemplate}  {layer.LayerPropertiesData.LinetypeScale}");
+                    LogWrite($"{layer.Name}   {layer.LayerDrawTemplateData?.DrawTemplate}  {layer.LayerPropertiesData?.LinetypeScale}");
                 }
             }
         }

@@ -24,13 +24,13 @@ namespace NameClassifiers
             [Classifier.BooleanSuffix] = (x, p) => new BooleanSection(x, p)
         };
 
-        private string _xmlPath;
+        private readonly string _xmlPath;
         private static NameParser? _currentParser;
         private GlobalFilters? _globalFilters;
         private SharedPropertiesCollection? _sharedPropertiesCollection;
         private Visualizers? _highliters;
 
-        private List<ParserSection> _sections;
+        private readonly List<ParserSection> _sections;
 
         private NameParser(string xmlPath)
         {
@@ -262,7 +262,7 @@ namespace NameClassifiers
         {
             XDocument document = XDocument.Load(path);
             var element = document.Root?.Element(elementName) ?? throw new XmlException("Отсутствует корневой элемент");
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
+            XmlSerializer serializer = new(typeof(T));
             using (XmlReader reader = element.CreateReader())
             {
                 T? result = serializer.Deserialize(reader) as T;

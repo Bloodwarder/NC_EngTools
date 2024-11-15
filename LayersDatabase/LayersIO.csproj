@@ -65,7 +65,15 @@
 			<UserData Include="$(RootOutputPath)\ExtensionLibraries\LayerWorks\Data\LayerData_ИС.db" />
 		</ItemGroup>
 		<Move SourceFiles="@(UserData)" DestinationFolder="$(RootOutputPath)\UserData" />
-		<RemoveDir Directories="..$(RootOutputPath)\ExtensionLibraries\LayerWorks\Data" />
+		<RemoveDir Directories="$(RootOutputPath)\ExtensionLibraries\LayerWorks\Data" />
+	</Target>
+	
+	<Target Name="MoveDataAfterPublish" AfterTargets="Publish">
+		<ItemGroup>
+			<PublishUserData Include="$(PublishDir)\Data\LayerData_ИС.db"/>
+		</ItemGroup>
+		<Move SourceFiles="@(PublishUserData)" DestinationFolder="$(PublishDir)\..\..\UserData"/>
+		<RemoveDir Directories="$(PublishDir)\Data" />
 	</Target>
 
 </Project>

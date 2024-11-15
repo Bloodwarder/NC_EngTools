@@ -44,22 +44,22 @@ namespace LoaderCore.NanocadUtilities
 
         private T DirectGet()
         {
-            bool isAccessable = _openMode == OpenMode.ForWrite ? _object.IsWriteEnabled : _object.IsReadEnabled;
-            return isAccessable? _object : OpenAndGet();
+            bool isAccessible = _openMode == OpenMode.ForWrite ? _object.IsWriteEnabled : _object.IsReadEnabled;
+            return isAccessible? _object : OpenAndGet();
         }
 
         private T OpenAndGet()
         {
             try
             {
-                T obj = Workstation.TransactionManager.TopTransaction.GetObject(_id, _openMode) as T;
+                T obj = (T)Workstation.TransactionManager.TopTransaction.GetObject(_id, _openMode);
                 _getHandler = DirectGet;
                 return obj;
             }
             catch
             {
                 _getHandler = OpenAndGet;
-                return null;
+                return null; // TODO: Переработать. Хотя эта ветка и указывает на ошибку, не должно возвращать null
             }
         }
 

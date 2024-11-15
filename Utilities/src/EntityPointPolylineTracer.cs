@@ -18,7 +18,7 @@ namespace Utilities
             // Получаем первые 2 объекта и создаём полилинию из двух точек
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                Polyline polyline = new Polyline
+                Polyline polyline = new()
                 {
                     LayerId = Workstation.Database.Clayer
                 };
@@ -71,7 +71,7 @@ namespace Utilities
         /// <exception cref="CancelledByUserException">Срабатывает когда пользователь завершает команду</exception>
         private static Point2d GetEntityBasePoint()
         {
-            PromptEntityOptions peo = new PromptEntityOptions("Выберите объект");
+            PromptEntityOptions peo = new("Выберите объект");
             peo.AddAllowedClass(typeof(BlockReference), true);
             peo.AddAllowedClass(typeof(Circle), true);
             peo.AddAllowedClass(typeof(Polyline), true);

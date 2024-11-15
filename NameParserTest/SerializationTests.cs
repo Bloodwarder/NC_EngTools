@@ -56,8 +56,11 @@ namespace NameParserTest
                 SharedPropertiesCollection? sharedProperties = serializer.Deserialize(reader) as SharedPropertiesCollection;
                 Assert.That(sharedProperties, Is.Not.Null);
                 Assert.That(sharedProperties.Properties, Is.Not.Null);
-                Assert.That(sharedProperties.Properties.FirstOrDefault(), Is.Not.Null);
-                Assert.That(sharedProperties.Properties[1].Groups[1].DefaultValue?.Value, Is.InstanceOf<Color>());
+                Assert.Multiple(() =>
+                {
+                    Assert.That(sharedProperties.Properties.FirstOrDefault(), Is.Not.Null);
+                    Assert.That(sharedProperties.Properties[1].Groups[1].DefaultValue?.Value, Is.InstanceOf<Color>());
+                });
             }
         }
 
@@ -76,15 +79,20 @@ namespace NameParserTest
             serializer.UnknownElement += Serializer_UnknownElement;
             using (XmlReader reader = element!.CreateReader())
             {
-
                 LayerValidator? validator = serializer.Deserialize(reader) as LayerValidator;
                 Assert.That(validator, Is.Not.Null);
-                Assert.That(validator.ValidReferences, Is.Not.Empty);
-                Assert.That(validator.Transformations, Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(validator.ValidReferences, Is.Not.Empty);
+                    Assert.That(validator.Transformations, Is.Not.Null);
+                });
                 var transformation = validator.Transformations.FirstOrDefault();
                 Assert.That(transformation, Is.InstanceOf<Transformation>());
-                Assert.That(transformation.Source.First(), Is.InstanceOf<SectionReference>());
-                Assert.That(transformation.Output.First().Value, Is.EqualTo("неутв"));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(transformation.Source.First(), Is.InstanceOf<SectionReference>());
+                    Assert.That(transformation.Output.First().Value, Is.EqualTo("неутв"));
+                });
             }
         }
 
