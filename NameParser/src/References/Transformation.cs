@@ -10,6 +10,10 @@ namespace NameClassifiers.References
 
     public class Transformation
     {
+#nullable disable warnings
+        public Transformation() { }
+#nullable restore
+
         [XmlArray(nameof(Source))]
         [XmlArrayItem(Type = typeof(ChapterReference))]
         [XmlArrayItem(Type = typeof(ClassifierReference))]

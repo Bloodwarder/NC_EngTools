@@ -66,7 +66,8 @@ namespace NameClassifiers.References
 
         public virtual void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptions)
         {
-            ParserSection? section = NameParser.Current.GetSection(_referencedSections[this.GetType()]);
+            ParserSection? section = NameParser.Current.GetSection(_referencedSections[this.GetType()])
+                                     ?? throw new Exception("Отсутствует секция нужного типа для указанной ссылки");
             section.ExtractDistinctInfo(layerInfos, out keywords, out descriptions);
         }
 

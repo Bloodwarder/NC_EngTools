@@ -6,16 +6,16 @@ namespace LayersIO.DataTransfer
 {
     internal static class TinyMapperConfigurer
     {
-        private static bool _isConfigured { get; set; }
-        private static Dictionary<Type, Type> _mappedTypes = new();
+        private static bool IsConfigured { get; set; }
+        private static readonly Dictionary<Type, Type> _mappedTypes = new();
         internal static void Configure()
         {
-            if (_isConfigured)
+            if (IsConfigured)
                 return;
             MapTypes<LayerPropertiesData, LayerProps>();
             MapTypes<LayerDrawTemplateData, LegendDrawTemplate>();
             MapTypes<LayerLegendData, LegendData>();
-            _isConfigured = true;
+            IsConfigured = true;
         }
 
         internal static Type? GetMappedType(Type type)

@@ -5,10 +5,12 @@ namespace NameClassifiers.Filters
     [XmlRoot(ElementName = "Filter")]
     public class LegendFilter
     {
+#nullable disable warnings
         public LegendFilter()
         {
 
         }
+
         public LegendFilter(bool defaultFilter) : base()
         {
             if (defaultFilter)
@@ -17,6 +19,7 @@ namespace NameClassifiers.Filters
                 Grids = new GridFilter[] { new() };
             }
         }
+#nullable restore
         [XmlAttribute("Name")]
         public string Name { get; set; }
 

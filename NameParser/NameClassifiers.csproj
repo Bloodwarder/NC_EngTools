@@ -40,4 +40,12 @@
 		<RemoveDir Directories="$(RootOutputPath)\ExtensionLibraries\Data" />
 	</Target>
 
+	<Target Name="MoveDataAfterPublish" AfterTargets="Publish" DependsOnTargets="Publish">
+		<ItemGroup>
+			<PublishUserData Include="$(PublishDir)\Data\LayerParser_ИС.xml"/>
+		</ItemGroup>
+		<Move SourceFiles="@(PublishUserData)" DestinationFolder="$(PublishDir)\..\UserData"/>
+		<RemoveDir Directories="$(PublishDir)\Data"/>
+	</Target>
+
 </Project>

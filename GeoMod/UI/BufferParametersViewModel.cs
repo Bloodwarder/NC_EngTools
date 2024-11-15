@@ -12,7 +12,7 @@ namespace GeoMod.UI
         private const int DefaultQuadrantSegments = 12;
         private const double DefaultMitreLimit = 5d;
 
-        private BufferParameters _bufferParametersObject;
+        private readonly BufferParameters _bufferParametersObject;
 
         public static readonly DependencyProperty EndCapStyleProperty;
         public static readonly DependencyProperty JoinStyleProperty;
@@ -28,7 +28,7 @@ namespace GeoMod.UI
 
             JoinStyleProperty = DependencyProperty.Register("JoinStyle", typeof(JoinStyle), typeof(BufferParametersViewModel));
 
-            FrameworkPropertyMetadata segmentsMetadata = new FrameworkPropertyMetadata
+            FrameworkPropertyMetadata segmentsMetadata = new()
             {
                 CoerceValueCallback = new(BufferValidation.CorrectQuadrantSegments),
                 DefaultValue = DefaultQuadrantSegments
@@ -40,7 +40,7 @@ namespace GeoMod.UI
                                                                     new ValidateValueCallback(BufferValidation.ValidateQuadrantSegments)
                                                                     );
 
-            FrameworkPropertyMetadata simplifyMetadata = new FrameworkPropertyMetadata
+            FrameworkPropertyMetadata simplifyMetadata = new()
             {
                 CoerceValueCallback = new(BufferValidation.CorrectSimplifyFactor),
                 DefaultValue = DefaultSimplifyFactor
@@ -57,7 +57,7 @@ namespace GeoMod.UI
                                                                 typeof(BufferParametersViewModel)
                                                                 );
 
-            FrameworkPropertyMetadata mitreMetadata = new FrameworkPropertyMetadata
+            FrameworkPropertyMetadata mitreMetadata = new()
             {
                 CoerceValueCallback = new(BufferValidation.CorrectMitreLimit),
                 DefaultValue = DefaultMitreLimit
@@ -142,7 +142,7 @@ namespace GeoMod.UI
             [JoinStyle.Bevel] = "Скошенные"
         };
 
-        internal void SubmitParameters(object sender, CancelEventArgs e)
+        internal void SubmitParameters(object? sender, CancelEventArgs e)
         {
             _bufferParametersObject.EndCapStyle = EndCapStyle;
             _bufferParametersObject.JoinStyle = JoinStyle;

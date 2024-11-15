@@ -6,8 +6,8 @@ namespace LayerWorks.HighlightFiltering
 {
     internal class HighlightBinder
     {
-        PropertyBinder<StatedLayerProps> _binder;
-        SinglePropertyHandler _handler;
+        private readonly PropertyBinder<StatedLayerProps> _binder;
+        private readonly SinglePropertyHandler _handler;
         internal HighlightBinder(SinglePropertyHandler handler)
         {
             _handler = handler;

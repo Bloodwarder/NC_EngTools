@@ -19,7 +19,7 @@ namespace LayerWorks.EntityFormatters
         public void FormatEntity(Entity entity)
         {
             string layerName = entity.Layer;
-            string prefix = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])").Value; // TODO: протестировать на ошибки для слоёв вообще без префикса
+            string prefix = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])").Value;
             bool parserGetSuccess = NameParser.LoadedParsers.TryGetValue(prefix, out var parser);
             if (!parserGetSuccess)
             {

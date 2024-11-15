@@ -9,7 +9,7 @@ namespace LayersIO.Connection
 {
     public class LayersDatabaseContextSqlite : DbContext
     {
-        private ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
+        private readonly ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
         public DbSet<LayerData> Layers { get; set; } = null!;
         public DbSet<LayerGroupData> LayerGroups { get; set; } = null!;
 
@@ -18,6 +18,7 @@ namespace LayersIO.Connection
         {
             _dataSource = dataSource;
             Database.EnsureCreated();
+            _logger.LogInformation("Подключение к {DataSource}", dataSource);
         }
 
         public override int SaveChanges()

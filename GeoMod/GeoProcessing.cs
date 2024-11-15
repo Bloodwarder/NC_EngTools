@@ -162,7 +162,7 @@ namespace GeoMod
                 PromptDoubleResult result = Workstation.Editor.GetDouble(pdo);
                 if (result.Status == PromptStatus.Keyword)
                 {
-                    BufferParametersWindow window = new BufferParametersWindow(ref _defaultBufferParameters);
+                    BufferParametersWindow window = new(ref _defaultBufferParameters);
                     Application.ShowModalWindow(window);
                     pdo.Message = "¬ведите размер буферной зоны:";
                     result = Workstation.Editor.GetDouble(pdo);
@@ -222,7 +222,7 @@ namespace GeoMod
                         return;
                     if (result.Status == PromptStatus.Keyword)
                     {
-                        BufferParametersWindow window = new BufferParametersWindow(ref _defaultBufferParameters);
+                        BufferParametersWindow window = new(ref _defaultBufferParameters);
                         Application.ShowModalWindow(window);
                         pdo.Message = $"¬ведите размер буферной зоны дл€ сло€ {layer}:";
                         result = Workstation.Editor.GetDouble(pdo);

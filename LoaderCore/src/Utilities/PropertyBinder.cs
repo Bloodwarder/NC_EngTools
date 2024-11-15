@@ -72,10 +72,10 @@ namespace LoaderCore.Utilities
     /// <typeparam name="TProperty">Тип свойства, к которому выполняется привязка</typeparam>
     public class PropertyBinder<TSource, TProperty> : PropertyBinder<TSource>
     {
-        Action<TSource, TProperty> _propertySetter;
-        Func<TSource, TProperty> _propertyGetter;
-        TypeConverter _converter = TypeDescriptor.GetConverter(typeof(TProperty));
-        Dictionary<Type, TypeConverter> _externalTypesConverters = new();
+        readonly Action<TSource, TProperty> _propertySetter;
+        readonly Func<TSource, TProperty> _propertyGetter;
+        readonly TypeConverter _converter = TypeDescriptor.GetConverter(typeof(TProperty));
+        readonly Dictionary<Type, TypeConverter> _externalTypesConverters = new();
 
         public PropertyBinder(string propertyName)
         {

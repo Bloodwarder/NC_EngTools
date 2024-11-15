@@ -49,7 +49,7 @@ namespace LayerWorks.Legend
                 clone.DistinctMode = null;
                 SectionReference newRef = (SectionReference)filter.DistinctMode!.Reference.Clone();
                 newRef.Value = element;
-                clone.References = clone.References.Append(newRef).ToArray();
+                clone.References = clone.References?.Append(newRef).ToArray();
                 clone.Label += $" ({element})";
                 yield return clone;
             }

@@ -6,9 +6,9 @@ namespace NameClassifiers.References
     {
         [XmlIgnore]
         private protected SectionReference[][]? _presortedReferences;
-
+#nullable disable warnings
         public ReferenceCollectionFilter() { }
-
+#nullable restore
 
         [XmlElement(Type = typeof(SectionReference))]
         [XmlElement(Type = typeof(StatusReference))]

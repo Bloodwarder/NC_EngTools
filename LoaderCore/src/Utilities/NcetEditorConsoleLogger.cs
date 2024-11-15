@@ -9,7 +9,7 @@ namespace LoaderCore.Utilities
 {
     public class NcetEditorConsoleLogger : ILogger
     {
-        private LogLevel _logLevel;
+        private readonly LogLevel _logLevel;
         internal NcetEditorConsoleLogger()
         {
             _logLevel = LogLevel.Information;
@@ -37,7 +37,6 @@ namespace LoaderCore.Utilities
                 catch (AccessViolationException ex)
                 {
                     string str = ex.Message;
-                    // TODO: понять из-за чего прилетает и обработать. Upd - с новым логгером не прилетает
                 }
             }
         }

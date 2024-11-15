@@ -10,7 +10,9 @@ namespace NameClassifiers.Filters
     [XmlRoot("DistinctMode")]
     public class DistinctMode
     {
+#nullable disable warnings
         public DistinctMode() { }
+#nullable restore
 
         [XmlElement(Type = typeof(SectionReference))]
         [XmlElement(Type = typeof(ChapterReference))]

@@ -43,11 +43,11 @@ namespace LoaderCore.UI
             var patchNotesPath = Path.Combine(new FileInfo(_xmlConfigPath).DirectoryName!, "Список изменений.txt");
             using (StreamReader reader = new(patchNotesPath))
             {
-                string line;
+                string? line;
                 PreInitializeSimpleLogger.Log("Последние обновления:");
                 while ((line = reader.ReadLine()) != "" || reader.EndOfStream)
                 {
-                    PreInitializeSimpleLogger.Log(line);
+                    PreInitializeSimpleLogger.Log(line ?? string.Empty);
                 }
                 //LoggingRouter.LogInformation("\n");
             }

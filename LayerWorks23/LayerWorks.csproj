@@ -86,6 +86,14 @@
 		<Move SourceFiles="@(UserData)" DestinationFolder="$(RootOutputPath)\UserData" />
 		<RemoveDir Directories="$(RootOutputPath)\ExtensionLibraries\LayerWorks\LayersData" />
 	</Target>
+
+	<Target Name="MoveDataAfterPublish" AfterTargets="Publish">
+		<ItemGroup>
+			<PublishUserData Include="$(PublishDir)\LayersData\*.*"/>
+		</ItemGroup>
+		<Move SourceFiles="@(PublishUserData)" DestinationFolder="$(PublishDir)\..\..\UserData"/>
+		<RemoveDir Directories="$(PublishDir)\LayersData" />
+	</Target>	
 	
 	
 </Project>

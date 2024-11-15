@@ -13,7 +13,7 @@ namespace GeoMod.GeometryConverters
 {
     internal static class GeometryToDwgConverter
     {
-        private static IEntityFormatter? _formatter = NcetCore.ServiceProvider.GetService<IEntityFormatter>();
+        private static readonly IEntityFormatter? _formatter = NcetCore.ServiceProvider.GetService<IEntityFormatter>();
 
         internal static IEnumerable<Polyline> ToDWGPolylines(Geometry geometry)
         {

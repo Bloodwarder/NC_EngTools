@@ -10,7 +10,7 @@ namespace GeoMod.UI
     /// </summary>
     public partial class BufferParametersWindow : Window
     {
-        private BufferParametersViewModel _bufferParametersViewModel;
+        private readonly BufferParametersViewModel _bufferParametersViewModel;
         public BufferParametersWindow(ref BufferParameters bufferParameters)
         {
             _bufferParametersViewModel = new(ref bufferParameters);
