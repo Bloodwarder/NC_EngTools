@@ -18,7 +18,7 @@ namespace LayersIO.Connection
         {
             _dataSource = dataSource;
             Database.EnsureCreated();
-            _logger.LogInformation("Подключение к {DataSource}", dataSource);
+            _logger?.LogDebug("Подключение к {DataSource}", dataSource);
         }
 
         public override int SaveChanges()
