@@ -11,8 +11,8 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="294"/>
             <RowDefinition Height="*" MinHeight="294"/>
-            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="7">
@@ -90,10 +90,10 @@
                 <Button x:Name="bKnownIssues" DockPanel.Dock="Right" Width="130" Margin="20 5 20 5" HorizontalAlignment="Right" Content="Известные проблемы" Click="KnownIssuesClick"/>
             </DockPanel>
         </Grid>
-        <ScrollViewer Grid.Row="1" Margin="3,5,3,3" BorderBrush="#FF4A4A4A" Background="Gainsboro">
-            <FlowDocument x:Name="fdLog" FontSize="14" Foreground="Blue" TextAlignment="Left" FontFamily="Corbel" ColumnWidth="650" LineHeight="5">
+        <FlowDocumentScrollViewer Grid.Row="1" Margin="3,5,3,3" BorderBrush="#FF4A4A4A" Foreground="Black">
+            <FlowDocument x:Name="fdLog" FontSize="14" Foreground="Navy" Background="WhiteSmoke" TextAlignment="Left" FontFamily="Corbel" ColumnWidth="650" LineHeight="5">
             </FlowDocument>
             <!--<TextBlock x:Name="tbLog" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="12" Foreground="Blue" TextWrapping="Wrap"/>-->
-        </ScrollViewer>
+        </FlowDocumentScrollViewer>
     </Grid>
 </Window>

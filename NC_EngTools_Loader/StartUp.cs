@@ -56,7 +56,7 @@ namespace StartUp
             FileInfo sourceLoaderAssemblyFile = new(Path.Combine(SourceDirectory,
                                                                  LoaderCoreDirectory,
                                                                  LoaderCoreAssemblyName)); // При отсутствии директории обновлений указывает на тот же файл. Мешать не должно, но и суть неверная
-            FileInfo localConfigurationXml = new(ConfigurationXmlName);
+            FileInfo localConfigurationXml = new(Path.Combine(LocalStartUpAssemblyFile.DirectoryName!, ConfigurationXmlName));
             FileInfo sourceConfigurationXml = new(Path.Combine(SourceDirectory, ConfigurationXmlName));
             try
             {

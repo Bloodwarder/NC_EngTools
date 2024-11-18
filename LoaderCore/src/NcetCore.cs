@@ -63,7 +63,7 @@ namespace LoaderCore
 
             DisplayAutorunConfigurationWindow(configurationXml);
             // Заново читаем конфиг (мог измениться)
-            configurationXml = XDocument.Load(ConfigurationXmlFileName);
+            configurationXml = XDocument.Load(Path.Combine(RootLocalDirectory, ConfigurationXmlFileName));
 
             InitializeModules(configurationXml);
             IndexFiles();
@@ -190,7 +190,8 @@ namespace LoaderCore
             bool showStartUp = XmlConvert.ToBoolean(configurationXml.Root!.Element("ShowStartup")!.Value);
             if (showStartUp)
             {
-                StartUpWindow window = new(ConfigurationXmlFileName);
+                string configXmlPath = Path.Combine(RootLocalDirectory, ConfigurationXmlFileName);
+                StartUpWindow window = new(configXmlPath);
                 Application.ShowModalWindow(window);
             }
         }
@@ -204,7 +205,7 @@ namespace LoaderCore
             XElement[] moduleElements = configurationXml.Root!.Elements().Where(e => e.Attribute("Module") != null).ToArray();
             foreach (XElement element in moduleElements)
             {
-                ModuleHandler module = new ModuleHandler(element.Attribute("Module")!.Value);
+                ModuleHandler module = new(element.Attribute("Module")!.Value);
                 Modules.Add(module);
                 bool update = XmlConvert.ToBoolean(element.Element("UpdateEnabled")!.Value);
                 if (update)
@@ -215,7 +216,7 @@ namespace LoaderCore
                 if (enable)
                 {
                     module.Load();
-                    Logger?.LogInformation($"Модуль {module.Name} загружен");
+                    Logger?.LogInformation("Модуль {ModuleName} загружен", module.Name);
                 }
             }
         }
