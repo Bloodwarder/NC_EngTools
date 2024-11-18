@@ -46,6 +46,7 @@ namespace LayerWorks.Commands
                     };
                     lt.Add(ltrec);
                     transaction.AddNewlyCreatedDBObject(ltrec, true);
+                    CreateHatchOverXrefs(transaction, ltrec);
                 }
                 else
                 {
@@ -63,9 +64,46 @@ namespace LayerWorks.Commands
                     {
                         ltrec.IsOff = true;
                     }
-
                 }
                 transaction.Commit();
+            }
+        }
+
+        private static void CreateHatchOverXrefs(Transaction transaction, LayerTableRecord ltrec)
+        {
+            Extents3d? extents3D = Workstation.Editor.GetCurrentView().Bounds;
+            if (extents3D is null)
+            {
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Охват текущего вида не определён", nameof(LayerAlterer));
+            }
+            else
+            {
+                Polyline pl = new();
+                pl.AddVertexAt(0, new(extents3D.Value.MinPoint.X, extents3D.Value.MinPoint.Y), 0, 0, 0);
+                pl.AddVertexAt(1, new(extents3D.Value.MinPoint.X, extents3D.Value.MaxPoint.Y), 0, 0, 0);
+                pl.AddVertexAt(2, new(extents3D.Value.MaxPoint.X, extents3D.Value.MaxPoint.Y), 0, 0, 0);
+                pl.AddVertexAt(3, new(extents3D.Value.MaxPoint.X, extents3D.Value.MinPoint.Y), 0, 0, 0);
+                pl.Closed = true;
+                pl.LayerId = ltrec.Id;
+                Hatch hatch = new();
+                hatch.LayerId = ltrec.Id;
+                hatch.AppendLoop(HatchLoopTypes.Polyline, new ObjectIdCollection(new ObjectId[] { pl.Id }));
+                hatch.SetHatchPattern(HatchPatternType.PreDefined, "SOLID");
+
+                DrawOrderTable dot = (DrawOrderTable)transaction.GetObject(Workstation.ModelSpace.DrawOrderTableId, OpenMode.ForWrite);
+                Func<DBObject, bool> isFromExternalReferencePredicate =
+                    dbo => ((BlockTableRecord)transaction.GetObject(((BlockReference)dbo).BlockTableRecord, OpenMode.ForRead)).IsFromExternalReference;
+                var xRefsIds = Workstation.ModelSpace.Cast<ObjectId>()
+                                                     .Select(id => transaction.GetObject(id, OpenMode.ForRead))
+                                                     .Where(dbo => dbo is BlockReference)
+                                                     .Where(isFromExternalReferencePredicate)
+                                                     .Select(dbo => dbo.ObjectId)
+                                                     .ToArray();
+                ObjectIdCollection xreferences = new ObjectIdCollection(xRefsIds);
+                var drawOrder = dot.GetFullDrawOrder(0);
+                var indexes = xRefsIds.ToDictionary(id => id, id => drawOrder.IndexOf(id));
+                var firstXRef = xRefsIds.Where(id => indexes[id] == indexes.Values.Min()).First();
+                dot.MoveAbove(new ObjectIdCollection(new ObjectId[] { pl.ObjectId, hatch.ObjectId }), firstXRef);
             }
         }
 
