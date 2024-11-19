@@ -88,13 +88,18 @@ namespace GeoMod
 
         public static void GeometryFromClipboardWkt()
         {
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Начало команды ВКТИМПОРТ", nameof(GeoProcessing));
             var geometryFactory = _geometryServices.CreateGeometryFactory();
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Получение текста из буфера обмена", nameof(GeoProcessing));
             string fromClipboard = System.Windows.Clipboard.GetText();
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Текст в буфере обмена:\n{ClipboardText}", nameof(GeoProcessing), fromClipboard);
+
 
             // отфильтровать текст, описывающий wkt геометрию
             string[] matches = Regex.Matches(fromClipboard, @"[a-zA-Z]+\s?\([^A-Za-zА-Яа-я]*\)").Select(m => m.Value).ToArray();
             WKTReader reader = new(_geometryServices);
 
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Опознано геометрий в формате WKT - {Number}", nameof(GeoProcessing), matches.Length);
             // создать геометрию, преобразовать в объекты dwg и поместить в модель
             List<Geometry> geometries = new();
             foreach(var match in matches)
@@ -103,31 +108,42 @@ namespace GeoMod
                 {
                     Geometry geometry = reader.Read(match);
                     geometries.Add(geometry);
+                    Workstation.Logger?.LogDebug("{ProcessingObject}: Прочитан объект {GeometryType}", nameof(GeoProcessing), geometry.GeometryType);
                 }
                 catch (System.Exception ex)
                 {
-                    NcetCore.Logger?.LogDebug(ex, "Некорректная строка WKT: \"{match}\"", match);
+                    Workstation.Logger?.LogDebug(ex, "{ProcessingObject}: Некорректная строка WKT: \"{match}\"", nameof(GeoProcessing), match);
                     continue;
                 }
             }
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                BlockTable? blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
-                BlockTableRecord? modelSpace = transaction.GetObject(blockTable![BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+                BlockTableRecord modelSpace = Workstation.ModelSpace;
 
                 List<Polyline> polylines = new();
                 foreach (Geometry geom in geometries)
                 {
-                    polylines.AddRange(GeometryToDwgConverter.ToDWGPolylines(geom));
+                    var newPolylines = GeometryToDwgConverter.ToDWGPolylines(geom);
+                    polylines.AddRange(newPolylines);
+                    Workstation.Logger?.LogDebug("{ProcessingObject}: Объект {GeometryType} конвертирован в полилинии. Число полилиний - {PolylinesNumber}",
+                                                nameof(GeoProcessing),
+                                                geom.GeometryType,
+                                                newPolylines.Count());
                 }
-                if (polylines.Count > 0)
+                if (polylines.Any())
                 {
+                    Workstation.Logger?.LogDebug("{ProcessingObject}: Добавление {Number} полилиний в чертёж", nameof(GeoProcessing), polylines.Count);
                     foreach (Polyline polyline in polylines)
                     {
-                        modelSpace!.AppendEntity(polyline);
+                        modelSpace.AppendEntity(polyline);
                     }
                 }
+                else
+                {
+                    Workstation.Logger?.LogDebug("{ProcessingObject}: Полилинии не добавлены", nameof(GeoProcessing));
+                }
                 transaction.Commit();
+                Workstation.Logger?.LogInformation("{Number} полилиний добавлено в чертёж", polylines.Count);
             }
         }
 
