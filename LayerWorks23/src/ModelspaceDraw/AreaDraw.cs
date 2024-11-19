@@ -37,10 +37,35 @@ namespace LayerWorks.ModelspaceDraw
         protected void DrawHatch(IEnumerable<Polyline> borders, string patternname = DefaultHatchPatternName, double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8)
         {
             Hatch hatch = new();
+            hatch.Layer = Layer.BoundLayer.Name;
+            foreach (Polyline pl in borders)
+            {
+                Point2dCollection vertexCollection = new Point2dCollection(pl.NumberOfVertices);
+                DoubleCollection bulgesCollection = new DoubleCollection(pl.NumberOfVertices);
+                for (int i = 0; i < pl.NumberOfVertices; i++)
+                {
+                    vertexCollection.Add(pl.GetPoint2dAt(i));
+                    bulgesCollection.Add(pl.GetBulgeAt(i));
+                }
+                hatch.AppendLoop(HatchLoopTypes.Polyline, vertexCollection, bulgesCollection);
+            }
+            hatch.HatchStyle = HatchStyle.Normal;
+            if (patternname != "SOLID")
+            {
+                hatch.PatternAngle = angle * Math.PI / 180;
+                hatch.PatternScale = patternscale;
+                if (increasebrightness != 0)
+                    hatch.BackgroundColor = BrightnessShift(increasebrightness);
+            }
+            else
+            {
+                hatch.Color = BrightnessShift(increasebrightness);
+            }
             //ДИКИЙ БЛОК, ПЫТАЮЩИЙСЯ ОБРАБОТАТЬ ОШИБКИ ДЛЯ НЕПОНЯТНЫХ ШТРИХОВОК
             try
             {
-                hatch.SetHatchPattern(!patternname.Contains("ANSI") ? HatchPatternType.PreDefined : HatchPatternType.UserDefined, patternname); // ВОЗНИКАЮТ ОШИБКИ ОТОБРАЖЕНИЯ ШТРИХОВОК "DASH" и "HONEY"
+                //hatch.SetHatchPattern(!patternname.Contains("ANSI") ? HatchPatternType.PreDefined : HatchPatternType.UserDefined, patternname); // ВОЗНИКАЮТ ОШИБКИ ОТОБРАЖЕНИЯ ШТРИХОВОК "DASH" и "HONEY"
+                hatch.SetHatchPattern(HatchPatternType.PreDefined, patternname); // ВОЗНИКАЮТ ОШИБКИ ОТОБРАЖЕНИЯ ШТРИХОВОК "DASH" и "HONEY"
             }
             catch
             {
@@ -58,31 +83,6 @@ namespace LayerWorks.ModelspaceDraw
                     }
                 }
             }
-            hatch.HatchStyle = HatchStyle.Normal;
-            foreach (Polyline pl in borders)
-            {
-                Point2dCollection vertexCollection = new Point2dCollection(pl.NumberOfVertices);
-                DoubleCollection bulgesCollection = new DoubleCollection(pl.NumberOfVertices);
-                for (int i = 0; i < pl.NumberOfVertices; i++)
-                {
-                    vertexCollection.Add(pl.GetPoint2dAt(i));
-                    bulgesCollection.Add(pl.GetBulgeAt(i));
-                }
-                hatch.AppendLoop(HatchLoopTypes.Polyline, vertexCollection, bulgesCollection);
-            }
-            if (patternname != "SOLID")
-            {
-                hatch.PatternAngle = angle * Math.PI / 180;
-                hatch.PatternScale = patternscale;
-                if (increasebrightness != 0)
-                    hatch.BackgroundColor = BrightnessShift(increasebrightness);
-            }
-            else
-            {
-                hatch.Color = BrightnessShift(increasebrightness);
-            }
-            hatch.Layer = Layer.BoundLayer.Name;
-            ;
             EntitiesList.Add(hatch);
         }
     }

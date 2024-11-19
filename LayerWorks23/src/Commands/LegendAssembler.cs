@@ -24,7 +24,6 @@ namespace LayerWorks.Commands
     /// </summary>
     public class LegendAssembler
     {
-        private static readonly string[] _filterKeywords = { "Существующие", "Общая_таблица", "Внутренние", "Утв_и_неутв", "Разделённые" };
         private static readonly string[] _modeKeywords = { "Все", "Полигон" };
 
         /// <summary>
@@ -240,13 +239,7 @@ namespace LayerWorks.Commands
             return entities.Select(e => (LayerTableRecord)transaction.GetObject(e.LayerId, OpenMode.ForWrite))
                            .Distinct();
         }
-
-        private static TableFilter GetFilter(string keyword)
-        {
-            return (TableFilter)Array.IndexOf(_filterKeywords, keyword);
-        }
     }
-
 }
 
 
