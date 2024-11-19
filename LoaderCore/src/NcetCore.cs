@@ -46,7 +46,7 @@ namespace LoaderCore
         public static IServiceCollection Services => !_serviceProviderBuilt ?
                                                         _serviceCollection :
                                                         throw new InvalidOperationException("Провайдер сервисов уже построен");
-        public static ILogger? Logger { get; private set; }
+        internal static ILogger? Logger { get; private set; }
         internal static List<ModuleHandler> Modules { get; } = new();
         internal static string RootLocalDirectory { get; set; } = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.Parent!.Parent!.FullName;
         internal static string? RootUpdateDirectory { get; set; }
@@ -91,7 +91,7 @@ namespace LoaderCore
             xmlSchemaSet.Add(null, Path.Combine(RootLocalDirectory, "ExtensionLibraries", "LoaderCore", "ConfigurationSchema.xsd"));
             document.Validate(xmlSchemaSet, (sender, e) =>
             {
-                Logger?.LogWarning(e.Message);
+                Logger?.LogWarning("{ProcessingObject}: {Message}", nameof(NcetCore), e.Message);
                 isValid = false;
             });
 
