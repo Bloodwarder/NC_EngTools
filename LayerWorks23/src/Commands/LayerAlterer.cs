@@ -3,9 +3,10 @@
 using HostMgd.EditorInput;
 using Teigha.Colors;
 using Teigha.DatabaseServices;
-using Teigha.Runtime;
+using Teigha.Geometry;
 //Microsoft
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 //internal modules
 using LayersIO.DataTransfer;
 using LayerWorks.LayerProcessing;
@@ -16,7 +17,7 @@ using NameClassifiers.Sections;
 using LoaderCore.NanocadUtilities;
 
 using static LoaderCore.NanocadUtilities.EditorHelper;
-using Microsoft.Extensions.Logging;
+
 
 namespace LayerWorks.Commands
 {
@@ -71,40 +72,45 @@ namespace LayerWorks.Commands
 
         private static void CreateHatchOverXrefs(Transaction transaction, LayerTableRecord ltrec)
         {
-            Extents3d? extents3D = Workstation.Editor.GetCurrentView().Bounds;
-            if (extents3D is null)
-            {
-                Workstation.Logger?.LogDebug("{ProcessingObject}: Охват текущего вида не определён", nameof(LayerAlterer));
-            }
-            else
-            {
-                Polyline pl = new();
-                pl.AddVertexAt(0, new(extents3D.Value.MinPoint.X, extents3D.Value.MinPoint.Y), 0, 0, 0);
-                pl.AddVertexAt(1, new(extents3D.Value.MinPoint.X, extents3D.Value.MaxPoint.Y), 0, 0, 0);
-                pl.AddVertexAt(2, new(extents3D.Value.MaxPoint.X, extents3D.Value.MaxPoint.Y), 0, 0, 0);
-                pl.AddVertexAt(3, new(extents3D.Value.MaxPoint.X, extents3D.Value.MinPoint.Y), 0, 0, 0);
-                pl.Closed = true;
-                pl.LayerId = ltrec.Id;
-                Hatch hatch = new();
-                hatch.LayerId = ltrec.Id;
-                hatch.AppendLoop(HatchLoopTypes.Polyline, new ObjectIdCollection(new ObjectId[] { pl.Id }));
-                hatch.SetHatchPattern(HatchPatternType.PreDefined, "SOLID");
+            var viewCenter = (Point3d)HostMgd.ApplicationServices.Application.GetSystemVariable("VIEWCTR");
+            var viewSize = (double)HostMgd.ApplicationServices.Application.GetSystemVariable("VIEWSIZE");
+            var screenSize = (Point2d)HostMgd.ApplicationServices.Application.GetSystemVariable("SCREENSIZE");
+            double multiplier = viewSize / screenSize.Y;
+            Point2d minExtent = new(viewCenter.X - screenSize.X * multiplier / 2, viewCenter.Y - screenSize.Y * multiplier / 2);
+            Point2d maxExtent = new(viewCenter.X + screenSize.X * multiplier / 2, viewCenter.Y + screenSize.Y * multiplier / 2);
 
-                DrawOrderTable dot = (DrawOrderTable)transaction.GetObject(Workstation.ModelSpace.DrawOrderTableId, OpenMode.ForWrite);
-                Func<DBObject, bool> isFromExternalReferencePredicate =
-                    dbo => ((BlockTableRecord)transaction.GetObject(((BlockReference)dbo).BlockTableRecord, OpenMode.ForRead)).IsFromExternalReference;
-                var xRefsIds = Workstation.ModelSpace.Cast<ObjectId>()
-                                                     .Select(id => transaction.GetObject(id, OpenMode.ForRead))
-                                                     .Where(dbo => dbo is BlockReference)
-                                                     .Where(isFromExternalReferencePredicate)
-                                                     .Select(dbo => dbo.ObjectId)
-                                                     .ToArray();
-                ObjectIdCollection xreferences = new ObjectIdCollection(xRefsIds);
-                var drawOrder = dot.GetFullDrawOrder(0);
-                var indexes = xRefsIds.ToDictionary(id => id, id => drawOrder.IndexOf(id));
-                var firstXRef = xRefsIds.Where(id => indexes[id] == indexes.Values.Min()).First();
-                dot.MoveAbove(new ObjectIdCollection(new ObjectId[] { pl.ObjectId, hatch.ObjectId }), firstXRef);
-            }
+            Polyline pl = new();
+            pl.AddVertexAt(0, new(minExtent.X, minExtent.Y), 0, 0, 0);
+            pl.AddVertexAt(1, new(minExtent.X, maxExtent.Y), 0, 0, 0);
+            pl.AddVertexAt(2, new(maxExtent.X, maxExtent.Y), 0, 0, 0);
+            pl.AddVertexAt(3, new(maxExtent.X, minExtent.Y), 0, 0, 0);
+
+            pl.Closed = true;
+            pl.LayerId = ltrec.Id;
+            Hatch hatch = new();
+            hatch.LayerId = ltrec.Id;
+            Workstation.ModelSpace.AppendEntity(pl);
+            transaction.AddNewlyCreatedDBObject(pl, true);
+            hatch.AppendLoop(HatchLoopTypes.Polyline, new ObjectIdCollection(new ObjectId[] { pl.Id }));
+            hatch.SetHatchPattern(HatchPatternType.PreDefined, "SOLID");
+            Workstation.ModelSpace.AppendEntity(hatch);
+            transaction.AddNewlyCreatedDBObject(hatch, true);
+
+            DrawOrderTable dot = (DrawOrderTable)transaction.GetObject(Workstation.ModelSpace.DrawOrderTableId, OpenMode.ForWrite);
+            Func<DBObject, bool> isFromExternalReferencePredicate =
+                dbo => ((BlockTableRecord)transaction.GetObject(((BlockReference)dbo).BlockTableRecord, OpenMode.ForRead)).IsFromExternalReference;
+            var xRefsIds = Workstation.ModelSpace.Cast<ObjectId>()
+                                                 .Select(id => transaction.GetObject(id, OpenMode.ForRead))
+                                                 .Where(dbo => dbo is BlockReference)
+                                                 .Where(isFromExternalReferencePredicate)
+                                                 .Select(dbo => dbo.ObjectId)
+                                                 .ToArray();
+            ObjectIdCollection xreferences = new ObjectIdCollection(xRefsIds);
+            var drawOrder = dot.GetFullDrawOrder(0);
+            var indexes = xRefsIds.ToDictionary(id => id, id => drawOrder.IndexOf(id));
+            var firstXRef = xRefsIds.Where(id => indexes[id] == indexes.Values.Max()).First();
+            dot.MoveAbove(new ObjectIdCollection(new ObjectId[] { pl.ObjectId, hatch.ObjectId }), firstXRef);
+            //}
         }
 
         /// <summary>
