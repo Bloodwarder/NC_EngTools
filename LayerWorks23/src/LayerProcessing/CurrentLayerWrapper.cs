@@ -39,7 +39,6 @@ namespace LayerWorks.LayerProcessing
             db.Clayer = LayerChecker.Check(this);
 
             StandartizeCurrentValues(LayerInfo);
-
         }
 
         public static void DirectPush()

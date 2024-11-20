@@ -34,12 +34,12 @@ namespace LayerWorks.ModelspaceDraw
                 transaction.AddNewlyCreatedDBObject(newbtr, true); // и в транзакцию
 
                 //отрезок
-                Line line = new Line(new Point3d(new double[3] { 0d, 0d, 0d }), new Point3d(new double[3] { 2d, 2d, 0d }));
+                Line line = new(new Point3d(new double[3] { 0d, 0d, 0d }), new Point3d(new double[3] { 2d, 2d, 0d }));
                 newbtr.AppendEntity(line); // добавляем в модельное пространство
                 transaction.AddNewlyCreatedDBObject(line, true); // и в транзакцию
 
                 //полилиния
-                Polyline pl = new Polyline();
+                Polyline pl = new();
                 pl.AddVertexAt(0, new Point2d(-5d, 0d), 0, 0.2d, 0.2d);
                 pl.AddVertexAt(1, new Point2d(-0d, 0d), 1, 0.2d, 0.2d);
                 pl.AddVertexAt(2, new Point2d(-0d, 5d), 0, 0.2d, 0.2d);
@@ -49,7 +49,7 @@ namespace LayerWorks.ModelspaceDraw
 
 
                 //штриховка
-                Hatch hatch = new Hatch();
+                Hatch hatch = new();
                 hatch.SetHatchPattern(HatchPatternType.UserDefined, "ANSI31");
                 hatch.AppendLoop(HatchLoopTypes.Polyline, new ObjectIdCollection(new ObjectId[] { plid }));
                 hatch.PatternAngle = (double)(45 * Math.PI / 180);
@@ -64,7 +64,7 @@ namespace LayerWorks.ModelspaceDraw
                 dro.MoveBelow(new ObjectIdCollection(new ObjectId[] { hatch.ObjectId }), plid);
 
                 //вхождение блока
-                BlockReference bref = new BlockReference(new Point3d(new double[] { 0d, 5d, 0d }), newbtr.ObjectId);
+                BlockReference bref = new(new Point3d(new double[] { 0d, 5d, 0d }), newbtr.ObjectId);
                 modelspace!.AppendEntity(bref);
                 transaction.AddNewlyCreatedDBObject(bref, true); // и в транзакцию
 

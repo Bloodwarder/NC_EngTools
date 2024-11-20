@@ -9,9 +9,9 @@ namespace NameClassifiers.Sections
     /// </summary>
     public class BooleanSection : NamedParserSection
     {
-        private string _suffix { get; init; }
-        private string _trueDescription { get; init; }
-        private string _falseDescription { get; init; }
+        private readonly string _suffix;
+        private readonly string _trueDescription;
+        private readonly string _falseDescription;
 
 
         public BooleanSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)

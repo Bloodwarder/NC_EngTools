@@ -35,7 +35,7 @@ namespace LayerWorks.LayerProcessing
             else
             {
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Объекты не выбраны. Применение к текущему слою", nameof(SelectionHandler));
-                new CurrentLayerWrapper();
+                _ = new CurrentLayerWrapper();
             }
         }
 
@@ -48,7 +48,7 @@ namespace LayerWorks.LayerProcessing
             {
                 try
                 {
-                    EntityLayerWrapper entlp = new EntityLayerWrapper(entity);
+                    EntityLayerWrapper entlp = new(entity);
                     Workstation.Logger?.LogDebug("{ProcessingObject}: Создан EntityLayerWrapper для объекта {ObjectType} слоя {LayerName}",
                                                  nameof(SelectionHandler),
                                                  entity.GetType().Name,
@@ -73,7 +73,7 @@ namespace LayerWorks.LayerProcessing
 
         private static void ProcessBulk(SelectionSet selectionSet)
         {
-            Dictionary<string, EntityLayerWrapper> dct = new Dictionary<string, EntityLayerWrapper>();
+            Dictionary<string, EntityLayerWrapper> dct = new();
             foreach (var entity in (from ObjectId elem in selectionSet.GetObjectIds()
                                     let ent = Workstation.TransactionManager.TopTransaction.GetObject(elem, OpenMode.ForWrite) as Entity
                                     select ent).ToArray())

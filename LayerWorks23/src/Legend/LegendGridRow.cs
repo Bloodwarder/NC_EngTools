@@ -72,7 +72,7 @@ namespace LayerWorks.Legend
             _draw = new LabelTextDraw(point, label ?? "ОШИБКА. НЕ ПОЛУЧЕНЫ ДАННЫЕ ПОДПИСИ", ItalicLabel);
 
 
-            List<Entity> list = new List<Entity>();
+            List<Entity> list = new();
             _draw.Draw();
             list.AddRange(_draw.EntitiesList);
             return list;
@@ -80,8 +80,7 @@ namespace LayerWorks.Legend
 
         public int CompareTo(object? obj)
         {
-            LegendGridRow? lgr = obj as LegendGridRow;
-            if (lgr == null)
+            if (obj is not LegendGridRow lgr)
                 return -1;
             int rankThis = LegendData?.Rank ?? int.MaxValue;
             int rankCompared = lgr.LegendData?.Rank ?? int.MaxValue;

@@ -26,17 +26,17 @@ namespace Utilities
                 PromptSelectionResult psr = Workstation.Editor.GetSelection();
                 if (psr.Status != PromptStatus.OK)
                     return;
-                List<Mline> mlines = psr.Value.GetObjectIds()
-                                             .Select(id => (Entity)transaction.GetObject(id, OpenMode.ForWrite))
-                                             .Where(e => e is Mline)
-                                             .Select(e => (Mline)e)
-                                             .ToList();
+                Mline[] mlines = psr.Value.GetObjectIds()
+                                          .Select(id => (Entity)transaction.GetObject(id, OpenMode.ForWrite))
+                                          .Where(e => e is Mline)
+                                          .Select(e => (Mline)e)
+                                          .ToArray();
                 // Создать построить полилинии по вершинам каждой мультилинии и добавить в новую коллекцию
-                List<Polyline> polylines = new List<Polyline>();
+                List<Polyline> polylines = new();
                 IEntityFormatter? formatter = NcetCore.ServiceProvider.GetService<IEntityFormatter>();
                 foreach (Mline multiline in mlines)
                 {
-                    Polyline polyline = new Polyline
+                    Polyline polyline = new()
                     {
                         Layer = multiline.Layer
                     };
