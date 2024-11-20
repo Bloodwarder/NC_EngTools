@@ -87,8 +87,10 @@ namespace LayerWorks.Commands
 
             pl.Closed = true;
             pl.LayerId = ltrec.Id;
-            Hatch hatch = new();
-            hatch.LayerId = ltrec.Id;
+            Hatch hatch = new()
+            {
+                LayerId = ltrec.Id
+            };
             Workstation.ModelSpace.AppendEntity(pl);
             transaction.AddNewlyCreatedDBObject(pl, true);
             hatch.AppendLoop(HatchLoopTypes.Polyline, new ObjectIdCollection(new ObjectId[] { pl.Id }));
@@ -105,7 +107,7 @@ namespace LayerWorks.Commands
                                                  .Where(isFromExternalReferencePredicate)
                                                  .Select(dbo => dbo.ObjectId)
                                                  .ToArray();
-            ObjectIdCollection xreferences = new ObjectIdCollection(xRefsIds);
+            ObjectIdCollection xreferences = new(xRefsIds);
             var drawOrder = dot.GetFullDrawOrder(0);
             var indexes = xRefsIds.ToDictionary(id => id, id => drawOrder.IndexOf(id));
             var firstXRef = xRefsIds.Where(id => indexes[id] == indexes.Values.Max()).First();

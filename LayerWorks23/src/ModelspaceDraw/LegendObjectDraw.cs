@@ -23,7 +23,7 @@ namespace LayerWorks.ModelspaceDraw
     public abstract class LegendObjectDraw : ObjectDraw
     {
 
-        private static IRepository<string, LegendDrawTemplate> _repository;
+        private static readonly IRepository<string, LegendDrawTemplate> _repository;
         private LegendDrawTemplate? _legendDrawTemplate;
         
         static LegendObjectDraw()

@@ -36,12 +36,14 @@ namespace LayerWorks.ModelspaceDraw
         /// <param name="increasebrightness"> Изменение яркости относительно базового цвета слоя </param>
         protected void DrawHatch(IEnumerable<Polyline> borders, string patternname = DefaultHatchPatternName, double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8)
         {
-            Hatch hatch = new();
-            hatch.Layer = Layer.BoundLayer.Name;
+            Hatch hatch = new()
+            {
+                Layer = Layer.BoundLayer.Name
+            };
             foreach (Polyline pl in borders)
             {
-                Point2dCollection vertexCollection = new Point2dCollection(pl.NumberOfVertices);
-                DoubleCollection bulgesCollection = new DoubleCollection(pl.NumberOfVertices);
+                Point2dCollection vertexCollection = new(pl.NumberOfVertices);
+                DoubleCollection bulgesCollection = new(pl.NumberOfVertices);
                 for (int i = 0; i < pl.NumberOfVertices; i++)
                 {
                     vertexCollection.Add(pl.GetPoint2dAt(i));

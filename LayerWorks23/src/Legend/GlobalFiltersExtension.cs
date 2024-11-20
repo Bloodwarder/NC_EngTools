@@ -81,8 +81,10 @@ namespace LayerWorks.Legend
             {
                 foreach (var item2 in data2)
                 {
-                    GridData resultData = new GridData();
-                    resultData.Predicate = c => item1.Predicate(c) && item2.Predicate(c);
+                    GridData resultData = new()
+                    {
+                        Predicate = c => item1.Predicate(c) && item2.Predicate(c)
+                    };
                     string? defaultLabel = item2.GridName?.Replace(@"*", filter.DefaultLabel) ?? filter.DefaultLabel;
                     resultData.GridName = ProcessName(item1.GridName, defaultLabel); // BUG: почему-то проскакивает звёздочка. Исправлено - наблюдать
                     yield return resultData;
