@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LoaderCore.UI"
         mc:Ignorable="d"
-        Title="Автозапуск NC EngTools" Height="600" MinHeight="550" Width="700" MaxWidth="700" Closing="StartUpWindowClosing">
+        Title="Автозапуск NC EngTools" Height="600" MinHeight="550" Width="700" MaxWidth="700" Closing="StartUpWindowClosing" KeyDown="Window_KeyDown" Loaded="Window_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>

@@ -140,5 +140,19 @@ namespace LoaderCore.UI
             string path = new DirectoryInfo(NcetCore.RootLocalDirectory).GetFiles("Известные проблемы.txt").Single().FullName;
             System.Diagnostics.Process.Start("notepad.exe", path);
         }
+
+        private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if(e.Key == System.Windows.Input.Key.Escape)
+            {
+                e.Handled = true;
+                this.Close();
+            }
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.Activate();
+        }
     }
 }
