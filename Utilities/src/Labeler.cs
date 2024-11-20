@@ -156,7 +156,7 @@ namespace Utilities
             {
                 try
                 {
-                    if (!TryGetEntity("Выберите МТекст", out MText? mText))
+                    if (!TryGetTextEntity("Выберите МТекст", out Entity? textEntity))
                     { Workstation.Editor.WriteMessage("Ошибка выбора"); return; }
 
                     //выбираем точку вставки подписи и находим ближайшую точку на полилинии
@@ -176,7 +176,10 @@ namespace Utilities
                     PromptDoubleResult angleresult = Workstation.Editor.GetAngle(pao);
                     if (angleresult.Status != PromptStatus.OK)
                         return;
-                    mText!.Rotation = angleresult.Value;
+                    if (textEntity is MText mText)
+                        mText!.Rotation = angleresult.Value;
+                    else if (textEntity is DBText text)
+                        text.Rotation = angleresult.Value;
                 }
                 finally
                 {
@@ -192,9 +195,9 @@ namespace Utilities
             {
                 try
                 {
-                    if (!TryGetEntity("Выберите МТекст", out MText? mText))
-                    { 
-                        Workstation.Logger?.LogWarning("Ошибка выбора"); 
+                    if (!TryGetTextEntity("Выберите МТекст", out Entity? textEntity))
+                    {
+                        Workstation.Logger?.LogWarning("Ошибка выбора");
                         return;
                     }
 
@@ -209,7 +212,11 @@ namespace Utilities
                     }
                     Polyline polyline = (Polyline)transaction.GetObject(result.ObjectId, OpenMode.ForRead);
                     LineSegment2d segment = GetPolylineSegment(polyline, result.PickedPoint);
-                    mText!.Rotation = CalculateTextOrient(segment.Direction);
+                    double rotation = CalculateTextOrient(segment.Direction);
+                    if (textEntity is MText mText)
+                        mText!.Rotation = rotation;
+                    else if (textEntity is DBText text)
+                        text.Rotation = rotation;
                 }
                 finally
                 {

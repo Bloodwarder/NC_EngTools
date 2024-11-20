@@ -30,6 +30,24 @@ namespace Utilities
             }
             return true;
         }
+
+        internal static bool TryGetTextEntity(string message, out Entity? entity)
+        {
+            PromptEntityOptions peo = new(message)
+            { AllowNone = false };
+            peo.AddAllowedClass(typeof(MText), true);
+            peo.AddAllowedClass(typeof(DBText), true);
+            peo.SetRejectMessage("Неверный тип объекта");
+            PromptEntityResult result = Workstation.Editor.GetEntity(peo);
+            if (result.Status != PromptStatus.OK)
+            {
+                entity = null;
+                return false;
+            }
+            entity = (Entity)Workstation.TransactionManager.TopTransaction.GetObject(result.ObjectId, OpenMode.ForWrite);
+            Highlighter.Highlight(entity);
+            return true;
+        }
     }
 
 }
