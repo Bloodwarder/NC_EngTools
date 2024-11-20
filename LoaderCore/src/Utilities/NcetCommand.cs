@@ -9,13 +9,14 @@ namespace LoaderCore.Utilities
     {
         private readonly Action _commandAction;
 
-        public NcetCommand(Action commandAction)
+        internal NcetCommand(Action commandAction)
         {
             Workstation.Define();
             _commandAction = commandAction;
         }
 
-        private IDisposable? Scope;
+        public string Name => _commandAction.Method.Name;
+        private IDisposable? Scope { get; set; }
         public static void ExecuteCommand(Action commandAction)
         {
             using (var command = new NcetCommand(commandAction))
@@ -23,8 +24,13 @@ namespace LoaderCore.Utilities
                 if (Workstation.IsCommandLoggingEnabled)
                 {
                     var logger = NcetCore.ServiceProvider.GetRequiredService<ILogger<NcetCommand>>();
-                    command.Scope = logger.BeginScope(commandAction.Method.Name);
+                    command.Scope = logger.BeginScope(command.Name);
                     Workstation.SetLogger(logger);
+                    Workstation.Logger?.LogInformation("Лог команды\nИмя метода:\t{CommandName}\nДата:\t{Date}\nВремя начала:\t{Time}\nПользователь:\t{UserName}",
+                                                      command.Name,
+                                                      DateTime.Now.ToLongDateString(),
+                                                      DateTime.Now.ToLongTimeString(),
+                                                      Environment.UserName);
                 }
                 command.Execute();
             }
@@ -45,7 +51,11 @@ namespace LoaderCore.Utilities
             }
             catch (Exception ex)
             {
-                Workstation.Logger!.LogError(ex, "Команда не выполнена. Ошибка: {ExceptionMessage}", ex.Message);
+                Workstation.Logger?.LogError(ex, "Команда не выполнена. Ошибка: {ExceptionMessage}", ex.Message);
+                Workstation.Logger?.LogTrace(ex,
+                                             "{ProcessingObject}: Вывод трассировки стека:\n{StackTrace}",
+                                             nameof(NcetCommand),
+                                             ex.StackTrace);
             }
         }
     }
