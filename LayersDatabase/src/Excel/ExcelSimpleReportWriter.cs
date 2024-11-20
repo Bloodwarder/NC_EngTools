@@ -1,4 +1,5 @@
-﻿using LoaderCore.NanocadUtilities;
+﻿using LoaderCore.Interfaces;
+using LoaderCore.NanocadUtilities;
 using Microsoft.Extensions.Logging;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -6,13 +7,13 @@ using System.Diagnostics;
 
 namespace LayersIO.Excel
 {
-    public class ExcelSimpleReportWriter<T> where T : class
+    public class ExcelSimpleReportWriter<T> : IReportWriter<T> where T : class
     {
         internal string Path { get; set; }
-        private string _sheetName;
+        private readonly string _sheetName;
         private readonly FileInfo _fileInfo;
 
-        private static Dictionary<Type, CellType> _cellTypes { get; } = new()
+        private static Dictionary<Type, CellType> CellTypes { get; } = new()
         {
             [typeof(string)] = CellType.String,
             [typeof(bool)] = CellType.Boolean,
@@ -27,11 +28,19 @@ namespace LayersIO.Excel
         {
             Path = path;
             _fileInfo = new FileInfo(Path);
-            //if (!_fileInfo.Exists) { throw new System.Exception("Файл не существует"); }
             _sheetName = sheetname;
         }
+        public void PrepareReport(T[] data)
+        {
+            ExportToExcel(data);
+        }
 
-        public void ExportToExcel(T[] data)
+        public void ShowReport()
+        {
+            OpenExcelFile();
+        }
+
+        private void ExportToExcel(T[] data)
         {
             IWorkbook workbook = new XSSFWorkbook();
             ISheet sheet = workbook.CreateSheet(_sheetName);
@@ -77,7 +86,7 @@ namespace LayersIO.Excel
                 IRow dataRow = sheet.CreateRow(i + 1);
                 for (int j = 0; j < properties.Length; j++)
                 {
-                    ICell cell = dataRow.CreateCell(j, _cellTypes[properties[j].PropertyType]);
+                    ICell cell = dataRow.CreateCell(j, CellTypes[properties[j].PropertyType]);
                     dynamic value = properties[j].GetValue(data[i]);
                     cell.SetCellValue(value);
                     cell.CellStyle = dataStyle;
@@ -85,37 +94,19 @@ namespace LayersIO.Excel
             }
 
             // Write the workbook to a file
-            using (FileStream fileStream = new FileStream(_fileInfo.FullName, FileMode.CreateNew, FileAccess.Write))
+            using (FileStream fileStream = new(_fileInfo.FullName, FileMode.CreateNew, FileAccess.Write))
             {
                 workbook.Write(fileStream);
                 Workstation.Logger?.LogInformation("Файл {ExcelFile} сохранён в папке с чертежом", _fileInfo.Name);
             }
-
-            OpenExcelFile(_fileInfo.FullName);
         }
 
-        private static void OpenExcelFile(string filePath)
+        private void OpenExcelFile()
         {
-            //Process[] processes = Process.GetProcessesByName("excel");
-
-            //if (processes.Length > 0)
-            //{
-            //    foreach (Process process in processes)
-            //    {
-            //        if (!process.HasExited)
-            //        {
-            //            process.StartInfo.FileName = "excel.exe";
-            //            process.StartInfo.Arguments = "\"" + filePath + "\"";
-            //            process.Start();
-            //            return;
-            //        }
-            //    }
-            //}
-
             ProcessStartInfo startInfo = new()
             {
                 FileName = "excel.exe",
-                Arguments = "\"" + filePath + "\"",
+                Arguments = "\"" + Path + "\"",
                 UseShellExecute = true
             };
 
@@ -129,5 +120,6 @@ namespace LayersIO.Excel
             style.BorderRight = borderStyle;
             style.BorderTop = borderStyle;
         }
+
     }
 }

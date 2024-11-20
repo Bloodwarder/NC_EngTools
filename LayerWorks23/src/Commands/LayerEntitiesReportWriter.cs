@@ -1,12 +1,17 @@
-﻿using LayersIO.Excel;
+﻿//System
+using System.IO;
+//Microsoft
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+//nanoCAD
+using Teigha.DatabaseServices;
+using Teigha.Colors;
+//Internal
+using LoaderCore;
+using LoaderCore.NanocadUtilities;
+using LoaderCore.Interfaces;
 using LayerWorks.LayerProcessing;
 using NameClassifiers;
-using LoaderCore.NanocadUtilities;
-using System.IO;
-using Teigha.DatabaseServices;
-using Teigha.Runtime;
-using Teigha.Colors;
-using Microsoft.Extensions.Logging;
 
 namespace LayerWorks.Commands
 {
@@ -84,8 +89,15 @@ namespace LayerWorks.Commands
                 string dwgPath = Workstation.Database.Filename;
                 var dir = new FileInfo(dwgPath).Directory;
                 var reportPath = Path.Combine(dir!.FullName, $"LayerReport_{DateTime.Now.ToLongTimeString().Replace(":", "-")}.xlsx");
-                var writer = new ExcelSimpleReportWriter<LayerEntityReport>(reportPath, "Report");
-                writer.ExportToExcel(reports.ToArray());
+                var factory = NcetCore.ServiceProvider.GetService<IReportWriterFactory<LayerEntityReport>>();
+                if (factory == null)
+                {
+                    Workstation.Logger?.LogError("Ошибка. Не зарегистрирована служба подготовки отчётов");
+                    return;
+                }
+                var writer = factory.CreateWriter(reportPath, "Report");
+                writer.PrepareReport(reports.ToArray());
+                writer.ShowReport();
             }
         }
 
@@ -100,4 +112,5 @@ namespace LayerWorks.Commands
         }
 
     }
+
 }

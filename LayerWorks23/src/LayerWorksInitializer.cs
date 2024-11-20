@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using LoaderCore.Configuration;
 using NameClassifiers;
 using LayersIO.DataTransfer;
+using LayersIO.Excel;
 
 namespace LayerWorks
 {
@@ -28,7 +29,8 @@ namespace LayerWorks
             NcetCore.Services.AddRepositories(SourceType.InMemory)
                              .AddDataProviderFactories(SourceType.SQLite)
                              .AddDataWriterFactories(SourceType.Xml)
-                             .AddSingleton<SQLiteLayerDataContextFactory>();
+                             .AddSingleton<SQLiteLayerDataContextFactory>()
+                             .AddTransient(typeof(IReportWriterFactory<>), typeof(ExcelSimpleReportWriterFactory<>));
         }
 
         private static void LoadParsers()
