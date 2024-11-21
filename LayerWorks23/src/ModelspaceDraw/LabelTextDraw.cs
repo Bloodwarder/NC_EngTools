@@ -35,7 +35,7 @@ namespace LayerWorks.ModelspaceDraw
             var txtstyletable = Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.TextStyleTableId, OpenMode.ForRead) as TextStyleTable;
             MText mtext = new()
             {
-                Contents = _italic ? $"{{\\fArial|b0|i1|c204|p34;{_text}}}" : _text,
+                Contents = _italic ? $"{{\\fArial|b0|i1|c204|p34;{_text.ToLower()}}}" : _text, // TODO: Безусловный перевод в нижний регистр хардкодом. Переосмыслить
                 TextStyleId = txtstyletable!["Standard"],
                 TextHeight = LegendGrid.TextHeight,
                 LayerId = _layer,

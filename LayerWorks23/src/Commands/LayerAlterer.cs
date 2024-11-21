@@ -17,7 +17,7 @@ using NameClassifiers.Sections;
 using LoaderCore.NanocadUtilities;
 
 using static LoaderCore.NanocadUtilities.EditorHelper;
-
+using System.Globalization;
 
 namespace LayerWorks.Commands
 {
@@ -37,15 +37,19 @@ namespace LayerWorks.Commands
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Получение таблицы слоёв", nameof(LayerAlterer));
                 LayerTable? lt = transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForWrite, false) as LayerTable;
                 if (!lt!.Has(tgtlayer))
                 {
+                    Workstation.Logger?.LogDebug("{ProcessingObject}: Слой {OverlayLayer} отсутствует в чертеже. Добавление", nameof(LayerAlterer), tgtlayer);
+
                     LayerTableRecord ltrec = new()
                     {
                         Name = tgtlayer,
                         Color = Color.FromRgb(255, 255, 255),
                     };
                     lt.Add(ltrec);
+                    Workstation.Logger?.LogDebug("{ProcessingObject}: Слой {OverlayLayer} добавлен", nameof(LayerAlterer), tgtlayer);
                     transaction.AddNewlyCreatedDBObject(ltrec, true);
                     CreateHatchOverXrefs(transaction, ltrec);
                 }
@@ -67,18 +71,33 @@ namespace LayerWorks.Commands
                     }
                 }
                 transaction.Commit();
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Транзакция завершена. Изменения применены", nameof(LayerAlterer));
             }
         }
 
         private static void CreateHatchOverXrefs(Transaction transaction, LayerTableRecord ltrec)
         {
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Начало процедуры создания кальки поверх внешних ссылок", nameof(LayerAlterer));
+            // Получить системные переменные, необходимые для вычисления размеров кальки
             var viewCenter = (Point3d)HostMgd.ApplicationServices.Application.GetSystemVariable("VIEWCTR");
             var viewSize = (double)HostMgd.ApplicationServices.Application.GetSystemVariable("VIEWSIZE");
             var screenSize = (Point2d)HostMgd.ApplicationServices.Application.GetSystemVariable("SCREENSIZE");
+
+            Workstation.Logger?.LogDebug(
+                "{ProcessingObject}: Системные переменные для расчёта:\nVIEWCTR :\t{ViewCenter}\nVIEWSIZE:\t{ViewSize}\nSCREENSIZE:\t{ScreenSize}",
+                nameof(LayerAlterer),
+                viewCenter,
+                viewSize,
+                screenSize);
+
             double multiplier = viewSize / screenSize.Y;
             Point2d minExtent = new(viewCenter.X - screenSize.X * multiplier / 2, viewCenter.Y - screenSize.Y * multiplier / 2);
             Point2d maxExtent = new(viewCenter.X + screenSize.X * multiplier / 2, viewCenter.Y + screenSize.Y * multiplier / 2);
-
+            Workstation.Logger?.LogDebug(
+                "{ProcessingObject}: Полученные значения охвата:\nЛевая нижняя точка:\t{MinExtent}\nПравая верхняя точка:\t{MaxExtent}",
+                nameof(LayerAlterer),
+                minExtent.ToString(CultureInfo.InvariantCulture),
+                maxExtent.ToString(CultureInfo.InvariantCulture));
             Polyline pl = new();
             pl.AddVertexAt(0, new(minExtent.X, minExtent.Y), 0, 0, 0);
             pl.AddVertexAt(1, new(minExtent.X, maxExtent.Y), 0, 0, 0);
@@ -97,8 +116,11 @@ namespace LayerWorks.Commands
             hatch.SetHatchPattern(HatchPatternType.PreDefined, "SOLID");
             Workstation.ModelSpace.AppendEntity(hatch);
             transaction.AddNewlyCreatedDBObject(hatch, true);
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Объекты кальки добавлены в ModelSpace", nameof(LayerAlterer));
 
             DrawOrderTable dot = (DrawOrderTable)transaction.GetObject(Workstation.ModelSpace.DrawOrderTableId, OpenMode.ForWrite);
+
+            // Выбрать все внешние сслыки в модели
             Func<DBObject, bool> isFromExternalReferencePredicate =
                 dbo => ((BlockTableRecord)transaction.GetObject(((BlockReference)dbo).BlockTableRecord, OpenMode.ForRead)).IsFromExternalReference;
             var xRefsIds = Workstation.ModelSpace.Cast<ObjectId>()
@@ -107,12 +129,19 @@ namespace LayerWorks.Commands
                                                  .Where(isFromExternalReferencePredicate)
                                                  .Select(dbo => dbo.ObjectId)
                                                  .ToArray();
+            if (!xRefsIds.Any())
+            {
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Внешние ссылки отсутствуют. Перемещаем кальку в самый низ", nameof(LayerAlterer));
+                dot.MoveToBottom(new() { pl.Id, hatch.Id });
+                return;
+            }
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Найдено {Count} внешних ссылок. Перемещаем кальку над ссылками", nameof(LayerAlterer), xRefsIds.Length);
             ObjectIdCollection xreferences = new(xRefsIds);
+            // Сравнить индексы внешних ссылок и поднять кальку над самой верхней
             var drawOrder = dot.GetFullDrawOrder(0);
             var indexes = xRefsIds.ToDictionary(id => id, id => drawOrder.IndexOf(id));
             var firstXRef = xRefsIds.Where(id => indexes[id] == indexes.Values.Max()).First();
             dot.MoveAbove(new ObjectIdCollection(new ObjectId[] { pl.ObjectId, hatch.ObjectId }), firstXRef);
-            //}
         }
 
         /// <summary>
