@@ -7,6 +7,7 @@ using static Utilities.Labeler;
 using static Utilities.TextProcessor;
 using static Utilities.MultilineConverter;
 using static Utilities.VerticalCalc;
+using static Utilities.PolylineUnderlayer;
 
 namespace Utilities
 {
@@ -90,6 +91,11 @@ namespace Utilities
             NcetCommand.ExecuteCommand(RedBlackEqual);
         }
 
+        [CommandMethod("ПЛПОДЛОЖКА", CommandFlags.Redraw)]
+        public static void CreateUnderlayingPolylineCommand()
+        {
+            NcetCommand.ExecuteCommand(CreateUnderlayingPolyline);
+        }
     }
 
 }

@@ -47,7 +47,7 @@ namespace LayerWorks.ModelspaceDraw
                 Contents = MarkChar,
                 TextStyleId = txtstyletable!["Standard"],
                 TextHeight = LegendGrid.MarkedLineTextHeight,
-                Layer = Layer.BoundLayer.Name,
+                Layer = LayerWrapper.BoundLayer.Name,
                 Color = s_byLayer,
             };
 
@@ -71,11 +71,11 @@ namespace LayerWorks.ModelspaceDraw
             Polyline pl2 = new Polyline();
             pl1.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
             pl1.AddVertexAt(1, GetRelativePoint(-(_width / 2 + 0.5d), 0d), 0, 0d, 0d);
-            pl1.Layer = Layer.BoundLayer.Name;
+            pl1.Layer = LayerWrapper.BoundLayer.Name;
 
             pl2.AddVertexAt(0, GetRelativePoint(_width / 2 + 0.5d, 0d), 0, 0d, 0d);
             pl2.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
-            pl2.Layer = Layer.BoundLayer.Name;
+            pl2.Layer = LayerWrapper.BoundLayer.Name;
 
             List<Polyline> list = new List<Polyline> { pl1, pl2 };
             EntitiesList.AddRange(list);

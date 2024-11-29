@@ -46,7 +46,7 @@ namespace LayerWorks.Commands
             string? prefix = NameParser.Current.Prefix;
             if (prefix == null)
             {
-                editor.WriteMessage("Не задан префикс слоёв для выполнения команды");
+                Workstation.Logger?.LogInformation("Не задан префикс слоёв для выполнения команды");
                 return;
             }
 
@@ -84,7 +84,8 @@ namespace LayerWorks.Commands
                 string filterName = GetStringKeyword(filters, "Выберите фильтр");
                 HighlightFilter chosenFilter = visualizers.Filters.Where(f => f.Name == filterName).Single();
 
-                //chosenFilter.ApplyFilter(VisualizerLayerWrappers.StoredLayerStates[Workstation.Document]); //ПЕРЕСОБРАТЬ С ЭТИМ И ТЕСТИРОВАТЬ
+                //var states = VisualizerLayerWrappers.StoredLayerStates[Workstation.Document];
+                //chosenFilter.ApplyFilter(states); //ПЕРЕСОБРАТЬ С ЭТИМ И ТЕСТИРОВАТЬ
 
                 // UNDONE: Работает по-старому! Собрано просто, чтобы было не сломано. Взять логику из визуализаторов ^^^
                 var layerchapters = VisualizerLayerWrappers.StoredLayerStates[doc]

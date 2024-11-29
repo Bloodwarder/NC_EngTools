@@ -58,7 +58,7 @@ namespace LayerWorks.ModelspaceDraw
                 color = Color.FromRgb((byte)(color.Red + (255 - color.Red) * m), (byte)(color.Green + (255 - color.Green) * m), (byte)(color.Blue + (255 - color.Blue) * m));
                 hatch.BackgroundColor = color;
                 newbtr.AppendEntity(hatch); // добавляем в модельное пространство
-
+                
                 //порядок прорисовки
                 DrawOrderTable dro = (DrawOrderTable)transaction.GetObject(newbtr.DrawOrderTableId, OpenMode.ForWrite);
                 dro.MoveBelow(new ObjectIdCollection(new ObjectId[] { hatch.ObjectId }), plid);

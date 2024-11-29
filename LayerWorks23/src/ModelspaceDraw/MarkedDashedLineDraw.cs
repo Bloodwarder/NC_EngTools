@@ -30,7 +30,7 @@ namespace LayerWorks.ModelspaceDraw
             foreach (Polyline line in lines)
             {
                 var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
-                formatter?.FormatEntity(line, Layer.LayerInfo.TrueName);
+                formatter?.FormatEntity(line, LayerWrapper.LayerInfo.TrueName);
                 bool ltgetsuccess = LayerChecker.TryFindLinetype("ACAD_ISO02W100", out ObjectId lineTypeId);
                 if (ltgetsuccess)
                     line.LinetypeId = lineTypeId;

@@ -11,8 +11,6 @@ namespace LayerWorks.LayerProcessing
         const byte redproj = 0; const byte greenproj = 255; const byte blueproj = 255;
         const byte redns = 0; const byte greenns = 153; const byte bluens = 153;
 
-        public StatedLayerProps StoredLayerProps { get; set; }
-
         /// <inheritdoc/>
         public VisualizerLayerWrapper(LayerTableRecord ltr) : base(ltr)
         {
@@ -25,6 +23,8 @@ namespace LayerWorks.LayerProcessing
             };
             BoundLayer.Erased += (sender, e) => VisualizerLayerWrappers.StoredLayerStates[Workstation.Document].Remove(this); // TODO: Протестировать удаление из очереди обработки при удалении слоя
         }
+
+        public StatedLayerProps StoredLayerProps { get; set; }
 
         public static void Create(LayerTableRecord record)
         {

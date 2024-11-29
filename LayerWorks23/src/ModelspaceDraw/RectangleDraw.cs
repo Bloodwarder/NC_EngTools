@@ -43,10 +43,10 @@ namespace LayerWorks.ModelspaceDraw
             string separator = NameParser.Current.Separator;
             if (layer != null)
                 LayerChecker.Check(layer);
-            rectangle.Layer = layer == null ? Layer.BoundLayer.Name : layer;
+            rectangle.Layer = layer == null ? LayerWrapper.BoundLayer.Name : layer;
 
             var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
-            formatter?.FormatEntity(rectangle, Layer.LayerInfo.TrueName);
+            formatter?.FormatEntity(rectangle, LayerWrapper.LayerInfo.TrueName);
 
             rectangle.Color = BrightnessShift(brightnessshift);
             EntitiesList.Add(rectangle);

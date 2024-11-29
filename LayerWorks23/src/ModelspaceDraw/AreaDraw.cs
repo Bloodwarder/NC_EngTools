@@ -38,7 +38,7 @@ namespace LayerWorks.ModelspaceDraw
         {
             Hatch hatch = new()
             {
-                Layer = Layer.BoundLayer.Name
+                Layer = LayerWrapper.BoundLayer.Name
             };
             foreach (Polyline pl in borders)
             {

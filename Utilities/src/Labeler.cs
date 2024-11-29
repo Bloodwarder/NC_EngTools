@@ -142,7 +142,7 @@ namespace Utilities
 
         private static void AssignNewTextHeight()
         {
-            PromptDoubleResult result = Workstation.Editor.GetDouble("Введите новый коэффициент фона текста:");
+            PromptDoubleResult result = Workstation.Editor.GetDouble("Введите новое значение высоты текста:");
             if (result.Status != PromptStatus.OK)
                 Workstation.Logger?.LogWarning("Неверное значение");
             double newValue = Math.Max(result.Value, 0.01d);
