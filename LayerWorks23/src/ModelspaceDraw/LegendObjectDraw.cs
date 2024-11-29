@@ -54,8 +54,8 @@ namespace LayerWorks.ModelspaceDraw
         /// </summary>
         public LegendObjectDraw(Point2d basepoint, RecordLayerWrapper layer) : base(basepoint, layer)
         {
-            Layer = layer;
-            bool success = _repository.TryGet(Layer.LayerInfo.TrueName, out var legendDrawTemplate);
+            LayerWrapper = layer;
+            bool success = _repository.TryGet(LayerWrapper.LayerInfo.TrueName, out var legendDrawTemplate);
             if (success)
                 LegendDrawTemplate = legendDrawTemplate;
         }
@@ -67,17 +67,17 @@ namespace LayerWorks.ModelspaceDraw
         internal static double CellWidth => LegendGrid.CellWidth;
         internal static double CellHeight => LegendGrid.CellHeight;
 
-        internal RecordLayerWrapper Layer { get; set; }
+        internal RecordLayerWrapper LayerWrapper { get; set; }
 
         public sealed override void Draw()
         {
-            Workstation.Logger?.LogDebug("{ProcessingObject}: Начало отрисовки объекта слоя {LayerName}", this.GetType().Name, Layer.BoundLayer.Name);
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Начало отрисовки объекта слоя {LayerName}", this.GetType().Name, LayerWrapper.BoundLayer.Name);
             try
             {
                 CreateEntities();
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Успешная отрисовка объекта слоя {LayerName}. Создано {Count} объектов",
                                              this.GetType().Name,
-                                             Layer.BoundLayer.Name,
+                                             LayerWrapper.BoundLayer.Name,
                                              EntitiesList.Count);
             }
             catch (Exception ex)
@@ -85,7 +85,7 @@ namespace LayerWorks.ModelspaceDraw
                 Workstation.Logger?.LogWarning(ex,
                                                "{ProcessingObject}: Не удалась отрисовка объекта слоя {LayerName}. Ошибка - {Exception}",
                                                this.GetType().Name,
-                                               Layer.BoundLayer.Name,
+                                               LayerWrapper.BoundLayer.Name,
                                                ex.Message);
             }
         }
@@ -101,7 +101,7 @@ namespace LayerWorks.ModelspaceDraw
         {
             if (value == 0)
                 return s_byLayer;
-            Color color = Layer.BoundLayer.Color;
+            Color color = LayerWrapper.BoundLayer.Color;
             if (value > 0)
             {
                 color = Color.FromRgb((byte)(color.Red + (255 - color.Red) * value), (byte)(color.Green + (255 - color.Green) * value), (byte)(color.Blue + (255 - color.Blue) * value));

@@ -44,7 +44,7 @@ namespace LayerWorks.Commands
                 Workstation.Logger?.LogInformation("Точка не назначена. Команда отменена");
                 return;
             }
-            Point3d p3d = pointResult.Value; // BUG: В одном чертеже было замечено, что Y улетает в 0. Разобраться. Впрочем, скорее всего это к нанокаду
+            Point3d p3d = pointResult.Value;
 
             Workstation.Logger?.LogDebug("{ProcessingObject}: Точка назначена - X:{XCoord}, Y:{YCoord}", nameof(LegendAssembler), p3d.X, p3d.Y);
             Workstation.Logger?.LogDebug("{ProcessingObject}: Начало транзакции", nameof(LegendAssembler));

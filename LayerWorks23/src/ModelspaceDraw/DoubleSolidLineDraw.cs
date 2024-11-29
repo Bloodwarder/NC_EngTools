@@ -31,11 +31,11 @@ namespace LayerWorks.ModelspaceDraw
             Polyline pl = new Polyline();
             pl.AddVertexAt(0, GetRelativePoint(-CellWidth / 2, 0d), 0, 0d, 0d);
             pl.AddVertexAt(1, GetRelativePoint(CellWidth / 2, 0d), 0, 0d, 0d);
-            pl.Layer = Layer.LayerInfo.Name;
+            pl.Layer = LayerWrapper.LayerInfo.Name;
             Polyline pl2 = (Polyline)pl.Clone();
 
             var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
-            formatter?.FormatEntity(pl, Layer.LayerInfo.TrueName);
+            formatter?.FormatEntity(pl, LayerWrapper.LayerInfo.TrueName);
             // UNDONE : Не реализована отрисовка двойной полилинии
             pl2.ConstantWidth = double.Parse(LegendDrawTemplate?.Width ?? "1.5");  // ТОЖЕ КОСТЫЛЬ, ЧТОБЫ НЕ ДОБАВЛЯТЬ ДОП ПОЛЕ В ТАБЛИЦУ. ТАКИХ СЛОЯ ВСЕГО 3
             pl2.Color = Color.FromRgb(0, 0, 255);   // ЗАТЫЧКА, ПОКА ТАКОЙ ОБЪЕКТ ВСЕГО ОДИН

@@ -18,7 +18,7 @@ namespace LayerWorks.ModelspaceDraw
     {
         string FenceLayer => LegendDrawTemplate?.FenceLayer != null ? 
                              $"{NameParser.Current.Prefix}{NameParser.Current.Separator}{LegendDrawTemplate?.FenceLayer}" : 
-                             Layer.BoundLayer.Name;
+                             LayerWrapper.BoundLayer.Name;
         internal double FenceWidth => ParseRelativeValue(LegendDrawTemplate?.FenceWidth ?? "1*", LegendGrid.CellWidth);
         internal double FenceHeight => ParseRelativeValue(LegendDrawTemplate?.FenceHeight ?? "1*", LegendGrid.CellHeight);
         /// <summary>

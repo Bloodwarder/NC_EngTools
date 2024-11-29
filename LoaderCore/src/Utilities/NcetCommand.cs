@@ -41,6 +41,7 @@ namespace LoaderCore.Utilities
             Scope?.Dispose();
             Workstation.Logger = NcetCore.Logger;
             Workstation.IsCommandLoggingEnabled = false;
+            GC.SuppressFinalize(this);
         }
 
         internal void Execute()

@@ -7,7 +7,7 @@ namespace LayerWorks.LayerProcessing
 {
     internal static class VisualizerLayerWrappers
     {
-        private static readonly Dictionary<Document, bool> _eventAssigned = new Dictionary<Document, bool>(); //должно работать только для одного документа. переделать для многих
+        private static readonly Dictionary<Document, bool> _eventAssigned = new(); //должно работать только для одного документа. переделать для многих
         internal static Dictionary<Document, List<VisualizerLayerWrapper>> StoredLayerStates { get; } = new Dictionary<Document, List<VisualizerLayerWrapper>>();
         internal static void Add(VisualizerLayerWrapper lp)
         {

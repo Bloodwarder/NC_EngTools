@@ -1,8 +1,5 @@
-﻿using LayersIO.Connection;
-using LoaderCore;
+﻿using LoaderCore;
 using LoaderCore.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LayersIO.Database.Readers

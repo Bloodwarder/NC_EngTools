@@ -86,7 +86,7 @@ namespace LayerWorks.ModelspaceDraw
             double y = Basepoint.Y + LegendDrawTemplate.BlockYOffset;
             BlockReference bref = new(new Point3d(x, y, 0d), btrId)
             {
-                Layer = Layer.BoundLayer.Name
+                Layer = LayerWrapper.BoundLayer.Name
             };
             EntitiesList.Add(bref);
             //Workstation.Logger?.LogDebug("{ProcessingObject}: Объект слоя {Layer} добавлен в список для отрисовки", nameof(BlockReferenceDraw), bref.Layer);
@@ -133,7 +133,7 @@ namespace LayerWorks.ModelspaceDraw
                 // По одному разу открываем базу данных каждого файла с блоками для условных
                 foreach (string file in QueuedFiles)
                 {
-                    using (Database importDatabase = new Database(false, true))
+                    using (Database importDatabase = new(false, true))
                     {
                         try
                         {

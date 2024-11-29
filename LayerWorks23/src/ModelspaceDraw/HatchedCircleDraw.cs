@@ -45,10 +45,10 @@ namespace LayerWorks.ModelspaceDraw
             circle.AddVertexAt(1, GetRelativePoint(0, -radius / 2), 1, 0d, 0d);
             circle.AddVertexAt(2, GetRelativePoint(0, radius / 2), 0, 0d, 0d);
             circle.Closed = true;
-            circle.Layer = layer ?? Layer.BoundLayer.Name;
+            circle.Layer = layer ?? LayerWrapper.BoundLayer.Name;
 
             var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
-            formatter?.FormatEntity(circle, Layer.LayerInfo.TrueName);
+            formatter?.FormatEntity(circle, LayerWrapper.LayerInfo.TrueName);
 
             EntitiesList.Add(circle);
             return circle;
