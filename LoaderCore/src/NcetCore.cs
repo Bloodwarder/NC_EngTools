@@ -97,16 +97,18 @@ namespace LoaderCore
 
             DirectoryInfo defaultLocalDir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.Parent!.Parent!;
 
-            // если ошибочный - перезаписать файл
+            // ищем в файле конфигурации путь к источнику обновлений
+            XElement updateDirectoryElement = document.Root!.Element("Directories")!.Element("UpdateDirectory")!;
+            DirectoryInfo updateDir = new(updateDirectoryElement.Value);
+            if (!updateDir.Exists)
+                throw new IOException("Невозможно найти папку с обновлениями");
+            RootUpdateDirectory = updateDir.FullName;
+
+            // если файл конфигурации не соответствует схеме - перезаписать файл
             if (!isValid)
             {
-                XElement updateDirectoryElement = document.Root!.Element("Directories")!.Element("UpdateDirectory")!;
-                DirectoryInfo updateDir = new(updateDirectoryElement.Value);
-                if (!updateDir.Exists)
-                    throw new IOException("Невозможно найти папку с обновлениями");
                 var sourceFile = updateDir.GetFiles(ConfigurationXmlFileName, SearchOption.AllDirectories).Single();
                 var targetFile = defaultLocalDir.GetFiles(ConfigurationXmlFileName, SearchOption.AllDirectories).Single();
-                RootUpdateDirectory = updateDir.FullName;
                 sourceFile.CopyTo(targetFile.FullName, true);
             }
 
@@ -161,8 +163,8 @@ namespace LoaderCore
             }
             var updateDir = new DirectoryInfo(RootUpdateDirectory);
             var localDir = new DirectoryInfo(RootLocalDirectory);
-            var updateTxt = updateDir.GetFiles(".txt", SearchOption.TopDirectoryOnly).ToDictionary(fi => fi.Name);
-            var localTxt = localDir.GetFiles(".txt", SearchOption.TopDirectoryOnly).ToDictionary(fi => fi.Name);
+            var updateTxt = updateDir.GetFiles("*.txt", SearchOption.TopDirectoryOnly).ToDictionary(fi => fi.Name);
+            var localTxt = localDir.GetFiles("*.txt", SearchOption.TopDirectoryOnly).ToDictionary(fi => fi.Name);
             foreach (var file in updateTxt.Keys)
             {
                 try
@@ -172,11 +174,9 @@ namespace LoaderCore
                 }
                 catch (System.Exception ex)
                 {
-                    Logger?.LogWarning($"Ошибка обновления файла \"{file}\":\n{ex.Message}");
+                    Logger?.LogWarning(ex, "Ошибка обновления файла \"{File}\":\n{Exception}", file, ex.Message);
                     continue;
                 }
-                if (!localTxt.ContainsKey(file) || localTxt[file].LastWriteTime < updateTxt[file].LastWriteTime)
-                    updateTxt[file].CopyTo(localTxt[file].FullName, true);
             }
         }
 
