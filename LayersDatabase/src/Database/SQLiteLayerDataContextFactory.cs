@@ -1,20 +1,23 @@
 ﻿using LayersIO.Connection;
 using LayersIO.DataTransfer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace LayersIO.Database
 {
-    public class SQLiteLayerDataContextFactory
+    public class SQLiteLayerDataContextFactory //: IDbContextFactory<LayersDatabaseContextSqlite>
     {
+        ILogger _logger;
         static SQLiteLayerDataContextFactory()
         {
             TinyMapperConfigurer.Configure();
         }
-        public SQLiteLayerDataContextFactory() { }
+        public SQLiteLayerDataContextFactory(ILogger logger) 
+        {
+            _logger = logger;            
+        }
         public LayersDatabaseContextSqlite CreateDbContext(string path)
         {
-            return File.Exists(path) ? new(path) : throw new FileNotFoundException("Файл базы данных не найден");
+            return File.Exists(path) ? new(path, _logger) : throw new FileNotFoundException("Файл базы данных не найден");
         }
 
 

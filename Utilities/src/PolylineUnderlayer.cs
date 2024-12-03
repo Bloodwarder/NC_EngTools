@@ -17,6 +17,8 @@ namespace Utilities
 {
     public class PolylineUnderlayer
     {
+        private const double DefaultWidthIncrement = 1.5d;
+
         public static void CreateUnderlayingPolyline()
         {
             Workstation.Logger?.LogDebug("{ProcessingObject}: Начало пользовательского ввода", nameof(PolylineUnderlayer));
@@ -93,6 +95,7 @@ namespace Utilities
                 }
                 newPolyline.AddVertexAt(pointsBetween + 1, closestP2.Convert2d(new Plane()), 0d, 0d, 0d);
                 newPolyline.LayerId = Workstation.Database.Clayer;
+                newPolyline.Color = Workstation.Database.Cecolor;
 
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Добавление полилинии в модель", nameof(PolylineUnderlayer));
 
@@ -103,6 +106,9 @@ namespace Utilities
 
                 IEntityFormatter? formatter = NcetCore.ServiceProvider.GetService<IEntityFormatter>();
                 formatter?.FormatEntity(newPolyline);
+
+                if (newPolyline.ConstantWidth == 0)
+                    newPolyline.ConstantWidth = polyline.ConstantWidth + DefaultWidthIncrement;
 
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Установка порядка прорисовки", nameof(PolylineUnderlayer));
 

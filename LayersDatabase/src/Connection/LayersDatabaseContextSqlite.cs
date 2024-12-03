@@ -8,13 +8,14 @@ namespace LayersIO.Connection
 {
     public class LayersDatabaseContextSqlite : DbContext
     {
-        private readonly ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
+        private readonly ILogger? _logger;
         public DbSet<LayerData> Layers { get; set; } = null!;
         public DbSet<LayerGroupData> LayerGroups { get; set; } = null!;
 
         private readonly string _dataSource;
-        public LayersDatabaseContextSqlite(string dataSource) : base()
+        public LayersDatabaseContextSqlite(string dataSource, ILogger? logger) : base()
         {
+            _logger = logger;
             _dataSource = dataSource;
             Database.EnsureCreated();
             _logger?.LogDebug("Подключение к {DataSource}", dataSource);
@@ -44,7 +45,7 @@ namespace LayersIO.Connection
         private const string SourceDatabasePath = @"C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\LayersDatabase\Data\LayerData_ИС.db";
         public LayersDatabaseContextSqlite CreateDbContext(string[] args)
         {
-            return new(SourceDatabasePath);
+            return new(SourceDatabasePath, null);
         }
     }
 }

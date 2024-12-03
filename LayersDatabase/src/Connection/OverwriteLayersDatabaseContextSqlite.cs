@@ -1,21 +1,20 @@
 ﻿using LayersIO.Model;
-using LoaderCore.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace LayersIO.Connection
 {
     public class OverwriteLayersDatabaseContextSqlite : DbContext
     {
-        public ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
+        public ILogger? _logger;
         public DbSet<LayerData> LayerData { get; set; } = null!;
         public DbSet<LayerGroupData> LayerGroupData { get; set; } = null!;
 
         private readonly string _dataSource;
 
-        public OverwriteLayersDatabaseContextSqlite(string dataSource) : base()
+        public OverwriteLayersDatabaseContextSqlite(string dataSource, ILogger logger) : base()
         {
+            _logger = logger;
             _dataSource = dataSource;
             Database.EnsureDeleted();
             Database.EnsureCreated();
