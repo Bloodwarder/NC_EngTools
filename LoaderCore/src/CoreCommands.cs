@@ -1,11 +1,8 @@
 ﻿using LoaderCore.NanocadUtilities;
-using LoaderCore.UI;
 using LoaderCore.Utilities;
-using System;
-using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Teigha.Runtime;
 
 namespace LoaderCore
@@ -22,6 +19,13 @@ namespace LoaderCore
         public static void ConfigureAutorunCommand()
         {
             NcetCommand.ExecuteCommand(NcetCore.ConfigureAutorun);
+        }
+
+        [CommandMethod("КОМАНДЫ_NCET")]
+        public static void ShowCommandsListCommand()
+        {
+            string path = new DirectoryInfo(NcetCore.RootLocalDirectory).GetFiles("Команды.txt").Single().FullName;
+            Process.Start("notepad.exe", path);
         }
 
     }
