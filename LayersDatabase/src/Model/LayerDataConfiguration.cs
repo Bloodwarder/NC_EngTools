@@ -16,6 +16,7 @@ namespace LayersIO.Model
 
             builder.OwnsOne(ld => ld.LayerPropertiesData); //.HasOne(ld => ld.LayerPropertiesData).WithOne(lpd => lpd.LayerData).HasForeignKey<LayerPropertiesData>(lpd => lpd.LayerDataId);
             builder.OwnsOne(ld => ld.LayerDrawTemplateData); //.HasOne(ld => ld.LayerDrawTemplateData).WithOne(ldtd => ldtd.LayerData).HasForeignKey<LayerDrawTemplateData>(ldtd => ldtd.LayerDataId);
+            //builder.Property(ld => ld.LayerDrawTemplateData).IsRequired();
         }
     }
 }

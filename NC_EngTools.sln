@@ -33,6 +33,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AA1C6103
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NameParserTest", "NameParserTest\NameParserTest.csproj", "{D4C0070D-254E-4493-AD16-5ADCC860603D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Service", "Service", "{0D3161E7-1263-41E0-A344-CE24239B7A0F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LayerDbMigrations", "LayerDbMigrations\LayerDbMigrations.csproj", "{709E5BCF-67F0-4873-8D3F-42EAB482A791}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +77,10 @@ Global
 		{D4C0070D-254E-4493-AD16-5ADCC860603D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D4C0070D-254E-4493-AD16-5ADCC860603D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4C0070D-254E-4493-AD16-5ADCC860603D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{709E5BCF-67F0-4873-8D3F-42EAB482A791}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{709E5BCF-67F0-4873-8D3F-42EAB482A791}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{709E5BCF-67F0-4873-8D3F-42EAB482A791}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{709E5BCF-67F0-4873-8D3F-42EAB482A791}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,6 +95,7 @@ Global
 		{CF17117F-D8E6-494A-8F3A-397879C882AF} = {9C756B09-1F25-4B78-8613-DA901DC80AC7}
 		{6BFDF9FE-8188-4474-8F26-D052F35EB5DE} = {9C756B09-1F25-4B78-8613-DA901DC80AC7}
 		{D4C0070D-254E-4493-AD16-5ADCC860603D} = {AA1C6103-37FA-4CD6-A057-0102BAD2FF6F}
+		{709E5BCF-67F0-4873-8D3F-42EAB482A791} = {0D3161E7-1263-41E0-A344-CE24239B7A0F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6D243E8F-70BB-4A0D-9231-F7131BF1825E}
