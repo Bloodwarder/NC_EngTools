@@ -27,7 +27,7 @@ namespace LayersIO.Connection
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite($"Data Source={_dataSource}");
+            optionsBuilder.UseSqlite($"Data Source={_dataSource}", b => b.MigrationsAssembly("LayerDbMigrations"));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
