@@ -12,7 +12,7 @@ namespace LayersIO.Connection
 
         private readonly string _dataSource;
 
-        public OverwriteLayersDatabaseContextSqlite(string dataSource, ILogger logger) : base()
+        public OverwriteLayersDatabaseContextSqlite(string dataSource, ILogger? logger) : base()
         {
             _logger = logger;
             _dataSource = dataSource;

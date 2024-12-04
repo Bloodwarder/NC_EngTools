@@ -13,7 +13,7 @@ namespace LayersIO.Excel
         private protected string sheetname;
         private readonly FileInfo _fileInfo;
 
-        protected static Dictionary<Type, Func<ICell, object>> _valueHandler { get; } = new()
+        protected readonly static Dictionary<Type, Func<ICell, object>> _valueHandler = new()
         {
             [typeof(string)] = c => c.StringCellValue,
             [typeof(bool)] = c => c.BooleanCellValue,
@@ -28,7 +28,7 @@ namespace LayersIO.Excel
         {
             Path = path;
             _fileInfo = new FileInfo(Path);
-            if (!_fileInfo.Exists) { throw new System.Exception("Файл не существует"); }
+            if (!_fileInfo.Exists) { throw new Exception("Файл не существует"); }
             this.sheetname = sheetname;
         }
 
@@ -37,7 +37,7 @@ namespace LayersIO.Excel
 
             IWorkbook xlwb = WorkbookFactory.Create(_fileInfo.FullName, null, true);
             ISheet ws = xlwb.GetSheet(sheetname);
-            XmlSerializableDictionary<TKey, TValue> dct = new XmlSerializableDictionary<TKey, TValue>();
+            XmlSerializableDictionary<TKey, TValue> dct = new();
             try
             {
                 for (int i = 1; i < ws.LastRowNum + 1; i++)

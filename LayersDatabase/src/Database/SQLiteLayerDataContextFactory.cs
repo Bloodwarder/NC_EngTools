@@ -6,7 +6,7 @@ namespace LayersIO.Database
 {
     public class SQLiteLayerDataContextFactory //: IDbContextFactory<LayersDatabaseContextSqlite>
     {
-        ILogger _logger;
+        readonly ILogger _logger;
         static SQLiteLayerDataContextFactory()
         {
             TinyMapperConfigurer.Configure();

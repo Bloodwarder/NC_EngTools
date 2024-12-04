@@ -1,7 +1,5 @@
 ﻿using LayersIO.Model;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace LayersIO.Connection
@@ -17,7 +15,7 @@ namespace LayersIO.Connection
         {
             _logger = logger;
             _dataSource = dataSource;
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
             _logger?.LogDebug("Подключение к {DataSource}", dataSource);
         }
 
@@ -37,15 +35,6 @@ namespace LayersIO.Connection
             modelBuilder.ApplyConfiguration(new LayerDataConfiguration());
             modelBuilder.ApplyConfiguration(new LayerGroupDataConfiguration());
             //modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        }
-    }
-
-    public class DesignTimeLayerDatabaseContextFactory : IDesignTimeDbContextFactory<LayersDatabaseContextSqlite>
-    {
-        private const string SourceDatabasePath = @"C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\LayersDatabase\Data\LayerData_ИС.db";
-        public LayersDatabaseContextSqlite CreateDbContext(string[] args)
-        {
-            return new(SourceDatabasePath, null);
         }
     }
 }

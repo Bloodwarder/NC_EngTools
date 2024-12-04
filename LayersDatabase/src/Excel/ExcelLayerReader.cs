@@ -20,7 +20,7 @@ namespace LayersIO.Excel
 
             List<LayerGroupData> groups = ExtractLayerGroupsData(mapper);
             List<LayerData> layers = ExtractLayersData(mapper, groups);
-            using (OverwriteLayersDatabaseContextSqlite db = new(PathProvider.GetPath("LayerData_ИС.db")))
+            using (OverwriteLayersDatabaseContextSqlite db = new(PathProvider.GetPath("LayerData_ИС.db"), _logger))
             {
                 db.LayerGroupData.AddRange(groups);
                 db.LayerData.AddRange(layers);
@@ -29,7 +29,7 @@ namespace LayersIO.Excel
                 //ExportEntities(layers, db, lg => lg.Name);
                 //Logger.WriteLog($"Время операции - {Math.Round(sw.Elapsed.TotalSeconds, 2)}");
             }
-            _logger?.LogInformation($"Операция завершена. Время операции - {Math.Round(sw.Elapsed.TotalSeconds, 2)}");
+            _logger?.LogInformation("Операция завершена. Время операции - {Elapsed}", Math.Round(sw.Elapsed.TotalSeconds, 2));
         }
 
         public async Task<string> ReadWorkbookAsync(string workbookPath)
@@ -41,7 +41,7 @@ namespace LayersIO.Excel
 
                 List<LayerGroupData> groups = ExtractLayerGroupsData(mapper);
                 List<LayerData> layers = ExtractLayersData(mapper, groups);
-                using (OverwriteLayersDatabaseContextSqlite db = new(PathProvider.GetPath("LayerData_ИС.db")))
+                using (OverwriteLayersDatabaseContextSqlite db = new(PathProvider.GetPath("LayerData_ИС.db"), _logger))
                 {
                     db.LayerGroupData.AddRange(groups);
                     db.LayerData.AddRange(layers);
@@ -146,18 +146,21 @@ namespace LayersIO.Excel
                 }
                 catch (DbUpdateException ex)
                 {
-                    _logger?.LogWarning($"Ошибка при экспорте слоя {entityNamesExpression}");
-                    _logger?.LogWarning(ex.InnerException!.Message);
+                    _logger?.LogWarning("Ошибка при экспорте слоя {EntityName}", entityNamesExpression(entity));
+                    _logger?.LogWarning(ex, "{Message}", ex.InnerException!.Message);
                     failureCounter++;
                     continue;
                 }
                 catch (Exception ex)
                 {
-                    _logger?.LogWarning($"Ошибка при экспорте слоя {entityNamesExpression}.\n{ex.Message}");
+                    _logger?.LogWarning(ex, "Ошибка при экспорте слоя {EntityName}.\n{Message}", entityNamesExpression(entity), ex.Message);
                     continue;
                 }
             }
-            _logger?.LogInformation($"Импорт объектов {typeof(T).Name} завершён. Успешно импортированно {successCounter} объектов. Ошибок - {failureCounter}");
+            _logger?.LogInformation("Импорт объектов {TypeName} завершён. Успешно импортированно {SuccessCounter} объектов. Ошибок - {FailureCounter}",
+                                    typeof(T).Name,
+                                    successCounter,
+                                    failureCounter);
         }
 
 
