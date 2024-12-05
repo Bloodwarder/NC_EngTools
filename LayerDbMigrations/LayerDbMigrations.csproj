@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
@@ -18,12 +18,12 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
-		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
-		<OutputPath>$(RootOutputPath)\ExtensionLibraries\LayerWorks</OutputPath>
+		<!--<OutputPath>$(RootOutputPath)\ExtensionLibraries\LayerWorks</OutputPath>-->
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -42,12 +42,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="Data\LayerData_Backup.db">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Data\LayerData_Testing.db">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
+	  <Folder Include="Data\" />
 	</ItemGroup>
 
 </Project>
