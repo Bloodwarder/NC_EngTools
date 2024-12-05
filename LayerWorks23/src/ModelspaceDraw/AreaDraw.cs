@@ -67,7 +67,7 @@ namespace LayerWorks.ModelspaceDraw
             try
             {
                 //hatch.SetHatchPattern(!patternname.Contains("ANSI") ? HatchPatternType.PreDefined : HatchPatternType.UserDefined, patternname); // ВОЗНИКАЮТ ОШИБКИ ОТОБРАЖЕНИЯ ШТРИХОВОК "DASH" и "HONEY"
-                hatch.SetHatchPattern(HatchPatternType.PreDefined, patternname); // ВОЗНИКАЮТ ОШИБКИ ОТОБРАЖЕНИЯ ШТРИХОВОК "DASH" и "HONEY"
+                hatch.SetHatchPattern(HatchPatternType.PreDefined, patternname);
             }
             catch
             {

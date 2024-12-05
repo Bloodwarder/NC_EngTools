@@ -59,7 +59,7 @@ namespace LayerWorks.Legend
         /// <returns></returns>
         internal List<Entity> DrawGrids()
         {
-            List<Entity> entities = new List<Entity>();
+            List<Entity> entities = new();
             foreach (LegendGrid grid in Grids)
             {
                 foreach (LegendGridCell cell in grid.Cells)

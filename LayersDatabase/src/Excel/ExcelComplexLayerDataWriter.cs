@@ -10,7 +10,7 @@ namespace LayersIO.Excel
         private protected override void CellsImport(IWorkbook xlwb, Dictionary<TKey, TValue> importeddictionary)
         {
             // Создаём словарь для индексирования заголовков, заполняем его
-            Dictionary<string, int> labelindex = new Dictionary<string, int>();
+            Dictionary<string, int> labelindex = new();
             ISheet ws = xlwb.GetSheet(sheetname);
 
             for (int i = 1; i < ws.GetRow(1).Count(); i++)

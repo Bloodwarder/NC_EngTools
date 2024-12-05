@@ -13,10 +13,8 @@ namespace LayerWorks.LayerProcessing
     /// </summary>
     public class RecordLayerWrapper : LayerWrapper
     {
-        private static IRepository<string, LayerProps> _repository;
+        private static readonly IRepository<string, LayerProps> _repository;
         private DBObjectWrapper<LayerTableRecord> _boundLayer = null!;
-
-        protected static EventHandler? LayerStandartizedEvent;
         
         static RecordLayerWrapper()
         {
@@ -39,6 +37,10 @@ namespace LayerWorks.LayerProcessing
         {
             BoundLayer = ltr;
         }
+
+        protected static EventHandler? LayerStandartizedEvent { get; set; }
+
+
         /// <summary>
         /// Изменяет имя и свойства связанного слоя слоя
         /// </summary>

@@ -53,9 +53,12 @@ namespace NameParserTest
             string? aux = _layerInfo.AuxilaryData["ExternalProject"];
             Assert.That(aux, Is.EqualTo("Кучино - М-7"));
             _layerInfo.SwitchStatus("пр");
-            Assert.That(_layerInfo.Status, Is.EqualTo("пр"));
-            Assert.That(_layerInfo.AuxilaryData["ExternalProject"], Is.Null);
-            Assert.That(_layerInfo.Name, Is.EqualTo("ИС_ГС_л_распред_0.6_пр"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(_layerInfo.Status, Is.EqualTo("пр"));
+                Assert.That(_layerInfo.AuxilaryData["ExternalProject"], Is.Null);
+                Assert.That(_layerInfo.Name, Is.EqualTo("ИС_ГС_л_распред_0.6_пр"));
+            });
         }
 
         [Test]
@@ -65,9 +68,11 @@ namespace NameParserTest
             bool? tagged = _layerInfo.SuffixTagged["Reconstruction"];
             Assert.That(tagged, Is.EqualTo(true));
             _layerInfo.SwitchStatus("пр");
-            Assert.That(_layerInfo.Status, Is.EqualTo("пр"));
-            Assert.That(_layerInfo.SuffixTagged["Reconstruction"], Is.True);
-
+            Assert.Multiple(() =>
+            {
+                Assert.That(_layerInfo.Status, Is.EqualTo("пр"));
+                Assert.That(_layerInfo.SuffixTagged["Reconstruction"], Is.True);
+            });
             _layerInfo.SwitchStatus("сущ");
             Assert.That(_layerInfo.SuffixTagged["Reconstruction"], Is.EqualTo(false));
             _layerInfo.SwitchSuffix("Reconstruction", true);
@@ -84,7 +89,6 @@ namespace NameParserTest
                 Assert.That(ex, Is.InstanceOf<WrongLayerException>());
             }
         }
-
 
         [Test]
         public void LayerInfoWhenProperPrefixWrongInfoShouldFailResult()

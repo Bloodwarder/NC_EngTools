@@ -112,7 +112,7 @@ namespace LayersDatabaseEditor
 
         private void miTestRun2_Click(object sender, RoutedEventArgs e)
         {
-            using (LayersDatabaseContextSqlite db = new(PathProvider.GetPath("LayerData_ИС.db")))
+            using (LayersDatabaseContextSqlite db = new(PathProvider.GetPath("LayerData_ИС.db"), null))
             {
                 var layers = db.Layers.Skip(25).Take(5).ToArray();
                 foreach (var layer in layers)
