@@ -12,10 +12,10 @@ namespace LayerWorks.Legend
 {
     internal class LegendGridCell : ICloneable
     {
-        private static Dictionary<string, Type> _legendDrawTypes = new();
-        private static IRepository<string, LegendDrawTemplate> _repository;
-        List<LegendObjectDraw> _draw = new List<LegendObjectDraw>();
-        private LegendDrawTemplate? _template;
+        private static readonly Dictionary<string, Type> _legendDrawTypes = new();
+        private static readonly IRepository<string, LegendDrawTemplate> _repository;
+        List<LegendObjectDraw> _draw = new();
+        private readonly LegendDrawTemplate? _template;
 
         static LegendGridCell()
         {
@@ -62,15 +62,14 @@ namespace LayerWorks.Legend
             double x = ParentGrid!.BasePoint.X + TableIndex.X * (LegendGrid.CellWidth + LegendGrid.WidthInterval) + LegendGrid.CellWidth / 2;
             double y = ParentGrid!.BasePoint.Y - TableIndex.Y * (LegendGrid.CellHeight + LegendGrid.HeightInterval) + LegendGrid.CellHeight / 2;
             Point2d point = new(x, y);
-            LegendObjectDraw? lod = Activator.CreateInstance(templateType!, point, Layer, _template) as LegendObjectDraw;
-            if (lod == null)
+            if (Activator.CreateInstance(templateType!, point, Layer, _template) is not LegendObjectDraw lod)
                 throw new Exception($"Отсутствует тип");
             _draw.Add(lod);
         }
 
         public List<Entity> Draw()
         {
-            List<Entity> list = new List<Entity>();
+            List<Entity> list = new();
             foreach (LegendObjectDraw lod in _draw)
             {
                 lod.Draw();

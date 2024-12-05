@@ -8,7 +8,7 @@ namespace NameClassifiers.Sections
     /// </summary>
     public class PrimaryClassifierSection : ParserSection
     {
-        private Dictionary<string, string> _descriptionDict = new();
+        private readonly Dictionary<string, string> _descriptionDict = new();
         public PrimaryClassifierSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
             foreach (XElement chapter in xElement.Elements("Chapter"))

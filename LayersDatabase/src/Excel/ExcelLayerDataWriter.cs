@@ -11,7 +11,7 @@ namespace LayersIO.Excel
         private protected string sheetname;
         private readonly FileInfo _fileInfo;
 
-        protected static Dictionary<Type, Func<ICell, object>> _valueHandler { get; } = new()
+        protected static Dictionary<Type, Func<ICell, object>> _valueHandler = new()
         {
             [typeof(string)] = c => c.StringCellValue,
             [typeof(bool)] = c => c.BooleanCellValue,

@@ -22,8 +22,8 @@ namespace LayersIO.Excel
             List<LayerData> layers = ExtractLayersData(mapper, groups);
             using (OverwriteLayersDatabaseContextSqlite db = new(PathProvider.GetPath("LayerData_ИС.db"), _logger))
             {
-                db.LayerGroupData.AddRange(groups);
-                db.LayerData.AddRange(layers);
+                db.LayerGroups.AddRange(groups);
+                db.Layers.AddRange(layers);
                 db.SaveChanges();
                 //ExportEntities(groups, db, lg => lg.MainName);
                 //ExportEntities(layers, db, lg => lg.Name);
@@ -43,8 +43,8 @@ namespace LayersIO.Excel
                 List<LayerData> layers = ExtractLayersData(mapper, groups);
                 using (OverwriteLayersDatabaseContextSqlite db = new(PathProvider.GetPath("LayerData_ИС.db"), _logger))
                 {
-                    db.LayerGroupData.AddRange(groups);
-                    db.LayerData.AddRange(layers);
+                    db.LayerGroups.AddRange(groups);
+                    db.Layers.AddRange(layers);
                     db.SaveChangesAsync();
                     //ExportEntities(groups, db, lg => lg.MainName);
                     //ExportEntities(layers, db, lg => lg.Name);

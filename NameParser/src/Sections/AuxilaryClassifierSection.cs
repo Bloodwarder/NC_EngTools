@@ -8,7 +8,7 @@ namespace NameClassifiers.Sections
     /// </summary>
     public class AuxilaryClassifierSection : NamedParserSection
     {
-        private Dictionary<string, string> _descriptionDict = new();
+        private readonly Dictionary<string, string> _descriptionDict = new();
         internal string Description { get; init; }
         public AuxilaryClassifierSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {

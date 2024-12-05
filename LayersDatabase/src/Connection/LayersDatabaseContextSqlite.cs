@@ -10,7 +10,7 @@ namespace LayersIO.Connection
         public DbSet<LayerData> Layers { get; set; } = null!;
         public DbSet<LayerGroupData> LayerGroups { get; set; } = null!;
 
-        private readonly string _dataSource;
+        internal protected readonly string _dataSource;
         public LayersDatabaseContextSqlite(string dataSource, ILogger? logger) : base()
         {
             _logger = logger;

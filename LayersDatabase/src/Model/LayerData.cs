@@ -34,6 +34,7 @@
         }
         public LayerPropertiesData? LayerPropertiesData { get; set; }
         public LayerDrawTemplateData? LayerDrawTemplateData { get; set; }
+        public List<ZoneInfo> Zones { get; set; }
 
         public bool IsEmpty => LayerPropertiesData is null || LayerDrawTemplateData is null || MainName is null;
     }
