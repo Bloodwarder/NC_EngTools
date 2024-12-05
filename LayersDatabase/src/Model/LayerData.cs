@@ -32,9 +32,9 @@
                 StatusName = classifiers[^1];
             }
         }
-        public LayerPropertiesData? LayerPropertiesData { get; set; }
-        public LayerDrawTemplateData? LayerDrawTemplateData { get; set; }
-        public List<ZoneInfo> Zones { get; set; }
+        public LayerPropertiesData LayerPropertiesData { get; set; } = new();
+        public LayerDrawTemplateData LayerDrawTemplateData { get; set; } = new();
+        public List<ZoneInfoData> Zones { get; set; } = new();
 
         public bool IsEmpty => LayerPropertiesData is null || LayerDrawTemplateData is null || MainName is null;
     }

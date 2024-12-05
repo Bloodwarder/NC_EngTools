@@ -4,11 +4,10 @@ using Microsoft.Extensions.Logging;
 
 namespace LayersIO.Connection
 {
-    [Obsolete("Class is not using migrations and may cause errors")]
-    public sealed class OverwriteLayersDatabaseContextSqlite : LayersDatabaseContextSqlite
+    public sealed class PrototypeLayersDatabaseContextSqlite : LayersDatabaseContextSqlite
     {
 
-        public OverwriteLayersDatabaseContextSqlite(string dataSource, ILogger? logger) : base(dataSource, logger)
+        public PrototypeLayersDatabaseContextSqlite(string dataSource, ILogger? logger) : base(dataSource, logger)
         {
             Database.EnsureDeleted();
             Database.EnsureCreated();

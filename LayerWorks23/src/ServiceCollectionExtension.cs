@@ -10,14 +10,14 @@ namespace LayerWorks
 {
     internal static class ServiceCollectionExtension
     {
-        private static Dictionary<SourceType, Action<IServiceCollection>> _repositoryDictionary = new()
+        private static readonly Dictionary<SourceType, Action<IServiceCollection>> _repositoryDictionary = new()
         {
             [SourceType.InMemory] = s => AddInMemoryRepositories(s),
             //[SourceType.Xml] = s => AddXmlRepositories(s),
             //[SourceType.Excel] = s => AddExcelRepositories(s),
             //[SourceType.SQLite] = s => AddSQLiteRepositories(s)
         };
-        private static Dictionary<SourceType, Action<IServiceCollection>> _dataWriterFactoryDictionary = new()
+        private static readonly Dictionary<SourceType, Action<IServiceCollection>> _dataWriterFactoryDictionary = new()
         {
             //[SourceType.InMemory] = s => AddInMemoryDataWriters(s),
             [SourceType.Xml] = s => AddXmlDataWriters(s),
@@ -25,7 +25,7 @@ namespace LayerWorks
             //[SourceType.SQLite] = s => AddSQLiteDataWriters(s)
 
         };
-        private static Dictionary<SourceType, Action<IServiceCollection>> _dataProviderFactoryDictionary = new()
+        private static readonly Dictionary<SourceType, Action<IServiceCollection>> _dataProviderFactoryDictionary = new()
         {
             //[SourceType.InMemory] = s => AddInMemoryDataProviders(s),
             //[SourceType.Xml] = s => AddXmlDataProviders(s),
@@ -53,10 +53,11 @@ namespace LayerWorks
 
         private static void AddInMemoryRepositories(IServiceCollection services)
         {
-            services.AddSingleton<IRepository<string, LayerProps>, InMemoryLayerPropsRepository>();
-            services.AddSingleton<IRepository<string, LegendData>, InMemoryLayerLegendRepository>();
-            services.AddSingleton<IRepository<string, LegendDrawTemplate>, InMemoryLayerLegendDrawRepository>();
-            services.AddSingleton<IRepository<string, string>, InMemoryLayerAlterRepository>();
+            services.AddSingleton<IRepository<string, LayerProps>, InMemoryRepository<string, LayerProps>>()
+                    .AddSingleton<IRepository<string, LegendData>, InMemoryRepository<string, LegendData>>()
+                    .AddSingleton<IRepository<string, LegendDrawTemplate>, InMemoryRepository<string, LegendDrawTemplate>>()
+                    .AddSingleton<IRepository<string, string>, InMemoryRepository<string, string>>()
+                    .AddSingleton<IRepository<string, ZoneInfo[]>, InMemoryRepository<string, ZoneInfo[]>>();
         }
 
         private static void AddXmlDataWriters(IServiceCollection services)
@@ -65,6 +66,7 @@ namespace LayerWorks
             services.AddTransient<IDataWriterFactory<string, LegendData>, XmlDataWriterFactory<string, LegendData>>();
             services.AddTransient<IDataWriterFactory<string, LegendDrawTemplate>, XmlDataWriterFactory<string, LegendDrawTemplate>>();
             services.AddTransient<IDataWriterFactory<string, string>, XmlDataWriterFactory<string, string>>();
+            services.AddTransient<IDataWriterFactory<string, ZoneInfo[]>, XmlDataWriterFactory<string, ZoneInfo[]>>();
         }
 
         private static void AddSQLiteDataProviders(IServiceCollection services)

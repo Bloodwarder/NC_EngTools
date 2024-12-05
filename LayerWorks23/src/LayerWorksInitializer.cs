@@ -61,6 +61,7 @@ namespace LayerWorks
             _ = NcetCore.ServiceProvider.GetService<IRepository<string, LegendData>>();
             _ = NcetCore.ServiceProvider.GetService<IRepository<string, LegendDrawTemplate>>();
             _ = NcetCore.ServiceProvider.GetService<IRepository<string, string>>();
+            _ = NcetCore.ServiceProvider.GetService<IRepository<string, ZoneInfo[]>>();
         }
 
         private static async Task InitializeRepositoriesAsync()
