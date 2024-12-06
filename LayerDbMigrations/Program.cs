@@ -37,12 +37,13 @@ namespace LayerDbMigrations
 
         private static void DataTransfer()
         {
-            using (LayersDatabaseContextSqlite context = new(Path.Combine(WorkPath,TestFilename), null))
-            {
-                context.LayerGroups.ForEach(g => g.Prefix = "ИС");
-                context.Layers.ForEach(l => l.Prefix = "ИС");
-                context.SaveChanges();
-            }
+            throw new NotImplementedException();
+            //using (LayersDatabaseContextSqlite context = new(Path.Combine(WorkPath,TestFilename), null))
+            //{
+            //    context.LayerGroups.ForEach(g => g.Prefix = "ИС");
+            //    context.Layers.ForEach(l => l.Prefix = "ИС");
+            //    context.SaveChanges();
+            //}
         }
 
         static void Main(string[] args)

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using NameClassifiers;
 using LoaderCore.NanocadUtilities;
 using Teigha.DatabaseServices;
+using LayerWorks.EntityFormatters;
 
 namespace LayerWorks.LayerProcessing
 {
@@ -14,6 +15,8 @@ namespace LayerWorks.LayerProcessing
     /// </summary>
     public class CurrentLayerWrapper : LayerWrapper
     {
+        private static ILayerChecker _checker = NcetCore.ServiceProvider.GetRequiredService<ILayerChecker>();
+
         /// <summary>
         /// Конструктор без параметров, автоматически передающий в базовый конструктор имя текущего слоя
         /// </summary>
@@ -36,7 +39,7 @@ namespace LayerWorks.LayerProcessing
         {
             Database db = Workstation.Database;
 
-            db.Clayer = LayerChecker.Check(this);
+            db.Clayer = _checker.Check(this);
 
             StandartizeCurrentValues(LayerInfo);
         }

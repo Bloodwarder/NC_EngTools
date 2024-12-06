@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<LayerParser xmlns:xs ="https://www.w3.org/2001/XMLSchema"
+			 xmlns:xdt ="https://www.w3.org/2003/05/xpath-datatypes"
+			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Title>Зоны с особыми условиями использования территории</Title>
+	<Separator Value="_"/>
+	<Classifiers>
+		<Prefix Value="ЗОУИТ"/>
+		<PrimaryClassifier>
+			<Chapter Value="Водн.объекты" Description="Водные объекты"/>
+			<Chapter Value="ОКН" Description="Объекты культурного наследия"/>
+			<Chapter Value="МДР" Description="Минимальные расстояния до объектов"/>
+			<Chapter Value="ОЗ" Description="Охранные зоны"/>
+			<Chapter Value="ООПТ" Description="Особо охраняемые природные территории"/>
+			<Chapter Value="Лесничества" Description="Лесничества"/>
+			<Chapter Value="Сервитут" Description="Сервитуты"/>
+			<Chapter Value="Придорожные" Description="Придорожные полосы"/>
+			<Chapter Value="СЗЗ" Description="Санитарно-защитные зоны"/>
+		</PrimaryClassifier>
+		<AuxilaryClassifier Name ="Geometry" Description="Тип геометрии">
+			<Classifier Value ="л" Description="Линейный"/>
+			<Classifier Value ="п" Description="Площадной"/>
+			<Classifier Value ="т" Description="Точечный"/>
+		</AuxilaryClassifier>
+		<SecondaryClassifiers/>
+		<StatusClassifier>
+			<Status Value="Росреестр" Description="По данным Росреестра"/>
+			<Status Value="Общий" Description="С учётом проектных объектов"/>
+			<Status Value="Проект" Description="Устанавливаемые пр."/>
+			<Status Value="Переустройство" Description="Устанавливаемые пер."/>
+			<Status Value="Существующие" Description="Существующие расчётные"/>
+		</StatusClassifier>
+	</Classifiers>
+	<LegendFilters DefaultLabel="Зоны с особыми условиями использования территории">
+		<FilterSection>
+			<Filter Name="Общий">
+				<Grid Label="*"/>
+			</Filter>
+			<Filter Name="Росреестр">
+				<Grid>
+					<StatusReference Value="Росреестр"/>
+				</Grid>
+			</Filter>
+			<Filter Name="Общие">
+				<Grid>
+					<StatusReference Value="Росреестр"/>
+				</Grid>
+				<Grid>
+					<StatusReference Value="Общий"/>
+					<StatusReference Value="Проект"/>
+					<StatusReference Value="Переустройство"/>
+					<StatusReference Value="Существующие"/>
+				</Grid>
+			</Filter>
+			<Filter Name="Для межевания">
+				<Grid Label="*">
+					<StatusReference Value="Общий"/>
+					<StatusReference Value="Проект"/>
+					<StatusReference Value="Переустройство"/>
+				</Grid>
+			</Filter>
+		</FilterSection>
+	</LegendFilters>
+	<HighlightMode>
+		<Filter Name="Переустройство">
+			<!--<Highlight>
+				<BoolReference Name="Reconstruction" Value="True"/>
+				<Property Name="Color">
+					<Assign>
+						<StatusReference Value="пр"/>
+						<Value>
+							<Color>
+								<Red>0</Red>
+								<Green>255</Green>
+								<Blue>255</Blue>
+							</Color>
+						</Value>
+					</Assign>
+					<Assign>
+						<StatusReference Value="неутв"/>
+						<Value>
+							<Color>
+								<Red>0</Red>
+								<Green>153</Green>
+								<Blue>153</Blue>
+							</Color>
+						</Value>
+					</Assign>
+				</Property>
+			</Highlight>
+			<Enable>
+				<ChapterReference/>
+			</Enable>-->
+		</Filter>
+	</HighlightMode>
+	<SharedProperties>
+		<Property Name="ConstantWidth">
+			<StatusGroup>
+				<StatusReference Value="Росреестр"/>
+				<StatusReference Value="Общий"/>
+				<StatusReference Value="Существующие"/>
+				<DefaultValue>
+					<Double>0.2</Double>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="Проект"/>
+				<StatusReference Value="Переустройство"/>
+				<DefaultValue>
+					<Double>0.4</Double>
+				</DefaultValue>
+			</StatusGroup>
+		</Property>
+		<Property Name="Color">
+			<StatusGroup>
+				<StatusReference Value="Существующие"/>
+				<DefaultValue>
+					<Color>
+						<Red>107</Red>
+						<Green>107</Green>
+						<Blue>107</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="Переустройство"/>
+				<DefaultValue>
+					<Color>
+						<Red>255</Red>
+						<Green>0</Green>
+						<Blue>0</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="Проект"/>
+				<DefaultValue>
+					<Color>
+						<Red>0</Red>
+						<Green>0</Green>
+						<Blue>0</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+		</Property>
+		<Property Name="LinetypeName">
+			<StatusGroup>
+				<StatusGroup>
+					<StatusReference Value="Росреестр"/>
+					<StatusReference Value="Общий"/>
+					<StatusReference Value="Проект"/>
+					<StatusReference Value="Переустройство"/>
+					<StatusReference Value="Существующие"/>
+				</StatusGroup>
+			</StatusGroup>
+		</Property>
+		<Property Name="LinetypeScale">
+			<StatusGroup>
+				<StatusReference Value="Росреестр"/>
+				<StatusReference Value="Общий"/>
+				<StatusReference Value="Проект"/>
+				<StatusReference Value="Переустройство"/>
+				<StatusReference Value="Существующие"/>
+			</StatusGroup>
+		</Property>
+	</SharedProperties>
+</LayerParser>

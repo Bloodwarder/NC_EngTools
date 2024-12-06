@@ -42,7 +42,7 @@ namespace LayerWorks.ModelspaceDraw
             rectangle.Closed = true;
             string separator = NameParser.Current.Separator;
             if (layer != null)
-                LayerChecker.Check(layer);
+                _checker.Check(layer);
             rectangle.Layer = layer == null ? LayerWrapper.BoundLayer.Name : layer;
 
             var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();

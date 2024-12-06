@@ -25,6 +25,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Update="Data\LayerParser_ЗОУИТ.xml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="Data\LayerParser_ИС.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
@@ -35,17 +38,17 @@
 		<ItemGroup>
 			<UserData Include="$(RootOutputPath)\ExtensionLibraries\Data\LayerParser_ИС.xml" />
 		</ItemGroup>
-		<Copy SourceFiles="@(UserData)" Condition="'$(Configuration)'=='Debug'" DestinationFolder="..\..\NC_EngTools\NameParserTest\bin\Debug\net6.0-windows\TestData"/>
+		<Copy SourceFiles="@(UserData)" Condition="'$(Configuration)'=='Debug'" DestinationFolder="..\..\NC_EngTools\NameParserTest\bin\Debug\net6.0-windows\TestData" />
 		<Move SourceFiles="@(UserData)" DestinationFolder="$(RootOutputPath)\UserData" />
 		<RemoveDir Directories="$(RootOutputPath)\ExtensionLibraries\Data" />
 	</Target>
 
 	<Target Name="MoveDataAfterPublish" AfterTargets="Publish" DependsOnTargets="Publish">
 		<ItemGroup>
-			<PublishUserData Include="$(PublishDir)\Data\LayerParser_ИС.xml"/>
+			<PublishUserData Include="$(PublishDir)\Data\LayerParser_ИС.xml" />
 		</ItemGroup>
-		<Move SourceFiles="@(PublishUserData)" DestinationFolder="$(PublishDir)\..\UserData"/>
-		<RemoveDir Directories="$(PublishDir)\Data"/>
+		<Move SourceFiles="@(PublishUserData)" DestinationFolder="$(PublishDir)\..\UserData" />
+		<RemoveDir Directories="$(PublishDir)\Data" />
 	</Target>
 
 </Project>

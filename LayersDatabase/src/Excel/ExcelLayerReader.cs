@@ -1,5 +1,6 @@
 ﻿using LayersIO.Connection;
 using LayersIO.Model;
+using LoaderCore.Interfaces;
 using LoaderCore.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,9 @@ namespace LayersIO.Excel
 {
     public class ExcelLayerReader
     {
+        private const string DatabaseFileName = "LayerData_ИС.db";
         public ILogger? _logger = LoaderCore.NcetCore.ServiceProvider.GetService<ILogger>();
+        public IFilePathProvider _pathProvider = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IFilePathProvider>();
 
         public void ReadWorkbook(string workbookPath)
         {
@@ -20,7 +23,7 @@ namespace LayersIO.Excel
 
             List<LayerGroupData> groups = ExtractLayerGroupsData(mapper);
             List<LayerData> layers = ExtractLayersData(mapper, groups);
-            using (PrototypeLayersDatabaseContextSqlite db = new(PathProvider.GetPath("LayerData_ИС.db"), _logger))
+            using (PrototypeLayersDatabaseContextSqlite db = new(_pathProvider.GetPath(DatabaseFileName), _logger))
             {
                 db.LayerGroups.AddRange(groups);
                 db.Layers.AddRange(layers);
@@ -41,7 +44,7 @@ namespace LayersIO.Excel
 
                 List<LayerGroupData> groups = ExtractLayerGroupsData(mapper);
                 List<LayerData> layers = ExtractLayersData(mapper, groups);
-                using (PrototypeLayersDatabaseContextSqlite db = new(PathProvider.GetPath("LayerData_ИС.db"), _logger))
+                using (PrototypeLayersDatabaseContextSqlite db = new(_pathProvider.GetPath(DatabaseFileName), _logger))
                 {
                     db.LayerGroups.AddRange(groups);
                     db.Layers.AddRange(layers);

@@ -2,7 +2,6 @@
 using LayersIO.DataTransfer;
 using LoaderCore.Interfaces;
 //internal modules
-using LoaderCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
 using LoaderCore.NanocadUtilities;
@@ -11,14 +10,22 @@ using Teigha.Colors;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Microsoft.Extensions.Logging;
+using LayerWorks.EntityFormatters;
 
 namespace LayerWorks.LayerProcessing
 {
-    static class LayerChecker
+    public class LayerChecker : ILayerChecker
     {
         private const string LineTypeFileName = "STANDARD1.lin";
 
-        internal static event EventHandler? LayerAddedEvent;
+        private readonly IFilePathProvider _filePathProvider;
+
+        public LayerChecker(IFilePathProvider filePathProvider)
+        {
+            _filePathProvider = filePathProvider;
+        }
+
+        public static event EventHandler? LayerAddedEvent;
 
         /// <summary>
         /// Ищет в таблице слоёв слой с именем, пропущенным через NameParser, и при его отсутствии добавляет его, 
@@ -26,7 +33,7 @@ namespace LayerWorks.LayerProcessing
         /// </summary>
         /// <param name="layerInfo"></param>
         /// <returns>ObjectId найденного или добавленного слоя (объекта LayerTableRecord)</returns>
-        internal static ObjectId Check(LayerInfo layerInfo)
+        public ObjectId Check(LayerInfo layerInfo)
         {
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
@@ -69,7 +76,7 @@ namespace LayerWorks.LayerProcessing
         /// </summary>
         /// <param name="layername"></param>
         /// <returns>ObjectId найденного или добавленного слоя (объекта LayerTableRecord)</returns>
-        internal static ObjectId Check(string layername)
+        public ObjectId Check(string layername)
         {
             try
             {
@@ -96,9 +103,9 @@ namespace LayerWorks.LayerProcessing
         /// </summary>
         /// <param name="layer"></param>
         /// <returns>ObjectId найденного или добавленного слоя (объекта LayerTableRecord)</returns>
-        internal static ObjectId Check(LayerWrapper layer) => Check(layer.LayerInfo);
+        public ObjectId Check(LayerWrapper layer) => Check(layer.LayerInfo);
 
-        internal static ObjectId ForceCheck(string layerName)
+        public ObjectId ForceCheck(string layerName)
         {
             LayerTable layerTable = (LayerTable)Workstation.TransactionManager.TopTransaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForWrite);
             if (!layerTable.Has(layerName))
@@ -107,7 +114,7 @@ namespace LayerWorks.LayerProcessing
                 return layerTable[layerName];
         }
 
-        private static LayerTableRecord AddLayer(string layername, LayerProps? lp)
+        private LayerTableRecord AddLayer(string layername, LayerProps? lp)
         {
             Transaction transaction = Workstation.TransactionManager.TopTransaction;
             Database database = Workstation.Database;
@@ -130,7 +137,7 @@ namespace LayerWorks.LayerProcessing
             return ltRecord;
         }
 
-        internal static bool TryFindLinetype(string? linetypename, out ObjectId lineTypeId)
+        public bool TryFindLinetype(string? linetypename, out ObjectId lineTypeId)
         {
 
             ObjectId defaultLinetypeId = SymbolUtilityServices.GetLinetypeContinuousId(Workstation.Database);
@@ -143,7 +150,7 @@ namespace LayerWorks.LayerProcessing
             LinetypeTable? ltt = tm.TopTransaction.GetObject(Workstation.Database.LinetypeTableId, OpenMode.ForWrite, false) as LinetypeTable;
             if (!ltt!.Has(linetypename))
             {
-                FileInfo fi = new(PathProvider.GetPath(LineTypeFileName));
+                FileInfo fi = new(_filePathProvider.GetPath(LineTypeFileName));
                 try
                 {
                     Workstation.Database.LoadLineTypeFile(linetypename, fi.FullName);

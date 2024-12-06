@@ -1,15 +1,20 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using LoaderCore.Interfaces;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.IO;
 
 namespace LoaderCore.Utilities
 {
-    public static class PathProvider
+    public class PathProvider : IFilePathProvider
     {
-        private static Dictionary<string, FileInfo> _fileStructure = null!;
+        private Dictionary<string, FileInfo> _fileStructure = null!;
 
-        internal static void InitializeStructure(string baseDirectory)
+        public PathProvider(IConfiguration configuration)
+        {
+            var baseDirectory = configuration["Directories:LocalDirectory"];
+            InitializeStructure(baseDirectory);
+        }
+        internal void InitializeStructure(string baseDirectory)
         {
             var files = new DirectoryInfo(baseDirectory).GetFiles("*", SearchOption.AllDirectories);
             _fileStructure = new Dictionary<string, FileInfo>();
@@ -26,24 +31,24 @@ namespace LoaderCore.Utilities
         /// </summary>
         /// <param name="fileName">Имя файла</param>
         /// <returns>Полный путь к файлу</returns>
-        public static string GetPath(string fileName)
+        public string GetPath(string fileName)
         {
             return _fileStructure[fileName].FullName;
         }
 
-        public static bool TryGetPath(string fileName, out string? filePath)
+        public bool TryGetPath(string fileName, out string? filePath)
         {
             bool success = _fileStructure.TryGetValue(fileName, out FileInfo? file);
             filePath = file?.FullName;
             return success;
         }
 
-        public static FileInfo GetFileInfo(string fileName)
+        public FileInfo GetFileInfo(string fileName)
         {
             return _fileStructure[fileName];
         }
 
-        public static bool TryGetFileInfo(string fileName, out FileInfo? file)
+        public bool TryGetFileInfo(string fileName, out FileInfo? file)
         {
             return _fileStructure.TryGetValue(fileName, out file);
         }

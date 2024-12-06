@@ -17,6 +17,7 @@ using Teigha.Runtime;
 using LoaderCore.Integrity;
 using LoaderCore.UI;
 using LoaderCore.Utilities;
+using LoaderCore.Interfaces;
 
 namespace LoaderCore
 {
@@ -66,7 +67,7 @@ namespace LoaderCore
             configurationXml = XDocument.Load(Path.Combine(RootLocalDirectory, ConfigurationXmlFileName));
 
             InitializeModules(configurationXml);
-            IndexFiles();
+            IndexAssemblies();
             RegisterDependencies();
             PostInitializeModules();
         }
@@ -78,7 +79,7 @@ namespace LoaderCore
             CheckConfigurationXml(configurationXml);
             UpdateInfoFiles();
             InitializeModules(configurationXml);
-            IndexFiles();
+            IndexAssemblies();
             RegisterDependencies();
             PostInitializeModules();
         }
@@ -222,11 +223,10 @@ namespace LoaderCore
         }
 
         /// <summary>
-        /// Инициализировать PathProvider
+        /// Инициализировать словарь сборок dll
         /// </summary>
-        private static void IndexFiles()
+        private static void IndexAssemblies()
         {
-            PathProvider.InitializeStructure(RootLocalDirectory);
             var dllFiles = new DirectoryInfo(RootLocalDirectory).GetFiles("*.dll", SearchOption.AllDirectories);
             foreach (var dllFile in dllFiles)
             {
@@ -244,11 +244,12 @@ namespace LoaderCore
 
         private static void RegisterDependencies()
         {
-            var configPath = PathProvider.GetPath(ConfigurationXmlFileName);
+            var configPath = Path.Combine(RootLocalDirectory, ConfigurationXmlFileName);
             IConfiguration config = new ConfigurationBuilder().AddXmlFile(configPath, optional: false, reloadOnChange: true)
                                                               .Build();
 
             Services.AddSingleton(config)
+                    .AddSingleton<IFilePathProvider, PathProvider>()
                     .AddSingleton<ILogger, NcetEditorConsoleLogger>()
                     .AddTransient<ILogger<NcetCommand>, NcetFileCommandLogger>();
 
@@ -289,7 +290,8 @@ namespace LoaderCore
         /// </summary>
         public static void ConfigureAutorun()
         {
-            StartUpWindow window = new(PathProvider.GetPath(ConfigurationXmlFileName));
+            var pathProvider = ServiceProvider.GetRequiredService<IFilePathProvider>();
+            StartUpWindow window = new(pathProvider.GetPath(ConfigurationXmlFileName));
             window.bUpdateLayerWorks.IsEnabled = false;
             window.bUpdateUtilities.IsEnabled = false;
             window.bUpdateGeoMod.IsEnabled = false;

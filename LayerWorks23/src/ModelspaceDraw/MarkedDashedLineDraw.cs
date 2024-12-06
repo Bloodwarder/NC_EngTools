@@ -31,7 +31,7 @@ namespace LayerWorks.ModelspaceDraw
             {
                 var formatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>();
                 formatter?.FormatEntity(line, LayerWrapper.LayerInfo.TrueName);
-                bool ltgetsuccess = LayerChecker.TryFindLinetype("ACAD_ISO02W100", out ObjectId lineTypeId);
+                bool ltgetsuccess = _checker.TryFindLinetype("ACAD_ISO02W100", out ObjectId lineTypeId);
                 if (ltgetsuccess)
                     line.LinetypeId = lineTypeId;
                 line.LinetypeScale = 0.3d;

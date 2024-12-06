@@ -8,6 +8,8 @@ using LoaderCore.Configuration;
 using NameClassifiers;
 using LayersIO.DataTransfer;
 using LayersIO.Excel;
+using LayerWorks.EntityFormatters;
+using LayerWorks.LayerProcessing;
 
 namespace LayerWorks
 {
@@ -30,6 +32,7 @@ namespace LayerWorks
                              .AddDataProviderFactories(SourceType.SQLite)
                              .AddDataWriterFactories(SourceType.Xml)
                              .AddSingleton<SQLiteLayerDataContextFactory>()
+                             .AddSingleton<ILayerChecker, LayerChecker>()
                              .AddTransient(typeof(IReportWriterFactory<>), typeof(ExcelSimpleReportWriterFactory<>));
         }
 

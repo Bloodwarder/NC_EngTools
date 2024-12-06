@@ -2,7 +2,10 @@
 
 //Modules
 //nanoCAD
+using LayerWorks.EntityFormatters;
 using LayerWorks.LayerProcessing;
+using LoaderCore;
+using Microsoft.Extensions.DependencyInjection;
 using Teigha.Colors;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
@@ -14,6 +17,8 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public abstract class ObjectDraw
     {
+        internal protected static ILayerChecker _checker = NcetCore.ServiceProvider.GetRequiredService<ILayerChecker>();
+
         /// <summary>
         /// Список созданных объектов чертежа для вставки в модель целевого чертежа. Заполняется через метод Draw
         /// </summary>

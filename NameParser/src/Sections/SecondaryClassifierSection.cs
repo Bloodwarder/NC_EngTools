@@ -20,14 +20,14 @@ namespace NameClassifiers.Sections
             int elementsCounter = 0;
             if (NextSection != null)
             {
-                do
+                while (!NextSection.ValidateString(str[pointer + elementsCounter]))
                 {
                     elementsCounter++;
                     if (pointer + elementsCounter > str.Length - 1)
                         break;
-                } while (!NextSection.ValidateString(str[pointer + elementsCounter]));
+                }
             }
-            string secondary = string.Join(ParentParser.Separator, str.Skip(pointer).Take(elementsCounter).ToArray());
+            string secondary = elementsCounter > 0 ? string.Join(ParentParser.Separator, str.Skip(pointer).Take(elementsCounter).ToArray()) : string.Empty;
             pointer += elementsCounter;
             layerInfoResult.Value.SecondaryClassifiers = secondary;
             NextSection?.Process(str, layerInfoResult, ref pointer);
@@ -35,7 +35,9 @@ namespace NameClassifiers.Sections
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {
             // Добавляется в любое имя - проверку nameType не производим
-            inputList.Add(layerInfo.SecondaryClassifiers!);
+            var secondary = layerInfo.SecondaryClassifiers!;
+            if (!string.IsNullOrEmpty(secondary))
+                inputList.Add(secondary);
             NextSection?.ComposeName(inputList, layerInfo, nameType);
         }
 
