@@ -1,4 +1,5 @@
-﻿using LoaderCore.Interfaces;
+﻿using LayerWorks.EntityFormatters;
+using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
 using Teigha.DatabaseServices;
@@ -11,10 +12,12 @@ namespace LayerWorks.LayerProcessing
     public class EntityLayerWrapper : LayerWrapper
     {
         private static readonly IEntityFormatter _entityFormatter;
+        private static readonly ILayerChecker _layerChecker;
 
         static EntityLayerWrapper()
         {
             _entityFormatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>()!;
+            _layerChecker = LoaderCore.NcetCore.ServiceProvider.GetService<ILayerChecker>()!;
         }
         internal EntityLayerWrapper(string layername) : base(layername)
         {
@@ -38,7 +41,7 @@ namespace LayerWorks.LayerProcessing
         /// </summary>
         public override void Push()
         {
-            LayerChecker.Check(this);
+            _layerChecker.Check(this);
             foreach (Entity ent in BoundEntities)
             {
                 ent.Layer = LayerInfo.Name;

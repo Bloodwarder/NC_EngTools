@@ -16,6 +16,8 @@ using LayerWorks.Legend;
 using NameClassifiers;
 using LayersIO.DataTransfer;
 using static LoaderCore.NanocadUtilities.EditorHelper;
+using LayerWorks.EntityFormatters;
+using LoaderCore;
 
 namespace LayerWorks.Commands
 {
@@ -25,6 +27,11 @@ namespace LayerWorks.Commands
     public class LegendAssembler
     {
         private static readonly string[] _modeKeywords = { "Все", "Полигон" };
+        private static readonly ILayerChecker _checker;
+        static LegendAssembler()
+        {
+            _checker = NcetCore.ServiceProvider.GetRequiredService<ILayerChecker>();
+        }
 
         /// <summary>
         /// Автосборка условных обозначений на основе слоёв чертежа и логики LayerParser
@@ -53,7 +60,7 @@ namespace LayerWorks.Commands
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Проверка наличия слоя для текста условных обозначений", nameof(LegendAssembler));
-                LayerChecker.ForceCheck(string.Concat(NameParser.Current.Prefix, "_Условные"));
+                _checker.ForceCheck(string.Concat(NameParser.Current.Prefix, "_Условные"));
                 Workstation.Database.Cecolor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
 
                 // Выбрать режим поиска слоёв (весь чертёж или в границах полилинии)

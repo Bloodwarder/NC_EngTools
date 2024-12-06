@@ -1,5 +1,4 @@
-﻿using LayersIO.DataTransfer;
-using LoaderCore.Interfaces;
+﻿using LoaderCore.Interfaces;
 using LoaderCore.Utilities;
 using System.Diagnostics.CodeAnalysis;
 
@@ -7,11 +6,13 @@ namespace LayerWorks.DataRepositories
 {
     public class InMemoryRepository<TKey, TData> : IRepository<TKey, TData> where TKey : notnull, IEquatable<TKey>
     {
-        private static Dictionary<TKey, TData> _dictionary = null!;
+        private const string DatabaseFileName = "LayerData.db";
 
-        public InMemoryRepository(IDataProviderFactory<TKey, TData> factory)
+        private readonly Dictionary<TKey, TData> _dictionary;
+
+        public InMemoryRepository(IDataProviderFactory<TKey, TData> factory, IFilePathProvider pathProvider)
         {
-            var path = PathProvider.GetPath("LayerData_ИС.db"); // TODO : вставить универсальную конструкцию
+            var path = pathProvider.GetPath(DatabaseFileName); // TODO : вставить универсальную конструкцию
             var reader = factory.CreateProvider(path);
             _dictionary = reader.GetData();
         }

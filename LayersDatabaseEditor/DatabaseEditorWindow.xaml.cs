@@ -9,6 +9,7 @@ using System.Windows.Documents;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using LayersIO.Connection;
+using LoaderCore.Interfaces;
 
 namespace LayersDatabaseEditor
 {
@@ -18,9 +19,11 @@ namespace LayersDatabaseEditor
     public partial class DatabaseEditorWindow : Window
     {
         readonly ILogger? _logger = NcetCore.ServiceProvider.GetService<ILogger>();
+        readonly IFilePathProvider _pathProvider = NcetCore.ServiceProvider.GetRequiredService<IFilePathProvider>();
+
         public DatabaseEditorWindow()
         {
-            
+
             InitializeComponent();
             PreInitializeSimpleLogger.Log += LogWrite;
         }
@@ -73,7 +76,7 @@ namespace LayersDatabaseEditor
         {
             LogWrite("Запущен импорт слоёв из Excel");
             var reader = new ExcelLayerReader();
-            Task<string> task = reader.ReadWorkbookAsync(PathProvider.GetPath("Layer_Props.xlsm"));
+            Task<string> task = reader.ReadWorkbookAsync(_pathProvider.GetPath("Layer_Props.xlsm"));
             await LogWriteAsync(task);
             //ExcelLayerReader.ReadWorkbook(PathProvider.GetPath("Layer_Props.xlsm"));
         }
@@ -112,7 +115,7 @@ namespace LayersDatabaseEditor
 
         private void miTestRun2_Click(object sender, RoutedEventArgs e)
         {
-            using (LayersDatabaseContextSqlite db = new(PathProvider.GetPath("LayerData_ИС.db"), null))
+            using (LayersDatabaseContextSqlite db = new(_pathProvider.GetPath("LayerData_ИС.db"), null))
             {
                 var layers = db.Layers.Skip(25).Take(5).ToArray();
                 foreach (var layer in layers)

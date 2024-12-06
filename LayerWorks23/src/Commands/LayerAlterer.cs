@@ -18,6 +18,7 @@ using LoaderCore.NanocadUtilities;
 
 using static LoaderCore.NanocadUtilities.EditorHelper;
 using System.Globalization;
+using LayerWorks.EntityFormatters;
 
 namespace LayerWorks.Commands
 {
@@ -27,6 +28,11 @@ namespace LayerWorks.Commands
     public class LayerAlterer
     {
         internal static string PrevStatus = "";
+        private static ILayerChecker _checker = NcetCore.ServiceProvider.GetRequiredService<ILayerChecker>();
+        static LayerAlterer()
+        {
+        }
+
         internal static Dictionary<string, string> PreviousAssignedData { get; } = new();
         /// <summary>
         /// Переключение кальки, при необходимости добавление её в чертёж
@@ -210,7 +216,7 @@ namespace LayerWorks.Commands
             {
                 try
                 {
-                    ObjectId layerId = LayerChecker.Check(layerName);
+                    ObjectId layerId = _checker.Check(layerName);
                     Workstation.Database.Clayer = layerId;
                     CurrentLayerWrapper.DirectPush();
                     transaction.Commit();

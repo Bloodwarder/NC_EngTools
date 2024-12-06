@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using NameClassifiers;
 using LoaderCore.NanocadUtilities;
 using Teigha.DatabaseServices;
+using LayerWorks.EntityFormatters;
+using LoaderCore;
 
 namespace LayerWorks.LayerProcessing
 {
@@ -14,11 +16,14 @@ namespace LayerWorks.LayerProcessing
     public class RecordLayerWrapper : LayerWrapper
     {
         private static readonly IRepository<string, LayerProps> _repository;
+        private static ILayerChecker _checker;
+
         private DBObjectWrapper<LayerTableRecord> _boundLayer = null!;
         
         static RecordLayerWrapper()
         {
-            _repository = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
+            _repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
+            _checker = NcetCore.ServiceProvider.GetRequiredService<ILayerChecker>();
         }
         /// <summary>
         /// Связанный слой (объект LayerTableRecord)
@@ -73,7 +78,7 @@ namespace LayerWorks.LayerProcessing
 
         internal void WriteLayerProps(LayerProps layerProps)
         {
-            _ = LayerChecker.TryFindLinetype(layerProps.LinetypeName, out ObjectId lttrId);
+            _ = _checker.TryFindLinetype(layerProps.LinetypeName, out ObjectId lttrId);
             try
             {
                 BoundLayer.Color = layerProps.GetColor() ?? BoundLayer.Color;
