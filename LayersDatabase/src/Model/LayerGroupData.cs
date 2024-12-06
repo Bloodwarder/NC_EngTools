@@ -10,6 +10,7 @@
         }
 
         public int Id { get; set; }
+        public string Prefix { get; set; }
 
         public string MainName { get; set; } = null!;
 

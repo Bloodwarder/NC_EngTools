@@ -7,16 +7,16 @@ namespace LayersIO.Model
     {
         public void Configure(EntityTypeBuilder<LayerData> builder)
         {
-            builder.ToTable("LayerData");
-            builder.Ignore(ld => ld.Name);
-            builder.Ignore(ld => ld.Separator);
-            builder.HasKey(ld => ld.Id).HasName("LayerDataPrimaryKey");
-            builder.HasAlternateKey(ld => new { ld.MainName, ld.StatusName }).HasName("LayerDataAlternateKey");
+            builder.ToTable("LayerData")
+                   .Ignore(ld => ld.Name)
+                   .Ignore(ld => ld.Separator)
+                   .HasKey(ld => ld.Id).HasName("LayerDataPrimaryKey");
+            builder.HasIndex(ld => new { ld.Prefix, ld.MainName, ld.StatusName }).IsUnique();
             builder.Property(ld => ld.Id).ValueGeneratedOnAdd();
 
-            builder.OwnsOne(ld => ld.LayerPropertiesData); //.HasOne(ld => ld.LayerPropertiesData).WithOne(lpd => lpd.LayerData).HasForeignKey<LayerPropertiesData>(lpd => lpd.LayerDataId);
-            builder.OwnsOne(ld => ld.LayerDrawTemplateData); //.HasOne(ld => ld.LayerDrawTemplateData).WithOne(ldtd => ldtd.LayerData).HasForeignKey<LayerDrawTemplateData>(ldtd => ldtd.LayerDataId);
-            //builder.Property(ld => ld.LayerDrawTemplateData).IsRequired();
+            builder.OwnsOne(ld => ld.LayerPropertiesData);
+            builder.OwnsOne(ld => ld.LayerDrawTemplateData);
+            
             builder.HasMany(ld => ld.Zones).WithOne(z => z.SourceLayer);
         }
     }

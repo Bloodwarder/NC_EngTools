@@ -14,6 +14,9 @@
 
 
         public int Id { get; set; }
+
+        public string Prefix { get; set; } = null!;
+
         public string Separator = "_"; // TODO: Заменить на универсальную конструкцию. Брать из xml или из сборки LayerWorks. Или устанавливать из LayersDatabaseEditor
         public string MainName { get; set; } = null!;
         public string StatusName { get; set; } = null!;
@@ -34,7 +37,7 @@
         }
         public LayerPropertiesData LayerPropertiesData { get; set; } = new();
         public LayerDrawTemplateData LayerDrawTemplateData { get; set; } = new();
-        public List<ZoneInfoData> Zones { get; set; } = new();
+        public List<ZoneInfoData> Zones { get; set; }
 
         public bool IsEmpty => LayerPropertiesData is null || LayerDrawTemplateData is null || MainName is null;
     }

@@ -2,7 +2,6 @@
 using LayersIO.DataTransfer;
 using LayersIO.Model;
 using Microsoft.EntityFrameworkCore;
-using Nelibur.ObjectMapper;
 
 namespace LayersIO.Database.Writers
 {
@@ -46,7 +45,7 @@ namespace LayersIO.Database.Writers
             {
                 ZoneInfoData zid = new()
                 {
-                    SourceLayer = db.Layers.Where(l => l.Name == key).Single(),
+                    SourceLayer = layer,
                     ZoneLayer = db.Layers.Where(l => l.Name == zoneInfo.ZoneLayer).Single(),
                     Value = zoneInfo.Value,
                     DefaultConstructionWidth = zoneInfo.DefaultConstructionWidth

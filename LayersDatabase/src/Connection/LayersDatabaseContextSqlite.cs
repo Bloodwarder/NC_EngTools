@@ -6,6 +6,8 @@ namespace LayersIO.Connection
 {
     public class LayersDatabaseContextSqlite : DbContext
     {
+        private const string MigrationsAssemblyName = "LayerDbMigrations";
+
         private readonly ILogger? _logger;
         public DbSet<LayerData> Layers { get; set; } = null!;
         public DbSet<LayerGroupData> LayerGroups { get; set; } = null!;
@@ -16,7 +18,6 @@ namespace LayersIO.Connection
         {
             _logger = logger;
             _dataSource = dataSource;
-            //Database.EnsureCreated();
             _logger?.LogDebug("Подключение к {DataSource}", dataSource);
         }
 
@@ -28,13 +29,14 @@ namespace LayersIO.Connection
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite($"Data Source={_dataSource}", b => b.MigrationsAssembly("LayerDbMigrations"));
+            optionsBuilder.UseSqlite($"Data Source={_dataSource}", b => b.MigrationsAssembly(MigrationsAssemblyName));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new LayerDataConfiguration());
-            modelBuilder.ApplyConfiguration(new LayerGroupDataConfiguration());
+            modelBuilder.ApplyConfiguration(new LayerDataConfiguration())
+                        .ApplyConfiguration(new LayerGroupDataConfiguration())
+                        .ApplyConfiguration(new ZoneInfoDataConfiguration());
             //modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }

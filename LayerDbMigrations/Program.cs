@@ -1,6 +1,7 @@
 ﻿using LayersIO.Connection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npoi.Mapper;
 
 namespace LayerDbMigrations
 {
@@ -36,7 +37,12 @@ namespace LayerDbMigrations
 
         private static void DataTransfer()
         {
-            throw new NotImplementedException();
+            using (LayersDatabaseContextSqlite context = new(Path.Combine(WorkPath,TestFilename), null))
+            {
+                context.LayerGroups.ForEach(g => g.Prefix = "ИС");
+                context.Layers.ForEach(l => l.Prefix = "ИС");
+                context.SaveChanges();
+            }
         }
 
         static void Main(string[] args)
