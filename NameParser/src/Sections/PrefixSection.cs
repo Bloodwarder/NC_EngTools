@@ -37,7 +37,7 @@ namespace NameClassifiers.Sections
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {
             // Префикс добавляется только в полное имя
-            if (nameType == NameType.FullName)
+            if (nameType == NameType.FullName || nameType == NameType.TrueName)
                 inputList.Add(ParentParser.Prefix);
             NextSection?.ComposeName(inputList, layerInfo, nameType);
         }

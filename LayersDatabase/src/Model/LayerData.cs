@@ -26,7 +26,7 @@
         {
             get
             {
-                return string.Concat(MainName, Separator, StatusName);
+                return string.Join(Separator, Prefix, MainName, StatusName);
             }
             set
             {

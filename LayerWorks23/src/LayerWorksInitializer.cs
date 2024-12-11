@@ -46,7 +46,7 @@ namespace LayerWorks
                                     .Single();
             var defaultLoadedParsers = config.GetSection("LayerWorksConfiguration:DefaultParsers:Parser")?.Get<string[]>();
             
-            Func<string, bool> predicate = defaultLoadedParsers == null ? s => true : s => defaultLoadedParsers.Any(p => s.EndsWith(p));
+            Func<string, bool> predicate = defaultLoadedParsers == null ? s => true : s => defaultLoadedParsers.Any(p => s.EndsWith($"{p}.xml"));
 
             var parserXmlFiles = parsersPath.DirectoryInfo!.GetFiles("LayerParser_*.xml")
                                                            .Select(p => p.FullName)
@@ -54,7 +54,15 @@ namespace LayerWorks
                                                            .ToArray();
             foreach (var file in parserXmlFiles)
             {
-                NameParser.Load(file);
+                try
+                {
+                    NameParser.Load(file);
+                }
+                catch (Exception ex)
+                {
+                    // TODO: логгировать
+                    continue;
+                }
             }
         }
 

@@ -186,6 +186,7 @@ namespace GeoMod.Commands
 
         public void AutoZone()
         {
+            // TODO: добавить логгирование
             var geometryFactory = _geometryServices.CreateGeometryFactory();
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
@@ -194,31 +195,32 @@ namespace GeoMod.Commands
                 PromptSelectionResult psr = Workstation.Editor.GetSelection();
                 if (psr.Status != PromptStatus.OK)
                     return;
-                Func<Entity, Geometry?> convert = e => EntityToGeometryConverter.TransferGeometry(e, geometryFactory);
-                //var entities = psr.Value.GetObjectIds().Select(id => (Entity)transaction.GetObject(id, OpenMode.ForRead));
 
+                // Группировать по слою
                 var entities = psr.Value.GetObjectIds()
                              .Select(id => (Entity)transaction.GetObject(id, OpenMode.ForRead))
                              .GroupBy(e => e.Layer);
 
-                // Получить слои выбранных объектов
-                string[] layerNames = entities.Select(e => e!.Key).ToArray();
                 List<ZoneFeature> features = new();
-                DynamicRoundBufferParametersProvider provider = new(1d, 4, 30d, 16); // TODO: перенести в конфигурацию
+                DynamicRoundBufferParametersProvider provider = new(1d, 4, 30d, 16); // TODO: перенести в конфигурацию. Отладить провайдер параметров
 
                 foreach (var layer in entities)
                 {
-                    string key = Regex.Replace(layer.Key, @"^[^_\s-\.]+[_\s-\.]", ""); // TODO: изменить логику на чтение имён с префиксами
-                    bool success = _repository.TryGet(key, out ZoneInfo[]? zoneInfos);
+                    bool success = _repository.TryGet(layer.Key, out ZoneInfo[]? zoneInfos);
                     if (success)
                     {
+                        // Для каждой группы найти слои зоны
                         foreach (var zoneInfo in zoneInfos!)
                         {
+                            // Для каждого слоя зоны:
+                            // Перевести двг в геометрию
                             Geometry[] geometries = EntityToGeometryConverter.TransferGeometry(layer.ToArray(), geometryFactory).ToArray();
-                            double width = zoneInfo.Value + zoneInfo.DefaultConstructionWidth;
+                            // Рассчитать ширину зоны
+                            double width = zoneInfo.Value + zoneInfo.DefaultConstructionWidth; // TODO: добавить распознавание диаметров сетей
+                            // Создать буферы
                             BufferParameters parameters = provider.GetBufferParameters(width);
                             Geometry[] buffer = geometries.Select(g => g.Buffer(width, parameters)).ToArray();
-                            // добавление слоя зоны
+                            // Добавить слой зоны
                             string zoneLayer = zoneInfo.ZoneLayer;
                             try
                             {
@@ -229,12 +231,13 @@ namespace GeoMod.Commands
                                 Workstation.Logger?.LogDebug(ex, "{ProcessingObject}: Ошибка добавления слоя. Назначение слоя \"0\"", nameof(AutoZone));
                                 zoneLayer = "0";
                             }
-                            // создание фичи
+                            // Создать фичу с данными о слое и объединёнными буферами
                             ZoneFeature feature = new()
                             {
                                 Layer = zoneLayer,
                                 Geometry = geometryFactory.CreateGeometryCollection(buffer).Union()
                             };
+                            features.Add(feature);
                         }
                     }
                 }
@@ -243,6 +246,8 @@ namespace GeoMod.Commands
                 BlockTableRecord modelSpace = Workstation.ModelSpace;
                 LayerTable layerTable = (LayerTable)transaction.GetObject(Workstation.Database.LayerTableId, OpenMode.ForRead);
                 ObjectId initialClayer = Workstation.Database.Clayer;
+
+                // Для каждой фичи перевести зону в двг-полилинии, отформатировать, при необходимости - заштриховать и отформатировать штриховку
                 foreach (var feature in buffers)
                 {
                     Workstation.Database.Clayer = layerTable[feature.Layer];
@@ -252,7 +257,6 @@ namespace GeoMod.Commands
                         modelSpace.AppendEntity(polyline);
                         transaction.AddNewlyCreatedDBObject(polyline, true);
                     }
-                    // TODO: проверить, нужна ли вообще штриховка
                     Hatch hatch = new()
                     {
                         Layer = feature.Layer,
@@ -260,8 +264,12 @@ namespace GeoMod.Commands
                     };
                     hatch.AppendLoop(HatchLoopTypes.Polyline, new ObjectIdCollection(polylines.Select(p => p.Id).ToArray()));
                     _entityFormatter.FormatEntity(hatch);
-                    modelSpace.AppendEntity(hatch);
-                    transaction.AddNewlyCreatedDBObject(hatch, true);
+                    // Если параметры не нашлись - не добавлять штриховку в чертёж
+                    if (hatch.PatternName != "")
+                    {
+                        modelSpace.AppendEntity(hatch);
+                        transaction.AddNewlyCreatedDBObject(hatch, true);
+                    }
                 }
                 Workstation.Database.Clayer = initialClayer;
 

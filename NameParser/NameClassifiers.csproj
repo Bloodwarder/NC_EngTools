@@ -36,7 +36,7 @@
 	<!--Переместить базовый парсер-->
 	<Target Name="CopyUserData" AfterTargets="Build">
 		<ItemGroup>
-			<UserData Include="$(RootOutputPath)\ExtensionLibraries\Data\LayerParser_ИС.xml" />
+			<UserData Include="$(RootOutputPath)\ExtensionLibraries\Data\LayerParser_*.xml" />
 		</ItemGroup>
 		<Copy SourceFiles="@(UserData)" Condition="'$(Configuration)'=='Debug'" DestinationFolder="..\..\NC_EngTools\NameParserTest\bin\Debug\net6.0-windows\TestData" />
 		<Move SourceFiles="@(UserData)" DestinationFolder="$(RootOutputPath)\UserData" />
@@ -45,7 +45,7 @@
 
 	<Target Name="MoveDataAfterPublish" AfterTargets="Publish" DependsOnTargets="Publish">
 		<ItemGroup>
-			<PublishUserData Include="$(PublishDir)\Data\LayerParser_ИС.xml" />
+			<PublishUserData Include="$(PublishDir)\Data\LayerParser_*.xml" />
 		</ItemGroup>
 		<Move SourceFiles="@(PublishUserData)" DestinationFolder="$(PublishDir)\..\UserData" />
 		<RemoveDir Directories="$(PublishDir)\Data" />
