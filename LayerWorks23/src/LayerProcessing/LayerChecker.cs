@@ -10,7 +10,7 @@ using Teigha.Colors;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Microsoft.Extensions.Logging;
-using LayerWorks.EntityFormatters;
+using System.Text.RegularExpressions;
 
 namespace LayerWorks.LayerProcessing
 {
@@ -74,13 +74,21 @@ namespace LayerWorks.LayerProcessing
         /// Ищет в таблице слоёв слой с указанным именем и при его отсутствии добавляет его, 
         /// используя репозиторий с данными стандартных слоёв
         /// </summary>
-        /// <param name="layername"></param>
+        /// <param name="layerName">Имя слоя</param>
         /// <returns>ObjectId найденного или добавленного слоя (объекта LayerTableRecord)</returns>
-        public ObjectId Check(string layername)
+        public ObjectId Check(string layerName)
         {
             try
             {
-                var layerInfoResult = NameParser.Current.GetLayerInfo(layername);
+                string prefix = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])").Value;
+                bool parserGetSuccess = NameParser.LoadedParsers.TryGetValue(prefix, out var parser);
+                if (!parserGetSuccess)
+                {
+                    var ex = new Exception($"Не загружен парсер для префикса \"{prefix}\"");
+                    Workstation.Logger?.LogDebug(ex, "{ProcessingObject}: {Message}", nameof(LayerChecker), ex.Message);
+                    throw ex;
+                }
+                var layerInfoResult = parser!.GetLayerInfo(layerName);
                 if (layerInfoResult.Status == LayerInfoParseStatus.Success)
                 {
                     return Check(layerInfoResult.Value);

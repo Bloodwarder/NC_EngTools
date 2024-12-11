@@ -27,10 +27,10 @@ namespace LayerWorks.Commands
     public class LegendAssembler
     {
         private static readonly string[] _modeKeywords = { "Все", "Полигон" };
-        private static readonly ILayerChecker _checker;
+        private static readonly LayerChecker _checker;
         static LegendAssembler()
         {
-            _checker = NcetCore.ServiceProvider.GetRequiredService<ILayerChecker>();
+            _checker = NcetCore.ServiceProvider.GetRequiredService<LayerChecker>();
         }
 
         /// <summary>

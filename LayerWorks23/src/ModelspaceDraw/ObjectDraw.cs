@@ -17,7 +17,7 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public abstract class ObjectDraw
     {
-        internal protected static ILayerChecker _checker = NcetCore.ServiceProvider.GetRequiredService<ILayerChecker>();
+        internal protected static LayerChecker _checker = NcetCore.ServiceProvider.GetRequiredService<LayerChecker>();
 
         /// <summary>
         /// Список созданных объектов чертежа для вставки в модель целевого чертежа. Заполняется через метод Draw

@@ -19,20 +19,14 @@ namespace GeoMod.GeometryConverters
         {
             List<Polyline> result = new();
 
-            switch (geometry)
+            return geometry switch
             {
-                case LineString ls:
-                    return new Polyline[1] { ToDWGPolyline(ls) };
-                case Polygon pg:
-                    return ToDWGPolylines(pg);
-                case MultiPolygon mpg:
-                    return mpg.Geometries.SelectMany(g => ToDWGPolylines((Polygon)g));
-                case MultiLineString mls:
-                    return mls.Geometries.Select(ls => ToDWGPolyline((LineString)ls));
-                default:
-                    return Array.Empty<Polyline>();
-            }
-
+                LineString ls => new Polyline[1] { ToDWGPolyline(ls) },
+                Polygon pg => ToDWGPolylines(pg),
+                MultiPolygon mpg => mpg.Geometries.SelectMany(g => ToDWGPolylines((Polygon)g)),
+                MultiLineString mls => mls.Geometries.Select(ls => ToDWGPolyline((LineString)ls)),
+                _ => Array.Empty<Polyline>(),
+            };
         }
         internal static Polyline ToDWGPolyline(LineString lineString)
         {

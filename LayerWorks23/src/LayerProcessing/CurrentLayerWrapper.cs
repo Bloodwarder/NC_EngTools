@@ -15,7 +15,7 @@ namespace LayerWorks.LayerProcessing
     /// </summary>
     public class CurrentLayerWrapper : LayerWrapper
     {
-        private static ILayerChecker _checker = NcetCore.ServiceProvider.GetRequiredService<ILayerChecker>();
+        private static LayerChecker _checker = NcetCore.ServiceProvider.GetRequiredService<LayerChecker>();
 
         /// <summary>
         /// Конструктор без параметров, автоматически передающий в базовый конструктор имя текущего слоя

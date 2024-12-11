@@ -20,7 +20,7 @@ namespace LayerWorks.LayerProcessing
                 lp.Push(); 
             }
         }
-        internal static void Flush()
+        internal static void Clear()
         {
             List.Clear();
         }

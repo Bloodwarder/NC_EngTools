@@ -67,9 +67,9 @@
 
 	<Target Name="MoveDataAfterPublish" AfterTargets="Publish">
 		<ItemGroup>
-			<PublishUserData Include="$(PublishDir)\Configuration.xml"/>
+			<PublishUserData Include="$(PublishDir)\Configuration.xml" />
 		</ItemGroup>
-		<Move SourceFiles="@(PublishUserData)" DestinationFolder="$(PublishDir)\..\..\"/>
+		<Move SourceFiles="@(PublishUserData)" DestinationFolder="$(PublishDir)\..\..\" />
 	</Target>
 
 </Project>

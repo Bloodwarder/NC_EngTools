@@ -8,8 +8,7 @@ using LoaderCore.Configuration;
 using NameClassifiers;
 using LayersIO.DataTransfer;
 using LayersIO.Excel;
-using LayerWorks.EntityFormatters;
-using LayerWorks.LayerProcessing;
+using LoaderCore.SharedData;
 
 namespace LayerWorks
 {
@@ -28,11 +27,13 @@ namespace LayerWorks
 
         private static void RegisterServices()
         {
+            // Зарегистрировать сервисы, не зависящие от нанокада
+            // Зависящие регистрируются в LayerWorksExtension
+
             NcetCore.Services.AddRepositories(SourceType.InMemory)
                              .AddDataProviderFactories(SourceType.SQLite)
                              .AddDataWriterFactories(SourceType.Xml)
                              .AddSingleton<SQLiteLayerDataContextFactory>()
-                             .AddSingleton<ILayerChecker, LayerChecker>()
                              .AddTransient(typeof(IReportWriterFactory<>), typeof(ExcelSimpleReportWriterFactory<>));
         }
 

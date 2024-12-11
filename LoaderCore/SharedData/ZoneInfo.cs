@@ -1,6 +1,5 @@
-﻿using LayersIO.Model;
-
-namespace LayersIO.DataTransfer
+﻿
+namespace LoaderCore.SharedData
 {
     public class ZoneInfo
     {
@@ -11,12 +10,6 @@ namespace LayersIO.DataTransfer
             DefaultConstructionWidth = defaultWidth;
         }
 
-        public ZoneInfo(ZoneInfoData zoneInfoData)
-        {
-            ZoneLayer = zoneInfoData.ZoneLayer.Name;
-            DefaultConstructionWidth = zoneInfoData.DefaultConstructionWidth;
-            Value = zoneInfoData.Value;
-        }
         public string ZoneLayer { get; set; }
         public double Value { get; set; }
         public double DefaultConstructionWidth { get; set; }

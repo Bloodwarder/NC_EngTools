@@ -12,12 +12,12 @@ namespace LayerWorks.LayerProcessing
     public class EntityLayerWrapper : LayerWrapper
     {
         private static readonly IEntityFormatter _entityFormatter;
-        private static readonly ILayerChecker _layerChecker;
+        private static readonly LayerChecker _layerChecker;
 
         static EntityLayerWrapper()
         {
             _entityFormatter = LoaderCore.NcetCore.ServiceProvider.GetService<IEntityFormatter>()!;
-            _layerChecker = LoaderCore.NcetCore.ServiceProvider.GetService<ILayerChecker>()!;
+            _layerChecker = LoaderCore.NcetCore.ServiceProvider.GetService<LayerChecker>()!;
         }
         internal EntityLayerWrapper(string layername) : base(layername)
         {

@@ -10,11 +10,13 @@ namespace LayerWorks.EntityFormatters
 {
     public class StandardEntityFormatter : IEntityFormatter
     {
-        private readonly IRepository<string, LayerProps> _repository;
+        private readonly IRepository<string, LayerProps> _propsRepository;
+        private readonly IRepository<string, LegendDrawTemplate> _drawRepository;
 
-        public StandardEntityFormatter(IRepository<string, LayerProps> repository)
+        public StandardEntityFormatter(IRepository<string, LayerProps> repository, IRepository<string, LegendDrawTemplate> drawRepository)
         {
-            _repository = repository;
+            _propsRepository = repository;
+            _drawRepository = drawRepository;
         }
         public void FormatEntity(Entity entity)
         {
@@ -42,14 +44,14 @@ namespace LayerWorks.EntityFormatters
                                              entity.GetType().Name,
                                              layerName);
                 foreach (Exception ex in layerInfoResult!.GetExceptions())
-                    Workstation.Logger?.LogTrace(ex, "{ProcessingObject}: Ошибка: {exceptionMessage}", nameof(StandardEntityFormatter), ex.Message);
+                    Workstation.Logger?.LogDebug(ex, "{ProcessingObject}: Ошибка: {exceptionMessage}", nameof(StandardEntityFormatter), ex.Message);
                 return;
             }
         }
 
         public void FormatEntity(Entity entity, string key)
         {
-            bool success = _repository.TryGet(key, out LayerProps? props);
+            bool success = _propsRepository.TryGet(key, out LayerProps? props);
             if (!success)
             {
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Не удалось форматировать {EntityName}", nameof(StandardEntityFormatter), entity.GetType().Name);
@@ -62,8 +64,47 @@ namespace LayerWorks.EntityFormatters
                     polyline.ConstantWidth = props?.ConstantWidth ?? polyline.ConstantWidth;
                     break;
                 case Hatch hatch:
-                    Workstation.Logger?.LogWarning($"Форматирование штриховок не реализовано"); // UNDONE : Реализовать форматирование штриховок
+                    FormatHatch(hatch);
                     break;
+            }
+        }
+
+        private void FormatHatch(Hatch hatch)
+        {
+            bool success = _drawRepository.TryGet(hatch.Layer, out var drawTemplate);
+            if (!success)
+                return;
+            if (drawTemplate!.InnerHatchPattern != null && drawTemplate.InnerHatchPattern != "SOLID")
+            {
+                hatch.PatternAngle = drawTemplate.InnerHatchAngle * Math.PI / 180;
+                hatch.PatternScale = drawTemplate.InnerHatchScale;
+                if (drawTemplate.InnerHatchBrightness != 0)
+                    hatch.BackgroundColor = hatch.Color.BrightnessShift(drawTemplate.InnerHatchBrightness);
+            }
+            else
+            {
+                hatch.Color = hatch.Color.BrightnessShift(drawTemplate.InnerHatchBrightness);
+            }
+            //ДИКИЙ БЛОК, ПЫТАЮЩИЙСЯ ОБРАБОТАТЬ ОШИБКИ ДЛЯ НЕПОНЯТНЫХ ШТРИХОВОК
+            try
+            {
+                hatch.SetHatchPattern(HatchPatternType.PreDefined, drawTemplate.InnerHatchPattern);
+            }
+            catch
+            {
+
+                for (int i = 2; i > -1; i--)
+                {
+                    try
+                    {
+                        hatch.SetHatchPattern((HatchPatternType)i, drawTemplate.InnerHatchPattern);
+                        break;
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                }
             }
         }
     }

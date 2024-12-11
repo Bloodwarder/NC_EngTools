@@ -57,6 +57,7 @@
 
 	<ItemGroup>
 		<Folder Include="Properties\" />
+		<Folder Include="src\Processing\" />
 	</ItemGroup>
 
 </Project>

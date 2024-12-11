@@ -4,6 +4,7 @@ using LoaderCore;
 using System.ComponentModel;
 using Teigha.Runtime;
 using Microsoft.Extensions.DependencyInjection;
+using LayerWorks.LayerProcessing;
 
 namespace LayerWorks
 {
@@ -13,9 +14,8 @@ namespace LayerWorks
         {
             TypeDescriptor.AddAttributes(typeof(Teigha.Colors.Color), new TypeConverterAttribute(typeof(TeighaColorTypeConverter)));
 
-            NcetCore.Services.AddSingleton<IEntityFormatter, StandardEntityFormatter>();
-
-            new LayerWorksInitializer().Initialize();
+            NcetCore.Services.AddSingleton<IEntityFormatter, StandardEntityFormatter>()
+                             .AddSingleton<ILayerChecker, LayerChecker>();
         }
 
         public void Terminate()

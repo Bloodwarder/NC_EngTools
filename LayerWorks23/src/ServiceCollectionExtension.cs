@@ -5,6 +5,7 @@ using LayersIO.Xml;
 using LayersIO.Database;
 using LayersIO.Database.Readers;
 using LayerWorks.DataRepositories;
+using LoaderCore.SharedData;
 
 namespace LayerWorks
 {
@@ -76,11 +77,13 @@ namespace LayerWorks
             services.AddTransient<Func<string, ILayerDataProvider<string, LegendData>>>(p => new(path => new SQLiteLayerLegendDataProvider(path)));
             services.AddTransient<Func<string, ILayerDataProvider<string, LegendDrawTemplate>>>(p => new(path => new SQLiteLegendDrawTemplateProvider(path)));
             services.AddTransient<Func<string, ILayerDataProvider<string, string?>>>(p => new(path => new SQLiteAlterLayersProvider(path)));
+            services.AddTransient<Func<string, ILayerDataProvider<string, ZoneInfo[]>>>(p => new(path => new SQLiteZoneInfoProvider(path)));
 
             services.AddTransient<IDataProviderFactory<string, LayerProps>, SQLiteDataProviderFactory<string, LayerProps>>();
             services.AddTransient<IDataProviderFactory<string, LegendData>, SQLiteDataProviderFactory<string, LegendData>>();
             services.AddTransient<IDataProviderFactory<string, LegendDrawTemplate>, SQLiteDataProviderFactory<string, LegendDrawTemplate>>();
             services.AddTransient<IDataProviderFactory<string, string>, SQLiteDataProviderFactory<string, string>>();
+            services.AddTransient<IDataProviderFactory<string, ZoneInfo[]>, SQLiteDataProviderFactory<string, ZoneInfo[]>>();
         }
 
     }
