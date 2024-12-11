@@ -16,14 +16,14 @@ namespace LayerWorks.LayerProcessing
     public class RecordLayerWrapper : LayerWrapper
     {
         private static readonly IRepository<string, LayerProps> _repository;
-        private static ILayerChecker _checker;
+        private static LayerChecker _checker;
 
         private DBObjectWrapper<LayerTableRecord> _boundLayer = null!;
         
         static RecordLayerWrapper()
         {
             _repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
-            _checker = NcetCore.ServiceProvider.GetRequiredService<ILayerChecker>();
+            _checker = NcetCore.ServiceProvider.GetRequiredService<LayerChecker>();
         }
         /// <summary>
         /// Связанный слой (объект LayerTableRecord)

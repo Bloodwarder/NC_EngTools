@@ -32,7 +32,7 @@ namespace LayerWorks.Commands
                                          .Select(id => (Entity)transaction.GetObject(id, OpenMode.ForRead))
                                          .Where(e => e.Layer.StartsWith(parser.Prefix + parser.Separator))
                                          .Where(e => e is Polyline && e.Color == _byLayerColor);
-                HashSet<string?> filteredStatus = new() { "пр", "дем" };
+                HashSet<string?> filteredStatus = new() { "пр", "дем", "нреорг" };
                 Dictionary<string, EntityLayerWrapper> wrappersDictionary = new();
                 HashSet<string> wrongLayers = new();
                 foreach (var entity in entities)
@@ -77,7 +77,9 @@ namespace LayerWorks.Commands
                                       {
                                           MainName = group.Key.MainName,
                                           Status = group.Key.Status,
-                                          Reconstruction = (group.Key.Reconstruction == true || group.Key.Status == "дем") ? "Переустройство" : "Новое строительство",
+                                          Reconstruction = (group.Key.Reconstruction
+                                                            || group.Key.Status == "дем"
+                                                            || group.Key.Status == "нреорг") ? "Переустройство" : "Новое строительство",
                                           CumulativeLength = group.SelectMany(w => w.BoundEntities)
                                                                       .Select(e => (Polyline)e)
                                                                       .Sum(pl => Math.Round(pl.Length / 1000, 3))

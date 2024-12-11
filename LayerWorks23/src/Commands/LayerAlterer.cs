@@ -181,7 +181,7 @@ namespace LayerWorks.Commands
                 }
                 finally
                 {
-                    ActiveLayerWrappers.Flush();
+                    ActiveLayerWrappers.Clear();
                 }
             }
         }
@@ -260,7 +260,7 @@ namespace LayerWorks.Commands
                 }
                 finally
                 {
-                    ActiveLayerWrappers.Flush();
+                    ActiveLayerWrappers.Clear();
                 }
             }
         }
@@ -291,7 +291,7 @@ namespace LayerWorks.Commands
                 }
                 finally
                 {
-                    ActiveLayerWrappers.Flush();
+                    ActiveLayerWrappers.Clear();
                 }
             }
         }
@@ -358,11 +358,11 @@ namespace LayerWorks.Commands
                 }
                 catch (WrongLayerException ex)
                 {
-                    Workstation.Editor.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                    Workstation.Logger?.LogInformation(ex, "Текущий слой не принадлежит к списку обрабатываемых слоёв ({Message})", ex.Message);
                 }
                 finally
                 {
-                    ActiveLayerWrappers.Flush();
+                    ActiveLayerWrappers.Clear();
                 }
             }
         }
@@ -385,11 +385,11 @@ namespace LayerWorks.Commands
                 }
                 catch (WrongLayerException ex)
                 {
-                    editor.WriteMessage($"Текущий слой не принадлежит к списку обрабатываемых слоёв ({ex.Message})");
+                    Workstation.Logger?.LogInformation(ex, "Текущий слой не принадлежит к списку обрабатываемых слоёв ({Message})", ex.Message);
                 }
                 finally
                 {
-                    ActiveLayerWrappers.Flush();
+                    ActiveLayerWrappers.Clear();
                 }
             }
 
