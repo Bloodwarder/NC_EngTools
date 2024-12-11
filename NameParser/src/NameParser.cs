@@ -80,7 +80,7 @@ namespace NameClassifiers
                 throw new NameParserInitializeException("Неправильный состав классификаторов");
             _sections = GetParserSections();
             // Добавить созданный парсер в словарь с загруженными парсерами
-            LoadedParsers.Add(Prefix, this);
+            LoadedParsers[Prefix] = this;
             _currentParser ??= this;
         }
 
@@ -281,9 +281,9 @@ namespace NameClassifiers
             do
             {
                 sections.Add(currentSection!);
-                currentSection = currentSection!.NextSection;
+                currentSection = currentSection?.NextSection;
             }
-            while (currentSection!.NextSection != null);
+            while (currentSection != null);
             var prefixSections = sections.Where(s => s is PrefixSection);
             bool prefixInitialized = prefixSections.Count() == 1 && sections.IndexOf(prefixSections.First()) == 0;
             bool primaryInitialized = sections.Where(s => s is PrimaryClassifierSection).Count() == 1;

@@ -19,6 +19,9 @@ using LoaderCore.NanocadUtilities;
 using static LoaderCore.NanocadUtilities.EditorHelper;
 using System.Globalization;
 using LayerWorks.EntityFormatters;
+using System.IO;
+using System;
+using System.Reflection;
 
 namespace LayerWorks.Commands
 {
@@ -198,7 +201,7 @@ namespace LayerWorks.Commands
             // Выбрать ключи из репозитория, отфильтровать по выбранному классификатору и представить как массивы разделённых строк
             IRepository<string, LayerProps> repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
             string[][] keysArray = repository.GetKeys()
-                                           .Where(s => s.StartsWith($"{newLayerPrimary}{workParser.Separator}"))
+                                           .Where(s => s.StartsWith($"{prefix}{workParser.Separator}{newLayerPrimary}{workParser.Separator}"))
                                            .Select(s => s.Split(workParser.Separator))
                                            .ToArray();
             // Последовательно запрашивать у пользователя строку для следующего уровня фильтрации, пока не останется 1 объект
@@ -211,7 +214,7 @@ namespace LayerWorks.Commands
                 pointer++;
             }
 
-            string layerName = $"{workParser.Prefix}{workParser.Separator}{string.Join(workParser.Separator, keysArray.First())}";
+            string layerName = $"{string.Join(workParser.Separator, keysArray.First())}";
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
@@ -407,6 +410,7 @@ namespace LayerWorks.Commands
             };
             List<string> prefixes = NameParser.LoadedParsers.Keys.OrderBy(k => k).Concat(additionalOptions).ToList();
 
+
             PromptKeywordOptions pko = new($"Выберите префикс обрабатываемых слоёв <{NameParser.Current.Prefix}> [{string.Join("/", prefixes)}", string.Join(" ", prefixes))
             {
                 AppendKeywordsToMessage = true,
@@ -436,7 +440,14 @@ namespace LayerWorks.Commands
 
         private static void LoadNewParser()
         {
-            throw new NotImplementedException();
+            FileInfo assemblyPath = new(Assembly.GetExecutingAssembly().Location);
+            DirectoryInfo dir = new(Path.Combine(assemblyPath.Directory!.Parent!.Parent!.FullName, "UserData"));
+            var parserXmlFiles = dir.GetFiles("LayerParser_*.xml")
+                                    .ToArray();
+            string parser = GetStringKeyword(parserXmlFiles.Select(f => f.Name).ToArray(), "Выберите парсер для загрузки");
+            var loadingParser = parserXmlFiles.Where(f => f.Name == parser).Single();
+            NameParser.Load(loadingParser.FullName);
+            Workstation.Logger?.LogInformation("Парсер {Parser} загружен", loadingParser.Name);
         }
     }
 
