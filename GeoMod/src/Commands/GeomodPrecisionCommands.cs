@@ -13,7 +13,6 @@ using GeoMod.GeometryConverters;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Utilities;
-using LoaderCore.Utilities;
 using GeoMod.NtsServices;
 
 namespace GeoMod.Commands
