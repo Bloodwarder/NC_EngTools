@@ -5,6 +5,8 @@ using System.ComponentModel;
 using Teigha.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using LayerWorks.LayerProcessing;
+using HostMgd.ApplicationServices;
+using HostMgd.Windows;
 
 namespace LayerWorks
 {
@@ -16,11 +18,18 @@ namespace LayerWorks
 
             NcetCore.Services.AddSingleton<IEntityFormatter, StandardEntityFormatter>()
                              .AddSingleton<ILayerChecker, LayerChecker>();
+            TestButtons();
         }
 
         public void Terminate()
         {
 
+        }
+
+        private void TestButtons()
+        {
+            var menu = Application.MenuBar;
+            var o2 = Application.MenuGroups;
         }
     }
 }
