@@ -17,6 +17,7 @@ namespace LayerWorks.ModelspaceDraw
     /// </summary>
     public class BlockReferenceDraw : LegendObjectDraw
     {
+        private const int BlockImportTimeout = 3000;
         private static bool _blocksImported = false;
 
 
@@ -75,9 +76,8 @@ namespace LayerWorks.ModelspaceDraw
             // Перед отрисовкой первого объекта импортируем все блоки в очереди
             if (!_blocksImported)
             {
-                ImportRecords(out HashSet<string> failedImports);
-                foreach (string str in failedImports)
-                    Workstation.Logger?.LogWarning("Не удалось импортировать блок {Block}", str);
+                var importTask = ImportRecordsAsync();
+                importTask.Wait();
                 _blocksImported = true;
             }
             // Отрисовываем объект
@@ -122,11 +122,10 @@ namespace LayerWorks.ModelspaceDraw
             Workstation.Logger?.LogDebug("{ProcessingObject}: Блок {Block} поставлен в очередь импорта", nameof(BlockReferenceDraw), BlockName);
         }
 
-        private static void ImportRecords(out HashSet<string> failedBlockImports)
+        private static void ImportRecords()
         {
             Workstation.Logger?.LogDebug("{ProcessingObject}: Начало импорта блоков", nameof(BlockReferenceDraw));
 
-            failedBlockImports = new HashSet<string>();
 
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
@@ -145,7 +144,7 @@ namespace LayerWorks.ModelspaceDraw
                                                   let block = transaction.GetObject(blockId, OpenMode.ForRead) as BlockTableRecord
                                                   where QueuedBlocks[file].Contains(block.Name) // TODO: НЕ ОБРАБАТЫВАЕТ ДИНАМИЧЕСКИЕ БЛОКИ. Исправить позже, а пока не использовать в файле шаблона
                                                   select block).ToList();
-                            
+
                             string blockNames = string.Join(", ", importedBlocks.Select(b => b.Name));
                             // Заполняем сет с ненайденными блоками
                             foreach (BlockTableRecord block in importedBlocks)
@@ -153,7 +152,7 @@ namespace LayerWorks.ModelspaceDraw
                                 if (!QueuedBlocks[file].Contains(block.Name))
                                 {
                                     Workstation.Logger?.LogDebug("{ProcessingObject}: Не найден блок {Block}", nameof(BlockReferenceDraw), block.Name);
-                                    failedBlockImports.Add(block.Name);
+                                    Workstation.Logger?.LogWarning("Не удалось импортировать блок {Block}", block.Name);
                                 }
                             }
                             Workstation.Logger?.LogDebug("{ProcessingObject}: Выбраны блоки для копирования: {Blocks}", nameof(BlockReferenceDraw), blockNames);
@@ -170,7 +169,7 @@ namespace LayerWorks.ModelspaceDraw
                         }
                         catch (Exception ex)
                         {
-                            Workstation.Logger?.LogWarning(ex, "Ошибка импорта блоков из файла \"{File}\": {Message}", file, ex.Message);
+                            Workstation.Logger?.LogWarning(ex, "Ошибка импорта блоков из файла \"{File}\": {Message}\n", file, ex.Message);
                             transaction.Abort();
                         }
                         finally
@@ -184,6 +183,25 @@ namespace LayerWorks.ModelspaceDraw
             }
             Workstation.Logger?.LogDebug("{ProcessingObject}: Очистка очереди файлов для импорта блоков", nameof(BlockReferenceDraw));
             QueuedFiles.Clear();
+        }
+
+        private static async Task ImportRecordsAsync()
+        {
+            using (CancellationTokenSource cancellationTokenSource = new())
+            {
+                Task importTask = Task.Run(() => ImportRecords());
+                Task timeoutTask = Task.Delay(BlockImportTimeout, cancellationTokenSource.Token);
+
+                if (await Task.WhenAny(importTask, timeoutTask) == importTask)
+                {
+                    cancellationTokenSource.Cancel();
+                    await importTask;
+                }
+                else
+                {
+                    Workstation.Logger?.LogWarning("Ошибка импорта блоков - время ожидания истекло");
+                }
+            }
         }
     }
 }

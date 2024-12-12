@@ -12,13 +12,29 @@ namespace LoaderCore.NanocadUtilities
                 return Color.FromColorIndex(ColorMethod.ByLayer, 256);
             if (value > 0)
             {
-                color = Color.FromRgb((byte)(color.Red + (255 - color.Red) * value), (byte)(color.Green + (255 - color.Green) * value), (byte)(color.Blue + (255 - color.Blue) * value));
+                color = color.ShiftColor(IncreaseChannel, value);
             }
             else if (value < 0)
             {
-                color = Color.FromRgb((byte)(color.Red + color.Red * value), (byte)(color.Green + color.Green * value), (byte)(color.Blue + color.Blue * value));
+                color = color.ShiftColor(DecreaseChannel, value);
             }
             return color;
         }
+
+        /// <summary>
+        /// Apply function to each of RGB channels
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="shiftExpression"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private static Color ShiftColor (this Color color, Func<byte, double, byte> shiftExpression, double value)
+        {
+            return Color.FromRgb(shiftExpression(color.Red, value),
+                                 shiftExpression(color.Green, value),
+                                 shiftExpression(color.Blue, value));
+        }
+        private static byte IncreaseChannel(byte channel, double value) => (byte)(channel + (255 - channel) * value);
+        private static byte DecreaseChannel(byte channel, double value) => (byte)(channel + channel * value);
     }
 }
