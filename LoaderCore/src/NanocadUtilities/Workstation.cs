@@ -54,7 +54,7 @@ namespace LoaderCore.NanocadUtilities
             _editor = Document.Editor;
         }
 
-        public static void SetLogger(ILogger logger)
+        internal static void SetLogger(ILogger logger)
         {
             Logger = logger;
         }

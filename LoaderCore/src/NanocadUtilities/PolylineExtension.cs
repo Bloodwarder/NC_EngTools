@@ -1,6 +1,6 @@
 ﻿using Teigha.DatabaseServices;
 
-namespace LoaderCore.Utilities
+namespace LoaderCore.NanocadUtilities
 {
     public static class PolylineExtension
     {

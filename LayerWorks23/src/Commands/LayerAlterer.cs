@@ -64,19 +64,16 @@ namespace LayerWorks.Commands
                 }
                 else
                 {
-                    LayerTableRecord? ltrec = (from ObjectId elem in lt
-                                               let ltr = (LayerTableRecord)transaction.GetObject(elem, OpenMode.ForWrite, false)
-                                               where ltr.Name == tgtlayer
-                                               select ltr)
-                                              .FirstOrDefault();
-                    if (ltrec!.IsFrozen || ltrec.IsOff)
+                    //LayerTableRecord overlayLayer = (LayerTableRecord)transaction.GetObject(lt[tgtlayer], OpenMode.ForWrite, false);
+                    LayerTableRecord overlayLayer = lt[tgtlayer].GetObject<LayerTableRecord>(OpenMode.ForWrite);
+                    if (overlayLayer!.IsFrozen || overlayLayer.IsOff)
                     {
-                        ltrec.IsOff = false;
-                        ltrec.IsFrozen = false;
+                        overlayLayer.IsOff = false;
+                        overlayLayer.IsFrozen = false;
                     }
                     else
                     {
-                        ltrec.IsOff = true;
+                        overlayLayer.IsOff = true;
                     }
                 }
                 transaction.Commit();
