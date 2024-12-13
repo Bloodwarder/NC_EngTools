@@ -26,6 +26,8 @@ namespace NameClassifiers
             }
         }
 
+        public static List<LayerWrapper> ActiveWrappers { get; private set; } = new();
+
         public LayerInfo LayerInfo { get; private set; }
 
         /// <summary>

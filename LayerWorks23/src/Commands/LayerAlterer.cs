@@ -166,8 +166,8 @@ namespace LayerWorks.Commands
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    ActiveLayerWrappers.List.ForEach(w => w.LayerInfo.SwitchStatus(newStatus));
-                    ActiveLayerWrappers.Push();
+                    LayerWrapper.ActiveWrappers.ForEach(w => w.LayerInfo.SwitchStatus(newStatus));
+                    LayerWrapper.ActiveWrappers.ForEach(w => w.Push());
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -181,7 +181,7 @@ namespace LayerWorks.Commands
                 }
                 finally
                 {
-                    ActiveLayerWrappers.Clear();
+                    LayerWrapper.ActiveWrappers.Clear();
                 }
             }
         }
@@ -244,14 +244,14 @@ namespace LayerWorks.Commands
                 {
                     var repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, string>>();
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    foreach (LayerWrapper wrapper in ActiveLayerWrappers.List)
+                    foreach (LayerWrapper wrapper in LayerWrapper.ActiveWrappers)
                     {
                         bool success = repository.TryGet(wrapper.LayerInfo.MainName, out string? newMainName);
                         if (success)
                             wrapper.LayerInfo.AlterSecondaryClassifier(newMainName!);
                     }
 
-                    ActiveLayerWrappers.Push();
+                    LayerWrapper.ActiveWrappers.ForEach(w => w.Push());
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -260,7 +260,7 @@ namespace LayerWorks.Commands
                 }
                 finally
                 {
-                    ActiveLayerWrappers.Clear();
+                    LayerWrapper.ActiveWrappers.Clear();
                 }
             }
         }
@@ -280,9 +280,9 @@ namespace LayerWorks.Commands
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    bool targetValue = !ActiveLayerWrappers.List.First().LayerInfo.SuffixTagged[tag];
-                    ActiveLayerWrappers.List.ForEach(l => l.LayerInfo.SwitchSuffix(tag, targetValue));
-                    ActiveLayerWrappers.Push();
+                    bool targetValue = !LayerWrapper.ActiveWrappers.First().LayerInfo.SuffixTagged[tag];
+                    LayerWrapper.ActiveWrappers.ForEach(l => l.LayerInfo.SwitchSuffix(tag, targetValue));
+                    LayerWrapper.ActiveWrappers.ForEach(l => l.Push());
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -291,7 +291,7 @@ namespace LayerWorks.Commands
                 }
                 finally
                 {
-                    ActiveLayerWrappers.Clear();
+                    LayerWrapper.ActiveWrappers.Clear();
                 }
             }
         }
@@ -352,8 +352,8 @@ namespace LayerWorks.Commands
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    ActiveLayerWrappers.List.ForEach(w => w.LayerInfo.ChangeAuxilaryData(dataKey, newData));
-                    ActiveLayerWrappers.Push();
+                    LayerWrapper.ActiveWrappers.ForEach(w => w.LayerInfo.ChangeAuxilaryData(dataKey, newData));
+                    LayerWrapper.ActiveWrappers.ForEach(w => w.Push());
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -362,7 +362,7 @@ namespace LayerWorks.Commands
                 }
                 finally
                 {
-                    ActiveLayerWrappers.Clear();
+                    LayerWrapper.ActiveWrappers.Clear();
                 }
             }
         }
@@ -380,7 +380,7 @@ namespace LayerWorks.Commands
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    ActiveLayerWrappers.Push();
+                    LayerWrapper.ActiveWrappers.ForEach(w => w.Push());
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -389,7 +389,7 @@ namespace LayerWorks.Commands
                 }
                 finally
                 {
-                    ActiveLayerWrappers.Clear();
+                    LayerWrapper.ActiveWrappers.Clear();
                 }
             }
 

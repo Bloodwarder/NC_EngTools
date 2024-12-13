@@ -21,7 +21,7 @@ namespace LayerWorks.LayerProcessing
         }
         internal EntityLayerWrapper(string layername) : base(layername)
         {
-            ActiveLayerWrappers.Add(this);
+            ActiveWrappers.Add(this);
         }
         /// <summary>
         /// Конструктор, принимающий объект чертежа
@@ -30,7 +30,7 @@ namespace LayerWorks.LayerProcessing
         public EntityLayerWrapper(Entity entity) : base(entity.Layer)
         {
             BoundEntities.Add(entity); 
-            ActiveLayerWrappers.Add(this);
+            ActiveWrappers.Add(this);
         }
         /// <summary>
         /// Коллекция связанных объектов чертежа
