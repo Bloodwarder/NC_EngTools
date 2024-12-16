@@ -12,7 +12,7 @@ namespace LayerDbMigrations
 
         private const string PrototypeFilename = "LayerData_Prototype.db";
         private const string TestFilename = "LayerData_Testing.db";
-        private const string ProductionFilename = "LayerData_ИС.db";
+        private const string ProductionFilename = "LayerData.db";
         private const string BackUpFilename = "LayerData_Backup.db";
 
         static Dictionary<string, Action> CommandsDictionary { get; } = new()

@@ -9,6 +9,7 @@ using NameClassifiers;
 using LayersIO.DataTransfer;
 using LayersIO.Excel;
 using LoaderCore.SharedData;
+using LayerWorks.Commands;
 
 namespace LayerWorks
 {

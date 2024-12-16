@@ -7,7 +7,11 @@ namespace LayersIO.DataTransfer
     {
         public static ZoneInfo ToZoneInfo(this ZoneInfoData zoneInfoData)
         {
-            ZoneInfo info = new(zoneInfoData.ZoneLayer.Name, zoneInfoData.Value, zoneInfoData.DefaultConstructionWidth);
+            ZoneInfo info = new(zoneInfoData.ZoneLayer.Name,
+                                zoneInfoData.Value,
+                                zoneInfoData.DefaultConstructionWidth,
+                                zoneInfoData.AdditionalFilter,
+                                zoneInfoData.IgnoreConstructionWidth);
             return info;
         }
     }
