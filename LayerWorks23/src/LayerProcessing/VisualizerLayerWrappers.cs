@@ -51,7 +51,7 @@ namespace LayerWorks.LayerProcessing
 
                 doc.Database.BeginSave -= Reset;
                 _eventAssigned[doc] = false;
-                ChapterVisualizer.ActiveChapterState[doc] = null;
+                LayerWorksCommands.ChapterVisualizer.ActiveChapterState[doc] = null;
                 Flush(doc);
                 transaction.Commit();
             }

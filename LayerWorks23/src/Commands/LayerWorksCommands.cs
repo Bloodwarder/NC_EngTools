@@ -17,7 +17,7 @@ namespace LayerWorks.Commands
             AutoZoner = NcetCore.ServiceProvider.GetRequiredService<AutoZoner>();
         }
         private static LayerAlterer LayerAlterer { get; }
-        private static ChapterVisualizer ChapterVisualizer { get; }
+        internal static ChapterVisualizer ChapterVisualizer { get; }
         private static LegendAssembler LegendAssembler { get; }
         private static LayerEntitiesReportWriter LayerEntitiesReportWriter { get; }
         private static AutoZoner AutoZoner { get; }

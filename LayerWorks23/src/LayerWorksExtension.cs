@@ -5,6 +5,7 @@ using System.ComponentModel;
 using Teigha.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using LayerWorks.LayerProcessing;
+using LayerWorks.Commands;
 
 namespace LayerWorks
 {
@@ -16,7 +17,13 @@ namespace LayerWorks
 
             NcetCore.Services.AddSingleton<IEntityFormatter, StandardEntityFormatter>()
                              .AddSingleton<ILayerChecker, LayerChecker>()
-                             .AddSingleton<LayerChecker>();
+                             .AddSingleton<LayerChecker>()
+                             .AddTransient<LayerAlterer>()
+                             .AddTransient<ChapterVisualizer>()
+                             .AddTransient<AutoZoner>()
+                             .AddTransient<LegendAssembler>()
+                             .AddTransient<LayerEntitiesReportWriter>()
+;
         }
 
         public void Terminate()
