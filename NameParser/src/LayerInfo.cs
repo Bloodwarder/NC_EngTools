@@ -20,11 +20,11 @@ namespace NameClassifiers
         public Dictionary<string, bool> SuffixTagged { get; private set; } = new();
 
         /// <summary>
-        /// Значимое имя только с обязательными классификаторами без статуса (отражающее тип объекта)
+        /// Значимое имя только с обязательными классификаторами без статуса и префикса (отражающее тип объекта)
         /// </summary>
         public string MainName => GetNameByType(NameType.MainName);
         /// <summary>
-        /// Значимое имя только с обязательными классификаторами без префиксов
+        /// Значимое имя только с обязательными классификаторами
         /// </summary>
         public string TrueName => GetNameByType(NameType.TrueName);
         /// <summary>

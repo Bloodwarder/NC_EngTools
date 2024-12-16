@@ -9,6 +9,7 @@ using LoaderCore.Integrity;
 using LoaderCore.Interfaces;
 using GeoMod.Commands;
 using GeoMod.NtsServices;
+using GeoMod.Processing;
 
 namespace GeoMod
 {
@@ -19,11 +20,13 @@ namespace GeoMod
 
         public void Initialize()
         {
-            NcetCore.Services.AddSingleton<INtsGeometryServicesFactory, GeomodNtsGeometryServicesFactory>();
-            NcetCore.Services.AddSingleton<IPrecisionReducer, GeomodNtsPrecisionReducer>();
-            NcetCore.Services.AddSingleton<GeomodPrecisionCommands>();
-            NcetCore.Services.AddSingleton<GeomodWktCommands>();
-            NcetCore.Services.AddSingleton<GeomodBufferizationCommands>();
+            NcetCore.Services.AddSingleton<INtsGeometryServicesFactory, GeomodNtsGeometryServicesFactory>()
+                             .AddSingleton<IPrecisionReducer, GeomodNtsPrecisionReducer>()
+                             .AddSingleton<IBuffer, GeomodNtsBufferizer>()
+                             .AddTransient<GeomodPrecisionCommands>()
+                             .AddTransient<GeomodWktCommands>()
+                             .AddTransient<GeomodBufferizationCommands>()
+                             .AddTransient<GeomodAutoBufferizationCommand>();
         }
 
         public void PostInitialize()

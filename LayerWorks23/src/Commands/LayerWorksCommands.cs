@@ -1,73 +1,105 @@
 ﻿using LoaderCore.Utilities;
 using Teigha.Runtime;
 
-using static LayerWorks.Commands.LayerAlterer;
-using static LayerWorks.Commands.ChapterVisualizer;
-using static LayerWorks.Commands.LegendAssembler;
-using static LayerWorks.Commands.LayerEntitiesReportWriter;
+using LoaderCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LayerWorks.Commands
 {
     public static class LayerWorksCommands
     {
+        static LayerWorksCommands()
+        {
+            LayerAlterer = NcetCore.ServiceProvider.GetRequiredService<LayerAlterer>();
+            ChapterVisualizer = NcetCore.ServiceProvider.GetRequiredService<ChapterVisualizer>();
+            LegendAssembler = NcetCore.ServiceProvider.GetRequiredService<LegendAssembler>();
+            LayerEntitiesReportWriter = NcetCore.ServiceProvider.GetRequiredService<LayerEntitiesReportWriter>();
+            AutoZoner = NcetCore.ServiceProvider.GetRequiredService<AutoZoner>();
+        }
+        private static LayerAlterer LayerAlterer { get; }
+        private static ChapterVisualizer ChapterVisualizer { get; }
+        private static LegendAssembler LegendAssembler { get; }
+        private static LayerEntitiesReportWriter LayerEntitiesReportWriter { get; }
+        private static AutoZoner AutoZoner { get; }
+
+
         [CommandMethod("ИЗМСТАТУС", CommandFlags.Redraw)]
         public static void LayerStatusChangeCommand()
         {
-            NcetCommand.ExecuteCommand(LayerStatusChange);
+            NcetCommand.ExecuteCommand(LayerAlterer.LayerStatusChange);
         }
 
         [CommandMethod("АЛЬТЕРНАТИВНЫЙ", CommandFlags.Redraw)]
         public static void LayerAlterCommand()
         {
-            NcetCommand.ExecuteCommand(LayerAlter);
+            NcetCommand.ExecuteCommand(LayerAlterer.LayerAlter);
         }
+
         [CommandMethod("ДОПИНФО", CommandFlags.Redraw)]
         public static void AuxDataAssignCommand()
         {
-            NcetCommand.ExecuteCommand(AuxDataAssign);
+            NcetCommand.ExecuteCommand(LayerAlterer.AuxDataAssign);
         }
         [CommandMethod("КАЛЬКА")]
         public static void TransparentOverlayToggleCommand()
         {
-            NcetCommand.ExecuteCommand(TransparentOverlayToggle);
+            NcetCommand.ExecuteCommand(LayerAlterer.TransparentOverlayToggle);
         }
+
         [CommandMethod("ПРЕФИКС")]
         public static void ChangePrefixCommand()
         {
-            NcetCommand.ExecuteCommand(ChangePrefix);
+            NcetCommand.ExecuteCommand(LayerAlterer.ChangePrefix);
         }
+
         [CommandMethod("ТЕГ", CommandFlags.Redraw)]
         public static void LayerTagCommand()
         {
-            NcetCommand.ExecuteCommand(LayerTag);
+            NcetCommand.ExecuteCommand(LayerAlterer.LayerTag);
         }
+
         [CommandMethod("СВС", CommandFlags.Redraw)]
         public static void StandartLayerValuesCommand()
         {
-            NcetCommand.ExecuteCommand(StandartLayerValues);
+            NcetCommand.ExecuteCommand(LayerAlterer.StandartLayerValues);
         }
+
+        [CommandMethod("СВСШТРИХ", CommandFlags.Redraw)]
+        public static void StandartLayerHatchCommand()
+        {
+            NcetCommand.ExecuteCommand(LayerAlterer.StandartLayerHatch);
+        }
+
         [CommandMethod("ВИЗРАЗДЕЛ")]
         public static void VisualizerComand()
         {
-            NcetCommand.ExecuteCommand(Visualizer);
+            NcetCommand.ExecuteCommand(ChapterVisualizer.Visualizer);
         }
+
         [CommandMethod("АВТОСБОРКА")]
         public static void AssembleCommand()
         {
-            NcetCommand.ExecuteCommand(Assemble);
+            NcetCommand.ExecuteCommand(LegendAssembler.Assemble);
         }
 
         [CommandMethod("НОВСТАНДСЛОЙ")]
         public static void NewStandardLayerCommand()
         {
-            NcetCommand.ExecuteCommand(NewStandardLayer);
+            NcetCommand.ExecuteCommand(LayerAlterer.NewStandardLayer);
         }
 
         [CommandMethod("СЛОЙОТЧЕТ")]
         public static void WriteReportCommand()
         {
-            NcetCommand.ExecuteCommand(WriteReport);
+            NcetCommand.ExecuteCommand(LayerEntitiesReportWriter.WriteReport);
         }
+
+        [CommandMethod("ЗОНААВТО", CommandFlags.UsePickSet)]
+        public static void AutoZoneCommand()
+        {
+            NcetCommand.ExecuteCommand(AutoZoner.AutoZone);
+        }
+
 
     }
 }

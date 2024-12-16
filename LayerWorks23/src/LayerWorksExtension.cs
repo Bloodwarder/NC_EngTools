@@ -5,8 +5,6 @@ using System.ComponentModel;
 using Teigha.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using LayerWorks.LayerProcessing;
-using HostMgd.ApplicationServices;
-using HostMgd.Windows;
 
 namespace LayerWorks
 {
@@ -17,19 +15,13 @@ namespace LayerWorks
             TypeDescriptor.AddAttributes(typeof(Teigha.Colors.Color), new TypeConverterAttribute(typeof(TeighaColorTypeConverter)));
 
             NcetCore.Services.AddSingleton<IEntityFormatter, StandardEntityFormatter>()
-                             .AddSingleton<ILayerChecker, LayerChecker>();
-            TestButtons();
+                             .AddSingleton<ILayerChecker, LayerChecker>()
+                             .AddSingleton<LayerChecker>();
         }
 
         public void Terminate()
         {
 
-        }
-
-        private void TestButtons()
-        {
-            var menu = Application.MenuBar;
-            var o2 = Application.MenuGroups;
         }
     }
 }

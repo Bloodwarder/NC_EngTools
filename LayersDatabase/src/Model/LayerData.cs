@@ -31,7 +31,8 @@
             set
             {
                 string[] classifiers = value.Split(Separator);
-                MainName = string.Join(Separator, classifiers.Take(classifiers.Length - 1).ToArray());
+                Prefix = classifiers[0];
+                MainName = string.Join(Separator, classifiers.Skip(1).Take(classifiers.Length - 2).ToArray());
                 StatusName = classifiers[^1];
             }
         }

@@ -42,11 +42,11 @@ namespace GeoMod.Commands
             NcetCommand.ExecuteCommand(_bufferizationCommands.DiverseZone);
         }
 
-        [CommandMethod("ЗОНААВТО", CommandFlags.UsePickSet)]
-        public static void AutoZoneCommand()
-        {
-            NcetCommand.ExecuteCommand(_bufferizationCommands.AutoZone);
-        }
+        //[CommandMethod("ЗОНААВТО", CommandFlags.UsePickSet)]
+        //public static void AutoZoneCommand()
+        //{
+        //    NcetCommand.ExecuteCommand(_bufferizationCommands.AutoZone);
+        //}
 
         [CommandMethod("ЗОНОБЪЕД", CommandFlags.UsePickSet)]
         public static void ZoneJoinCommand()

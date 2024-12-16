@@ -18,9 +18,7 @@ using LoaderCore.NanocadUtilities;
 
 using static LoaderCore.NanocadUtilities.EditorHelper;
 using System.Globalization;
-using LayerWorks.EntityFormatters;
 using System.IO;
-using System;
 using System.Reflection;
 
 namespace LayerWorks.Commands
@@ -30,17 +28,21 @@ namespace LayerWorks.Commands
     /// </summary>
     public class LayerAlterer
     {
-        internal static string PrevStatus = "";
-        private static ILayerChecker _checker = NcetCore.ServiceProvider.GetRequiredService<ILayerChecker>();
-        static LayerAlterer()
-        {
-        }
+        internal string PrevStatus = "";
+        private readonly ILayerChecker _checker;
+        private readonly IEntityFormatter _formatter;
+        static LayerAlterer() { }
 
+        public LayerAlterer(ILayerChecker checker, IEntityFormatter formatter)
+        {
+            _checker = checker;
+            _formatter = formatter;
+        }
         internal static Dictionary<string, string> PreviousAssignedData { get; } = new();
         /// <summary>
         /// Переключение кальки, при необходимости добавление её в чертёж
         /// </summary>
-        public static void TransparentOverlayToggle()
+        public void TransparentOverlayToggle()
         {
             string tgtlayer = NameParser.Current.Prefix + "_Калька";
 
@@ -81,7 +83,7 @@ namespace LayerWorks.Commands
             }
         }
 
-        private static void CreateHatchOverXrefs(Transaction transaction, LayerTableRecord ltrec)
+        private void CreateHatchOverXrefs(Transaction transaction, LayerTableRecord ltrec)
         {
             Workstation.Logger?.LogDebug("{ProcessingObject}: Начало процедуры создания кальки поверх внешних ссылок", nameof(LayerAlterer));
             // Получить системные переменные, необходимые для вычисления размеров кальки
@@ -153,7 +155,7 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Изменение статуса объекта в соответствии с данными LayerParser
         /// </summary>
-        public static void LayerStatusChange()
+        public void LayerStatusChange()
         {
             NameParser.Current.ExtractSectionInfo<StatusSection>(out string[] statuses, out Func<string, string> descriptions);
             string newStatus = GetStringKeyword(statuses, statuses.Select(s => descriptions(s)).ToArray(), $"Укажите статус объекта <{PrevStatus}>");
@@ -186,7 +188,7 @@ namespace LayerWorks.Commands
             }
         }
 
-        public static void NewStandardLayer()
+        public void NewStandardLayer()
         {
             // Выбрать парсер для загрузки слоёв
             string[] parserIds = NameParser.LoadedParsers.Keys.ToArray();
@@ -236,7 +238,7 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Изменение типа объекта на альтернативный в соответствии с таблицей
         /// </summary>
-        public static void LayerAlter()
+        public void LayerAlter()
         {
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
@@ -268,7 +270,7 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Назначение объекту/слою тега с определённым значением (BooleanSuffix)
         /// </summary>
-        public static void LayerTag()
+        public void LayerTag()
         {
             Workstation.Define();
             NameParser workParser = NameParser.Current;
@@ -299,7 +301,7 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Назначение объекту/слою имени внешнего проекта (неутверждаемого)
         /// </summary>
-        public static void AuxDataAssign()
+        public void AuxDataAssign()
         {
             NameParser workParser = NameParser.Current;
             var dataSections = workParser.AuxilaryDataKeys;
@@ -370,7 +372,7 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Приведение свойств объекта или текущих переменных чертежа к стандарту (ширина и масштаб типов линий)
         /// </summary>
-        public static void StandartLayerValues()
+        public void StandartLayerValues()
         {
             TransactionManager tm = Workstation.TransactionManager;
             Editor editor = Workstation.Editor;
@@ -393,6 +395,60 @@ namespace LayerWorks.Commands
                 }
             }
 
+        }
+
+        public void StandartLayerHatch()
+        {
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            {
+                try
+                {
+                    SelectionHandler.UpdateActiveLayerWrappers();
+                    var wrappers = LayerWrapper.ActiveWrappers.Where(w => w is EntityLayerWrapper)
+                                                              .Select(w => (EntityLayerWrapper)w)
+                                                              .Where(w => w.BoundEntities.All(e => e is Polyline pl && pl.Closed))
+                                                              .GroupBy(w => w.BoundEntities.First().Layer);
+                    var modelSpace = Workstation.ModelSpace;
+                    var drawOrderTable = modelSpace.DrawOrderTableId.GetObject<DrawOrderTable>(OpenMode.ForWrite, transaction);
+                    //var drawOrderTable = (DrawOrderTable)transaction.GetObject(modelSpace.DrawOrderTableId, OpenMode.ForWrite);
+                    foreach (var group in wrappers)
+                    {
+                        group.ToList().ForEach(w => w.Push());
+                        var polylines = group.SelectMany(w => w.BoundEntities).Select(e => e.ObjectId).ToArray();
+                        var plIdCollection = new ObjectIdCollection(polylines);
+                        Hatch hatch = new()
+                        {
+                            Layer = group.Key,
+                            HatchStyle = HatchStyle.Normal
+                        };
+                        hatch.AppendLoop(HatchLoopTypes.Polyline, plIdCollection);
+                        _formatter.FormatEntity(hatch, group.First().LayerInfo.TrueName);
+                        // Если параметры не нашлись - не добавлять штриховку в чертёж
+                        if (hatch.PatternName != "")
+                        {
+                            Workstation.ModelSpace.AppendEntity(hatch);
+                            transaction.AddNewlyCreatedDBObject(hatch, true);
+                            var drawOrder = drawOrderTable.GetFullDrawOrder(0);
+                            int minIndex = polylines.Min(p => drawOrder.IndexOf(p));
+                            var pl = polylines.First(p => drawOrder.IndexOf(p) == minIndex);
+                            drawOrderTable.MoveBelow(new ObjectIdCollection(new ObjectId[] { hatch.ObjectId }), pl);
+                        }
+                        else
+                        {
+                            Workstation.Logger?.LogDebug("{ProcessingObject}: Нет стандарта штриховки для слоя {Layer}", nameof(StandartLayerHatch), group.Key);
+                        }
+                    }
+                    transaction.Commit();
+                }
+                catch (WrongLayerException ex)
+                {
+                    Workstation.Logger?.LogInformation(ex, "Текущий слой не принадлежит к списку обрабатываемых слоёв ({Message})", ex.Message);
+                }
+                finally
+                {
+                    LayerWrapper.ActiveWrappers.Clear();
+                }
+            }
         }
 
         /// <summary>

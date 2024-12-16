@@ -15,11 +15,16 @@ using NameClassifiers;
 
 namespace LayerWorks.Commands
 {
-    public static class LayerEntitiesReportWriter
+    public class LayerEntitiesReportWriter
     {
         private static readonly Color _byLayerColor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
+        private readonly IReportWriterFactory<LayerEntityReport> _reportWriterFactory;
+        internal LayerEntitiesReportWriter(IReportWriterFactory<LayerEntityReport> factory)
+        {
+            _reportWriterFactory = factory;
+        }
 
-        public static void WriteReport()
+        public void WriteReport()
         {
             // TODO: Пока сделано "в лоб", чтобы работало. Много вариантов для оптимизации. Вынести логику фильтрации в xml
             Workstation.Logger?.LogDebug("{ProcessingObject}: Начало подготовки отчёта", nameof(LayerEntitiesReportWriter));
@@ -103,16 +108,18 @@ namespace LayerWorks.Commands
             }
         }
 
-        class LayerEntityReport
-        {
-            public LayerEntityReport() { }
-            public string MainName { get; set; }
-            public string Status { get; set; }
-            public string Reconstruction { get; set; }
-            public string Units { get; set; } = "км";
-            public double CumulativeLength { get; set; }
-        }
 
     }
 
+    internal class LayerEntityReport
+    {
+# nullable disable warnings
+        public LayerEntityReport() { }
+#nullable restore
+        public string MainName { get; set; }
+        public string Status { get; set; }
+        public string Reconstruction { get; set; }
+        public string Units { get; set; } = "км";
+        public double CumulativeLength { get; set; }
+    }
 }
