@@ -20,9 +20,9 @@ namespace LayerWorks.Commands
     /// </summary>
     public class ChapterVisualizer
     {
-        private static readonly Dictionary<Document, string?> _activeChapterState = new();
+        private readonly Dictionary<Document, string?> _activeChapterState = new();
 
-        internal static Dictionary<Document, string?> ActiveChapterState
+        internal Dictionary<Document, string?> ActiveChapterState
         {
             get
             {
@@ -36,7 +36,7 @@ namespace LayerWorks.Commands
         /// <summary>
         /// Подсветить слои для выбранного раздела (выключить остальные и визуализировать переустройство)
         /// </summary>
-        public static void Visualizer()
+        public void Visualizer()
         {
             Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
             Editor editor = Workstation.Editor;
@@ -110,7 +110,7 @@ namespace LayerWorks.Commands
         }
 
 
-        internal static void NewLayerHighlight(object? sender, EventArgs e)
+        internal void NewLayerHighlight(object? sender, EventArgs e)
         {
             Document doc = Workstation.Document;
 
@@ -122,7 +122,7 @@ namespace LayerWorks.Commands
             }
 
         }
-        private static void ApplyVisualizer(Document doc, string result)
+        private void ApplyVisualizer(Document doc, string result)
         {
             if (result == "Сброс")
             {

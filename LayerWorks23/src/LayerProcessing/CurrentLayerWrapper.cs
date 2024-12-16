@@ -15,7 +15,14 @@ namespace LayerWorks.LayerProcessing
     /// </summary>
     public class CurrentLayerWrapper : LayerWrapper
     {
-        private static readonly LayerChecker _checker = NcetCore.ServiceProvider.GetRequiredService<LayerChecker>();
+        private static readonly LayerChecker _checker;
+        private static readonly IRepository<string, LayerProps> _repository;
+
+        static CurrentLayerWrapper()
+        {
+            _checker = NcetCore.ServiceProvider.GetRequiredService<LayerChecker>();
+            _repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
+        }
 
         /// <summary>
         /// Конструктор без параметров, автоматически передающий в базовый конструктор имя текущего слоя
@@ -61,8 +68,7 @@ namespace LayerWorks.LayerProcessing
 
         private static void StandartizeCurrentValues(LayerInfo layerInfo)
         {
-            var service = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
-            bool success = service.TryGet(layerInfo.TrueName, out LayerProps? lp);
+            bool success = _repository.TryGet(layerInfo.TrueName, out LayerProps? lp);
             if (success)
             {
                 Workstation.Database.Celtscale = lp?.LinetypeScale ?? default;

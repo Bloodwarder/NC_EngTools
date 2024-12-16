@@ -26,17 +26,20 @@ namespace LayerWorks.Commands
     /// </summary>
     public class LegendAssembler
     {
-        private static readonly string[] _modeKeywords = { "Все", "Полигон" };
-        private static readonly LayerChecker _checker;
-        static LegendAssembler()
+        private readonly string[] _modeKeywords = { "Все", "Полигон" };
+        private readonly LayerChecker _checker;
+        
+        static LegendAssembler() { }
+
+        public LegendAssembler(LayerChecker checker)
         {
-            _checker = NcetCore.ServiceProvider.GetRequiredService<LayerChecker>();
+            _checker = checker;
         }
 
         /// <summary>
         /// Автосборка условных обозначений на основе слоёв чертежа и логики LayerParser
         /// </summary>
-        public static void Assemble()
+        public void Assemble()
         {
             Workstation.Logger?.LogDebug("{ProcessingObject}: Запуск автосборки", nameof(LegendAssembler));
             //получить точку вставки

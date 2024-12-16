@@ -8,7 +8,7 @@ using NetTopologySuite.Operation.Buffer;
 using NtsBufferOps = NetTopologySuite.Operation.Buffer;
 using System;
 
-namespace GeoMod.Commands
+namespace GeoMod.Processing
 {
     internal class DynamicRoundBufferParametersProvider
     {
@@ -31,6 +31,8 @@ namespace GeoMod.Commands
             _calculatedWidthInterval = _maxCalculatedWidth - _minimalbufferWidth;
         }
 
+
+        // TODO: отладить метод GetBufferParameters
         public BufferParameters GetBufferParameters(double bufferWidth)
         {
             int qSegments;
@@ -50,7 +52,7 @@ namespace GeoMod.Commands
             BufferParameters bufferParameters = new()
             {
                 EndCapStyle = EndCapStyle.Round,
-                JoinStyle = NtsBufferOps.JoinStyle.Round,
+                JoinStyle = JoinStyle.Round,
                 QuadrantSegments = qSegments,
                 SimplifyFactor = 0.02d,
                 IsSingleSided = false

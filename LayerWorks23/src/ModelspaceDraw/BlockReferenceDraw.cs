@@ -6,6 +6,7 @@ using LayersIO.DataTransfer;
 using LayerWorks.LayerProcessing;
 using LoaderCore.NanocadUtilities;
 using Microsoft.Extensions.Logging;
+using System.IO;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
@@ -41,10 +42,10 @@ namespace LayerWorks.ModelspaceDraw
 
 
         // Списки файлов и блоков для единоразовой обработки
-        internal static HashSet<string> QueuedFiles { get; set; } = new HashSet<string>();
-        internal static Dictionary<string, HashSet<string>> QueuedBlocks { get; set; } = new Dictionary<string, HashSet<string>>();
+        internal static HashSet<string> QueuedFiles { get; set; } = new ();
+        internal static Dictionary<string, HashSet<string>> QueuedBlocks { get; set; } = new();
         // Проверка, выполнен ли иморт блоков
-        private static Dictionary<Document, DBObjectWrapper<BlockTable>> _blockTables = new Dictionary<Document, DBObjectWrapper<BlockTable>>();
+        private static readonly Dictionary<Document, DBObjectWrapper<BlockTable>> _blockTables = new();
         private static BlockTable BoundBlockTable
         {
             get
@@ -76,9 +77,12 @@ namespace LayerWorks.ModelspaceDraw
             // Перед отрисовкой первого объекта импортируем все блоки в очереди
             if (!_blocksImported)
             {
-                var importTask = ImportRecordsAsync();
-                importTask.Wait();
+                ImportRecords(); // Асинхронный вызов пока убран. Как-то ломает основную транзакцию
+                //var importTask = ImportRecordsAsync();
                 _blocksImported = true;
+                //if (importTask.IsFaulted)
+                    //throw importTask.Exception ?? new Exception("o_O");
+                //importTask.Wait();
             }
             // Отрисовываем объект
             ObjectId btrId = BoundBlockTable[BlockName];
@@ -171,6 +175,7 @@ namespace LayerWorks.ModelspaceDraw
                         {
                             Workstation.Logger?.LogWarning(ex, "Ошибка импорта блоков из файла \"{File}\": {Message}\n", file, ex.Message);
                             transaction.Abort();
+                            //throw;
                         }
                         finally
                         {
@@ -192,14 +197,16 @@ namespace LayerWorks.ModelspaceDraw
                 Task importTask = Task.Run(() => ImportRecords());
                 Task timeoutTask = Task.Delay(BlockImportTimeout, cancellationTokenSource.Token);
 
-                if (await Task.WhenAny(importTask, timeoutTask) == importTask)
+                if (Task.WhenAny(importTask, timeoutTask) == importTask)
                 {
                     cancellationTokenSource.Cancel();
                     await importTask;
                 }
                 else
                 {
-                    Workstation.Logger?.LogWarning("Ошибка импорта блоков - время ожидания истекло");
+                    var ex = new IOException("Ошибка импорта блоков - время ожидания истекло");
+                    Workstation.Logger?.LogWarning(ex, "\n{Message}", ex.Message);
+                    await Task.FromException(ex);
                 }
             }
         }

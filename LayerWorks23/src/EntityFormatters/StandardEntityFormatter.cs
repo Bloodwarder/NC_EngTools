@@ -74,17 +74,24 @@ namespace LayerWorks.EntityFormatters
             bool success = _drawRepository.TryGet(hatch.Layer, out var drawTemplate);
             if (!success)
                 return;
-            if (drawTemplate!.InnerHatchPattern != null && drawTemplate.InnerHatchPattern != "SOLID")
+            if (string.IsNullOrEmpty(drawTemplate!.InnerHatchPattern))
+                return;
+            if (drawTemplate.InnerHatchPattern != null && drawTemplate.InnerHatchPattern != "SOLID")
             {
                 hatch.PatternAngle = drawTemplate.InnerHatchAngle * Math.PI / 180;
                 hatch.PatternScale = drawTemplate.InnerHatchScale;
                 if (drawTemplate.InnerHatchBrightness != 0)
-                    hatch.BackgroundColor = hatch.Color.BrightnessShift(drawTemplate.InnerHatchBrightness);
+                {
+                    var color = hatch.LayerId.GetObject<LayerTableRecord>(OpenMode.ForRead).Color;
+                    hatch.BackgroundColor = color.BrightnessShift(drawTemplate.InnerHatchBrightness);
+                }
             }
             else
             {
-                hatch.Color = hatch.Color.BrightnessShift(drawTemplate.InnerHatchBrightness);
+                var color = hatch.LayerId.GetObject<LayerTableRecord>(OpenMode.ForRead).Color;
+                hatch.Color = color.BrightnessShift(drawTemplate.InnerHatchBrightness);
             }
+
             //ДИКИЙ БЛОК, ПЫТАЮЩИЙСЯ ОБРАБОТАТЬ ОШИБКИ ДЛЯ НЕПОНЯТНЫХ ШТРИХОВОК
             try
             {
