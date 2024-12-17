@@ -21,6 +21,7 @@ using GeoMod.Processing;
 
 namespace GeoMod.Commands
 {
+    // Перенесена в LayerWorks для удобства фильтрации. Пересмотреть на ценный код и удалить
     internal class GeomodAutoBufferizationCommand
     {
         private readonly NtsGeometryServices _geometryServices;
