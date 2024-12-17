@@ -94,7 +94,7 @@ namespace LayerWorks.Commands
             NcetCommand.ExecuteCommand(LayerEntitiesReportWriter.WriteReport);
         }
 
-        [CommandMethod("ЗОНААВТО", CommandFlags.UsePickSet)]
+        [CommandMethod("АВТОЗОНЫ", CommandFlags.UsePickSet)]
         public static void AutoZoneCommand()
         {
             NcetCommand.ExecuteCommand(AutoZoner.AutoZone);

@@ -4,6 +4,7 @@
 //Modules
 using LayersIO.DataTransfer;
 using LayerWorks.LayerProcessing;
+using LoaderCore.NanocadUtilities;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
@@ -40,17 +41,18 @@ namespace LayerWorks.ModelspaceDraw
             {
                 Layer = LayerWrapper.BoundLayer.Name
             };
-            foreach (Polyline pl in borders)
-            {
-                Point2dCollection vertexCollection = new(pl.NumberOfVertices);
-                DoubleCollection bulgesCollection = new(pl.NumberOfVertices);
-                for (int i = 0; i < pl.NumberOfVertices; i++)
-                {
-                    vertexCollection.Add(pl.GetPoint2dAt(i));
-                    bulgesCollection.Add(pl.GetBulgeAt(i));
-                }
-                hatch.AppendLoop(HatchLoopTypes.Polyline, vertexCollection, bulgesCollection);
-            }
+            hatch.AssignLoopByVerticesAndBulges(borders);
+            //foreach (Polyline pl in borders)
+            //{
+            //    Point2dCollection vertexCollection = new(pl.NumberOfVertices);
+            //    DoubleCollection bulgesCollection = new(pl.NumberOfVertices);
+            //    for (int i = 0; i < pl.NumberOfVertices; i++)
+            //    {
+            //        vertexCollection.Add(pl.GetPoint2dAt(i));
+            //        bulgesCollection.Add(pl.GetBulgeAt(i));
+            //    }
+            //    hatch.AppendLoop(HatchLoopTypes.Polyline, vertexCollection, bulgesCollection);
+            //}
             hatch.HatchStyle = HatchStyle.Normal;
             if (patternname != "SOLID")
             {

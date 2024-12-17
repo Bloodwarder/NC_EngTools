@@ -76,10 +76,9 @@ namespace LoaderCore
         /// Инициализация сборок NCEngTools приложением, не зависящем от nanoCAD
         /// </summary>
         /// <param name="registerCallersServices">Делегат регистрации сервисов запускающего приложения</param>
-        public static void InitializeAsLibrary(Action<IServiceProvider>? registerCallersServices = null)
+        public static void InitializeAsLibrary(Action<IServiceCollection>? registerCallersServices = null)
         {
-
-            registerCallersServices?.Invoke(ServiceProvider);
+            registerCallersServices?.Invoke(Services);
 
             XDocument configurationXml = XDocument.Load(Path.Combine(RootLocalDirectory, ConfigurationXmlFileName));
 
