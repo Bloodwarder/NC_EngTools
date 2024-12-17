@@ -18,8 +18,8 @@ namespace LayerWorks.Commands
     public class LayerEntitiesReportWriter
     {
         private static readonly Color _byLayerColor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
-        private readonly IReportWriterFactory<LayerEntityReport> _reportWriterFactory;
-        internal LayerEntitiesReportWriter(IReportWriterFactory<LayerEntityReport> factory)
+        private readonly IReportWriterFactory<LayerEntityReport>? _reportWriterFactory;
+        public LayerEntitiesReportWriter(IReportWriterFactory<LayerEntityReport>? factory)
         {
             _reportWriterFactory = factory;
         }
@@ -96,13 +96,12 @@ namespace LayerWorks.Commands
                 string dwgPath = Workstation.Database.Filename;
                 var dir = new FileInfo(dwgPath).Directory;
                 var reportPath = Path.Combine(dir!.FullName, $"LayerReport_{DateTime.Now.ToLongTimeString().Replace(":", "-")}.xlsx");
-                var factory = NcetCore.ServiceProvider.GetService<IReportWriterFactory<LayerEntityReport>>();
-                if (factory == null)
+                if (_reportWriterFactory == null)
                 {
                     Workstation.Logger?.LogError("Ошибка. Не зарегистрирована служба подготовки отчётов");
                     return;
                 }
-                var writer = factory.CreateWriter(reportPath, "Report");
+                var writer = _reportWriterFactory.CreateWriter(reportPath, "Report");
                 writer.PrepareReport(reports.ToArray());
                 writer.ShowReport();
             }
@@ -111,7 +110,7 @@ namespace LayerWorks.Commands
 
     }
 
-    internal class LayerEntityReport
+    public class LayerEntityReport
     {
 # nullable disable warnings
         public LayerEntityReport() { }

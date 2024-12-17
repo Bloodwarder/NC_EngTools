@@ -1,6 +1,7 @@
 ﻿using HostMgd.ApplicationServices;
 using LoaderCore.Integrity;
 using LoaderCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace LoaderCore
@@ -34,6 +35,16 @@ namespace LoaderCore
             coreHandler.Update();
             coreHandler.Load();
             NcetCore.InitializeAsLibrary();
+        }
+
+        public static void InitializeAsLibrary(Action<IServiceCollection>? registerCallersServices)
+        {
+            // НЕ ВСТАВЛЯТЬ СЮДА КОД С ЗАВИСИМОСТЯМИ
+            var coreHandler = new ModuleHandler("LoaderCore");
+
+            coreHandler.Update();
+            coreHandler.Load();
+            NcetCore.InitializeAsLibrary(registerCallersServices);
         }
     }
 }

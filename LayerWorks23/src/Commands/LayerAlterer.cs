@@ -20,6 +20,7 @@ using static LoaderCore.NanocadUtilities.EditorHelper;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using NPOI.XWPF.UserModel;
 
 namespace LayerWorks.Commands
 {
@@ -410,27 +411,28 @@ namespace LayerWorks.Commands
                                                               .GroupBy(w => w.BoundEntities.First().Layer);
                     var modelSpace = Workstation.ModelSpace;
                     var drawOrderTable = modelSpace.DrawOrderTableId.GetObject<DrawOrderTable>(OpenMode.ForWrite, transaction);
-                    //var drawOrderTable = (DrawOrderTable)transaction.GetObject(modelSpace.DrawOrderTableId, OpenMode.ForWrite);
                     foreach (var group in wrappers)
                     {
                         group.ToList().ForEach(w => w.Push());
-                        var polylines = group.SelectMany(w => w.BoundEntities).Select(e => e.ObjectId).ToArray();
-                        var plIdCollection = new ObjectIdCollection(polylines);
+                        var polylines = group.SelectMany(w => w.BoundEntities).Select(e => (Polyline)e);
+                        var polylineIds = polylines.Select(pl => pl.ObjectId).ToArray();
+                        var plIdCollection = new ObjectIdCollection(polylineIds);
                         Hatch hatch = new()
                         {
                             Layer = group.Key,
                             HatchStyle = HatchStyle.Normal
                         };
-                        hatch.AppendLoop(HatchLoopTypes.Polyline, plIdCollection);
                         _formatter.FormatEntity(hatch, group.First().LayerInfo.TrueName);
-                        // Если параметры не нашлись - не добавлять штриховку в чертёж
+
+                        hatch.AssingnLoop(polylines);
+
                         if (hatch.PatternName != "")
                         {
                             Workstation.ModelSpace.AppendEntity(hatch);
                             transaction.AddNewlyCreatedDBObject(hatch, true);
                             var drawOrder = drawOrderTable.GetFullDrawOrder(0);
-                            int minIndex = polylines.Min(p => drawOrder.IndexOf(p));
-                            var pl = polylines.First(p => drawOrder.IndexOf(p) == minIndex);
+                            int minIndex = polylineIds.Min(p => drawOrder.IndexOf(p));
+                            var pl = polylineIds.First(p => drawOrder.IndexOf(p) == minIndex);
                             drawOrderTable.MoveBelow(new ObjectIdCollection(new ObjectId[] { hatch.ObjectId }), pl);
                         }
                         else
@@ -450,6 +452,7 @@ namespace LayerWorks.Commands
                 }
             }
         }
+
 
         /// <summary>
         /// Изменение обрабатываемого префикса слоёв

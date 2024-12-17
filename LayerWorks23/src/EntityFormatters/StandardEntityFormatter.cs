@@ -93,6 +93,7 @@ namespace LayerWorks.EntityFormatters
             }
 
             //ДИКИЙ БЛОК, ПЫТАЮЩИЙСЯ ОБРАБОТАТЬ ОШИБКИ ДЛЯ НЕПОНЯТНЫХ ШТРИХОВОК
+            // BUG: Не назначает штриховку SOLID при более чем одном объекте в Loop
             try
             {
                 hatch.SetHatchPattern(HatchPatternType.PreDefined, drawTemplate.InnerHatchPattern);
