@@ -1,4 +1,6 @@
 ﻿using LoaderCore;
+using LoaderCore.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using System.Reflection;
 using System.Windows;
@@ -14,15 +16,20 @@ namespace LayersDatabaseEditor
         {
             DirectoryInfo? dir = Directory.GetParent(Assembly.GetExecutingAssembly().Location)!;
             string path = Path.Combine(dir!.Parent!.FullName,"LoaderCore","LoaderCore.dll");
+            string diLibPath = Path.Combine(dir!.Parent!.FullName, "LoaderCore", "Microsoft.Extensions.DependencyInjection.Abstractions.dll");
             Assembly.LoadFrom(path);
+            Assembly.LoadFrom(diLibPath);
             InitializeLoaderCore();
         }
-
         private static void InitializeLoaderCore()
         {
-            LoaderExtension.InitializeAsLibrary();
+            LoaderExtension.InitializeAsLibrary(RegisterServices);
+        }
+
+        
+        private static void RegisterServices(IServiceCollection services)
+        {
+
         }
     }
-
-
 }
