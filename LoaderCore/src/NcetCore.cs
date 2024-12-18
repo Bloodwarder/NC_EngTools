@@ -68,7 +68,8 @@ namespace LoaderCore
 
             InitializeModules(configurationXml);
             IndexAssemblies();
-            RegisterDependencies();
+            RegisterNcDependencies();
+            RegisterCommonDependencies();
             PostInitializeModules();
         }
 
@@ -86,7 +87,7 @@ namespace LoaderCore
             UpdateInfoFiles();
             InitializeModules(configurationXml);
             IndexAssemblies();
-            RegisterDependencies();
+            RegisterCommonDependencies();
             PostInitializeModules();
         }
 
@@ -248,16 +249,20 @@ namespace LoaderCore
             AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
         }
 
-        private static void RegisterDependencies()
+        private static void RegisterNcDependencies()
+        {
+            Services.AddSingleton<ILogger, NcetEditorConsoleLogger>()
+                    .AddTransient<ILogger<NcetCommand>, NcetFileCommandLogger>();
+        }
+
+        private static void RegisterCommonDependencies()
         {
             var configPath = Path.Combine(RootLocalDirectory, ConfigurationXmlFileName);
             IConfiguration config = new ConfigurationBuilder().AddXmlFile(configPath, optional: false, reloadOnChange: true)
                                                               .Build();
 
             Services.AddSingleton(config)
-                    .AddSingleton<IFilePathProvider, PathProvider>()
-                    .AddSingleton<ILogger, NcetEditorConsoleLogger>()
-                    .AddTransient<ILogger<NcetCommand>, NcetFileCommandLogger>();
+                    .AddSingleton<IFilePathProvider, PathProvider>();
 
             ServiceProvider = Services.BuildServiceProvider();
             _serviceProviderBuilt = true;

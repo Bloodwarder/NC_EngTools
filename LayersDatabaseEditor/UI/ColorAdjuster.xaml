@@ -1,18 +1,19 @@
-﻿<UserControl x:Class="LayersDatabaseEditor.UI.ColorAdjuster"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:LayersDatabaseEditor.UI"
-             xmlns:u="clr-namespace:LayersDatabaseEditor.Utilities"
-             mc:Ignorable="d" 
-             d:DesignHeight="200" d:DesignWidth="400">
-    <UserControl.Resources>
+﻿<local:LabeledHorizontalInput x:Class="LayersDatabaseEditor.UI.ColorAdjuster"
+                              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                              xmlns:local="clr-namespace:LayersDatabaseEditor.UI"
+                              xmlns:u="clr-namespace:LayersDatabaseEditor.Utilities"
+                              mc:Ignorable="d"
+                              x:Name ="colorAdjuster"
+                              d:DesignHeight="200" d:DesignWidth="400">
+    <local:LabeledHorizontalInput.Resources>
         <u:RGBConverter x:Key="rgbConverter"/>
-    </UserControl.Resources>
+    </local:LabeledHorizontalInput.Resources>
     <Grid>
         <DockPanel Margin="5">
-            <TextBlock DockPanel.Dock="Left" Text="Row 3 text" Margin="5" VerticalAlignment="Center"/>
+            <TextBlock DockPanel.Dock="Left" Text="{Binding ElementName=colorAdjuster, Path=LabelText, Mode=TwoWay}" Margin="5" VerticalAlignment="Center"/>
             <Grid DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="3">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="150"/>
@@ -24,20 +25,35 @@
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <Slider Name="sliderRed" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Minimum="0" Maximum="255" HorizontalAlignment="Stretch" SmallChange="1" Value="{Binding ElementName=tbRed, Path=Text, Mode=TwoWay}"/>
-                <Slider Name="sliderGreen" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Minimum="0" Maximum="255" HorizontalAlignment="Stretch" SmallChange="1" Value="{Binding ElementName=tbGreen, Path=Text, Mode=TwoWay}"/>
-                <Slider Name="sliderBlue" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Minimum="0" Maximum="255" HorizontalAlignment="Stretch" SmallChange="1" Value="{Binding ElementName=tbBlue, Path=Text, Mode=TwoWay}"/>
-                <TextBox x:Name="tbRed" Grid.Column="1" Grid.Row="0" MaxHeight="25" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">30</TextBox>
-                <TextBox x:Name="tbGreen" Grid.Column="1" Grid.Row="1" MaxHeight="25" HorizontalContentAlignment="Center">127</TextBox>
-                <TextBox x:Name="tbBlue" Grid.Column="1" Grid.Row="2" MaxHeight="25" HorizontalContentAlignment="Center">0</TextBox>
+                <Slider Name="sliderRed" Grid.Column="0" Grid.Row="0" 
+                        VerticalAlignment="Center" HorizontalAlignment="Stretch" 
+                        Minimum="0" Maximum="255" SmallChange="1"
+                        TickFrequency="1" IsSnapToTickEnabled="True"
+                        Value="{Binding ElementName=tbRed, Path=Text, Mode=TwoWay}" MouseWheel="Sliders_MouseWheel"/>
+                <Slider Name="sliderGreen" Grid.Column="0" Grid.Row="1" 
+                        VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                        Minimum="0" Maximum="255" SmallChange="1"
+                        TickFrequency="1" IsSnapToTickEnabled="True"
+                        Value="{Binding ElementName=tbGreen, Path=Text, Mode=TwoWay}" MouseWheel="Sliders_MouseWheel"/>
+                <Slider Name="sliderBlue" Grid.Column="0" Grid.Row="2" 
+                        VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                        Minimum="0" Maximum="255" SmallChange="1"
+                        TickFrequency="1" IsSnapToTickEnabled="True"
+                        Value="{Binding ElementName=tbBlue, Path=Text, Mode=TwoWay}" MouseWheel="Sliders_MouseWheel"/>
+                <TextBox x:Name="tbRed" Grid.Column="1" Grid.Row="0" 
+                         MaxHeight="25" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"></TextBox>
+                <TextBox x:Name="tbGreen" Grid.Column="1" Grid.Row="1" 
+                         MaxHeight="25" HorizontalContentAlignment="Center"></TextBox>
+                <TextBox x:Name="tbBlue" Grid.Column="1" Grid.Row="2" 
+                         MaxHeight="25" HorizontalContentAlignment="Center"></TextBox>
                 <Rectangle Name="baseColorRectangle" Grid.RowSpan="3" Grid.Column="2" Height="20" Width="25" StrokeThickness="2" Stroke="#000000">
                     <Rectangle.Fill>
                         <SolidColorBrush>
                             <SolidColorBrush.Color>
                                 <MultiBinding Converter="{StaticResource rgbConverter}">
-                                    <Binding ElementName="tbRed" Path="Text"/>
-                                    <Binding ElementName="tbGreen" Path="Text"/>
-                                    <Binding ElementName="tbBlue" Path="Text"/>
+                                    <Binding ElementName="tbRed" Path="Text" Mode="TwoWay"/>
+                                    <Binding ElementName="tbGreen" Path="Text" Mode="TwoWay"/>
+                                    <Binding ElementName="tbBlue" Path="Text" Mode="TwoWay"/>
                                 </MultiBinding>
                             </SolidColorBrush.Color>
                         </SolidColorBrush>
@@ -46,4 +62,4 @@
             </Grid>
         </DockPanel>
     </Grid>
-</UserControl>
+</local:LabeledHorizontalInput>

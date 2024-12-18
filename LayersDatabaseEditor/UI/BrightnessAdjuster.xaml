@@ -1,18 +1,19 @@
-﻿<UserControl x:Class="LayersDatabaseEditor.UI.BrightnessAdjuster"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:LayersDatabaseEditor.UI"
-             xmlns:u="clr-namespace:LayersDatabaseEditor.Utilities"
-             mc:Ignorable="d" 
-             d:DesignHeight="200" d:DesignWidth="400" Name="brightnessAdjuster">
-    <UserControl.Resources>
+﻿<local:LabeledHorizontalInput x:Class="LayersDatabaseEditor.UI.BrightnessAdjuster"
+                              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                              xmlns:local="clr-namespace:LayersDatabaseEditor.UI"
+                              xmlns:u="clr-namespace:LayersDatabaseEditor.Utilities"
+                              mc:Ignorable="d" 
+                              d:DesignHeight="200" d:DesignWidth="400" x:Name="brightnessAdjuster">
+    <local:LabeledHorizontalInput.Resources>
         <u:BrigthnessColorConverter x:Key="brightnessConverter"/>
-    </UserControl.Resources>
+    </local:LabeledHorizontalInput.Resources>
     <Grid>
         <DockPanel Margin="5" LastChildFill="True">
-            <TextBlock Name="labelText" DockPanel.Dock="Left" Text="Brightness Shift" Margin="5" VerticalAlignment="Center"/>
+            <TextBlock Name="labelText" DockPanel.Dock="Left" Margin="5" VerticalAlignment="Center" MinWidth="50" MaxWidth="200"
+                       Text="{Binding ElementName=brightnessAdjuster, Path=LabelText, Mode=TwoWay}"/>
             <Grid DockPanel.Dock="Right" HorizontalAlignment="Right" MaxWidth="100">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="50"/>
@@ -30,8 +31,13 @@
                     </Rectangle.Fill>
                 </Rectangle>
             </Grid>
-            <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" MinWidth="30" Text="{Binding ElementName=sliderBr, Path=Value, StringFormat=0.00}"/>
-            <Slider Name="sliderBr" Minimum="-1" Maximum="1" Value="0" MinWidth="150" VerticalAlignment="Center" HorizontalAlignment="Stretch" SmallChange="0.01" TickPlacement="Both"/>
+            <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" MinWidth="30" 
+                       Text="{Binding ElementName=sliderBr, Path=Value, StringFormat=0.00, Mode=OneWay}"/>
+            <Slider Name="sliderBr" Minimum="-1" Maximum="1" MinWidth="150" 
+                    VerticalAlignment="Center" HorizontalAlignment="Stretch" 
+                    SmallChange="0.01" TickPlacement="Both"
+                    TickFrequency="0.01" IsSnapToTickEnabled="True"
+                    Value="{Binding ElementName=brightnessAdjuster, Path=BrightnessShift, Mode=TwoWay}" MouseWheel="sliderBr_MouseWheel"/>
         </DockPanel>
     </Grid>
-</UserControl>
+</local:LabeledHorizontalInput>

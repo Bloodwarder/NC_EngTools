@@ -1,15 +1,18 @@
 ﻿using LayersIO.Excel;
 using LoaderCore;
 using LoaderCore.Utilities;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using LayersIO.Connection;
 using LoaderCore.Interfaces;
+using LayersDatabaseEditor.ViewModel;
+using System.Collections.Specialized;
+using Microsoft.Win32;
+using System.IO;
+using System.Reflection;
 
 namespace LayersDatabaseEditor
 {
@@ -26,7 +29,12 @@ namespace LayersDatabaseEditor
 
             InitializeComponent();
             PreInitializeSimpleLogger.Log += LogWrite;
+            EditorViewModel = NcetCore.ServiceProvider.GetRequiredService<EditorViewModel>();
+            EditorViewModel.LayerGroupNames.CollectionChanged += (s, e) => UpdateTreeView(s, e);
+
         }
+
+        internal EditorViewModel EditorViewModel { get; private set; }
 
         private async void miTestRun_Click(object sender, RoutedEventArgs e)
         {
@@ -74,6 +82,7 @@ namespace LayersDatabaseEditor
 
         private async void miExportLayersFromExcel_Click(object sender, RoutedEventArgs e)
         {
+            throw new InvalidOperationException("Метод не переработан. Может нарушить целостность данных");
             LogWrite("Запущен импорт слоёв из Excel");
             var reader = new ExcelLayerReader();
             Task<string> task = reader.ReadWorkbookAsync(_pathProvider.GetPath("Layer_Props.xlsm"));
@@ -81,41 +90,10 @@ namespace LayersDatabaseEditor
             //ExcelLayerReader.ReadWorkbook(PathProvider.GetPath("Layer_Props.xlsm"));
         }
 
-        public class LogBuffer : INotifyPropertyChanged
-        {
-            private string? messageContent;
-            public event PropertyChangedEventHandler? PropertyChanged;
-            private static LogBuffer _instance = null!;
-            public static LogBuffer Instance => _instance ??= new LogBuffer();
-
-            private LogBuffer() { }
-            public string? MessageContent
-            {
-                get => messageContent;
-                set
-                {
-                    messageContent = value;
-                    PropertyChanged?.Invoke(_instance, new(nameof(MessageContent)));
-                }
-            }
-
-            public async Task Message(Run run, Task<string> task)
-            {
-                Binding binding = new()
-                {
-                    Source = this,
-                    Path = new(nameof(MessageContent)),
-                    Mode = BindingMode.OneTime
-                };
-                run.SetBinding(Run.TextProperty, binding);
-                await task;
-                run.Text = task.Result;
-            }
-        }
 
         private void miTestRun2_Click(object sender, RoutedEventArgs e)
         {
-            using (LayersDatabaseContextSqlite db = new(_pathProvider.GetPath("LayerData_ИС.db"), null))
+            using (LayersDatabaseContextSqlite db = new(_pathProvider.GetPath("LayerData.db"), null))
             {
                 var layers = db.Layers.Skip(25).Take(5).ToArray();
                 foreach (var layer in layers)
@@ -124,5 +102,130 @@ namespace LayersDatabaseEditor
                 }
             }
         }
+
+        private void miExit_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void UpdateTreeView(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (string str in e.NewItems!.Cast<string>())
+                    {
+                        string[] decomp = str.Split("_");
+                        TreeView treeView = twLayerGroups;
+                        var items = treeView.Items;
+                        for (int i = 0; i < decomp.Length; i++)
+                        {
+                            var item = items.Cast<object>()
+                                            .Where(i => i is TreeViewItem)
+                                            .Select(item => (TreeViewItem)item)
+                                            .Where(twi => twi.Header.ToString() == decomp[i])
+                                            .FirstOrDefault();
+                            if (item == null)
+                            {
+                                item = new TreeViewItem()
+                                {
+                                    Header = decomp[i],
+                                    Tag = string.Join("_", decomp.Take(i + 1).ToArray())
+                                };
+                                items.Add(item);
+                            }
+                            items = item.Items;
+                        }
+                        LogWrite($"Добавлен элемент {str}");
+                    }
+                    break;
+
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (string str in e.OldItems!)
+                    {
+                        string[] decomp = str.Split("_");
+                        TreeView treeView = twLayerGroups;
+                        var items = treeView.Items;
+                        TreeViewItem item = items.Cast<TreeViewItem>().Where(item => (string)item.Header == decomp[0]).Single();
+                        for (int i = 1; i < decomp.Length; i++)
+                        {
+                            var childItem = items.Cast<TreeViewItem>().Where(item => item.Header == decomp[i]).FirstOrDefault();
+                            if (childItem != null)
+                            {
+                                item = childItem;
+                                items = childItem.Items;
+                            }
+                            else
+                            {
+                                items.Remove(item);
+                            }
+                        }
+                    }
+                    break;
+
+                case NotifyCollectionChangedAction.Reset:
+                    twLayerGroups.Items.Clear();
+                    break;
+
+                case NotifyCollectionChangedAction.Replace:
+                    throw new InvalidOperationException("Как оно сюда попало?");
+
+                case NotifyCollectionChangedAction.Move:
+                    throw new NotImplementedException("Возможно попадёт при переименовании группы. Как попадёт, так и допишу");
+
+                default:
+                    break;
+            }
+        }
+
+        private void miSqliteConnect_Click(object sender, RoutedEventArgs e)
+        {
+            DirectoryInfo di = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.Parent!.Parent!.GetDirectories("UserData").First();
+            OpenFileDialog ofd = new OpenFileDialog()
+            {
+                DefaultExt = ".db",
+                Filter = "SQLite database files|*.db;*.sqlite",
+                CheckFileExists = true,
+                Multiselect = false,
+                InitialDirectory = di.FullName
+            };
+            var result = ofd.ShowDialog(this);
+            if (result == true)
+            {
+                string fileName = ofd.FileName;
+                EditorViewModel.ConnectCommand.Execute(fileName);
+            }
+        }
+
+        private void twLayerGroups_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            var item = (TreeViewItem)e.NewValue;
+            if (EditorViewModel.ChangeSelectedGroupCommand.CanExecute(item))
+                EditorViewModel.ChangeSelectedGroupCommand.Execute(item?.Tag);
+            if (EditorViewModel.SelectedGroup != null)
+            {
+                this.DataContext = EditorViewModel.SelectedGroup;
+            }
+            else
+            {
+                this.DataContext = null;
+            }
+        }
+
+        private void lvLayers_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var listView = (ListView)sender;
+            if (EditorViewModel.ChangeSelectedLayerCommand.CanExecute(listView.SelectedItem))
+                EditorViewModel.ChangeSelectedLayerCommand.Execute(listView.SelectedItem);
+            if (EditorViewModel.SelectedLayer != null)
+            {
+                tcProperties.DataContext = EditorViewModel.SelectedLayer;
+            }
+            else
+            {
+                tcProperties.DataContext = null;
+            }
+        }
     }
+
 }

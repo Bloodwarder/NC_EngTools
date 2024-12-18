@@ -1,6 +1,9 @@
-﻿using LoaderCore;
+﻿using LayersDatabaseEditor.Utilities;
+using LayersDatabaseEditor.ViewModel;
+using LoaderCore;
 using LoaderCore.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Reflection;
 using System.Windows;
@@ -29,7 +32,8 @@ namespace LayersDatabaseEditor
         
         private static void RegisterServices(IServiceCollection services)
         {
-
+            services.AddSingleton<ILogger, EditorWindowLogger>()
+                    .AddTransient<EditorViewModel>();
         }
     }
 }

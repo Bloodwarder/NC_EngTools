@@ -4,11 +4,11 @@ using Nelibur.ObjectMapper;
 
 namespace LayersIO.DataTransfer
 {
-    internal static class TinyMapperConfigurer
+    public static class TinyMapperConfigurer
     {
         private static bool IsConfigured { get; set; }
         private static readonly Dictionary<Type, Type> _mappedTypes = new();
-        internal static void Configure()
+        public static void Configure()
         {
             if (IsConfigured)
                 return;

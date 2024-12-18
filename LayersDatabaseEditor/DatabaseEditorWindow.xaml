@@ -3,8 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="clr-namespace:LayersDatabaseEditor.UI"
         mc:Ignorable="d"
-        Title="Редактор слоёв" Height="500" Width="800">
+        Title="Редактор слоёв" Height="500" Width="1000">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
@@ -15,17 +16,17 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="1.2*"/>
         </Grid.ColumnDefinitions>
         <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
             <MenuItem Header="Программа">
                 <MenuItem Name="miTestRun" Header="Запуск тестовой команды" Click="miTestRun_Click"/>
                 <MenuItem Name="miTestRun2" Header="Запуск тестовой команды 2" Click="miTestRun2_Click"/>
                 <Separator/>
-                <MenuItem Header="Выход"/>
+                <MenuItem Name="miExit" Header="Выход" Click="miExit_Click"/>
             </MenuItem>
             <MenuItem Header="База данных">
-                <MenuItem Header="Подключиться к SQLite"/>
+                <MenuItem Name="miSqliteConnect" Header="Подключиться к SQLite" Click="miSqliteConnect_Click"/>
                 <MenuItem Header="Подключиться к PostgreSQL"/>
             </MenuItem>
             <MenuItem Header="Слои">
@@ -35,28 +36,109 @@
             </MenuItem>
         </Menu>
         <ScrollViewer Grid.Row="1" Grid.Column="0" Grid.RowSpan="3">
-            <TreeView Margin="3">
+            <TreeView Name="twLayerGroups" Margin="3" SelectedItemChanged="twLayerGroups_SelectedItemChanged">
                 <TextBlock Text="Слои"/>
+                <TreeViewItem Header="Тестовый объект 1 уровень"/>
+                <TreeViewItem Header="Тестовый объект 1 уровень"/>
+                <TreeViewItem Header="Тестовый объект 1 уровень">
+                    <TreeViewItem Header="Тестовый объект 2 уровень"/>
+                    <TreeViewItem Header="Тестовый объект 2 уровень"/>
+                    <TreeViewItem Header="Тестовый объект 2 уровень">
+                        <TreeViewItem Header="Тестовый объект 3 уровень"/>
+                        <TreeViewItem Header="Тестовый объект 3 уровень"/>
+                        <TreeViewItem Header="Тестовый объект 3 уровень"/>
+                    </TreeViewItem>
+                </TreeViewItem>
+                <TreeViewItem Header="Тестовый объект 1 уровень"/>
             </TreeView>
         </ScrollViewer>
 
+        <ScrollViewer Grid.Row="2" Grid.Column="1">
+                <ListView Name="lvLayers" ItemsSource="{Binding Path=Layers}" SelectionChanged="lvLayers_SelectionChanged">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="MainName" DisplayMemberBinding="{Binding Name}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+        </ScrollViewer>
 
-        <DockPanel Grid.Row="2" Grid.Column="1" Margin="3">
-            <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Left" Text="Группа слоёв (заменить на привязку)"></TextBlock>
-            <ScrollViewer>
-
-            </ScrollViewer>
-        </DockPanel>
         <DockPanel Grid.Row="3" Grid.Column="1" Margin="3">
             <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Left" Text="Слой (заменить на привязку)"/>
-            <TabControl>
-                <TabItem Header="Свойства" Width="140">
-                    <StackPanel Margin="5 15 5 5">
-                        <Control Template="{StaticResource numericInputLine}" Tag="template"/>
+            <TabControl Name="tcProperties" SelectedIndex="0">
+                <TabItem Header="Общие" Width="100">
+                    <StackPanel>
+                        <ui:UserStringInput LabelText="Префикс" InputValue="{Binding Path=Prefix}"/>
+                        <ui:UserStringInput LabelText="Основное имя" InputValue="{Binding Path=MainName}"/>
+                        <ui:UserStringInput LabelText="Статус" InputValue="{Binding Path=StatusName}"/>
                     </StackPanel>
                 </TabItem>
-                <TabItem Header="Легенда" Width="140">
+                <TabItem Header="Свойства" Width="100"
+                         DataContext="{Binding Path=LayerProperties}">
+                    <ScrollViewer>
+                        <StackPanel Margin="5 15 5 5">
+                            <ui:UserNumericInput LabelText="Глобальная ширина" InputValue="{Binding Path=ConstantWidth}"/>
+                            <ui:UserNumericInput LabelText="Масштаб типа линий" InputValue="{Binding Path=LinetypeScale}"/>
+                            <ui:ColorAdjuster x:Name="caBaseColor" LabelText="Цвет" Color="{Binding Path=Color, Mode=TwoWay}"/>
+                            <ui:UserStringInput LabelText="Тип линий" InputValue="{Binding Path=LinetypeName}"/>
+                            <ui:UserNumericInput LabelText="Вес линий" InputValue="{Binding Path=LineWeight}"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="Легенда" Width="100">
+                    <StackPanel Margin="5 15 5 5">
+                        <ui:UserNumericInput LabelText="Положение в таблице"/>
+                        <ui:UserStringInput LabelText="Заголовок"/>
+                        <ui:UserStringInput LabelText="Заголовок для однотипных объектов"/>
+                        <ui:UserBoolInput LabelText="Игнорировать при автосборке"/>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Отрисовка" Width="100"
+                         DataContext="{Binding Path=LayerDrawTemplate}">
+                    <ScrollViewer>
+                        <StackPanel Margin="5 15 5 5">
+                            <ui:UserStringInput LabelText="Тип шаблона" InputValue="{Binding Path=DrawTemplate}"/>
+                            <StackPanel Name="spLines" Margin="0">
+                                <ui:UserStringInput LabelText="Буква на линии" InputValue="{Binding Path=MarkChar}"/>
+                            </StackPanel>
+                            <StackPanel Name="spRectangles" Margin="0">
+                                <ui:UserNumericInput LabelText="Длина" InputValue="{Binding Path=Width}"/>
+                                <ui:UserNumericInput LabelText="Ширина" InputValue="{Binding Path=Height}"/>
+                            </StackPanel>
+                            <StackPanel Name="spHatch" Margin="0">
+                                <ui:UserStringInput LabelText="Образец штриховки" InputValue="{Binding Path=InnerHatchPattern}"/>
+                                <ui:UserNumericInput LabelText="Масштаб штриховки" InputValue="{Binding Path=InnerHatchScale}"/>
+                                <ui:BrightnessAdjuster LabelText="Сдвиг яркости заливки" 
+                                                       BaseColor="{Binding ElementName=caBaseColor, Path=Color, Mode=TwoWay}"
+                                                       BrightnessShift="{Binding Path=InnerHatchBrightnessShift}"/>
+                                <ui:UserNumericInput LabelText="Угол" InputValue="{Binding Path=InnerHatchAngle}"/>
+                            </StackPanel>
+                            <StackPanel Name="spFence" Margin="0">
+                                <ui:UserNumericInput LabelText="Длина ограды" InputValue="{Binding Path=FenceWidth}"/>
+                                <ui:UserNumericInput LabelText="Ширина ограды" InputValue="{Binding Path=FenceHeight}"/>
+                            </StackPanel>
+                            <StackPanel Name="spFenceHatch" Margin="0">
+                                <ui:UserStringInput LabelText="Образец внешней штриховки" InputValue="{Binding Path=OuterHatchPattern}"/>
+                                <ui:UserNumericInput LabelText="Масштаб внешней штриховки" InputValue="{Binding Path=OuterHatchScale}"/>
+                                <ui:BrightnessAdjuster LabelText="Сдвиг яркости заливки вн.штр." BaseColor="Gray"/>
+                                <ui:UserNumericInput LabelText="Угол внешней штриховки" InputValue="{Binding Path=OuterHatchAngle}"/>
+                            </StackPanel>
+                            <StackPanel Name="spCircles" Margin="0">
+                                <ui:UserNumericInput LabelText="Радиус" InputValue="{Binding Path=Radius}"/>
+                            </StackPanel>
+                            <StackPanel Name="spBlockReference" Margin="0">
+                                <ui:UserStringInput LabelText="Имя блока" InputValue="{Binding Path=BlockName}"/>
+                                <ui:UserNumericInput LabelText="Смещение по оси X" InputValue="{Binding Path=BlockXOffset}"/>
+                                <ui:UserNumericInput LabelText="Смещение по оси Y" InputValue="{Binding Path=BlockYOffset}"/>
+                                <ui:UserStringInput LabelText="Полный путь к файлу" InputValue="{Binding Path=BlockPath}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="Зоны" Width="100">
+                    <StackPanel Margin="5 15 5 5">
 
+                    </StackPanel>
                 </TabItem>
             </TabControl>
         </DockPanel>
