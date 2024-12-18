@@ -8,7 +8,9 @@ namespace LayersIO.Model
     {
         public void Configure(EntityTypeBuilder<LayerGroupData> builder)
         {
-            builder.ToTable("LayerGroups");
+            builder.ToTable("LayerGroups")
+                   .Ignore(ld => ld.Name)
+                   .Ignore(ld => ld.Separator);
             builder.HasKey(lgd => lgd.Id).HasName("LayerGroupDataPrimaryKey");
             builder.HasAlternateKey(ld => ld.MainName).HasName("LayerGroupDataAlternateKey");
             builder.Property(lgd => lgd.Id).ValueGeneratedOnAdd();

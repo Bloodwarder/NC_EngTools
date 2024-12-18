@@ -28,6 +28,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Example.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Example.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0">
 			<IncludeAssets>compile</IncludeAssets>
 			<Private>False</Private>
@@ -48,6 +56,12 @@
 			<Private>False</Private>
 		</ProjectReference>
 
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="UI\UserBoolInput.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
 	</ItemGroup>
 
 </Project>
