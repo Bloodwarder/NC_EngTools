@@ -65,7 +65,7 @@
 
         <DockPanel Grid.Row="3" Grid.Column="1" Margin="3">
             <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Left" Text="Слой (заменить на привязку)"/>
-            <TabControl Name="tcProperties" SelectedIndex="0">
+            <TabControl Name="tcProperties" SelectedIndex="0" DataContextChanged="tcProperties_DataContextChanged">
                 <TabItem Header="Общие" Width="100">
                     <StackPanel>
                         <ui:UserStringInput LabelText="Префикс" InputValue="{Binding Path=Prefix}"/>
@@ -79,7 +79,7 @@
                         <StackPanel Margin="5 15 5 5">
                             <ui:UserNumericInput LabelText="Глобальная ширина" InputValue="{Binding Path=ConstantWidth}"/>
                             <ui:UserNumericInput LabelText="Масштаб типа линий" InputValue="{Binding Path=LinetypeScale}"/>
-                            <ui:ColorAdjuster x:Name="caBaseColor" LabelText="Цвет" Color="{Binding Path=Color, Mode=TwoWay}"/>
+                            <ui:ColorAdjuster x:Name="caBaseColor" LabelText="Цвет" Color="{Binding Path=Color}"/>
                             <ui:UserStringInput LabelText="Тип линий" InputValue="{Binding Path=LinetypeName}"/>
                             <ui:UserNumericInput LabelText="Вес линий" InputValue="{Binding Path=LineWeight}"/>
                         </StackPanel>
@@ -109,7 +109,7 @@
                                 <ui:UserStringInput LabelText="Образец штриховки" InputValue="{Binding Path=InnerHatchPattern}"/>
                                 <ui:UserNumericInput LabelText="Масштаб штриховки" InputValue="{Binding Path=InnerHatchScale}"/>
                                 <ui:BrightnessAdjuster LabelText="Сдвиг яркости заливки" 
-                                                       BaseColor="{Binding ElementName=caBaseColor, Path=Color, Mode=TwoWay}"
+                                                       BaseColor="{Binding ElementName=caBaseColor, Path=Color, Mode=OneWay}"
                                                        BrightnessShift="{Binding Path=InnerHatchBrightnessShift}"/>
                                 <ui:UserNumericInput LabelText="Угол" InputValue="{Binding Path=InnerHatchAngle}"/>
                             </StackPanel>

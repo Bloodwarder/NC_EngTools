@@ -13,6 +13,7 @@ using System.Collections.Specialized;
 using Microsoft.Win32;
 using System.IO;
 using System.Reflection;
+using System.Windows.Media;
 
 namespace LayersDatabaseEditor
 {
@@ -209,6 +210,7 @@ namespace LayersDatabaseEditor
             else
             {
                 this.DataContext = null;
+                tcProperties.DataContext = null;
             }
         }
 
@@ -225,6 +227,13 @@ namespace LayersDatabaseEditor
             {
                 tcProperties.DataContext = null;
             }
+        }
+
+        private void tcProperties_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            TabControl tc = (TabControl)sender;
+            var context = tc.DataContext as LayerDataViewModel;
+            caBaseColor.Color = context?.LayerProperties.Color ?? Color.FromRgb(127, 127, 127);
         }
     }
 

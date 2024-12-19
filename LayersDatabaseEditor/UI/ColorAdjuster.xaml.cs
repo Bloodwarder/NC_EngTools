@@ -38,7 +38,13 @@ namespace LayersDatabaseEditor.UI
         public Color Color
         {
             get => (Color)GetValue(ColorProperty);
-            set => SetValue(ColorProperty, value);
+            set
+            {
+                tbRed.SetValue(TextBox.TextProperty, value.R.ToString());
+                tbGreen.SetValue(TextBox.TextProperty, value.G.ToString());
+                tbBlue.SetValue(TextBox.TextProperty, value.B.ToString());
+                SetValue(ColorProperty, value);
+            }
         }
 
 
