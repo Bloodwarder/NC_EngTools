@@ -9,7 +9,7 @@ namespace LayersDatabaseEditor.Utilities
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            try 
+            try
             {
                 var r = System.Convert.ToByte(values[0]);
                 var g = System.Convert.ToByte(values[1]);
@@ -25,7 +25,15 @@ namespace LayersDatabaseEditor.Utilities
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var color = (Color)value;
+                return new object[] { color.R, color.G, color.B };
+            }
+            catch
+            {
+                return new object[] { 127, 127, 127 };
+            }
         }
     }
 }

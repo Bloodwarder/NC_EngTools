@@ -130,10 +130,12 @@ namespace LayersDatabaseEditor.ViewModel
             {
                 _selectedIndexes = query!.Select(lg => lg.Id).ToHashSet();
                 SelectedGroup = null;
+                SelectedLayer = null;
             }
             else
             {
                 SelectedGroup = null;
+                SelectedLayer = null;
             }
         }
 
