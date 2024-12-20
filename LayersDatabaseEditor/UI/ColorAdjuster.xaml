@@ -7,14 +7,14 @@
                               xmlns:u="clr-namespace:LayersDatabaseEditor.Utilities"
                               mc:Ignorable="d"
                               x:Name ="colorAdjuster"
-                              d:DesignHeight="200" d:DesignWidth="400">
+                              d:DesignHeight="200" d:DesignWidth="400" DataContextChanged="colorAdjuster_DataContextChanged">
     <local:LabeledHorizontalInput.Resources>
         <u:RGBConverter x:Key="rgbConverter"/>
     </local:LabeledHorizontalInput.Resources>
     <Grid>
         <DockPanel Margin="5">
             <TextBlock DockPanel.Dock="Left" Text="{Binding ElementName=colorAdjuster, Path=LabelText, Mode=TwoWay}" Margin="5" VerticalAlignment="Center"/>
-            <Grid DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="3">
+            <Grid DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="3" DataContext="{Binding ElementName=colorAdjuster}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="150"/>
                     <ColumnDefinition Width="50"/>
@@ -27,34 +27,41 @@
                 </Grid.RowDefinitions>
                 <Slider Name="sliderRed" Grid.Column="0" Grid.Row="0" 
                         VerticalAlignment="Center" HorizontalAlignment="Stretch" 
-                        Minimum="0" Maximum="255" SmallChange="1"
+                        Minimum="0" Maximum="255" SmallChange="1" LargeChange="50"
                         TickFrequency="1" IsSnapToTickEnabled="True"
                         Value="{Binding ElementName=tbRed, Path=Text, Mode=TwoWay}" MouseWheel="Sliders_MouseWheel"/>
                 <Slider Name="sliderGreen" Grid.Column="0" Grid.Row="1" 
                         VerticalAlignment="Center" HorizontalAlignment="Stretch"
-                        Minimum="0" Maximum="255" SmallChange="1"
+                        Minimum="0" Maximum="255" SmallChange="1" LargeChange="50"
                         TickFrequency="1" IsSnapToTickEnabled="True"
                         Value="{Binding ElementName=tbGreen, Path=Text, Mode=TwoWay}" MouseWheel="Sliders_MouseWheel"/>
                 <Slider Name="sliderBlue" Grid.Column="0" Grid.Row="2" 
                         VerticalAlignment="Center" HorizontalAlignment="Stretch"
-                        Minimum="0" Maximum="255" SmallChange="1"
+                        Minimum="0" Maximum="255" SmallChange="1" LargeChange="50"
                         TickFrequency="1" IsSnapToTickEnabled="True"
                         Value="{Binding ElementName=tbBlue, Path=Text, Mode=TwoWay}" MouseWheel="Sliders_MouseWheel"/>
                 <TextBox x:Name="tbRed" Grid.Column="1" Grid.Row="0" 
-                         MaxHeight="25" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"></TextBox>
+                         MaxHeight="25" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                         
+                         Text="{Binding Path=Red, Mode=TwoWay}" TextChanged="tbRed_TextChanged"/>
                 <TextBox x:Name="tbGreen" Grid.Column="1" Grid.Row="1" 
-                         MaxHeight="25" HorizontalContentAlignment="Center"></TextBox>
+                         MaxHeight="25" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                         
+                         Text="{Binding Path=Green, Mode=TwoWay}" TextChanged="tbGreen_TextChanged"/>
                 <TextBox x:Name="tbBlue" Grid.Column="1" Grid.Row="2" 
-                         MaxHeight="25" HorizontalContentAlignment="Center"></TextBox>
+                         MaxHeight="25" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                         
+                         Text="{Binding Path=Blue, Mode=TwoWay}" TextChanged="tbBlue_TextChanged"/>
                 <Rectangle Name="baseColorRectangle" Grid.RowSpan="3" Grid.Column="2" Height="20" Width="25" StrokeThickness="2" Stroke="#000000">
                     <Rectangle.Fill>
                         <SolidColorBrush>
                             <SolidColorBrush.Color>
-                                <MultiBinding Converter="{StaticResource rgbConverter}">
-                                    <Binding ElementName="tbRed" Path="Text" Mode="TwoWay"/>
-                                    <Binding ElementName="tbGreen" Path="Text" Mode="TwoWay"/>
-                                    <Binding ElementName="tbBlue" Path="Text" Mode="TwoWay"/>
-                                </MultiBinding>
+                                <Binding ElementName="colorAdjuster" Path="Color" Mode="OneWay"/>
+                                <!--<MultiBinding Converter="{StaticResource rgbConverter}" Mode="TwoWay">
+                                    <Binding ElementName="tbRed" Path="Text"/>
+                                    <Binding ElementName="tbGreen" Path="Text"/>
+                                    <Binding ElementName="tbBlue" Path="Text"/>
+                                </MultiBinding>-->
                             </SolidColorBrush.Color>
                         </SolidColorBrush>
                     </Rectangle.Fill>

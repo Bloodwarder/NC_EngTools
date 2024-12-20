@@ -219,6 +219,135 @@
 			</StatusGroup>
 			<StatusGroup>
 				<StatusReference Value="пр"/>
+				<ChapterReference Value="ВС"/>
+				<DefaultValue>
+					<Color>
+						<Red>0</Red>
+						<Green>0</Green>
+						<Blue>255</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="пр"/>
+				<ChapterReference Value="ВО"/>
+				<DefaultValue>
+					<Color>
+						<Red>255</Red>
+						<Green>0</Green>
+						<Blue>0</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="пр"/>
+				<ChapterReference Value="ДК"/>
+				<DefaultValue>
+					<Color>
+						<Red>127</Red>
+						<Green>0</Green>
+						<Blue>255</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="пр"/>
+				<ChapterReference Value="ТС"/>
+				<DefaultValue>
+					<Color>
+						<Red>0</Red>
+						<Green>127</Green>
+						<Blue>31</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="пр"/>
+				<ChapterReference Value="СС"/>
+				<DefaultValue>
+					<Color>
+						<Red>0</Red>
+						<Green>153</Green>
+						<Blue>153</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="пр"/>
+				<ChapterReference Value="ЭС"/>
+				<DefaultValue>
+					<Color>
+						<Red>255</Red>
+						<Green>0</Green>
+						<Blue>127</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="сущ"/>
+				<ChapterReference Value="ВС"/>
+				<DefaultValue>
+					<Color>
+						<Red>0</Red>
+						<Green>51</Green>
+						<Blue>204</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="сущ"/>
+				<ChapterReference Value="ВО"/>
+				<DefaultValue>
+					<Color>
+						<Red>153</Red>
+						<Green>76</Green>
+						<Blue>0</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="сущ"/>
+				<ChapterReference Value="ДК"/>
+				<DefaultValue>
+					<Color>
+						<Red>240</Red>
+						<Green>60</Green>
+						<Blue>0</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="сущ"/>
+				<ChapterReference Value="ТС"/>
+				<DefaultValue>
+					<Color>
+						<Red>38</Red>
+						<Green>153</Green>
+						<Blue>0</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="сущ"/>
+				<ChapterReference Value="СС"/>
+				<DefaultValue>
+					<Color>
+						<Red>0</Red>
+						<Green>127</Green>
+						<Blue>127</Blue>
+					</Color>
+				</DefaultValue>
+			</StatusGroup>
+			<StatusGroup>
+				<StatusReference Value="сущ"/>
+				<ChapterReference Value="ЭС"/>
+				<DefaultValue>
+					<Color>
+						<Red>127</Red>
+						<Green>63</Green>
+						<Blue>85</Blue>
+					</Color>
+				</DefaultValue>
 			</StatusGroup>
 			<StatusGroup>
 				<StatusReference Value="ндем"/>

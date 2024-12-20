@@ -2,8 +2,12 @@
 using LayersIO.Database;
 using LayersIO.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
+using NPOI.HPSF;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
@@ -29,7 +33,7 @@ namespace LayersDatabaseEditor.ViewModel
 
         public RelayCommand ConnectCommand
         {
-            get => _connectCommand ??= new(obj => DatabaseConnect(obj), obj => true);
+            get => _connectCommand ??= new(obj => DatabaseConnect(), obj => true);
             set => _connectCommand = value;
         }
         public RelayCommand DisconnectCommand
@@ -44,16 +48,14 @@ namespace LayersDatabaseEditor.ViewModel
             set => _changeSelectedGroupCommand = value;
         }
 
-        public RelayCommand ChangeSelectedLayerCommand
-        {
-            get => _changeSelectedLayerCommand ??= new(obj => SelectLayer(obj), obj => IsConnected && SelectedGroup != null);
-            set => _changeSelectedLayerCommand = value;
-        }
+
 
 
         public ObservableCollection<string> LayerGroupNames { get; private set; } = new();
 
         public bool IsConnected => _db != null;
+        public bool IsLayerSelected => SelectedLayer != null;
+        public bool IsGroupSelected => SelectedGroup != null;
 
         internal LayersDatabaseContextSqlite? Database { get => _db; set => _db = value; }
 
@@ -64,6 +66,7 @@ namespace LayersDatabaseEditor.ViewModel
             {
                 _selectedGroup = value;
                 OnPropertyChanged(nameof(SelectedGroup));
+                OnPropertyChanged(nameof(IsGroupSelected));
             }
         }
 
@@ -74,6 +77,7 @@ namespace LayersDatabaseEditor.ViewModel
             {
                 _selectedLayer = value;
                 OnPropertyChanged(nameof(SelectedLayer));
+                OnPropertyChanged(nameof(IsLayerSelected));
             }
         }
 
@@ -83,20 +87,35 @@ namespace LayersDatabaseEditor.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
 
-        private void DatabaseConnect(object? obj)
+        private void DatabaseConnect()
         {
-            if (obj == null)
-                throw new ArgumentNullException("Отсутствует строка подключения");
-            _db = _dbContextFactory.CreateDbContext((string)obj);
-            LayerGroupNames.Clear();
-            _db.LayerGroups.AsNoTracking()
-                           .Select(lg => new { lg.Prefix, lg.MainName })
-                           .OrderBy(s => s.Prefix)
-                           .ThenBy(s => s.MainName)
-                           .AsEnumerable()
-                           .Select(s => $"{s.Prefix}_{s.MainName}")
-                           .ToList()
-                           .ForEach(n => LayerGroupNames.Add(n));
+            DirectoryInfo di = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.Parent!.Parent!.GetDirectories("UserData").First();
+            OpenFileDialog ofd = new OpenFileDialog()
+            {
+                DefaultExt = ".db",
+                Filter = "SQLite database files|*.db;*.sqlite",
+                CheckFileExists = true,
+                Multiselect = false,
+                InitialDirectory = di.FullName
+            };
+            var result = ofd.ShowDialog();
+            if (result == true)
+            {
+                string fileName = ofd.FileName;
+                // TODO: проверить на валидность базы
+                _db = _dbContextFactory.CreateDbContext(fileName);
+                LayerGroupNames.Clear();
+                _db.LayerGroups.AsNoTracking()
+                               .Select(lg => new { lg.Prefix, lg.MainName })
+                               .OrderBy(s => s.Prefix)
+                               .ThenBy(s => s.MainName)
+                               .AsEnumerable()
+                               .Select(s => $"{s.Prefix}_{s.MainName}")
+                               .ToList()
+                               .ForEach(n => LayerGroupNames.Add(n));
+
+            }
+            OnPropertyChanged(nameof(IsConnected));
         }
 
         private void DatabaseDisconnect()
@@ -137,17 +156,6 @@ namespace LayersDatabaseEditor.ViewModel
                 SelectedGroup = null;
                 SelectedLayer = null;
             }
-        }
-
-        private void SelectLayer(object? obj)
-        {
-            if (obj == null)
-            {
-                SelectedLayer = null;
-                return;
-            }
-            var layer = (LayerDataViewModel)obj;
-            SelectedLayer = layer;
         }
     }
 }

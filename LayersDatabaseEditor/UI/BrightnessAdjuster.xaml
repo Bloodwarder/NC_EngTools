@@ -22,9 +22,9 @@
                     <Rectangle.Fill>
                         <SolidColorBrush>
                             <SolidColorBrush.Color>
-                                <MultiBinding Converter="{StaticResource brightnessConverter}">
-                                    <Binding ElementName="brightnessAdjuster" Path="BaseColor"/>
-                                    <Binding ElementName="sliderBr" Path="Value"/>
+                                <MultiBinding Converter="{StaticResource brightnessConverter}" Mode="OneWay">
+                                    <Binding ElementName="brightnessAdjuster" Path="BaseColor" Mode="OneWay"/>
+                                    <Binding ElementName="sliderBr" Path="Value" Mode="OneWay"/>
                                 </MultiBinding>
                             </SolidColorBrush.Color>
                         </SolidColorBrush>
@@ -35,7 +35,7 @@
                        Text="{Binding ElementName=sliderBr, Path=Value, StringFormat=0.00, Mode=OneWay}"/>
             <Slider Name="sliderBr" Minimum="-1" Maximum="1" MinWidth="150" 
                     VerticalAlignment="Center" HorizontalAlignment="Stretch" 
-                    SmallChange="0.01" TickPlacement="Both"
+                    SmallChange="0.01" LargeChange="0.2" TickPlacement="Both"
                     TickFrequency="0.01" IsSnapToTickEnabled="True"
                     Value="{Binding ElementName=brightnessAdjuster, Path=BrightnessShift, Mode=TwoWay}" MouseWheel="sliderBr_MouseWheel"/>
         </DockPanel>

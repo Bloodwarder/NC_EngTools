@@ -1,5 +1,8 @@
-﻿using LayersIO.DataTransfer;
+﻿using FluentValidation;
+using LayersDatabaseEditor.Utilities;
+using LayersIO.DataTransfer;
 using LayersIO.Model;
+using System.IO;
 
 namespace LayersDatabaseEditor.ViewModel
 {
@@ -9,19 +12,19 @@ namespace LayersDatabaseEditor.ViewModel
         public LayerDrawTemplateViewModel(LayerDrawTemplateData layerDrawTemplateData)
         {
             _layerDrawTemplateData = layerDrawTemplateData;
-            DrawTemplate = Enum.Parse<DrawTemplate>(_layerDrawTemplateData.DrawTemplate ?? "Undefined");
+            DrawTemplate = Enum.Parse<DrawTemplate>(layerDrawTemplateData.DrawTemplate ?? "Undefined");
             MarkChar = layerDrawTemplateData.MarkChar;
             Width = layerDrawTemplateData.Width;
             Height = layerDrawTemplateData.Height;
             InnerBorderBrightness = layerDrawTemplateData.InnerBorderBrightness;
-            InnerHatchPattern = layerDrawTemplateData.InnerHatchPattern;
+            InnerHatchPattern = Enum.Parse<HatchPattern>(layerDrawTemplateData.InnerHatchPattern ?? "None");
             InnerHatchScale = layerDrawTemplateData.InnerHatchScale;
             InnerHatchBrightness = layerDrawTemplateData.InnerHatchBrightness;
             InnerHatchAngle = layerDrawTemplateData.InnerHatchAngle;
             FenceWidth = layerDrawTemplateData.FenceWidth;
             FenceHeight = layerDrawTemplateData.FenceHeight;
             FenceLayer = layerDrawTemplateData.FenceLayer;
-            OuterHatchPattern = layerDrawTemplateData.OuterHatchPattern;
+            OuterHatchPattern = Enum.Parse<HatchPattern>(layerDrawTemplateData.OuterHatchPattern ?? "None");
             OuterHatchScale = layerDrawTemplateData.OuterHatchScale;
             OuterHatchBrightness = layerDrawTemplateData.OuterHatchBrightness;
             OuterHatchAngle = layerDrawTemplateData.OuterHatchAngle;
@@ -55,7 +58,7 @@ namespace LayersDatabaseEditor.ViewModel
         /// <summary>
         /// Имя образца внутренней штриховки
         /// </summary>
-        public string? InnerHatchPattern { get; set; }
+        public HatchPattern? InnerHatchPattern { get; set; }
         /// <summary>
         /// Масштаб внутренней штриховки
         /// </summary>
@@ -83,7 +86,7 @@ namespace LayersDatabaseEditor.ViewModel
         /// <summary>
         /// Имя образца внешней штриховки
         /// </summary>
-        public string? OuterHatchPattern { get; set; }
+        public HatchPattern? OuterHatchPattern { get; set; }
         /// <summary>
         /// Масштаб внешней штриховки
         /// </summary>
@@ -126,14 +129,14 @@ namespace LayersDatabaseEditor.ViewModel
             _layerDrawTemplateData.Width = Width;
             _layerDrawTemplateData.Height = Height;
             _layerDrawTemplateData.InnerBorderBrightness = InnerBorderBrightness;
-            _layerDrawTemplateData.InnerHatchPattern = InnerHatchPattern;
+            _layerDrawTemplateData.InnerHatchPattern = InnerHatchPattern.ToString();
             _layerDrawTemplateData.InnerHatchScale = InnerHatchScale;
             _layerDrawTemplateData.InnerHatchBrightness = InnerHatchBrightness;
             _layerDrawTemplateData.InnerHatchAngle = InnerHatchAngle;
             _layerDrawTemplateData.FenceWidth = FenceWidth;
             _layerDrawTemplateData.FenceHeight = FenceHeight;
             _layerDrawTemplateData.FenceLayer = FenceLayer;
-            _layerDrawTemplateData.OuterHatchPattern = OuterHatchPattern;
+            _layerDrawTemplateData.OuterHatchPattern = OuterHatchPattern.ToString();
             _layerDrawTemplateData.OuterHatchScale = OuterHatchScale;
             _layerDrawTemplateData.OuterHatchBrightness = OuterHatchBrightness;
             _layerDrawTemplateData.OuterHatchAngle = OuterHatchAngle;
@@ -142,6 +145,22 @@ namespace LayersDatabaseEditor.ViewModel
             _layerDrawTemplateData.BlockXOffset = BlockXOffset;
             _layerDrawTemplateData.BlockYOffset = BlockYOffset;
             _layerDrawTemplateData.BlockPath = BlockPath;
+        }
+    }
+
+    public class LayerDrawTemplateViewModelValidator : AbstractValidator<LayerDrawTemplateViewModel>
+    {
+        public LayerDrawTemplateViewModelValidator()
+        {
+            RuleFor(l => l.DrawTemplate).Cascade(CascadeMode.Stop).NotNull().IsInEnum();
+
+            RuleFor(l => l.InnerHatchBrightness).InclusiveBetween(-1d, 1d);
+            RuleFor(l => l.InnerBorderBrightness).InclusiveBetween(-1d, 1d);
+            RuleFor(l => l.OuterHatchBrightness).InclusiveBetween(-1d, 1d);
+            RuleFor(l => l.InnerHatchBrightness).InclusiveBetween(-1d, 1d);
+
+            RuleFor(l => l.BlockPath).Must(p => File.Exists(p) && p.EndsWith(".dwg"));
+            RuleFor(l => l.FenceLayer).Must(f => string.IsNullOrEmpty(f) || true); // TODO: проверить по наличию в бд, пока заглушка
         }
     }
 }

@@ -1,6 +1,8 @@
-﻿using LayersIO.Connection;
+﻿using FluentValidation;
+using LayersIO.Connection;
 using LayersIO.Model;
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 
 namespace LayersDatabaseEditor.ViewModel
 {
@@ -49,4 +51,16 @@ namespace LayersDatabaseEditor.ViewModel
         public ObservableCollection<ZoneInfoViewModel> Zones { get; set; } = new();
 
     }
+
+    public class LayerDataViewModelValidator : AbstractValidator<LayerDataViewModel>
+    {
+        public LayerDataViewModelValidator()
+        {
+            RuleFor(l => l.Name).NotNull();
+            RuleFor(l => l.Prefix).NotNull().Must(s => Regex.IsMatch(s!, @"^\w+$"));
+            //RuleFor(l => l.StatusName).Must(s => NameParser.)
+            
+        }
+    }
+
 }

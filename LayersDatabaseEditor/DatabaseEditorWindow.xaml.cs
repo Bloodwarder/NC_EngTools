@@ -14,6 +14,7 @@ using Microsoft.Win32;
 using System.IO;
 using System.Reflection;
 using System.Windows.Media;
+using LayersIO.DataTransfer;
 
 namespace LayersDatabaseEditor
 {
@@ -22,6 +23,9 @@ namespace LayersDatabaseEditor
     /// </summary>
     public partial class DatabaseEditorWindow : Window
     {
+        public static readonly DependencyProperty EditorViewModelProperty =
+            DependencyProperty.Register("EditorViewModel", typeof(EditorViewModel), typeof(DatabaseEditorWindow), new PropertyMetadata());
+
         readonly ILogger? _logger = NcetCore.ServiceProvider.GetService<ILogger>();
         readonly IFilePathProvider _pathProvider = NcetCore.ServiceProvider.GetRequiredService<IFilePathProvider>();
 
@@ -35,13 +39,18 @@ namespace LayersDatabaseEditor
 
         }
 
-        internal EditorViewModel EditorViewModel { get; private set; }
 
-        private async void miTestRun_Click(object sender, RoutedEventArgs e)
+        public EditorViewModel EditorViewModel
+        {
+            get { return (EditorViewModel)GetValue(EditorViewModelProperty); }
+            set { SetValue(EditorViewModelProperty, value); }
+        }
+
+        private void miTestRun_Click(object sender, RoutedEventArgs e)
         {
             _logger?.LogInformation("Запущена тестовая команда");
-            Task<string> task = TestMethod1Async();
-            await LogWriteAsync(task);
+            //Task<string> task = TestMethod1Async();
+            //await LogWriteAsync(task);
 
         }
 
@@ -76,7 +85,7 @@ namespace LayersDatabaseEditor
             fdLog.Blocks.Add(new Paragraph(new Run(message)) { Margin = new(0d) });
         }
 
-        private void LogClear()
+        private void LogClear(object sender, RoutedEventArgs e)
         {
             fdLog.Blocks.Clear();
         }
@@ -103,7 +112,14 @@ namespace LayersDatabaseEditor
                 }
             }
         }
-
+        private void miTestRun3_Click(object sender, RoutedEventArgs e)
+        {
+            var color1 = caBaseColor.Color;
+            Color color2 = EditorViewModel.SelectedLayer?.LayerProperties.Color ?? Color.FromRgb(127, 127, 127);
+            var color3 = brajInnerHatchShift.BaseColor;
+            string message = $"\nЦвет caBaseColor.Color:\t\t\t{color1.R}-{color1.G}-{color1.B}\nЦвет ViewModel:\t\t\t\t{color2.R}-{color2.G}-{color2.B}\nЦвет brajInnerHatchShift.BaseColor:\t\t{color3.R}-{color3.G}-{color3.B}";
+            LogWrite(message);
+        }
         private void miExit_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
@@ -137,7 +153,6 @@ namespace LayersDatabaseEditor
                             }
                             items = item.Items;
                         }
-                        LogWrite($"Добавлен элемент {str}");
                     }
                     break;
 
@@ -202,30 +217,35 @@ namespace LayersDatabaseEditor
         {
             var item = (TreeViewItem)e.NewValue;
             if (EditorViewModel.ChangeSelectedGroupCommand.CanExecute(item))
-                EditorViewModel.ChangeSelectedGroupCommand.Execute(item?.Tag);
-            if (EditorViewModel.SelectedGroup != null)
             {
-                this.DataContext = EditorViewModel.SelectedGroup;
+                EditorViewModel.ChangeSelectedGroupCommand.Execute(item?.Tag);
             }
             else
             {
-                this.DataContext = null;
-                tcProperties.DataContext = null;
+                return;
             }
+
+            //if (EditorViewModel.SelectedGroup != null)
+            //{
+            //    LogWrite($"Group: {EditorViewModel.SelectedGroup.Name}");
+            //}
+
         }
 
         private void lvLayers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var listView = (ListView)sender;
-            if (EditorViewModel.ChangeSelectedLayerCommand.CanExecute(listView.SelectedItem))
-                EditorViewModel.ChangeSelectedLayerCommand.Execute(listView.SelectedItem);
+
             if (EditorViewModel.SelectedLayer != null)
             {
-                tcProperties.DataContext = EditorViewModel.SelectedLayer;
+                caBaseColor.UpdateRgbControls(); // BUG: Надо апдейтить где-то внутри контрола, чтобы он был самодостаточным. Пока работает только с этим
+                LogWrite($"Layer: {EditorViewModel.SelectedLayer.Name}");
+                var color = EditorViewModel.SelectedLayer.LayerProperties.Color;
+                LogWrite($"Color: {color.R}-{color.G}-{color.B}");
             }
             else
             {
-                tcProperties.DataContext = null;
+                
             }
         }
 
@@ -233,7 +253,29 @@ namespace LayersDatabaseEditor
         {
             TabControl tc = (TabControl)sender;
             var context = tc.DataContext as LayerDataViewModel;
-            caBaseColor.Color = context?.LayerProperties.Color ?? Color.FromRgb(127, 127, 127);
+
+            if (context != null)
+            {
+                var drw = context.LayerDrawTemplate.DrawTemplate ?? DrawTemplate.Undefined;
+                spBlockReference.Visibility = (drw & (DrawTemplate.BlockReference)) != 0 ?
+                    Visibility.Visible : Visibility.Collapsed;
+                spCircles.Visibility = (drw & (DrawTemplate.HatchedCircle)) != 0 ?
+                    Visibility.Visible : Visibility.Collapsed;
+                spFence.Visibility = (drw & (DrawTemplate.FencedRectangle | DrawTemplate.HatchedFencedRectangle)) != 0 ?
+                    Visibility.Visible : Visibility.Collapsed;
+                spFenceHatch.Visibility = (drw & (DrawTemplate.HatchedFencedRectangle)) != 0 ?
+                    Visibility.Visible : Visibility.Collapsed;
+                spLines.Visibility = (drw & (DrawTemplate.MarkedSolidLine | DrawTemplate.MarkedDashedLine)) != 0 ?
+                    Visibility.Visible : Visibility.Collapsed;
+                spRectangles.Visibility = (drw & (DrawTemplate.Rectangle |
+                                                  DrawTemplate.HatchedRectangle |
+                                                  DrawTemplate.FencedRectangle |
+                                                  DrawTemplate.HatchedFencedRectangle)) != 0 ?
+                    Visibility.Visible : Visibility.Collapsed;
+                spHatch.Visibility = EditorViewModel.SelectedGroup?.Name.Contains("_п_") ?? false ?
+                    Visibility.Visible : Visibility.Collapsed;
+
+            }
         }
     }
 
