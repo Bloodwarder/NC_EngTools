@@ -18,11 +18,7 @@ namespace LayersDatabaseEditor.ViewModel
         public LayerPropertiesViewModel(LayerPropertiesData layerPropertiesData)
         {
             _layerPropertiesData = layerPropertiesData;
-            ConstantWidth = layerPropertiesData.ConstantWidth;
-            LinetypeScale = layerPropertiesData.LinetypeScale;
-            Color = Color.FromRgb(layerPropertiesData.Red, layerPropertiesData.Green, layerPropertiesData.Blue);
-            LinetypeName = layerPropertiesData.LinetypeName;
-            LineWeight = layerPropertiesData.LineWeight;
+            ResetValues();
         }
 
         /// <summary>
@@ -46,7 +42,7 @@ namespace LayersDatabaseEditor.ViewModel
         /// <summary>
         /// Тип линий
         /// </summary>
-        public string LinetypeName { get; set; }
+        public string? LinetypeName { get; set; }
         /// <summary>
         /// Вес линий
         /// </summary>
@@ -63,11 +59,20 @@ namespace LayersDatabaseEditor.ViewModel
 
             _layerPropertiesData.ConstantWidth = ConstantWidth;
             _layerPropertiesData.LinetypeScale = LinetypeScale;
-            _layerPropertiesData.LinetypeName = LinetypeName;
+            _layerPropertiesData.LinetypeName = LinetypeName!;
             _layerPropertiesData.LineWeight = LineWeight;
             _layerPropertiesData.Red = this.Color.R;
             _layerPropertiesData.Green = this.Color.G;
             _layerPropertiesData.Blue = this.Color.B;
+        }
+
+        internal void ResetValues()
+        {
+            ConstantWidth = _layerPropertiesData.ConstantWidth;
+            LinetypeScale = _layerPropertiesData.LinetypeScale;
+            Color = Color.FromRgb(_layerPropertiesData.Red, _layerPropertiesData.Green, _layerPropertiesData.Blue);
+            LinetypeName = _layerPropertiesData.LinetypeName;
+            LineWeight = _layerPropertiesData.LineWeight;
         }
     }
 }

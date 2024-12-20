@@ -16,6 +16,7 @@ namespace LayersDatabaseEditor.ViewModel
             Prefix = layerGroupData.Prefix;
             MainName = layerGroupData.MainName;
             Separator = layerGroupData.Separator;
+            LegendData = new(layerGroupData.LayerLegendData);
             foreach(var layer in layerGroupData.Layers)
                 Layers.Add(new LayerDataViewModel(layer, _db));
         }
@@ -42,6 +43,8 @@ namespace LayersDatabaseEditor.ViewModel
 
         public string? AlternateLayer { get; set; }
 
+        public LayerLegendViewModel LegendData { get; set; }
+
 
         public ObservableCollection<LayerDataViewModel> Layers { get; } = new();
 
@@ -49,7 +52,7 @@ namespace LayersDatabaseEditor.ViewModel
         {
             // TODO: VALIDATE
 
-            _layerGroupData.Prefix = Prefix;
+            _layerGroupData.Prefix = Prefix!;
             _layerGroupData.AlternateLayer = AlternateLayer;
         }
     }

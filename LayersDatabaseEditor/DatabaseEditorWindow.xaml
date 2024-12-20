@@ -4,113 +4,149 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="clr-namespace:LayersDatabaseEditor.UI"
+        xmlns:u="clr-namespace:LayersDatabaseEditor.Utilities"
+        xmlns:io="clr-namespace:LayersIO.DataTransfer;assembly=LayersIO"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
+        x:Name="databaseEditorWindow"
         Title="Редактор слоёв" Height="500" Width="1000">
-    <Grid>
+    <Window.Resources>
+        <u:EnumToItemsSourceConverter x:Key="EnumToItemsSourceConverter"/>
+        <ObjectDataProvider x:Key="HatchPatternEnumDataSource" ObjectType="{x:Type sys:Enum}"
+                            MethodName="GetValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="u:HatchPattern"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="linetypesProvider" ObjectType="{x:Type u:LinetypeProvider}"
+                            MethodName="GetLinetypes"/>
+    </Window.Resources>
+    <Grid Margin="3">
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
             <RowDefinition/>
             <RowDefinition Height="2*"/>
             <RowDefinition Height="5*"/>
+            <RowDefinition Height="34"/>
             <RowDefinition MinHeight="25" Height="{Binding ElementName=expLog, Path=ActualHeight}" Name="rowLog"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="1.2*"/>
         </Grid.ColumnDefinitions>
-        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel}">
             <MenuItem Header="Программа">
                 <MenuItem Name="miTestRun" Header="Запуск тестовой команды" Click="miTestRun_Click"/>
                 <MenuItem Name="miTestRun2" Header="Запуск тестовой команды 2" Click="miTestRun2_Click"/>
+                <MenuItem Name="miTestRun3" Header="Запуск тестовой команды 3" Click="miTestRun3_Click"/>
+                <Separator/>
+                <MenuItem Name="miLogClear" Header="Очистить лог" Click="LogClear"/>
                 <Separator/>
                 <MenuItem Name="miExit" Header="Выход" Click="miExit_Click"/>
             </MenuItem>
             <MenuItem Header="База данных">
-                <MenuItem Name="miSqliteConnect" Header="Подключиться к SQLite" Click="miSqliteConnect_Click"/>
-                <MenuItem Header="Подключиться к PostgreSQL"/>
+                <MenuItem Name="miSqliteConnect" Header="Подключиться к SQLite"
+                          Command="{Binding Path=ConnectCommand}"/>
+                <MenuItem Header="Подключиться к PostgreSQL" IsEnabled="False"/>
+                <Separator/>
+                <MenuItem Header="Отключиться от базы данных"
+                          Command="{Binding Path=DisconnectCommand}"/>
             </MenuItem>
             <MenuItem Header="Слои">
                 <MenuItem Header="Добавить слой"/>
                 <Separator/>
-                <MenuItem Header="Импортировать слои из Excel" Click="miExportLayersFromExcel_Click"/>
+                <MenuItem Header="Импортировать слои из Excel" Click="miExportLayersFromExcel_Click" IsEnabled="False"/>
             </MenuItem>
         </Menu>
-        <ScrollViewer Grid.Row="1" Grid.Column="0" Grid.RowSpan="3">
-            <TreeView Name="twLayerGroups" Margin="3" SelectedItemChanged="twLayerGroups_SelectedItemChanged">
-                <TextBlock Text="Слои"/>
-                <TreeViewItem Header="Тестовый объект 1 уровень"/>
-                <TreeViewItem Header="Тестовый объект 1 уровень"/>
-                <TreeViewItem Header="Тестовый объект 1 уровень">
-                    <TreeViewItem Header="Тестовый объект 2 уровень"/>
-                    <TreeViewItem Header="Тестовый объект 2 уровень"/>
-                    <TreeViewItem Header="Тестовый объект 2 уровень">
-                        <TreeViewItem Header="Тестовый объект 3 уровень"/>
-                        <TreeViewItem Header="Тестовый объект 3 уровень"/>
-                        <TreeViewItem Header="Тестовый объект 3 уровень"/>
-                    </TreeViewItem>
-                </TreeViewItem>
-                <TreeViewItem Header="Тестовый объект 1 уровень"/>
-            </TreeView>
+        <ScrollViewer Grid.Row="1" Grid.Column="0" Margin="3" Grid.RowSpan="3">
+            <TreeView Name="twLayerGroups" SelectedItemChanged="twLayerGroups_SelectedItemChanged"/>
         </ScrollViewer>
+        <DockPanel Grid.Row="4" MaxHeight="60" Margin="3 0 17 1">
+            <Button DockPanel.Dock="Right" Width="25" Height="25" Margin="3">-</Button>
+            <Button DockPanel.Dock="Right" Width="25" Height="25" Margin="3">+</Button>
+            <ComboBox DockPanel.Dock="Left" Name="cbTestLayers" Margin="0 3 3 3" MinWidth="150"
+                          VerticalContentAlignment="Center"
+                          IsEditable="True" IsTextSearchEnabled="True" IsTextSearchCaseSensitive="False"
+                          DataContext="{Binding EditorViewModel, ElementName=databaseEditorWindow}"
+                          ItemsSource="{Binding  Path=LayerGroupNames}"
+                          SelectedItem="{Binding Path=SelectedGroup.Name, Mode=OneWay}"/>
+        </DockPanel>
 
-        <ScrollViewer Grid.Row="2" Grid.Column="1">
-                <ListView Name="lvLayers" ItemsSource="{Binding Path=Layers}" SelectionChanged="lvLayers_SelectionChanged">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="MainName" DisplayMemberBinding="{Binding Name}"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
+        <ScrollViewer Name="svLayers" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="3">
+            <ListView Name="lvLayers" SelectionChanged="lvLayers_SelectionChanged"
+                      DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel}"
+                      ItemsSource="{Binding Path=SelectedGroup.Layers, Mode=OneWay}"
+                      SelectedItem="{Binding Path=SelectedLayer, Mode=TwoWay}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Имя группы слоёв" DisplayMemberBinding="{Binding Name}"
+                                        Width="{Binding ElementName=lvLayers, Path=ActualWidth}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
         </ScrollViewer>
 
         <DockPanel Grid.Row="3" Grid.Column="1" Margin="3">
-            <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Left" Text="Слой (заменить на привязку)"/>
-            <TabControl Name="tcProperties" SelectedIndex="0" DataContextChanged="tcProperties_DataContextChanged">
-                <TabItem Header="Общие" Width="100">
-                    <StackPanel>
+            <TabControl Name="tcProperties" SelectedIndex="0" DataContextChanged="tcProperties_DataContextChanged"
+                         IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsGroupSelected}"
+                        DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedLayer}">
+                <TabItem Header="Общие" Width="100" IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
+                    <StackPanel IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
                         <ui:UserStringInput LabelText="Префикс" InputValue="{Binding Path=Prefix}"/>
                         <ui:UserStringInput LabelText="Основное имя" InputValue="{Binding Path=MainName}"/>
                         <ui:UserStringInput LabelText="Статус" InputValue="{Binding Path=StatusName}"/>
                     </StackPanel>
                 </TabItem>
                 <TabItem Header="Свойства" Width="100"
+                         IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}"
                          DataContext="{Binding Path=LayerProperties}">
-                    <ScrollViewer>
+                    <ScrollViewer IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
                         <StackPanel Margin="5 15 5 5">
-                            <ui:UserNumericInput LabelText="Глобальная ширина" InputValue="{Binding Path=ConstantWidth}"/>
-                            <ui:UserNumericInput LabelText="Масштаб типа линий" InputValue="{Binding Path=LinetypeScale}"/>
-                            <ui:ColorAdjuster x:Name="caBaseColor" LabelText="Цвет" Color="{Binding Path=Color}"/>
-                            <ui:UserStringInput LabelText="Тип линий" InputValue="{Binding Path=LinetypeName}"/>
-                            <ui:UserNumericInput LabelText="Вес линий" InputValue="{Binding Path=LineWeight}"/>
+                            <ui:UserNumericInput LabelText="Глобальная ширина" InputValue="{Binding Path=ConstantWidth, Mode=TwoWay}"/>
+                            <ui:UserNumericInput LabelText="Масштаб типа линий" InputValue="{Binding Path=LinetypeScale, Mode=TwoWay}"/>
+                            <ui:ColorAdjuster x:Name="caBaseColor" LabelText="Цвет" Color="{Binding Path=Color, Mode=TwoWay}"/>
+                            <ui:UserComboBoxInput LabelText="Тип линий" 
+                                                  ItemsSource="{Binding Source={StaticResource linetypesProvider}}"
+                                                  SelectedItem="{Binding Path=LinetypeName, Mode=TwoWay}"/>
+                            <ui:UserNumericInput LabelText="Вес линий" InputValue="{Binding Path=LineWeight, Mode=TwoWay}"/>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
-                <TabItem Header="Легенда" Width="100">
-                    <StackPanel Margin="5 15 5 5">
-                        <ui:UserNumericInput LabelText="Положение в таблице"/>
-                        <ui:UserStringInput LabelText="Заголовок"/>
-                        <ui:UserStringInput LabelText="Заголовок для однотипных объектов"/>
-                        <ui:UserBoolInput LabelText="Игнорировать при автосборке"/>
-                    </StackPanel>
+                <TabItem Name ="tiLegend" Header="Легенда" Width="100"
+                         IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsGroupSelected}">
+                    <ScrollViewer>
+                        <StackPanel Name="spLegend" Margin="5 15 5 5"
+                                    DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.LegendData}">
+                            <ui:UserNumericInput LabelText="Положение в таблице" InputValue="{Binding Path=Rank, Mode=TwoWay}"/>
+                            <ui:UserStringInput LabelText="Заголовок для однотипных объектов" Height="100" InputValue="{Binding Path=SubLabel, Mode=TwoWay}"/>
+                            <ui:UserStringInput LabelText="Заголовок" Height="100" InputValue="{Binding Path=Label, Mode=TwoWay}"/>
+                            <ui:UserBoolInput LabelText="Игнорировать при автосборке" State="{Binding Path=IgnoreLayer, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </ScrollViewer>
                 </TabItem>
                 <TabItem Header="Отрисовка" Width="100"
-                         DataContext="{Binding Path=LayerDrawTemplate}">
-                    <ScrollViewer>
+                         DataContext="{Binding Path=LayerDrawTemplate}"
+                         IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
+                    <ScrollViewer IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
                         <StackPanel Margin="5 15 5 5">
-                            <ui:UserStringInput LabelText="Тип шаблона" InputValue="{Binding Path=DrawTemplate}"/>
+                            <ui:UserComboBoxInput LabelText="Тип шаблона" 
+                                                  ItemsSource="{Binding Source={x:Static io:DrawTemplate.Undefined}, Converter={StaticResource EnumToItemsSourceConverter}}"
+                                                  SelectedItem="{Binding Path=DrawTemplate, Mode=TwoWay}"/>
                             <StackPanel Name="spLines" Margin="0">
-                                <ui:UserStringInput LabelText="Буква на линии" InputValue="{Binding Path=MarkChar}"/>
+                                <ui:UserStringInput LabelText="Буква на линии" InputValue="{Binding Path=MarkChar, Mode=TwoWay}"/>
                             </StackPanel>
                             <StackPanel Name="spRectangles" Margin="0">
-                                <ui:UserNumericInput LabelText="Длина" InputValue="{Binding Path=Width}"/>
-                                <ui:UserNumericInput LabelText="Ширина" InputValue="{Binding Path=Height}"/>
+                                <ui:UserNumericInput LabelText="Длина" InputValue="{Binding Path=Width, Mode=TwoWay}"/>
+                                <ui:UserNumericInput LabelText="Ширина" InputValue="{Binding Path=Height, Mode=TwoWay}"/>
                             </StackPanel>
                             <StackPanel Name="spHatch" Margin="0">
-                                <ui:UserStringInput LabelText="Образец штриховки" InputValue="{Binding Path=InnerHatchPattern}"/>
-                                <ui:UserNumericInput LabelText="Масштаб штриховки" InputValue="{Binding Path=InnerHatchScale}"/>
-                                <ui:BrightnessAdjuster LabelText="Сдвиг яркости заливки" 
+                                <ui:UserComboBoxInput LabelText="Образец штриховки" 
+                                                      ItemsSource="{Binding Source={StaticResource HatchPatternEnumDataSource}}"
+                                                      SelectedItem="{Binding Path=InnerHatchPattern, Mode=TwoWay}"/>
+                                <ui:UserNumericInput LabelText="Масштаб штриховки" InputValue="{Binding Path=InnerHatchScale,  Mode=TwoWay}"/>
+                                <ui:BrightnessAdjuster LabelText="Сдвиг яркости заливки" x:Name="brajInnerHatchShift"
                                                        BaseColor="{Binding ElementName=caBaseColor, Path=Color, Mode=OneWay}"
-                                                       BrightnessShift="{Binding Path=InnerHatchBrightnessShift}"/>
+                                                       BrightnessShift="{Binding Path=InnerHatchBrightness, Mode=TwoWay}"/>
                                 <ui:UserNumericInput LabelText="Угол" InputValue="{Binding Path=InnerHatchAngle}"/>
                             </StackPanel>
                             <StackPanel Name="spFence" Margin="0">
@@ -118,35 +154,44 @@
                                 <ui:UserNumericInput LabelText="Ширина ограды" InputValue="{Binding Path=FenceHeight}"/>
                             </StackPanel>
                             <StackPanel Name="spFenceHatch" Margin="0">
-                                <ui:UserStringInput LabelText="Образец внешней штриховки" InputValue="{Binding Path=OuterHatchPattern}"/>
-                                <ui:UserNumericInput LabelText="Масштаб внешней штриховки" InputValue="{Binding Path=OuterHatchScale}"/>
+                                <ui:UserComboBoxInput LabelText="Образец внешней штриховки" 
+                                                      ItemsSource="{Binding Source={StaticResource HatchPatternEnumDataSource}}"
+                                                      SelectedItem="{Binding Path=OuterHatchPattern, Mode=TwoWay}"/>
+                                <ui:UserNumericInput LabelText="Масштаб внешней штриховки" InputValue="{Binding Path=OuterHatchScale, Mode=TwoWay}"/>
                                 <ui:BrightnessAdjuster LabelText="Сдвиг яркости заливки вн.штр." BaseColor="Gray"/>
-                                <ui:UserNumericInput LabelText="Угол внешней штриховки" InputValue="{Binding Path=OuterHatchAngle}"/>
+                                <ui:UserNumericInput LabelText="Угол внешней штриховки" InputValue="{Binding Path=OuterHatchAngle, Mode=TwoWay}"/>
                             </StackPanel>
                             <StackPanel Name="spCircles" Margin="0">
-                                <ui:UserNumericInput LabelText="Радиус" InputValue="{Binding Path=Radius}"/>
+                                <ui:UserNumericInput LabelText="Радиус" InputValue="{Binding Path=Radius, Mode=TwoWay}"/>
                             </StackPanel>
                             <StackPanel Name="spBlockReference" Margin="0">
-                                <ui:UserStringInput LabelText="Имя блока" InputValue="{Binding Path=BlockName}"/>
-                                <ui:UserNumericInput LabelText="Смещение по оси X" InputValue="{Binding Path=BlockXOffset}"/>
-                                <ui:UserNumericInput LabelText="Смещение по оси Y" InputValue="{Binding Path=BlockYOffset}"/>
-                                <ui:UserStringInput LabelText="Полный путь к файлу" InputValue="{Binding Path=BlockPath}"/>
+                                <ui:UserStringInput LabelText="Имя блока" InputValue="{Binding Path=BlockName, Mode=TwoWay}"/>
+                                <ui:UserNumericInput LabelText="Смещение по оси X" InputValue="{Binding Path=BlockXOffset, Mode=TwoWay}"/>
+                                <ui:UserNumericInput LabelText="Смещение по оси Y" InputValue="{Binding Path=BlockYOffset, Mode=TwoWay}"/>
+                                <ui:UserStringInput LabelText="Полный путь к файлу" InputValue="{Binding Path=BlockPath, Mode=TwoWay}"/>
+                                <ui:UserFilePathInput LabelText="Полный путь к файлу" FilePath="{Binding Path=BlockPath, Mode=TwoWay}"/>
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
-                <TabItem Header="Зоны" Width="100">
+                <TabItem Header="Зоны" Width="100"
+                          IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
                     <StackPanel Margin="5 15 5 5">
 
                     </StackPanel>
                 </TabItem>
             </TabControl>
         </DockPanel>
-        <Expander Name="expLog" Grid.Row="4" Grid.ColumnSpan="2" Height="25" Collapsed="expLog_Collapsed" Expanded="expLog_Expanded" >
-            <ScrollViewer Grid.Row="5" Grid.ColumnSpan="2" Margin="3,5,3,3" BorderBrush="#FF4A4A4A" Background="Gainsboro">
-                <FlowDocument x:Name="fdLog" FontSize="12" FontFamily="SegoeUI" Foreground="Blue" LineHeight="16" LineStackingStrategy="BlockLineHeight"/>
+        <WrapPanel Grid.Row="4" Grid.Column="2" FlowDirection="RightToLeft">
+            <Button Height="25" Width="100" Margin="3"></Button>
+            <Button Height="25" Width="100" Margin="3"></Button>
+            <Button Height="25" Width="100" Margin="3"></Button>
+        </WrapPanel>
+        <Expander Name="expLog" Grid.Row="5" Grid.ColumnSpan="2" Height="25" Collapsed="expLog_Collapsed" Expanded="expLog_Expanded" >
+            <FlowDocumentScrollViewer Name="fdsvLog" Grid.Row="5" Grid.ColumnSpan="2" Margin="3,5,3,3" BorderBrush="#FF4A4A4A" Foreground="Black">
+                <FlowDocument x:Name="fdLog" FontSize="12" FontFamily="SegoeUI" Foreground="Blue" Background="WhiteSmoke" LineHeight="16" LineStackingStrategy="BlockLineHeight"/>
                 <!--<TextBlock x:Name="tbLog" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="12" Foreground="Blue" TextWrapping="Wrap"/>-->
-            </ScrollViewer>
+            </FlowDocumentScrollViewer>
         </Expander>
     </Grid>
 </Window>

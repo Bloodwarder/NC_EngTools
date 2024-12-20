@@ -14,6 +14,8 @@ namespace LayersIO.Model
             builder.HasIndex(ld => new { ld.Prefix, ld.MainName, ld.StatusName }).IsUnique();
             builder.Property(ld => ld.Id).ValueGeneratedOnAdd();
 
+            builder.HasOne(ld => ld.LayerGroup).WithMany(lg => lg.Layers).OnDelete(DeleteBehavior.Cascade); // UNDONE: Провести миграцию
+
             builder.OwnsOne(ld => ld.LayerPropertiesData);
             builder.OwnsOne(ld => ld.LayerDrawTemplateData);
             

@@ -36,6 +36,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="FluentValidation" Version="11.11.0">
+			<IncludeAssets>compile</IncludeAssets>
+			<Private>False</Private>
+		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0">
 			<IncludeAssets>compile</IncludeAssets>
 			<Private>False</Private>
@@ -55,11 +59,21 @@
 			<IncludeAssets>compile</IncludeAssets>
 			<Private>False</Private>
 		</ProjectReference>
+		<ProjectReference Include="..\NameParser\NameClassifiers.csproj">
+			<IncludeAssets>compile</IncludeAssets>
+			<Private>False</Private>
+		</ProjectReference>
 
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Compile Update="UI\UserBoolInput.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="UI\UserComboBoxInput.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="UI\UserFilePathInput.xaml.cs">
 	    <SubType>Code</SubType>
 	  </Compile>
 	</ItemGroup>

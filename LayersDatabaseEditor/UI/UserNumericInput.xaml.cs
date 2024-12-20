@@ -23,7 +23,7 @@ namespace LayersDatabaseEditor.UI
         public static readonly DependencyProperty InputValueProperty;
         static UserNumericInput()
         {
-            InputValueProperty = DependencyProperty.Register(nameof(InputValue), typeof(double), typeof(UserNumericInput));
+            InputValueProperty = DependencyProperty.Register(nameof(InputValue), typeof(double), typeof(UserNumericInput), new(0d));
         }
 
         public double InputValue
