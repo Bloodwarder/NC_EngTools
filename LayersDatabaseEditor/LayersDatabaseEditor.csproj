@@ -76,6 +76,9 @@
 	  <Compile Update="UI\UserFilePathInput.xaml.cs">
 	    <SubType>Code</SubType>
 	  </Compile>
+	  <Compile Update="UI\UserIndicator.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
 	</ItemGroup>
 
 </Project>

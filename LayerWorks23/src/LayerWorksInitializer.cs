@@ -45,7 +45,7 @@ namespace LayerWorks
                                     .Get<LayerWorksPath[]>()!
                                     .Where(p => p.Type == PathRoute.Local)
                                     .Single();
-            var defaultLoadedParsers = config.GetSection("LayerWorksConfiguration:DefaultParsers")?.Get<string[]>();
+            var defaultLoadedParsers = config.GetSection("LayerWorksConfiguration:DefaultParsers:Parser")?.Get<string[]>();
             
             Func<string, bool> predicate = defaultLoadedParsers == null ? s => true : s => defaultLoadedParsers.Any(p => s.EndsWith($"{p}.xml"));
 

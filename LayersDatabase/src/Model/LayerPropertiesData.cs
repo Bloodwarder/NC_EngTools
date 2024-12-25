@@ -42,5 +42,7 @@ namespace LayersIO.Model
         /// </summary>
         [Required]
         public int LineWeight { get; set; }
+
+        public int DrawOrderIndex { get; set; }
     }
 }

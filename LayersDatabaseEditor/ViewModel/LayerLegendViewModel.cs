@@ -1,44 +1,106 @@
 ﻿using LayersIO.Model;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace LayersDatabaseEditor.ViewModel
 {
-    public class LayerLegendViewModel
+    public class LayerLegendViewModel : INotifyPropertyChanged
     {
         private readonly LayerLegendData _layerLegendData;
+        private int _rank;
+        private string? _label;
+        private string? _subLabel;
+        private bool _ignoreLayer;
+
         public LayerLegendViewModel(LayerLegendData layerLegendData)
         {
             _layerLegendData = layerLegendData;
-            Rank = layerLegendData.Rank;
-            Label = layerLegendData.Label;
-            SubLabel = layerLegendData.SubLabel;
-            IgnoreLayer = layerLegendData.IgnoreLayer;
+            ResetValues();
         }
+
+        public static LayerLegendViewModelValidator Validator { get; private set; } = new();
 
         /// <summary>
         /// Ранг. Меньше - отображается выше
         /// </summary>
-        public int Rank { get; set; }
+        public int Rank
+        {
+            get => _rank;
+            set
+            {
+                _rank = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Текст в легенде
         /// </summary>
-        public string Label { get; set; }
+        public string? Label
+        {
+            get => _label;
+            set
+            {
+                _label = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Текст в легенде для подраздела
         /// </summary>
-        public string? SubLabel { get; set; }
+        public string? SubLabel
+        {
+            get => _subLabel;
+            set
+            {
+                _subLabel = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Показывает, нужно ли компоновщику игнорировать указанный слой
         /// </summary>
-        public bool IgnoreLayer { get; set; } = false;
-
-        internal void SaveChanges()
+        public bool IgnoreLayer
         {
-            // TODO: VALIDATE
+            get => _ignoreLayer;
+            set
+            {
+                _ignoreLayer = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        internal void ResetValues()
+        {
+            Rank = _layerLegendData.Rank;
+            Label = _layerLegendData.Label;
+            SubLabel = _layerLegendData.SubLabel;
+            IgnoreLayer = _layerLegendData.IgnoreLayer;
+        }
+
+        internal void UpdateDbEntity()
+        {
+            // Валидация в родительском элементе LayerGroupViewModel
 
             _layerLegendData.Rank = Rank;
-            _layerLegendData.Label = Label;
+            _layerLegendData.Label = Label!; // не нулл после валидации
             _layerLegendData.SubLabel = SubLabel;
             _layerLegendData.IgnoreLayer = IgnoreLayer;
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public bool IsUpdated()
+        {
+            bool isUpdated = _rank != _layerLegendData.Rank ||
+                            _label != _layerLegendData.Label ||
+                            _subLabel != _layerLegendData.SubLabel ||
+                            _ignoreLayer != _layerLegendData.IgnoreLayer;
+            return isUpdated;
         }
     }
 }

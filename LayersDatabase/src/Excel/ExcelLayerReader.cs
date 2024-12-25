@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npoi.Mapper;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace LayersIO.Excel
 {
@@ -90,12 +91,11 @@ namespace LayersIO.Excel
 
             List<LayerData> layers = new();
             List<string> layerNames = propsDictionary.Select(n => n.Key).Union(legendDrawDictionary.Select(n => n.Key)).ToList();
+
             foreach (var layer in layerNames)
             {
-                LayerData layerData = new()
-                {
-                    Name = layer,
-                };
+                var match = Regex.Match(layer, @"(^.*)_([^_]+$)"); // НЕ ПРОВЕРЕНО
+                LayerData layerData = new(groupDictionary[match.Groups[1].Value], match.Groups[2].Value);
 
                 try
                 {

@@ -24,10 +24,14 @@ namespace LayersDatabaseEditor.UI
     {
         public static readonly DependencyProperty ItemsSourceProperty;
         public static readonly DependencyProperty SelectedItemProperty;
+
+        //public static readonly RoutedEvent SelectionChangedEvent;
+
         static UserComboBoxInput()
         {
             ItemsSourceProperty = DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(UserComboBoxInput));
             SelectedItemProperty = DependencyProperty.Register("SelectedItem", typeof(object), typeof(UserComboBoxInput));
+            //UserComboBoxInput.SelectionChangedEvent = EventManager.RegisterRoutedEvent("SelectionChanged", RoutingStrategy.Bubble, typeof(SelectionChangedEventHandler), typeof(UserComboBoxInput));
         }
         public UserComboBoxInput()
         {
@@ -61,6 +65,15 @@ namespace LayersDatabaseEditor.UI
             get => (object)GetValue(SelectedItemProperty);
             set => SetValue(SelectedItemProperty, value);
         }
+
+        public event SelectionChangedEventHandler? SelectionChanged
+        {
+            add => cbInput.SelectionChanged += value;
+            remove => cbInput.SelectionChanged -= value;
+        }
+
+
+
 
     }
 }

@@ -14,6 +14,7 @@
 		<UpdateEnabled>true</UpdateEnabled>
 		<DefaultParsers>
 			<Parser>ИС</Parser>
+			<Parser>ЗОУИТ</Parser>
 		</DefaultParsers>
 		<NameParserPaths>
 			<LayerWorksPath>

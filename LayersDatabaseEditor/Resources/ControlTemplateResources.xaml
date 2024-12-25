@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:LayersDatabaseEditor.ViewModel">
     <ControlTemplate TargetType="Control" x:Key="numericInputLine">
         <ContentControl>
             <DockPanel>
@@ -8,4 +9,64 @@
             </DockPanel>
         </ContentControl>
     </ControlTemplate>
+
+    <Style TargetType="ComboBox" x:Key="cbGroupControlStyle">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding GroupInputState}" Value="{x:Static vm:GroupInputState.Existing}">
+                <Setter Property="Foreground" Value="DarkMagenta"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Path=GroupInputState}" Value="{x:Static vm:GroupInputState.Invalid}">
+                <Setter Property="Foreground" Value="Red"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding GroupInputState}" Value="{x:Static vm:GroupInputState.ValidNew}">
+                <Setter Property="Foreground" Value="ForestGreen"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="Ellipse" x:Key="ellipseIndicatorStyle">
+        <Setter Property="Stroke" Value="DimGray"/>
+        <Setter Property="StrokeThickness" Value="1.5"/>
+        <Setter Property="Fill">
+            <Setter.Value>
+                <RadialGradientBrush Center="-0.0 -0.0" RadiusX="1.2" RadiusY="1.2">
+                    <GradientStop Color="WhiteSmoke" Offset="0.01"/>
+                    <GradientStop Color="Gray" Offset="0.3"/>
+                </RadialGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=DataContext.IsValid}" Value="True">
+                <Setter Property="Fill">
+                    <Setter.Value>
+                        <RadialGradientBrush Center="-0.0 -0.0" RadiusX="1.2" RadiusY="1.2">
+                            <GradientStop Color="Aquamarine" Offset="0.01"/>
+                            <GradientStop Color="Green" Offset="0.3"/>
+                        </RadialGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=DataContext.IsUpdated}" Value="True">
+                <Setter Property="Fill">
+                    <Setter.Value>
+                        <RadialGradientBrush Center="-0.0 -0.0" RadiusX="1.2" RadiusY="1.2">
+                            <GradientStop Color="LemonChiffon" Offset="0.01"/>
+                            <GradientStop Color="Olive" Offset="0.3"/>
+                        </RadialGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=DataContext.IsValid}" Value="False">
+                <Setter Property="Fill">
+                    <Setter.Value>
+                        <RadialGradientBrush Center="-0.0 -0.0" RadiusX="1.2" RadiusY="1.2">
+                            <GradientStop Color="LightPink" Offset="0.01"/>
+                            <GradientStop Color="DarkRed" Offset="0.3"/>
+                        </RadialGradientBrush>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=DataContext.Errors}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
 </ResourceDictionary>

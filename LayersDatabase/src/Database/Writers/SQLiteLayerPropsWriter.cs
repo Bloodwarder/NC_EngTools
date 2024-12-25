@@ -38,9 +38,10 @@ namespace LayersIO.Database.Writers
 
         protected override void OverwriteItemInContext(string key, LayerProps item, LayersDatabaseContextSqlite db, IQueryable querable)
         {
+            //throw new NotImplementedException();
             var layers = (IQueryable<LayerData>)querable;
             LayerData? layer = layers.SingleOrDefault(l => l.Name == key);
-            layer ??= db.Layers.Add(new(key)).Entity;
+            //layer ??= db.Layers.Add(new(key)).Entity;  // здесь раньше было полное имя, теперь нужен только статус
             LayerPropertiesData overwriteData = TinyMapper.Map<LayerPropertiesData>(item);
             layer.LayerPropertiesData = overwriteData;
         }

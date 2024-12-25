@@ -34,7 +34,7 @@ namespace NameClassifiers.Sections
             }
             else
             {
-                layerInfoResult.Exceptions.Add(new WrongLayerException("Не найден статус"));
+                layerInfoResult.Exceptions.Add(new WrongStatusException("Не найден статус"));
                 layerInfoResult.Status = LayerInfoParseStatus.PartialFailure;
             }
             NextSection?.Process(str, layerInfoResult, ref pointer);

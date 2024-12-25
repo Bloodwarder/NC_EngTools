@@ -34,6 +34,10 @@
         /// Вес линий
         /// </summary>
         public int? LineWeight;
+        /// <summary>
+        /// Индекс для сортировки в DrawOrderTable чертежа
+        /// </summary>
+        public int DrawOrderIndex;
 
     }
 }

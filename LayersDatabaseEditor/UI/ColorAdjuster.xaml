@@ -42,15 +42,12 @@
                         Value="{Binding ElementName=tbBlue, Path=Text, Mode=TwoWay}" MouseWheel="Sliders_MouseWheel"/>
                 <TextBox x:Name="tbRed" Grid.Column="1" Grid.Row="0" 
                          MaxHeight="25" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-                         
                          Text="{Binding Path=Red, Mode=TwoWay}" TextChanged="tbRed_TextChanged"/>
                 <TextBox x:Name="tbGreen" Grid.Column="1" Grid.Row="1" 
                          MaxHeight="25" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-                         
                          Text="{Binding Path=Green, Mode=TwoWay}" TextChanged="tbGreen_TextChanged"/>
                 <TextBox x:Name="tbBlue" Grid.Column="1" Grid.Row="2" 
                          MaxHeight="25" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-                         
                          Text="{Binding Path=Blue, Mode=TwoWay}" TextChanged="tbBlue_TextChanged"/>
                 <Rectangle Name="baseColorRectangle" Grid.RowSpan="3" Grid.Column="2" Height="20" Width="25" StrokeThickness="2" Stroke="#000000">
                     <Rectangle.Fill>
