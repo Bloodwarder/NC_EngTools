@@ -1,4 +1,5 @@
-﻿using LayersIO.Model;
+﻿using LayersIO.Connection;
+using LayersIO.Model;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
@@ -9,53 +10,105 @@ namespace LayersDatabaseEditor.ViewModel
     public class LayerPropertiesViewModel : INotifyPropertyChanged
     {
         private readonly LayerPropertiesData _layerPropertiesData;
+        private readonly LayersDatabaseContextSqlite _db;
+
         private Color _color;
+        private string? _linetypeName;
+        private double _linetypeScale;
+        private double _constantWidth;
+        private int _lineWeight;
+        private int _drawOrderIndex;
 
         static LayerPropertiesViewModel()
         {
-
+            
         }
-        public LayerPropertiesViewModel(LayerPropertiesData layerPropertiesData)
+        public LayerPropertiesViewModel(LayerPropertiesData layerPropertiesData, LayersDatabaseContextSqlite context)
         {
+            _db = context;
             _layerPropertiesData = layerPropertiesData;
             ResetValues();
         }
 
+        internal LayersDatabaseContextSqlite Database => _db;
+
         /// <summary>
         /// Глобальная ширина
         /// </summary>
-        public double ConstantWidth { get; set; }
+        public double ConstantWidth
+        {
+            get => _constantWidth;
+            set
+            {
+                _constantWidth = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Масштаб типа линий
         /// </summary>
-        public double LinetypeScale { get; set; }
+        public double LinetypeScale
+        {
+            get => _linetypeScale;
+            set
+            {
+                _linetypeScale = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Color Color
         {
             get => _color;
             set
             {
-                _color = value;
-                OnPropertyChanged(nameof(Color));
+                if (_color != value)
+                {
+                    _color = value;
+                    OnPropertyChanged();
+                }
             }
         }
         /// <summary>
         /// Тип линий
         /// </summary>
-        public string? LinetypeName { get; set; }
+        public string? LinetypeName
+        {
+            get => _linetypeName;
+            set
+            {
+                _linetypeName = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Вес линий
         /// </summary>
-        public int LineWeight { get; set; }
+        public int LineWeight
+        {
+            get => _lineWeight;
+            set
+            {
+                _lineWeight = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int DrawOrderIndex
+        {
+            get => _drawOrderIndex;
+            set
+            {
+                _drawOrderIndex = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string property = "")
+
+        public void UpdateDbEntity()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
-        }
-        internal void SaveChanges()
-        {
-            // VALIDATE
+            // Валидация в родительском объекте
 
             _layerPropertiesData.ConstantWidth = ConstantWidth;
             _layerPropertiesData.LinetypeScale = LinetypeScale;
@@ -64,15 +117,35 @@ namespace LayersDatabaseEditor.ViewModel
             _layerPropertiesData.Red = this.Color.R;
             _layerPropertiesData.Green = this.Color.G;
             _layerPropertiesData.Blue = this.Color.B;
+            _layerPropertiesData.DrawOrderIndex = DrawOrderIndex;
         }
 
-        internal void ResetValues()
+        public void ResetValues()
         {
             ConstantWidth = _layerPropertiesData.ConstantWidth;
             LinetypeScale = _layerPropertiesData.LinetypeScale;
             Color = Color.FromRgb(_layerPropertiesData.Red, _layerPropertiesData.Green, _layerPropertiesData.Blue);
             LinetypeName = _layerPropertiesData.LinetypeName;
             LineWeight = _layerPropertiesData.LineWeight;
+            DrawOrderIndex = _layerPropertiesData.DrawOrderIndex;
         }
+
+        public bool IsUpdated()
+        {
+            bool isUpdated =
+            ConstantWidth != _layerPropertiesData.ConstantWidth
+            || LinetypeScale != _layerPropertiesData.LinetypeScale
+            || Color != Color.FromRgb(_layerPropertiesData.Red, _layerPropertiesData.Green, _layerPropertiesData.Blue)
+            || LinetypeName != _layerPropertiesData.LinetypeName
+            || LineWeight != _layerPropertiesData.LineWeight
+            || DrawOrderIndex != _layerPropertiesData.DrawOrderIndex;
+            return isUpdated;
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string property = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+        }
+
     }
 }

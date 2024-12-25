@@ -1,128 +1,331 @@
-﻿using FluentValidation;
-using LayersDatabaseEditor.Utilities;
+﻿using LayersDatabaseEditor.Utilities;
+using LayersIO.Connection;
 using LayersIO.DataTransfer;
 using LayersIO.Model;
-using System.IO;
+using NPOI.OpenXmlFormats.Wordprocessing;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace LayersDatabaseEditor.ViewModel
 {
-    public class LayerDrawTemplateViewModel
+    public class LayerDrawTemplateViewModel : INotifyPropertyChanged
     {
-        LayerDrawTemplateData _layerDrawTemplateData;
-        public LayerDrawTemplateViewModel(LayerDrawTemplateData layerDrawTemplateData)
+        readonly LayerDrawTemplateData _layerDrawTemplateData;
+        private LayersDatabaseContextSqlite _db;
+        private DrawTemplate? _drawTemplate;
+        private string? _markChar;
+        private string? _width;
+        private string? _height;
+        private double? _innerBorderBrightness;
+        private HatchPattern? _innerHatchPattern;
+        private double? _innerHatchScale;
+        private double? _innerHatchBrightness;
+        private double? _innerHatchAngle;
+        private string? _fenceWidth;
+        private string? _fenceHeight;
+        private string? _fenceLayer;
+        private HatchPattern? _outerHatchPattern;
+        private double? _outerHatchScale;
+        private double? _outerHatchBrightness;
+        private double? _outerHatchAngle;
+        private double? _radius;
+        private string? _blockName;
+        private double? _blockXOffset;
+        private double? _blockYOffset;
+        private string? _blockPath;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public LayerDrawTemplateViewModel(LayerDrawTemplateData layerDrawTemplateData, LayersDatabaseContextSqlite context)
         {
+            _db = context;
             _layerDrawTemplateData = layerDrawTemplateData;
-            DrawTemplate = Enum.Parse<DrawTemplate>(layerDrawTemplateData.DrawTemplate ?? "Undefined");
-            MarkChar = layerDrawTemplateData.MarkChar;
-            Width = layerDrawTemplateData.Width;
-            Height = layerDrawTemplateData.Height;
-            InnerBorderBrightness = layerDrawTemplateData.InnerBorderBrightness;
-            InnerHatchPattern = Enum.Parse<HatchPattern>(layerDrawTemplateData.InnerHatchPattern ?? "None");
-            InnerHatchScale = layerDrawTemplateData.InnerHatchScale;
-            InnerHatchBrightness = layerDrawTemplateData.InnerHatchBrightness;
-            InnerHatchAngle = layerDrawTemplateData.InnerHatchAngle;
-            FenceWidth = layerDrawTemplateData.FenceWidth;
-            FenceHeight = layerDrawTemplateData.FenceHeight;
-            FenceLayer = layerDrawTemplateData.FenceLayer;
-            OuterHatchPattern = Enum.Parse<HatchPattern>(layerDrawTemplateData.OuterHatchPattern ?? "None");
-            OuterHatchScale = layerDrawTemplateData.OuterHatchScale;
-            OuterHatchBrightness = layerDrawTemplateData.OuterHatchBrightness;
-            OuterHatchAngle = layerDrawTemplateData.OuterHatchAngle;
-            Radius = layerDrawTemplateData.Radius;
-            BlockName = layerDrawTemplateData.BlockName;
-            BlockXOffset = layerDrawTemplateData.BlockXOffset;
-            BlockYOffset = layerDrawTemplateData.BlockYOffset;
-            BlockPath = layerDrawTemplateData.BlockPath;
+            ResetValues();
         }
 
+        internal LayersDatabaseContextSqlite Database => _db;
+
+        public bool IsUpdated()
+        {
+            bool updated = _layerDrawTemplateData.DrawTemplate != DrawTemplate.ToString()
+                            || _layerDrawTemplateData.MarkChar != MarkChar
+                            || _layerDrawTemplateData.Width != Width
+                            || _layerDrawTemplateData.Height != Height
+                            || _layerDrawTemplateData.InnerBorderBrightness != InnerBorderBrightness
+                            || !(string.IsNullOrEmpty(_layerDrawTemplateData.InnerHatchPattern) && InnerHatchPattern == HatchPattern.None) && _layerDrawTemplateData.InnerHatchPattern != InnerHatchPattern.ToString()
+                            || _layerDrawTemplateData.InnerHatchScale != InnerHatchScale
+                            || _layerDrawTemplateData.InnerHatchBrightness != InnerHatchBrightness
+                            || _layerDrawTemplateData.InnerHatchAngle != InnerHatchAngle
+                            || _layerDrawTemplateData.FenceWidth != FenceWidth
+                            || _layerDrawTemplateData.FenceHeight != FenceHeight
+                            || _layerDrawTemplateData.FenceLayer != FenceLayer
+                            || !(string.IsNullOrEmpty(_layerDrawTemplateData.OuterHatchPattern) && OuterHatchPattern == HatchPattern.None) && _layerDrawTemplateData.OuterHatchPattern != OuterHatchPattern.ToString()
+                            || _layerDrawTemplateData.OuterHatchScale != OuterHatchScale
+                            || _layerDrawTemplateData.OuterHatchBrightness != OuterHatchBrightness
+                            || _layerDrawTemplateData.OuterHatchAngle != OuterHatchAngle
+                            || _layerDrawTemplateData.Radius != Radius
+                            || _layerDrawTemplateData.BlockName != BlockName
+                            || _layerDrawTemplateData.BlockXOffset != BlockXOffset
+                            || _layerDrawTemplateData.BlockYOffset != BlockYOffset
+                            || _layerDrawTemplateData.BlockPath != BlockPath;
+            return updated;
+        }
         /// <summary>
         /// Имя шаблона
         /// </summary>
-        public DrawTemplate? DrawTemplate { get; set; }
+        public DrawTemplate? DrawTemplate
+        {
+            get => _drawTemplate;
+            set
+            {
+                _drawTemplate = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Символ для вставки посередине линии
         /// </summary>
-        public string? MarkChar { get; set; }
+        public string? MarkChar
+        {
+            get => _markChar;
+            set
+            {
+                _markChar = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Ширина (для прямоугольных шаблонов)
         /// </summary>
-        public string? Width { get; set; }
+        public string? Width
+        {
+            get => _width;
+            set
+            {
+                _width = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Высота (для прямоугольных шаблонов)
         /// </summary>
-        public string? Height { get; set; }
+        public string? Height
+        {
+            get => _height;
+            set
+            {
+                _height = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Дополнительная яркость внутреннего прямоугольника  (от - 1 до 1)
         /// </summary>
-        public double? InnerBorderBrightness { get; set; }
+        public double? InnerBorderBrightness
+        {
+            get => _innerBorderBrightness;
+            set
+            {
+                _innerBorderBrightness = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Имя образца внутренней штриховки
         /// </summary>
-        public HatchPattern? InnerHatchPattern { get; set; }
+        public HatchPattern? InnerHatchPattern
+        {
+            get => _innerHatchPattern;
+            set
+            {
+                _innerHatchPattern = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Масштаб внутренней штриховки
         /// </summary>
-        public double? InnerHatchScale { get; set; }
+        public double? InnerHatchScale
+        {
+            get => _innerHatchScale;
+            set
+            {
+                _innerHatchScale = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Дополнительная яркость внутренней штриховки  (от - 1 до 1)
         /// </summary>
-        public double? InnerHatchBrightness { get; set; }
+        public double? InnerHatchBrightness
+        {
+            get => _innerHatchBrightness;
+            set
+            {
+                _innerHatchBrightness = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Угол поворота внутренней штриховки
         /// </summary>
-        public double? InnerHatchAngle { get; set; }
+        public double? InnerHatchAngle
+        {
+            get => _innerHatchAngle;
+            set
+            {
+                _innerHatchAngle = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Ширина внешнего прямоугольника
         /// </summary>
-        public string? FenceWidth { get; set; }
+        public string? FenceWidth
+        {
+            get => _fenceWidth;
+            set
+            {
+                _fenceWidth = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Высота внешнего прямоугольника
         /// </summary>
-        public string? FenceHeight { get; set; }
+        public string? FenceHeight
+        {
+            get => _fenceHeight;
+            set
+            {
+                _fenceHeight = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Слой внешнего прямоугольника (если отличается от основного слоя)
         /// </summary>
-        public string? FenceLayer { get; set; }
+        public string? FenceLayer
+        {
+            get => _fenceLayer;
+            set
+            {
+                _fenceLayer = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Имя образца внешней штриховки
         /// </summary>
-        public HatchPattern? OuterHatchPattern { get; set; }
+        public HatchPattern? OuterHatchPattern
+        {
+            get => _outerHatchPattern;
+            set
+            {
+                _outerHatchPattern = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Масштаб внешней штриховки
         /// </summary>
-        public double? OuterHatchScale { get; set; }
+        public double? OuterHatchScale
+        {
+            get => _outerHatchScale;
+            set
+            {
+                _outerHatchScale = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Дополнительная яркость внешней штриховки (от - 1 до 1)
         /// </summary>
-        public double? OuterHatchBrightness { get; set; }
+        public double? OuterHatchBrightness
+        {
+            get => _outerHatchBrightness;
+            set
+            {
+                _outerHatchBrightness = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Угол поворота внешней штриховки
         /// </summary>
-        public double? OuterHatchAngle { get; set; }
+        public double? OuterHatchAngle
+        {
+            get => _outerHatchAngle;
+            set
+            {
+                _outerHatchAngle = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Радиус
         /// </summary>
-        public double? Radius { get; set; }
+        public double? Radius
+        {
+            get => _radius;
+            set
+            {
+                _radius = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Имя блока
         /// </summary>
-        public string? BlockName { get; set; }
+        public string? BlockName
+        {
+            get => _blockName;
+            set
+            {
+                _blockName = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Смещение точки вставки блока по оси X
         /// </summary>
-        public double? BlockXOffset { get; set; }
+        public double? BlockXOffset
+        {
+            get => _blockXOffset;
+            set
+            {
+                _blockXOffset = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Смещение точки вставки блока по оси Y
         /// </summary>
-        public double? BlockYOffset { get; set; }
+        public double? BlockYOffset
+        {
+            get => _blockYOffset;
+            set
+            {
+                _blockYOffset = value;
+                OnPropertyChanged();
+            }
+        }
         /// <summary>
         /// Путь к файлу для импорта блока
         /// </summary>
-        public string? BlockPath { get; set; }
-
-        internal void SaveChanges()
+        public string? BlockPath
         {
-            // UNDONE: Vailidate
+            get => _blockPath;
+            set
+            {
+                _blockPath = value;
+                OnPropertyChanged();
+            }
+        }
+
+        internal void UpdateDbEntity()
+        {
+            // Validation in parent LayerDataViewModel
 
             _layerDrawTemplateData.DrawTemplate = DrawTemplate.ToString();
             _layerDrawTemplateData.MarkChar = MarkChar;
@@ -146,21 +349,35 @@ namespace LayersDatabaseEditor.ViewModel
             _layerDrawTemplateData.BlockYOffset = BlockYOffset;
             _layerDrawTemplateData.BlockPath = BlockPath;
         }
-    }
 
-    public class LayerDrawTemplateViewModelValidator : AbstractValidator<LayerDrawTemplateViewModel>
-    {
-        public LayerDrawTemplateViewModelValidator()
+        public void ResetValues()
         {
-            RuleFor(l => l.DrawTemplate).Cascade(CascadeMode.Stop).NotNull().IsInEnum();
+            DrawTemplate = Enum.Parse<DrawTemplate>(_layerDrawTemplateData.DrawTemplate ?? "Undefined");
+            MarkChar = _layerDrawTemplateData.MarkChar;
+            Width = _layerDrawTemplateData.Width;
+            Height = _layerDrawTemplateData.Height;
+            InnerBorderBrightness = _layerDrawTemplateData.InnerBorderBrightness;
+            InnerHatchPattern = Enum.Parse<HatchPattern>(_layerDrawTemplateData.InnerHatchPattern ?? "None");
+            InnerHatchScale = _layerDrawTemplateData.InnerHatchScale;
+            InnerHatchBrightness = _layerDrawTemplateData.InnerHatchBrightness;
+            InnerHatchAngle = _layerDrawTemplateData.InnerHatchAngle;
+            FenceWidth = _layerDrawTemplateData.FenceWidth;
+            FenceHeight = _layerDrawTemplateData.FenceHeight;
+            FenceLayer = _layerDrawTemplateData.FenceLayer;
+            OuterHatchPattern = Enum.Parse<HatchPattern>(_layerDrawTemplateData.OuterHatchPattern ?? "None");
+            OuterHatchScale = _layerDrawTemplateData.OuterHatchScale;
+            OuterHatchBrightness = _layerDrawTemplateData.OuterHatchBrightness;
+            OuterHatchAngle = _layerDrawTemplateData.OuterHatchAngle;
+            Radius = _layerDrawTemplateData.Radius;
+            BlockName = _layerDrawTemplateData.BlockName;
+            BlockXOffset = _layerDrawTemplateData.BlockXOffset;
+            BlockYOffset = _layerDrawTemplateData.BlockYOffset;
+            BlockPath = _layerDrawTemplateData.BlockPath;
+        }
 
-            RuleFor(l => l.InnerHatchBrightness).InclusiveBetween(-1d, 1d);
-            RuleFor(l => l.InnerBorderBrightness).InclusiveBetween(-1d, 1d);
-            RuleFor(l => l.OuterHatchBrightness).InclusiveBetween(-1d, 1d);
-            RuleFor(l => l.InnerHatchBrightness).InclusiveBetween(-1d, 1d);
-
-            RuleFor(l => l.BlockPath).Must(p => File.Exists(p) && p.EndsWith(".dwg"));
-            RuleFor(l => l.FenceLayer).Must(f => string.IsNullOrEmpty(f) || true); // TODO: проверить по наличию в бд, пока заглушка
+        private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

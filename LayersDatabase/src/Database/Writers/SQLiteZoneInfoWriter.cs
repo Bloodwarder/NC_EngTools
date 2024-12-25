@@ -40,7 +40,7 @@ namespace LayersIO.Database.Writers
         {
             var layers = (IQueryable<LayerData>)querable;
             LayerData? layer = layers.SingleOrDefault(l => l.Name == key);
-            layer ??= db.Layers.Add(new(key)).Entity;
+            //layer ??= db.Layers.Add(new(key)).Entity;  // здесь раньше было полное имя, теперь нужен только статус
             db.Zones.RemoveRange(layer.Zones);
             foreach (var zoneInfo in item)
             {

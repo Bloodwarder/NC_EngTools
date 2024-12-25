@@ -1,7 +1,7 @@
 ﻿using LayersDatabaseEditor.Utilities;
 using LayersDatabaseEditor.ViewModel;
 using LoaderCore;
-using LoaderCore.Interfaces;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO;
@@ -18,6 +18,7 @@ namespace LayersDatabaseEditor
         static App()
         {
             DirectoryInfo? dir = Directory.GetParent(Assembly.GetExecutingAssembly().Location)!;
+            DirectoryInfo mainDirectory = dir.Parent!.Parent!;
             string path = Path.Combine(dir!.Parent!.FullName,"LoaderCore","LoaderCore.dll");
             string diLibPath = Path.Combine(dir!.Parent!.FullName, "LoaderCore", "Microsoft.Extensions.DependencyInjection.Abstractions.dll");
             Assembly.LoadFrom(path);

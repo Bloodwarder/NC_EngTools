@@ -7,38 +7,31 @@
     public class LayerData
     {
         public LayerData() { }
-        public LayerData(string name)
+        public LayerData(LayerGroupData layerGroup)
         {
-            Name = name;
+            LayerGroup = layerGroup;
+        }
+        public LayerData(LayerGroupData layerGroup, string status) : this(layerGroup)
+        {
+            StatusName = status;
         }
 
 
         public int Id { get; set; }
 
-        public string Prefix { get; set; } = null!;
+        public string Prefix => LayerGroup.Prefix;
 
         public string Separator = "_"; // TODO: Заменить на универсальную конструкцию. Брать из xml или из сборки LayerWorks. Или устанавливать из LayersDatabaseEditor
-        public string MainName { get; set; } = null!;
-        public string StatusName { get; set; } = null!;
+        public string MainName => LayerGroup.MainName;
+        public string? StatusName { get; set; }
 
-        public LayerGroupData LayerGroup { get; set; } = null!;
-        public string Name
-        {
-            get
-            {
-                return string.Join(Separator, Prefix, MainName, StatusName);
-            }
-            set
-            {
-                string[] classifiers = value.Split(Separator);
-                Prefix = classifiers[0];
-                MainName = string.Join(Separator, classifiers.Skip(1).Take(classifiers.Length - 2).ToArray());
-                StatusName = classifiers[^1];
-            }
-        }
+        public int LayerGroupId { get; set; }
+        public LayerGroupData LayerGroup { get; set; }
+        public string Name => string.Join(Separator, Prefix, MainName, StatusName);
+
         public LayerPropertiesData LayerPropertiesData { get; set; } = new();
         public LayerDrawTemplateData LayerDrawTemplateData { get; set; } = new();
-        public List<ZoneInfoData> Zones { get; set; }
+        public List<ZoneInfoData> Zones { get; set; } = new();
 
         public bool IsEmpty => LayerPropertiesData is null || LayerDrawTemplateData is null || MainName is null;
     }

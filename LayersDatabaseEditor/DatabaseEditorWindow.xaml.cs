@@ -15,6 +15,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Media;
 using LayersIO.DataTransfer;
+using System.Windows.Controls.Primitives;
 
 namespace LayersDatabaseEditor
 {
@@ -37,6 +38,9 @@ namespace LayersDatabaseEditor
             EditorViewModel = NcetCore.ServiceProvider.GetRequiredService<EditorViewModel>();
             EditorViewModel.LayerGroupNames.CollectionChanged += (s, e) => UpdateTreeView(s, e);
 
+            cmUpdate.DataContext = EditorViewModel;
+            cmReset.DataContext = EditorViewModel;
+
         }
 
 
@@ -49,6 +53,8 @@ namespace LayersDatabaseEditor
         private void miTestRun_Click(object sender, RoutedEventArgs e)
         {
             _logger?.LogInformation("Запущена тестовая команда");
+            var foo = EditorViewModel.SelectedGroup;
+            var bar = bullshitMenuItem;
             //Task<string> task = TestMethod1Async();
             //await LogWriteAsync(task);
 
@@ -132,7 +138,7 @@ namespace LayersDatabaseEditor
                 case NotifyCollectionChangedAction.Add:
                     foreach (string str in e.NewItems!.Cast<string>())
                     {
-                        string[] decomp = str.Split("_");
+                        string[] decomp = str.Split("_"); // UNDONE: сепаратор в хардкоде
                         TreeView treeView = twLayerGroups;
                         var items = treeView.Items;
                         for (int i = 0; i < decomp.Length; i++)
@@ -165,17 +171,14 @@ namespace LayersDatabaseEditor
                         TreeViewItem item = items.Cast<TreeViewItem>().Where(item => (string)item.Header == decomp[0]).Single();
                         for (int i = 1; i < decomp.Length; i++)
                         {
-                            var childItem = items.Cast<TreeViewItem>().Where(item => item.Header == decomp[i]).FirstOrDefault();
+                            items = item.Items;
+                            var childItem = items.Cast<TreeViewItem>().Where(chItem => chItem.Header as string == decomp[i]).FirstOrDefault();
                             if (childItem != null)
                             {
                                 item = childItem;
-                                items = childItem.Items;
-                            }
-                            else
-                            {
-                                items.Remove(item);
                             }
                         }
+                        items.Remove(item);
                     }
                     break;
 
@@ -184,7 +187,7 @@ namespace LayersDatabaseEditor
                     break;
 
                 case NotifyCollectionChangedAction.Replace:
-                    throw new InvalidOperationException("Как оно сюда попало?");
+                    break; // TODO: разобраться как попадает сюда
 
                 case NotifyCollectionChangedAction.Move:
                     throw new NotImplementedException("Возможно попадёт при переименовании группы. Как попадёт, так и допишу");
@@ -224,28 +227,14 @@ namespace LayersDatabaseEditor
             {
                 return;
             }
-
-            //if (EditorViewModel.SelectedGroup != null)
-            //{
-            //    LogWrite($"Group: {EditorViewModel.SelectedGroup.Name}");
-            //}
-
         }
 
         private void lvLayers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var listView = (ListView)sender;
-
+            // Костыль
             if (EditorViewModel.SelectedLayer != null)
             {
                 caBaseColor.UpdateRgbControls(); // BUG: Надо апдейтить где-то внутри контрола, чтобы он был самодостаточным. Пока работает только с этим
-                LogWrite($"Layer: {EditorViewModel.SelectedLayer.Name}");
-                var color = EditorViewModel.SelectedLayer.LayerProperties.Color;
-                LogWrite($"Color: {color.R}-{color.G}-{color.B}");
-            }
-            else
-            {
-                
             }
         }
 
@@ -257,25 +246,50 @@ namespace LayersDatabaseEditor
             if (context != null)
             {
                 var drw = context.LayerDrawTemplate.DrawTemplate ?? DrawTemplate.Undefined;
-                spBlockReference.Visibility = (drw & (DrawTemplate.BlockReference)) != 0 ?
-                    Visibility.Visible : Visibility.Collapsed;
-                spCircles.Visibility = (drw & (DrawTemplate.HatchedCircle)) != 0 ?
-                    Visibility.Visible : Visibility.Collapsed;
-                spFence.Visibility = (drw & (DrawTemplate.FencedRectangle | DrawTemplate.HatchedFencedRectangle)) != 0 ?
-                    Visibility.Visible : Visibility.Collapsed;
-                spFenceHatch.Visibility = (drw & (DrawTemplate.HatchedFencedRectangle)) != 0 ?
-                    Visibility.Visible : Visibility.Collapsed;
-                spLines.Visibility = (drw & (DrawTemplate.MarkedSolidLine | DrawTemplate.MarkedDashedLine)) != 0 ?
-                    Visibility.Visible : Visibility.Collapsed;
-                spRectangles.Visibility = (drw & (DrawTemplate.Rectangle |
-                                                  DrawTemplate.HatchedRectangle |
-                                                  DrawTemplate.FencedRectangle |
-                                                  DrawTemplate.HatchedFencedRectangle)) != 0 ?
-                    Visibility.Visible : Visibility.Collapsed;
-                spHatch.Visibility = EditorViewModel.SelectedGroup?.Name.Contains("_п_") ?? false ?
-                    Visibility.Visible : Visibility.Collapsed;
-
+                CheckTemplateSectionsVisibility(drw);
             }
+        }
+        private void cbDrawTemplate_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var box = (ComboBox)sender;
+            var dt = box.SelectedItem as DrawTemplate?;
+            if (dt != null)
+                CheckTemplateSectionsVisibility(dt.Value);
+        }
+
+        private void CheckTemplateSectionsVisibility(DrawTemplate drw)
+        {
+            spBlockReference.Visibility = (drw & (DrawTemplate.BlockReference)) != 0 ?
+                Visibility.Visible : Visibility.Collapsed;
+            spCircles.Visibility = (drw & (DrawTemplate.HatchedCircle)) != 0 ?
+                Visibility.Visible : Visibility.Collapsed;
+            spFence.Visibility = (drw & (DrawTemplate.FencedRectangle | DrawTemplate.HatchedFencedRectangle)) != 0 ?
+                Visibility.Visible : Visibility.Collapsed;
+            spFenceHatch.Visibility = (drw & (DrawTemplate.HatchedFencedRectangle)) != 0 ?
+                Visibility.Visible : Visibility.Collapsed;
+            spLines.Visibility = (drw & (DrawTemplate.MarkedSolidLine | DrawTemplate.MarkedDashedLine)) != 0 ?
+                Visibility.Visible : Visibility.Collapsed;
+            spRectangles.Visibility = (drw & (DrawTemplate.Rectangle |
+                                              DrawTemplate.HatchedRectangle |
+                                              DrawTemplate.FencedRectangle |
+                                              DrawTemplate.HatchedFencedRectangle)) != 0 ?
+                Visibility.Visible : Visibility.Collapsed;
+            spHatch.Visibility = EditorViewModel.SelectedGroup?.Name.Contains("_п_") ?? false ?
+                Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void ButtonWithContextMenu_Click(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+            if (button.ContextMenu != null)
+            {
+                button.ContextMenu.IsOpen = !button.ContextMenu.IsOpen;
+            }
+        }
+
+        private void databaseEditorWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            EditorViewModel.Database?.Dispose();
         }
     }
 

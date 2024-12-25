@@ -9,7 +9,8 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         x:Name="databaseEditorWindow"
-        Title="Редактор слоёв" Height="500" Width="1000">
+        Title="Редактор слоёв" Height="500" Width="1000"
+        DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel}" Closing="databaseEditorWindow_Closing">
     <Window.Resources>
         <u:EnumToItemsSourceConverter x:Key="EnumToItemsSourceConverter"/>
         <ObjectDataProvider x:Key="HatchPatternEnumDataSource" ObjectType="{x:Type sys:Enum}"
@@ -34,7 +35,7 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="1.2*"/>
         </Grid.ColumnDefinitions>
-        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel}">
+        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
             <MenuItem Header="Программа">
                 <MenuItem Name="miTestRun" Header="Запуск тестовой команды" Click="miTestRun_Click"/>
                 <MenuItem Name="miTestRun2" Header="Запуск тестовой команды 2" Click="miTestRun2_Click"/>
@@ -62,24 +63,26 @@
             <TreeView Name="twLayerGroups" SelectedItemChanged="twLayerGroups_SelectedItemChanged"/>
         </ScrollViewer>
         <DockPanel Grid.Row="4" MaxHeight="60" Margin="3 0 17 1">
-            <Button DockPanel.Dock="Right" Width="25" Height="25" Margin="3">-</Button>
-            <Button DockPanel.Dock="Right" Width="25" Height="25" Margin="3">+</Button>
+            <Button DockPanel.Dock="Right" Width="25" Height="25" Margin="3"
+                    Command="{Binding DeleteLayerGroupsCommand}">-</Button>
+            <Button DockPanel.Dock="Right" Width="25" Height="25" Margin="3"
+                    Command="{Binding AddNewLayerGroupCommand}">+</Button>
             <ComboBox DockPanel.Dock="Left" Name="cbTestLayers" Margin="0 3 3 3" MinWidth="150"
-                          VerticalContentAlignment="Center"
-                          IsEditable="True" IsTextSearchEnabled="True" IsTextSearchCaseSensitive="False"
-                          DataContext="{Binding EditorViewModel, ElementName=databaseEditorWindow}"
-                          ItemsSource="{Binding  Path=LayerGroupNames}"
-                          SelectedItem="{Binding Path=SelectedGroup.Name, Mode=OneWay}"/>
+                      Style="{StaticResource cbGroupControlStyle}"
+                      VerticalContentAlignment="Center"
+                      IsEditable="True" IsTextSearchEnabled="True" IsTextSearchCaseSensitive="False"
+                      ItemsSource="{Binding  Path=LayerGroupNames}"
+                      SelectedItem="{Binding Path=SelectedGroup.Name, Mode=OneWay}"
+                      Text="{Binding Path=GroupInputText, Mode=TwoWay}"/>
         </DockPanel>
 
         <ScrollViewer Name="svLayers" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="3">
             <ListView Name="lvLayers" SelectionChanged="lvLayers_SelectionChanged"
-                      DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel}"
                       ItemsSource="{Binding Path=SelectedGroup.Layers, Mode=OneWay}"
                       SelectedItem="{Binding Path=SelectedLayer, Mode=TwoWay}">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Имя группы слоёв" DisplayMemberBinding="{Binding Name}"
+                        <GridViewColumn Header="Имя группы слоёв" DisplayMemberBinding="{Binding Path=Name}"
                                         Width="{Binding ElementName=lvLayers, Path=ActualWidth}"/>
                     </GridView>
                 </ListView.View>
@@ -88,12 +91,12 @@
 
         <DockPanel Grid.Row="3" Grid.Column="1" Margin="3">
             <TabControl Name="tcProperties" SelectedIndex="0" DataContextChanged="tcProperties_DataContextChanged"
-                         IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsGroupSelected}"
-                        DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedLayer}">
+                        IsEnabled="{Binding Path=IsGroupSelected}"
+                        DataContext="{Binding Path=SelectedLayer}">
                 <TabItem Header="Общие" Width="100" IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
                     <StackPanel IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
-                        <ui:UserStringInput LabelText="Префикс" InputValue="{Binding Path=Prefix}"/>
-                        <ui:UserStringInput LabelText="Основное имя" InputValue="{Binding Path=MainName}"/>
+                        <ui:UserStringInput LabelText="Префикс" InputValue="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.Prefix}"/>
+                        <ui:UserStringInput LabelText="Основное имя" InputValue="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.MainName}"/>
                         <ui:UserStringInput LabelText="Статус" InputValue="{Binding Path=StatusName}"/>
                     </StackPanel>
                 </TabItem>
@@ -109,6 +112,7 @@
                                                   ItemsSource="{Binding Source={StaticResource linetypesProvider}}"
                                                   SelectedItem="{Binding Path=LinetypeName, Mode=TwoWay}"/>
                             <ui:UserNumericInput LabelText="Вес линий" InputValue="{Binding Path=LineWeight, Mode=TwoWay}"/>
+                            <ui:UserNumericInput LabelText="Вес линий" InputValue="{Binding Path=DrawOrderIndex, Mode=TwoWay}"/>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
@@ -116,7 +120,7 @@
                          IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsGroupSelected}">
                     <ScrollViewer>
                         <StackPanel Name="spLegend" Margin="5 15 5 5"
-                                    DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.LegendData}">
+                                    DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.LayerLegend}">
                             <ui:UserNumericInput LabelText="Положение в таблице" InputValue="{Binding Path=Rank, Mode=TwoWay}"/>
                             <ui:UserStringInput LabelText="Заголовок для однотипных объектов" Height="100" InputValue="{Binding Path=SubLabel, Mode=TwoWay}"/>
                             <ui:UserStringInput LabelText="Заголовок" Height="100" InputValue="{Binding Path=Label, Mode=TwoWay}"/>
@@ -129,9 +133,10 @@
                          IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
                     <ScrollViewer IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
                         <StackPanel Margin="5 15 5 5">
-                            <ui:UserComboBoxInput LabelText="Тип шаблона" 
+                            <ui:UserComboBoxInput x:Name="cbDrawTemplate" LabelText="Тип шаблона" 
                                                   ItemsSource="{Binding Source={x:Static io:DrawTemplate.Undefined}, Converter={StaticResource EnumToItemsSourceConverter}}"
-                                                  SelectedItem="{Binding Path=DrawTemplate, Mode=TwoWay}"/>
+                                                  SelectedItem="{Binding Path=DrawTemplate, Mode=TwoWay}"
+                                                  SelectionChanged="cbDrawTemplate_SelectionChanged"/>
                             <StackPanel Name="spLines" Margin="0">
                                 <ui:UserStringInput LabelText="Буква на линии" InputValue="{Binding Path=MarkChar, Mode=TwoWay}"/>
                             </StackPanel>
@@ -183,14 +188,53 @@
             </TabControl>
         </DockPanel>
         <WrapPanel Grid.Row="4" Grid.Column="2" FlowDirection="RightToLeft">
-            <Button Height="25" Width="100" Margin="3"></Button>
-            <Button Height="25" Width="100" Margin="3"></Button>
-            <Button Height="25" Width="100" Margin="3"></Button>
+            <Button Name="tbUpdate" Height="25" Width="100" Margin="3"
+                          Content="Применить" Click="ButtonWithContextMenu_Click">
+                <Button.ContextMenu>
+                    <ContextMenu Name="cmUpdate">
+                        <MenuItem Header="Изменения текущего слоя"
+                                  Command="{Binding UpdateDatabaseCommand}"
+                                  CommandParameter="{Binding SelectedLayer}"/>
+                        <MenuItem Header="Изменения текущей группы"
+                                  Command="{Binding UpdateDatabaseCommand}"
+                                  CommandParameter="{Binding SelectedGroup}"/>
+                        <MenuItem Header="Все изменения в базе"
+                                  Command="{Binding UpdateDatabaseCommand}"
+                                  CommandParameter="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=DataContext}"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <Button Name="tbReset" Height="25" Width="100" Margin="3"
+                    Content="Откатить" Click="ButtonWithContextMenu_Click">
+                <Button.ContextMenu>
+                    <ContextMenu Name="cmReset">
+                        <MenuItem Name="bullshitMenuItem" Header="Изменения текущего слоя"
+                                  Command="{Binding ResetDatabaseCommand}"
+                                  CommandParameter="{Binding SelectedLayer}"/>
+                        <MenuItem Header="Изменения текущей группы"
+                                  Command="{Binding ResetDatabaseCommand}"
+                                  CommandParameter="{Binding SelectedGroup}"/>
+                        <MenuItem Header="Все изменения в базе"
+                                  Command="{Binding ResetDatabaseCommand}"
+                                  CommandParameter="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=DataContext}"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <Ellipse x:Name="dbIndicatorEllipse" DockPanel.Dock="Right" Width="20" Height="20" Margin="50 2.5 20 2.5"
+                     Style="{StaticResource ellipseIndicatorStyle}"/>
+            <TextBlock Text="База" Height="25" VerticalAlignment="Center"/>
+            <Ellipse x:Name="groupIndicatorEllipse" DockPanel.Dock="Right" Width="20" Height="20" Margin="20 2.5 20 2.5"
+                     Style="{StaticResource ellipseIndicatorStyle}"
+                     DataContext="{Binding Path=SelectedGroup}"/>
+            <TextBlock Text="Группа" Height="25" VerticalAlignment="Center"/>
+            <Ellipse x:Name="layerIndicatorEllipse" DockPanel.Dock="Right" Width="20" Height="20" Margin="20 2.5 20 2.5"
+                     Style="{StaticResource ellipseIndicatorStyle}"
+                     DataContext="{Binding Path=SelectedLayer}"/>
+            <TextBlock Text="Слой" Height="25" VerticalAlignment="Center"/>
         </WrapPanel>
         <Expander Name="expLog" Grid.Row="5" Grid.ColumnSpan="2" Height="25" Collapsed="expLog_Collapsed" Expanded="expLog_Expanded" >
             <FlowDocumentScrollViewer Name="fdsvLog" Grid.Row="5" Grid.ColumnSpan="2" Margin="3,5,3,3" BorderBrush="#FF4A4A4A" Foreground="Black">
                 <FlowDocument x:Name="fdLog" FontSize="12" FontFamily="SegoeUI" Foreground="Blue" Background="WhiteSmoke" LineHeight="16" LineStackingStrategy="BlockLineHeight"/>
-                <!--<TextBlock x:Name="tbLog" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="12" Foreground="Blue" TextWrapping="Wrap"/>-->
             </FlowDocumentScrollViewer>
         </Expander>
     </Grid>

@@ -2,6 +2,7 @@
 using NameClassifiers.Highlighting;
 using NameClassifiers.Sections;
 using NameClassifiers.SharedProperties;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -179,6 +180,32 @@ namespace NameClassifiers
                 Current = parser!;
             else
                 throw new Exception("Парсер с указанным префиксом не загружен");
+        }
+
+        public static LayerInfoResult ParseLayerName(string layerName)
+        {
+            string? prefix = GetPrefix(layerName);
+            if (prefix == null)
+            {
+                LayerInfoResult result = new($"Не найден префикс в слое {layerName}");
+                return result;
+            }
+            bool parserGetSuccess = LoadedParsers.TryGetValue(prefix, out var parser);
+            if (!parserGetSuccess)
+            {
+                LayerInfoResult result = new($"Не загружен парсер для слоя {layerName}");
+                return result;
+            }
+            return parser!.GetLayerInfo(layerName);
+        }
+
+        public static string? GetPrefix(string layerName)
+        {
+            var match = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])");
+            if (match.Success)
+                return match.Value;
+            else
+                return null;
         }
 
         /// <summary>
