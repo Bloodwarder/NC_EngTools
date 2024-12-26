@@ -16,11 +16,11 @@
         /// <summary>
         /// Ширина (для прямоугольных шаблонов)
         /// </summary>
-        public string? Width { get; set; }
+        public string? Width { get; set; } = "1*";
         /// <summary>
         /// Высота (для прямоугольных шаблонов)
         /// </summary>
-        public string? Height { get; set; }
+        public string? Height { get; set; } = "1*";
         /// <summary>
         /// Дополнительная яркость внутреннего прямоугольника  (от - 1 до 1)
         /// </summary>
@@ -28,11 +28,11 @@
         /// <summary>
         /// Имя образца внутренней штриховки
         /// </summary>
-        public string? InnerHatchPattern { get; set; }
+        public string? InnerHatchPattern { get; set; } = "SOLID";
         /// <summary>
         /// Масштаб внутренней штриховки
         /// </summary>
-        public double? InnerHatchScale { get; set; }
+        public double? InnerHatchScale { get; set; } = 1d;
         /// <summary>
         /// Дополнительная яркость внутренней штриховки  (от - 1 до 1)
         /// </summary>
@@ -44,11 +44,11 @@
         /// <summary>
         /// Ширина внешнего прямоугольника
         /// </summary>
-        public string? FenceWidth { get; set; }
+        public string? FenceWidth { get; set; } = "1*";
         /// <summary>
         /// Высота внешнего прямоугольника
         /// </summary>
-        public string? FenceHeight { get; set; }
+        public string? FenceHeight { get; set; } = "1*";
         /// <summary>
         /// Слой внешнего прямоугольника (если отличается от основного слоя)
         /// </summary>
@@ -60,7 +60,7 @@
         /// <summary>
         /// Масштаб внешней штриховки
         /// </summary>
-        public double? OuterHatchScale { get; set; }
+        public double? OuterHatchScale { get; set; } = 1d;
         /// <summary>
         /// Дополнительная яркость внешней штриховки (от - 1 до 1)
         /// </summary>
@@ -72,7 +72,7 @@
         /// <summary>
         /// Радиус
         /// </summary>
-        public double? Radius { get; set; }
+        public double? Radius { get; set; } = 10;
         /// <summary>
         /// Имя блока
         /// </summary>

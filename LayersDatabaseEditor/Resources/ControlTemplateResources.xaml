@@ -14,12 +14,15 @@
         <Style.Triggers>
             <DataTrigger Binding="{Binding GroupInputState}" Value="{x:Static vm:GroupInputState.Existing}">
                 <Setter Property="Foreground" Value="DarkMagenta"/>
+                <Setter Property="ToolTip" Value="Существующая группа слоёв"/>
             </DataTrigger>
             <DataTrigger Binding="{Binding Path=GroupInputState}" Value="{x:Static vm:GroupInputState.Invalid}">
                 <Setter Property="Foreground" Value="Red"/>
+                <Setter Property="ToolTip" Value="Некорректное имя группы слоёв"/>
             </DataTrigger>
             <DataTrigger Binding="{Binding GroupInputState}" Value="{x:Static vm:GroupInputState.ValidNew}">
                 <Setter Property="Foreground" Value="ForestGreen"/>
+                <Setter Property="ToolTip" Value="Имя новой группы корректно. Доступна для добавления"/>
             </DataTrigger>
         </Style.Triggers>
     </Style>

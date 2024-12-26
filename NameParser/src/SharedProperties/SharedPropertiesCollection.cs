@@ -12,5 +12,9 @@ namespace NameClassifiers.SharedProperties
 
         [XmlElement(ElementName = "Property", Type = typeof(SharedProperty))]
         public SharedProperty[] Properties { get; set; }
+
+        [XmlElement(ElementName = "DrawProperty", Type = typeof(SharedProperty))]
+        public SharedProperty[] DrawProperties { get; set; }
+
     }
 }

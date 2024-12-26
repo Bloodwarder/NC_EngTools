@@ -3,7 +3,7 @@
 
 namespace NameClassifiers.SharedProperties
 {
-    [XmlRoot("Property")]
+    //[XmlRoot("Property")]
     public class SharedProperty
     {
 #nullable disable warnings
@@ -12,7 +12,7 @@ namespace NameClassifiers.SharedProperties
 
         [XmlAttribute("Name")]
         public string Name { get; set; }
-        [XmlElement(ElementName = "StatusGroup", Type = typeof(StatusGroup))]
-        public StatusGroup[] Groups { get; set; }
+        [XmlElement(ElementName = "ClassifierGroup", Type = typeof(ClassifierGroup))]
+        public ClassifierGroup[] Groups { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using LayersIO.Connection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LayerDbMigrations.Migrations
 {
     [DbContext(typeof(LayersDatabaseContextSqlite))]
-    partial class LayersDatabaseContextSqliteModelSnapshot : ModelSnapshot
+    [Migration("20241226083151_ZoneMappingsAdditionalFilterAdd")]
+    partial class ZoneMappingsAdditionalFilterAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.20");
@@ -124,7 +127,7 @@ namespace LayerDbMigrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SourcePrefix", "SourceStatus", "AdditionalFilter", "TargetPrefix", "TargetStatus")
+                    b.HasIndex("SourcePrefix", "SourceStatus", "TargetPrefix", "TargetStatus")
                         .IsUnique();
 
                     b.ToTable("ZoneMappings", (string)null);

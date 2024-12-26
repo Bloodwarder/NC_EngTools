@@ -17,7 +17,7 @@ namespace NameParserTest
         public void SetUp()
         {
             FileInfo fi = new(Assembly.GetExecutingAssembly().Location);
-            _path = Path.Combine(fi.Directory!.FullName, "TestData", "LayerParser_ИС.xml");
+            _path = Path.Combine(fi.Directory!.FullName, "Data", "LayerParser_ИС.xml");
         }
         [OneTimeTearDown]
         public void TearDown()
@@ -59,6 +59,7 @@ namespace NameParserTest
                 Assert.Multiple(() =>
                 {
                     Assert.That(sharedProperties.Properties.FirstOrDefault(), Is.Not.Null);
+                    Assert.That(sharedProperties.DrawProperties.FirstOrDefault(), Is.Not.Null);
                     Assert.That(sharedProperties.Properties[1].Groups[1].DefaultValue?.Value, Is.InstanceOf<Color>());
                 });
             }

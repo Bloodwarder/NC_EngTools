@@ -10,6 +10,7 @@
         public LayerData(LayerGroupData layerGroup)
         {
             LayerGroup = layerGroup;
+            layerGroup.Layers.Add(this);
         }
         public LayerData(LayerGroupData layerGroup, string status) : this(layerGroup)
         {

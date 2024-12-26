@@ -95,24 +95,26 @@
 	</HighlightMode>
 	<SharedProperties>
 		<Property Name="ConstantWidth">
-			<StatusGroup>
+			<ClassifierGroup>
 				<StatusReference Value="Росреестр"/>
 				<StatusReference Value="Общий"/>
 				<StatusReference Value="Существующие"/>
+				<ChapterReference Value="ОЗ"/>
+				<ChapterReference Value="МДР"/>
 				<DefaultValue>
 					<Double>0.2</Double>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="Проект"/>
 				<StatusReference Value="Переустройство"/>
 				<DefaultValue>
 					<Double>0.4</Double>
 				</DefaultValue>
-			</StatusGroup>
+			</ClassifierGroup>
 		</Property>
 		<Property Name="Color">
-			<StatusGroup>
+			<ClassifierGroup>
 				<StatusReference Value="Существующие"/>
 				<DefaultValue>
 					<Color>
@@ -121,8 +123,8 @@
 						<Blue>107</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="Переустройство"/>
 				<DefaultValue>
 					<Color>
@@ -131,8 +133,8 @@
 						<Blue>0</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="Проект"/>
 				<DefaultValue>
 					<Color>
@@ -141,27 +143,70 @@
 						<Blue>0</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
+			</ClassifierGroup>
 		</Property>
 		<Property Name="LinetypeName">
-			<StatusGroup>
-				<StatusGroup>
-					<StatusReference Value="Росреестр"/>
-					<StatusReference Value="Общий"/>
-					<StatusReference Value="Проект"/>
-					<StatusReference Value="Переустройство"/>
-					<StatusReference Value="Существующие"/>
-				</StatusGroup>
-			</StatusGroup>
+			<ClassifierGroup>
+				<ChapterReference Value="Водн.объекты" Description="Водные объекты"/>
+				<ChapterReference Value="МДР" Description="Минимальные расстояния до объектов"/>
+				<ChapterReference Value="ОЗ" Description="Охранные зоны"/>
+				<ChapterReference Value="СЗЗ" Description="Санитарно-защитные зоны"/>
+			</ClassifierGroup>
+			<DefaultValue>
+				<String>ACAD_ISO02W100</String>
+			</DefaultValue>
 		</Property>
 		<Property Name="LinetypeScale">
-			<StatusGroup>
+			<ClassifierGroup>
 				<StatusReference Value="Росреестр"/>
 				<StatusReference Value="Общий"/>
 				<StatusReference Value="Проект"/>
 				<StatusReference Value="Переустройство"/>
 				<StatusReference Value="Существующие"/>
-			</StatusGroup>
+			</ClassifierGroup>
+			<DefaultValue>
+				<Double>0.2</Double>
+			</DefaultValue>
 		</Property>
+		<DrawProperty Name="InnerHatchPattern">
+			<ClassifierGroup>
+				<ChapterReference Value="ОЗ"/>
+				<StatusReference Value="Общий"/>
+				<StatusReference Value="Существующие"/>
+				<StatusReference Value="Росреестр"/>
+				<DefaultValue>
+					<String>ANSI31</String>
+				</DefaultValue>
+			</ClassifierGroup>
+			<ClassifierGroup>
+				<ChapterReference Value="МДР"/>
+				<StatusReference Value="Общий"/>
+				<StatusReference Value="Существующие"/>
+				<StatusReference Value="Росреестр"/>
+				<DefaultValue>
+					<String>ANSI37</String>
+				</DefaultValue>
+			</ClassifierGroup>
+		</DrawProperty>
+		<DrawProperty Name="InnerHatchScale">
+			<ClassifierGroup>
+				<ChapterReference Value="ОЗ"/>
+				<StatusReference Value="Общий"/>
+				<StatusReference Value="Существующие"/>
+				<StatusReference Value="Росреестр"/>
+				<DefaultValue>
+					<Double>0.5</Double>
+				</DefaultValue>
+			</ClassifierGroup>
+			<ClassifierGroup>
+				<ChapterReference Value="МДР"/>
+				<StatusReference Value="Общий"/>
+				<StatusReference Value="Существующие"/>
+				<StatusReference Value="Росреестр"/>
+				<DefaultValue>
+					<Double>0.33</Double>
+				</DefaultValue>
+			</ClassifierGroup>
+		</DrawProperty>
 	</SharedProperties>
 </LayerParser>

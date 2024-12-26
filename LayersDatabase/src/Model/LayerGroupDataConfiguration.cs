@@ -14,6 +14,7 @@ namespace LayersIO.Model
 
             builder.HasKey(lgd => lgd.Id);
             builder.HasAlternateKey(ld => new { ld.Prefix, ld.MainName });
+            builder.HasIndex(lg => lg.Prefix);
 
             builder.Property(lgd => lgd.Id).ValueGeneratedOnAdd();
             builder.Property(lg => lg.Prefix).IsRequired();

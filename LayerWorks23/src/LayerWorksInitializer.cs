@@ -10,6 +10,8 @@ using LayersIO.DataTransfer;
 using LayersIO.Excel;
 using LoaderCore.SharedData;
 using LayerWorks.Commands;
+using LayerWorks.EntityFormatters;
+using System.ComponentModel;
 
 namespace LayerWorks
 {
@@ -19,6 +21,7 @@ namespace LayerWorks
         public void Initialize()
         {
             RegisterServices();
+            TypeDescriptor.AddAttributes(typeof(System.Windows.Media.Color), new TypeConverterAttribute(typeof(WindowsColorTypeConverter)));
         }
         public void PostInitialize()
         {

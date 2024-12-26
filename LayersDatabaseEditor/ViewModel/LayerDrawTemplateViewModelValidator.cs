@@ -15,6 +15,9 @@ namespace LayersDatabaseEditor.ViewModel
             RuleFor(l => l.OuterHatchBrightness).InclusiveBetween(-1d, 1d).WithMessage("Сдвиг яркости OuterHatchBrightness должен быть в пределах -1 и 1");
             RuleFor(l => l.InnerHatchBrightness).InclusiveBetween(-1d, 1d).WithMessage("Сдвиг яркости InnerHatchBrightness должен быть в пределах -1 и 1");
 
+            RuleFor(l => l.InnerHatchScale).GreaterThan(0).WithMessage("Масштаб штриховки InnerHatchScale должен быть больше нуля");
+            RuleFor(l => l.OuterHatchScale).GreaterThan(0).WithMessage("Масштаб штриховки OuterHatchScale должен быть больше нуля");
+
             RuleFor(l => l.InnerHatchAngle).InclusiveBetween(0d, 360d).WithMessage("Угол внутренней штриховки должен быть в пределах 0 и 360");
             RuleFor(l => l.OuterHatchAngle).InclusiveBetween(0d, 360d).WithMessage("Угол внешней штриховки должен быть в пределах 0 и 360");
 

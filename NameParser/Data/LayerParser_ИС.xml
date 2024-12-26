@@ -185,28 +185,28 @@
 	</HighlightMode>
 	<SharedProperties>
 		<Property Name="ConstantWidth">
-			<StatusGroup>
+			<ClassifierGroup>
 				<StatusReference Value="сущ"/>
 				<StatusReference Value="дем"/>
 				<StatusReference Value="ндем"/>
 				<DefaultValue>
 					<Double>0.4</Double>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="пр"/>
 				<StatusReference Value="неутв"/>
 				<StatusReference Value="нреорг"/>
 				<DefaultValue>
 					<Double>0.6</Double>
 				</DefaultValue>
-			</StatusGroup>
+			</ClassifierGroup>
 		</Property>
 		<Property Name="Color">
-			<StatusGroup>
+			<ClassifierGroup>
 				<StatusReference Value="сущ"/>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="дем"/>
 				<StatusReference Value="нреорг"/>
 				<DefaultValue>
@@ -216,8 +216,8 @@
 						<Blue>107</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="пр"/>
 				<ChapterReference Value="ВС"/>
 				<DefaultValue>
@@ -227,8 +227,8 @@
 						<Blue>255</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="пр"/>
 				<ChapterReference Value="ВО"/>
 				<DefaultValue>
@@ -238,8 +238,8 @@
 						<Blue>0</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="пр"/>
 				<ChapterReference Value="ДК"/>
 				<DefaultValue>
@@ -249,8 +249,8 @@
 						<Blue>255</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="пр"/>
 				<ChapterReference Value="ТС"/>
 				<DefaultValue>
@@ -260,8 +260,8 @@
 						<Blue>31</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="пр"/>
 				<ChapterReference Value="СС"/>
 				<DefaultValue>
@@ -271,8 +271,8 @@
 						<Blue>153</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="пр"/>
 				<ChapterReference Value="ЭС"/>
 				<DefaultValue>
@@ -282,8 +282,8 @@
 						<Blue>127</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="сущ"/>
 				<ChapterReference Value="ВС"/>
 				<DefaultValue>
@@ -293,8 +293,8 @@
 						<Blue>204</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="сущ"/>
 				<ChapterReference Value="ВО"/>
 				<DefaultValue>
@@ -304,8 +304,8 @@
 						<Blue>0</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="сущ"/>
 				<ChapterReference Value="ДК"/>
 				<DefaultValue>
@@ -315,8 +315,8 @@
 						<Blue>0</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="сущ"/>
 				<ChapterReference Value="ТС"/>
 				<DefaultValue>
@@ -326,8 +326,8 @@
 						<Blue>0</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="сущ"/>
 				<ChapterReference Value="СС"/>
 				<DefaultValue>
@@ -337,8 +337,8 @@
 						<Blue>127</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="сущ"/>
 				<ChapterReference Value="ЭС"/>
 				<DefaultValue>
@@ -348,8 +348,8 @@
 						<Blue>85</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="ндем"/>
 				<DefaultValue>
 					<Color>
@@ -358,8 +358,8 @@
 						<Blue>110</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="неутв"/>
 				<DefaultValue>
 					<Color>
@@ -368,31 +368,39 @@
 						<Blue>0</Blue>
 					</Color>
 				</DefaultValue>
-			</StatusGroup>
+			</ClassifierGroup>
 		</Property>
 		<Property Name="LinetypeName">
-			<StatusGroup>
+			<ClassifierGroup>
 				<StatusReference Value="сущ"/>
 				<StatusReference Value="дем"/>
 				<StatusReference Value="ндем"/>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="пр"/>
 				<StatusReference Value="неутв"/>
 				<StatusReference Value="нреорг"/>
-			</StatusGroup>
+			</ClassifierGroup>
 		</Property>
 		<Property Name="LinetypeScale">
-			<StatusGroup>
+			<ClassifierGroup>
 				<StatusReference Value="сущ"/>
 				<StatusReference Value="дем"/>
 				<StatusReference Value="ндем"/>
-			</StatusGroup>
-			<StatusGroup>
+			</ClassifierGroup>
+			<ClassifierGroup>
 				<StatusReference Value="пр"/>
 				<StatusReference Value="неутв"/>
 				<StatusReference Value="нреорг"/>
-			</StatusGroup>
+			</ClassifierGroup>
 		</Property>
+		<DrawProperty Name="InnerHatchPattern">
+			<ClassifierGroup>
+				<ClassifierReference Name="Geometry" Value="п"/>
+				<DefaultValue>
+					<String>SOLID</String>
+				</DefaultValue>
+			</ClassifierGroup>
+		</DrawProperty>
 	</SharedProperties>
 </LayerParser>

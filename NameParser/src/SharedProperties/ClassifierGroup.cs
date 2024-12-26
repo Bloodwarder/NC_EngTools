@@ -4,10 +4,10 @@ using System.Xml.Serialization;
 
 namespace NameClassifiers.SharedProperties
 {
-    [XmlRoot("StatusGroup")]
-    public class StatusGroup : ReferenceCollectionFilter
+    [XmlRoot("ClassifierGroup")]
+    public class ClassifierGroup : ReferenceCollectionFilter
     {
-        public StatusGroup() { }
+        public ClassifierGroup() { }
 
         [XmlElement(ElementName = "DefaultValue", Type = typeof(ValueContainer))]
         public ValueContainer? DefaultValue;

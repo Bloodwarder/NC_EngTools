@@ -1,4 +1,5 @@
-﻿using LayersDatabaseEditor.Utilities;
+﻿using LayersDatabaseEditor.UI;
+using LayersDatabaseEditor.Utilities;
 using LayersIO.Connection;
 using LayersIO.Database;
 using LayersIO.Model;
@@ -28,6 +29,8 @@ namespace LayersDatabaseEditor.ViewModel
         private RelayCommand? _deleteLayerGroupsCommand;
         private RelayCommand? _updateDatabaseCommand;
         private RelayCommand? _resetDatabaseCommand;
+        private RelayCommand? _saveDbAsCommand;
+        private RelayCommand? _openZoneEditorCommand;
 
         private HashSet<int> _selectedIndexes = new();
         private string _groupInputText = string.Empty;
@@ -79,7 +82,7 @@ namespace LayersDatabaseEditor.ViewModel
 
         public RelayCommand UpdateDatabaseCommand
         {
-            get => _updateDatabaseCommand ??= new(obj => UpdateDatabaseViewModel(obj), obj => IsConnected 
+            get => _updateDatabaseCommand ??= new(obj => UpdateDatabaseViewModel(obj), obj => IsConnected
                                                                                               && ((obj as IDbRelatedViewModel)?.IsValid ?? false)
                                                                                               && ((obj as IDbRelatedViewModel)?.IsUpdated ?? false));
             set => _updateDatabaseCommand = value;
@@ -91,19 +94,33 @@ namespace LayersDatabaseEditor.ViewModel
             set => _resetDatabaseCommand = value;
         }
 
-        private static void ResetDatabaseViewModel(object? obj)
+        public RelayCommand SaveDbAsCommand
         {
-            if (obj is not IDbRelatedViewModel viewModel)
-                return;
-            viewModel.ResetValues();
+            get => _saveDbAsCommand ??= new(obj => SaveDbAs(obj), obj => IsConnected && ((obj as EditorViewModel)?.IsValid ?? false));
+            set => _saveDbAsCommand = value;
         }
 
-        private void UpdateDatabaseViewModel(object? obj)
+        public RelayCommand OpenZoneEditorCommand
         {
-            if (obj is not IDbRelatedViewModel viewModel)
+            get => _openZoneEditorCommand ??= new(obj => OpenZoneEditor(obj), obj => IsConnected && IsGroupSelected);
+            set => _openZoneEditorCommand = value;
+        }
+
+        private void OpenZoneEditor(object? obj)
+        {
+            var window = obj as Window;
+            if (window == null)
                 return;
-            viewModel.UpdateDbEntity();
-            _db!.SaveChanges();
+            var group = Database!.LayerGroups.SingleOrDefault(g => g.Id == SelectedGroup!.Id);
+            if (group == null)
+            {
+                // Message = Группа не сохранена в базе данных. Сохраните группу.
+                return;
+            }
+            ZoneEditorViewModel viewModel = new(group, Database);
+            var zoneEditorWindow = new ZoneEditorWindow(viewModel);
+            zoneEditorWindow.Owner = window;
+            zoneEditorWindow.ShowDialog();
         }
 
         public ObservableHashSet<string> LayerGroupNames { get; private set; } = new();
@@ -302,6 +319,7 @@ namespace LayersDatabaseEditor.ViewModel
                 }
             }
         }
+
         private void DeleteLayerGroups(object? obj)
         {
             int count = _selectedIndexes.Count;
@@ -341,7 +359,7 @@ namespace LayersDatabaseEditor.ViewModel
             SelectedGroup = new LayerGroupViewModel(groupName, Database!);
         }
 
-        public void UpdateDbEntity()
+        public void UpdateDatabaseEntities()
         {
             if (Database == null)
                 return;
@@ -351,9 +369,9 @@ namespace LayersDatabaseEditor.ViewModel
             GroupIdsToDelete.Clear();
 
             foreach (var model in UpdatedGroups)
-                model.UpdateDbEntity();
+                model.UpdateDatabaseEntities();
 
-            SelectedGroup?.UpdateDbEntity();
+            SelectedGroup?.UpdateDatabaseEntities();
         }
 
         public void ResetValues()
@@ -361,9 +379,65 @@ namespace LayersDatabaseEditor.ViewModel
             ConnectCommand.Execute(_databasePath);
         }
 
-        public void UpdateUI()
+        private void SaveDbAs(object? obj)
         {
-            OnPropertyChanged("");
+            string outputFile;
+            FileInfo sourceFile = new(_databasePath!);
+            if (obj is string path)
+            {
+                outputFile = path;
+            }
+            else
+            {
+                var saveFileDialog = new SaveFileDialog()
+                {
+                    FileName = sourceFile.Name,
+                    DefaultExt = ".db",
+                    Filter = "SQLite database files (*.db)",
+                    InitialDirectory = sourceFile.DirectoryName
+                };
+                bool? result = saveFileDialog.ShowDialog();
+                if (result == true)
+                {
+                    outputFile = saveFileDialog.FileName;
+                }
+                else
+                {
+                    // Error message
+                    return;
+                }
+            }
+
+            if (IsUpdated)
+                UpdateDatabaseCommand.Execute(this);
+
+            try
+            {
+                sourceFile.CopyTo(outputFile);
+            }
+            catch (IOException ex)
+            {
+                // TODO: Log
+                return;
+            }
+            _databasePath = outputFile;
+            ConnectCommand.Execute(_databasePath);
+        }
+
+
+        private static void ResetDatabaseViewModel(object? obj)
+        {
+            if (obj is not IDbRelatedViewModel viewModel)
+                return;
+            viewModel.ResetValues();
+        }
+
+        private void UpdateDatabaseViewModel(object? obj)
+        {
+            if (obj is not IDbRelatedViewModel viewModel)
+                return;
+            viewModel.UpdateDatabaseEntities();
+            _db!.SaveChanges();
         }
     }
 }
