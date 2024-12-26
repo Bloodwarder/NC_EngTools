@@ -16,7 +16,7 @@ namespace LayersIO.Model
         /// Масштаб типа линий
         /// </summary>
         [Required]
-        public double LinetypeScale { get; set; }
+        public double LinetypeScale { get; set; } = 1d;
         /// <summary>
         /// Красный
         /// </summary>
@@ -36,12 +36,12 @@ namespace LayersIO.Model
         /// Тип линий
         /// </summary>
         [Required]
-        public string LinetypeName { get; set; }
+        public string LinetypeName { get; set; } = "Continuous";
         /// <summary>
         /// Вес линий
         /// </summary>
         [Required]
-        public int LineWeight { get; set; }
+        public int LineWeight { get; set; } = -3;
 
         public int DrawOrderIndex { get; set; }
     }

@@ -16,14 +16,14 @@ using System.Windows.Shapes;
 namespace LayersDatabaseEditor.UI
 {
     /// <summary>
-    /// Логика взаимодействия для UserStringInput.xaml
+    /// Логика взаимодействия для UserNumericInput.xaml
     /// </summary>
-    public partial class UserStringInput : LabeledHorizontalInput
+    public partial class UserPseudoNumericInput : LabeledHorizontalInput
     {
         public static readonly DependencyProperty InputValueProperty;
-        static UserStringInput()
+        static UserPseudoNumericInput()
         {
-            InputValueProperty = DependencyProperty.Register(nameof(InputValue), typeof(string), typeof(UserStringInput));
+            InputValueProperty = DependencyProperty.Register(nameof(InputValue), typeof(string), typeof(UserPseudoNumericInput), new("0"));
         }
 
         public string InputValue
@@ -32,16 +32,9 @@ namespace LayersDatabaseEditor.UI
             set => SetValue(InputValueProperty, value);
         }
 
-        public UserStringInput()
+        public UserPseudoNumericInput()
         {
             InitializeComponent();
         }
-
-        public event TextChangedEventHandler? TextChanged
-        {
-            add => inputText.TextChanged += value;
-            remove => inputText.TextChanged -= value;
-        }
-
     }
 }

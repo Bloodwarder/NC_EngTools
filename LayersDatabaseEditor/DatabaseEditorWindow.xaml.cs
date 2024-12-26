@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Windows.Media;
 using LayersIO.DataTransfer;
 using System.Windows.Controls.Primitives;
+using LayersDatabaseEditor.UI;
 
 namespace LayersDatabaseEditor
 {
@@ -178,7 +179,14 @@ namespace LayersDatabaseEditor
                                 item = childItem;
                             }
                         }
+                        var parentItem = item.Parent;
                         items.Remove(item);
+                        while (parentItem is TreeViewItem twi && !twi.Items.Cast<TreeViewItem>().Any())
+                        {
+                            TreeViewItem? newParentItem = twi.Parent as TreeViewItem;
+                            newParentItem?.Items.Remove(parentItem);
+                            parentItem = newParentItem;
+                        }
                     }
                     break;
 
@@ -291,6 +299,8 @@ namespace LayersDatabaseEditor
         {
             EditorViewModel.Database?.Dispose();
         }
+
+
     }
 
 }

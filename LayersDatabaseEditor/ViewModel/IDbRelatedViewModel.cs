@@ -10,7 +10,7 @@ namespace LayersDatabaseEditor.ViewModel
     {
         public bool IsValid { get; }
         public bool IsUpdated { get; }
-        public void UpdateDbEntity();
+        public void UpdateDatabaseEntities();
         public void ResetValues();
     }
 }

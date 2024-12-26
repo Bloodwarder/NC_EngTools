@@ -11,6 +11,8 @@ namespace LayerWorks.EntityFormatters
                 return true;
             if (sourceType == typeof(System.Drawing.Color))
                 return true;
+            if (sourceType == typeof(System.Windows.Media.Color))
+                return true;
             return base.CanConvertFrom(context, sourceType);
         }
 
@@ -25,6 +27,11 @@ namespace LayerWorks.EntityFormatters
             {
                 var color = (System.Drawing.Color)value;
                 return Teigha.Colors.Color.FromColor(color);
+            }
+            if (value.GetType() == typeof(System.Windows.Media.Color))
+            {
+                var color = (System.Windows.Media.Color)value;
+                return Teigha.Colors.Color.FromRgb(color.R, color.G, color.B);
             }
             return base.ConvertFrom(context, culture, value);
         }

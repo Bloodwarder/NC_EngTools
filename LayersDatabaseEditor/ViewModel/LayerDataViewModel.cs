@@ -13,7 +13,6 @@ namespace LayersDatabaseEditor.ViewModel
         private readonly LayerData _layerData;
         private readonly LayersDatabaseContextSqlite _db;
         private readonly LayerGroupViewModel _parentGroup;
-        private bool _isUpdated;
         private string _errors = "";
         private bool _isValid;
         private string? _statusName = null!;
@@ -101,10 +100,10 @@ namespace LayersDatabaseEditor.ViewModel
             else
                 LayerDrawTemplate.ResetValues();
 
-            foreach (var zone in _layerData.Zones)
-            {
-                Zones.Add(new(zone, _db));
-            }
+            //foreach (var zone in _layerData.Zones)
+            //{
+            //    Zones.Add(new(zone, _db));
+            //}
             //OnPropertyChanged(nameof(IsUpdated));
         }
 
@@ -127,7 +126,7 @@ namespace LayersDatabaseEditor.ViewModel
             return validationResult.IsValid;
         }
 
-        public void UpdateDbEntity()
+        public void UpdateDatabaseEntities()
         {
 
             if (this.Validate())

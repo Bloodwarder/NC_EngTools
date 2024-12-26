@@ -35,10 +35,12 @@ namespace LayersDatabaseEditor.ViewModel
             };
             _layerGroupData = layerGroupData;
             _separator = _parser.Separator;
-            foreach (var element in _parser.GetStatusArray())
+
+            ResetValues();
+
+            foreach (var status in _parser.GetStatusArray())
             {
-                LayerData layer = new(layerGroupData, element);
-                Layers.Add(new(this, layer, _db));
+                Layers.Add(LayerDataViewModelFactory.Create(this, layerGroupData, status));
             }
         }
         public LayerGroupViewModel(LayerGroupData layerGroupData, LayersDatabaseContextSqlite context)
@@ -50,6 +52,8 @@ namespace LayersDatabaseEditor.ViewModel
             ResetValues();
         }
         internal static LayerGroupViewModelValidator Validator { get; private set; } = new();
+
+        internal LayersDatabaseContextSqlite Database => _db;
         public string Errors
         {
             get => _errors;
@@ -174,7 +178,7 @@ namespace LayersDatabaseEditor.ViewModel
         }
 
 
-        public void UpdateDbEntity()
+        public void UpdateDatabaseEntities()
         {
             if (this.IsValid)
             {
@@ -183,7 +187,7 @@ namespace LayersDatabaseEditor.ViewModel
                 LayerLegend.UpdateDbEntity();
                 foreach (var layer in Layers)
                 {
-                    layer.UpdateDbEntity();
+                    layer.UpdateDatabaseEntities();
                 }
                 _db.Attach(_layerGroupData);
                 OnPropertyChanged(nameof(IsUpdated));
