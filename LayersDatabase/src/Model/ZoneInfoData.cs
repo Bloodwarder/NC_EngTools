@@ -11,7 +11,7 @@
         public LayerData ZoneLayer { get; set; }
         public int ZoneLayerId { get; set; }
         public string? AdditionalFilter { get; set; }
-        public bool IgnoreConstructionWidth { get; set; }
+        public bool IgnoreConstructionWidth { get; set; } = true;
         public double Value { get; set; }
         public double DefaultConstructionWidth { get; set; }
     }

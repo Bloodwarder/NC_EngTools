@@ -8,28 +8,42 @@
         mc:Ignorable="d"
         Title="ZoneEditorWindow" Height="500" Width="800"
         Name="zoneEditorWindow"
-        DataContext="{Binding RelativeSource={RelativeSource Self}, Path=ViewModel}">
+        DataContext="{Binding RelativeSource={RelativeSource Self}, Path=ViewModel, Mode=TwoWay}">
     <Window.Resources>
-        <CollectionViewSource x:Key="zonesViewSource" Source="{Binding Path=Zones}"/>
+        <CollectionViewSource x:Key="zonesViewSource" Source="{Binding Path=Zones, Mode=TwoWay}"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition MinHeight="25"/>
+            <RowDefinition MinHeight="30"/>
             <RowDefinition Height="5*"/>
             <RowDefinition Height="70"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Name="spFilters" Margin="15" FlowDirection="LeftToRight">
-            <local:UserStringInput x:Name="inputFilter" LabelText="Поиск" Width="250" HorizontalAlignment="Left"/>
-        </StackPanel>
+        <DockPanel Grid.Row="0" Name="spFilters" Margin="10" FlowDirection="LeftToRight" LastChildFill="False">
+            <local:UserStringInput x:Name="inputFilter" DockPanel.Dock="Left" LabelText="Поиск" Width="250" HorizontalAlignment="Left"/>
+            <Button Name="bToggleIgnoreConstructionWidth" DockPanel.Dock="Right" 
+                    VerticalAlignment="Center" Height="20" Width="50" Margin="20 5 20 5"
+                    Content="Игн. ш."
+                    ToolTip="Переключить игнорирование ширины конструкции"
+                    Click="RefreshDataGrid"
+                    Command="{Binding ToggleIgnoreConstructionWidthCommand}"
+                    CommandParameter="{Binding ElementName=dgZones, Path=SelectedItems}"/>
+            <Button Name="bToggleEnabledZoneInfo" DockPanel.Dock="Right" 
+                    VerticalAlignment="Center" Height="20" Width="50" Margin="20 5 20 5"
+                    Content="Вкл."
+                    ToolTip="Включить или выключить зону для слоя"
+                    Click="RefreshDataGrid"
+                    Command="{Binding ToggleZoneInfoEnabledCommand}"
+                    CommandParameter="{Binding ElementName=dgZones, Path=SelectedItems}"/>
+        </DockPanel>
         <ScrollViewer Grid.Row="1" Margin="15">
             <DataGrid Name="dgZones" AutoGenerateColumns="False"
                       ItemsSource="{Binding Source={StaticResource zonesViewSource}}">
                 <DataGrid.Columns>
-                    <DataGridCheckBoxColumn Header="Включено" Binding="{Binding Path=IsActivated}" MinWidth="20" Width="0.2*"/>
-                    <DataGridTextColumn Header="Слой источник" Binding="{Binding Path=SourceLayerName}" MinWidth="50" Width="*"/>
+                    <DataGridCheckBoxColumn Header="Включено" Binding="{Binding Path=IsActivated, Mode=TwoWay}" MinWidth="20" Width="0.2*"/>
+                    <DataGridTextColumn Header="Слой источник" Binding="{Binding Path=SourceLayerName}" MinWidth="50" Width="*" IsReadOnly="True"/>
                     <DataGridTextColumn Header="Величина зоны" Binding="{Binding Path=Value}" MinWidth="30" Width="0.3*"/>
                     <DataGridTextColumn Header="Ширина по умолчанию" Binding="{Binding Path=DefaultConstructionWidth}" MinWidth="50" Width="0.3*"/>
-                    <DataGridCheckBoxColumn Header="Игнорировать ширину" Binding="{Binding Path=IgnoreConstructionWidth}" MinWidth="50" Width="0.2*"/>
+                    <DataGridCheckBoxColumn Header="Игн. ширину" Binding="{Binding Path=IgnoreConstructionWidth, Mode=TwoWay}" MinWidth="50" Width="0.2*"/>
                 </DataGrid.Columns>
             </DataGrid>
         </ScrollViewer>
