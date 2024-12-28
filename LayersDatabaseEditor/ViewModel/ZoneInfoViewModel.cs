@@ -15,18 +15,18 @@ namespace LayersDatabaseEditor.ViewModel
         private readonly List<ZoneInfoData> _zoneInfoData = new();
         private double _defaultConstructionWidth;
         private double _value;
-        private bool _ignoreConstructionWidth;
+        private bool _ignoreConstructionWidth = true;
         private string _zoneLayerName = null!;
         private string _sourceLayerName = null!;
 
-        static ZoneMapping[]? _mappings;
+        private ZoneMapping[]? _mappings;
 
-        public ZoneInfoViewModel(LayerGroupData zoneGroup, LayerGroupData sourceGroup, LayersDatabaseContextSqlite context)
+        public ZoneInfoViewModel(LayerGroupData zoneGroup, LayerGroupData sourceGroup, LayersDatabaseContextSqlite context, IEnumerable<ZoneMapping> mappings)
         {
             _db = context;
             _zoneGroup = zoneGroup;
             _sourceGroup = sourceGroup;
-            _mappings ??= Database.ZoneMappings.Where(m => m.SourcePrefix == sourceGroup.Prefix && m.TargetPrefix == zoneGroup.Prefix).ToArray();
+            _mappings = mappings.Where(m => m.SourcePrefix == sourceGroup.Prefix).ToArray();
             SourceLayerName = sourceGroup.Name;
             ZoneLayerName = zoneGroup.Name;
             var valuesInfo = sourceGroup.Layers.FirstOrDefault(l => l.Zones.Any(z => z.ZoneLayer.LayerGroup == zoneGroup))?.Zones
@@ -125,39 +125,54 @@ namespace LayersDatabaseEditor.ViewModel
         internal void UpdateDatabaseEntities()
         {
             var validationResult = Validator.Validate(this);
-            if (IsActivated && validationResult.IsValid)
+            if (!validationResult.IsValid)
             {
-                foreach(var layer in _sourceGroup.Layers)
+                // LOG validationResult.Errors
+                return;
+            }
+
+            foreach (var layer in _sourceGroup.Layers)
+            {
+                var zones = layer.Zones.Where(z => z.ZoneLayer.LayerGroup == _zoneGroup);
+                if (!IsActivated)
                 {
-                    var zones = layer.Zones.Where(z => z.ZoneLayer.LayerGroup == _zoneGroup);
-                    foreach (var mapping in _mappings!)
+                    // если деактивировано - удалить все записи
+                    if (zones.Any())
                     {
-                        var zone = zones.Where(z => z.SourceLayer.StatusName == mapping.SourceStatus && z.ZoneLayer.StatusName == mapping.TargetStatus).FirstOrDefault();
-                        if (zone == null)
+                        zones.ToList().ForEach(z => layer.Zones.Remove(z));
+                        Database.Zones.RemoveRange(zones);
+                    }
+                    continue;
+                }
+                var mappings = _mappings!.Where(m => m.SourceStatus == layer.StatusName);
+                foreach (var mapping in mappings)
+                {
+                    var zone = zones.Where(z => z.SourceLayer.StatusName == mapping.SourceStatus && z.ZoneLayer.StatusName == mapping.TargetStatus).FirstOrDefault();
+                    if (zone == null)
+                    {
+                        zone = new ZoneInfoData()
                         {
-                            zone = new ZoneInfoData()
-                            {
-                                Value = Value,
-                                AdditionalFilter = mapping.AdditionalFilter,
-                                DefaultConstructionWidth = DefaultConstructionWidth,
-                                IgnoreConstructionWidth = IgnoreConstructionWidth,
-                                SourceLayer = layer,
-                                ZoneLayer = _zoneGroup.Layers.Where(l => l.StatusName == mapping.TargetStatus).First(),
-                            };
-                            layer.Zones.Add(zone);
-                            Database.Attach(zone);
-                        }
-                        else
-                        {
-                            zone.Value = Value;
-                            zone.AdditionalFilter = mapping.AdditionalFilter;
-                            zone.DefaultConstructionWidth = DefaultConstructionWidth;
-                            zone.IgnoreConstructionWidth = IgnoreConstructionWidth;
-                            zone.SourceLayer = layer;
-                        }
+                            Value = Value,
+                            AdditionalFilter = mapping.AdditionalFilter,
+                            DefaultConstructionWidth = DefaultConstructionWidth,
+                            IgnoreConstructionWidth = IgnoreConstructionWidth,
+                            SourceLayer = layer,
+                            ZoneLayer = _zoneGroup.Layers.Where(l => l.StatusName == mapping.TargetStatus).First(),
+                        };
+                        layer.Zones.Add(zone);
+                        Database.Attach(zone);
+                    }
+                    else
+                    {
+                        zone.Value = Value;
+                        zone.AdditionalFilter = mapping.AdditionalFilter;
+                        zone.DefaultConstructionWidth = DefaultConstructionWidth;
+                        zone.IgnoreConstructionWidth = IgnoreConstructionWidth;
+                        zone.SourceLayer = layer;
                     }
                 }
             }
+
         }
     }
 }

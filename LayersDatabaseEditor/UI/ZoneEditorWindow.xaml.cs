@@ -21,6 +21,7 @@ namespace LayersDatabaseEditor.UI
     public partial class ZoneEditorWindow : Window
     {
         public static DependencyProperty ViewModelProperty;
+        private string _lastSearch = string.Empty;
 
         static ZoneEditorWindow()
         {
@@ -33,11 +34,18 @@ namespace LayersDatabaseEditor.UI
 
             InitializeComponent();
 
-            CollectionViewSource collectionViewSource = (CollectionViewSource)Resources["zonesViewSource"];
-            collectionViewSource.Filter += new FilterEventHandler(FilterCallback);
+            CollectionViewSource = (CollectionViewSource)Resources["zonesViewSource"];
+
+            //Binding b = new("Zones");
+            //b.Source = viewModel;
+            //b.Mode = BindingMode.TwoWay;
+            //BindingOperations.SetBinding(CollectionViewSource, CollectionViewSource.SourceProperty, b);
+
+            CollectionViewSource.Filter += new FilterEventHandler(FilterCallback);
             inputFilter.TextChanged += (s, e) =>
             {
-                collectionViewSource.View.Refresh();
+                var operation = Dispatcher.BeginInvoke(() => CollectionViewSource.View.Refresh());
+                operation.Completed += (s, e) => _lastSearch = inputFilter.inputText.Text;
             };
         }
 
@@ -49,8 +57,12 @@ namespace LayersDatabaseEditor.UI
             set => SetValue(ViewModelProperty, value);
         }
 
+        CollectionViewSource CollectionViewSource { get; set; }
+
         private void FilterCallback(object sender, FilterEventArgs e)
         {
+            //if (_lastSearch == inputFilter.inputText.Text)
+            //    return;
             if (string.IsNullOrEmpty(inputFilter.inputText.Text))
             {
                 e.Accepted = true;
@@ -70,6 +82,11 @@ namespace LayersDatabaseEditor.UI
         private void bExit_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void RefreshDataGrid(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.BeginInvoke(() => CollectionViewSource.View.Refresh()); // BUG: Вызывает фильтр заново. Сделано, чтобы кнопки апдейтили вид чекбоксов. Найти другой способ их апдейтить
         }
     }
 }
