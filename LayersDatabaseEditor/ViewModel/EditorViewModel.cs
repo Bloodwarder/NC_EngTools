@@ -4,6 +4,7 @@ using LayersIO.Connection;
 using LayersIO.Database;
 using LayersIO.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using NameClassifiers;
 using System.Collections.ObjectModel;
@@ -287,15 +288,15 @@ namespace LayersDatabaseEditor.ViewModel
             }
             else
             {
-                var query = _db?.LayerGroups.Where(lg => lg.Prefix == prefix && lg.MainName.StartsWith(mainName));
+                var query = Database?.LayerGroups.Where(lg => lg.Prefix == prefix && lg.MainName.StartsWith(mainName));
                 int? count = query?.Count();
                 _selectedIndexes.Clear();
                 if (count == 1)
                 {
                     LayerGroupData result = query!.Include(lg => lg.Layers)
-                                                 .ThenInclude(l => l.Zones)
-                                                 .ThenInclude(z => z.ZoneLayer)
-                                                 .First();
+                                                  .ThenInclude(l => l.Zones)
+                                                  .ThenInclude(z => z.ZoneLayer)
+                                                  .First();
                     _selectedIndexes.Add(result.Id);
 
                     LayerGroupViewModel layerGroupViewModel = new(result, _db!);
@@ -356,7 +357,13 @@ namespace LayersDatabaseEditor.ViewModel
             if (SelectedGroup != null && SelectedGroup.IsUpdated)
                 UpdatedGroups.Add(SelectedGroup);
             LayerGroupNames.Add(groupName);
-            SelectedGroup = new LayerGroupViewModel(groupName, Database!);
+            var newGroupVm = new LayerGroupViewModel(groupName, Database!);
+            newGroupVm.PropertyChanged += (s, e) =>
+            {
+                OnPropertyChanged(nameof(IsUpdated));
+                OnPropertyChanged(nameof(IsValid));
+            };
+            SelectedGroup = newGroupVm;
         }
 
         public void UpdateDatabaseEntities()
@@ -393,7 +400,7 @@ namespace LayersDatabaseEditor.ViewModel
                 {
                     FileName = sourceFile.Name,
                     DefaultExt = ".db",
-                    Filter = "SQLite database files (*.db)",
+                    Filter = "SQLite database files (*.db)|*.db",
                     InitialDirectory = sourceFile.DirectoryName
                 };
                 bool? result = saveFileDialog.ShowDialog();
@@ -409,7 +416,13 @@ namespace LayersDatabaseEditor.ViewModel
             }
 
             if (IsUpdated)
-                UpdateDatabaseCommand.Execute(this);
+            {
+                var success = UpdateDatabaseViewModel(this);
+                if (!success)
+                {
+                    return;
+                }
+            }
 
             try
             {
@@ -432,12 +445,35 @@ namespace LayersDatabaseEditor.ViewModel
             viewModel.ResetValues();
         }
 
-        private void UpdateDatabaseViewModel(object? obj)
+        private bool UpdateDatabaseViewModel(object? obj)
         {
             if (obj is not IDbRelatedViewModel viewModel)
-                return;
-            viewModel.UpdateDatabaseEntities();
-            _db!.SaveChanges();
+                return false;
+            using (var transaction = Database!.Database.BeginTransaction())
+            {
+                try
+                {
+                    viewModel.UpdateDatabaseEntities();
+                    Database!.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (DbUpdateException ex)
+                {
+                    // TODO: Log
+                    transaction.Rollback();
+                    MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+                catch (InvalidOperationException ex)
+                {
+                    transaction?.Rollback();
+                    MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+            }
+            OnPropertyChanged(nameof(IsUpdated));
+            OnPropertyChanged(nameof(IsValid));
+            return true;
         }
     }
 }

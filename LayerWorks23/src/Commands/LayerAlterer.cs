@@ -169,8 +169,14 @@ namespace LayerWorks.Commands
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    LayerWrapper.ActiveWrappers.ForEach(w => w.LayerInfo.SwitchStatus(newStatus));
-                    LayerWrapper.ActiveWrappers.ForEach(w => w.Push());
+                    var workWrappers = LayerWrapper.ActiveWrappers.Where(w => w.LayerInfo.Prefix == NameParser.Current.Prefix).ToList();
+                    if (!workWrappers.Any())
+                    {
+                        Workstation.Logger?.LogInformation("Нет подходящих объектов в наборе");
+                        return;
+                    }
+                    workWrappers.ForEach(w => w.LayerInfo.SwitchStatus(newStatus));
+                    workWrappers.ForEach(w => w.Push());
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -247,14 +253,19 @@ namespace LayerWorks.Commands
                 {
                     var repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, string>>();
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    foreach (LayerWrapper wrapper in LayerWrapper.ActiveWrappers)
+                    var workWrappers = LayerWrapper.ActiveWrappers.Where(w => w.LayerInfo.Prefix == NameParser.Current.Prefix).ToList();
+                    if (!workWrappers.Any())
+                    {
+                        Workstation.Logger?.LogInformation("Нет подходящих объектов в наборе");
+                        return;
+                    }
+                    foreach (LayerWrapper wrapper in workWrappers)
                     {
                         bool success = repository.TryGet(wrapper.LayerInfo.MainName, out string? newMainName);
                         if (success)
                             wrapper.LayerInfo.AlterSecondaryClassifier(newMainName!);
                     }
-
-                    LayerWrapper.ActiveWrappers.ForEach(w => w.Push());
+                    workWrappers.ForEach(w => w.Push());
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -283,9 +294,16 @@ namespace LayerWorks.Commands
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    bool targetValue = !LayerWrapper.ActiveWrappers.First().LayerInfo.SuffixTagged[tag];
-                    LayerWrapper.ActiveWrappers.ForEach(l => l.LayerInfo.SwitchSuffix(tag, targetValue));
-                    LayerWrapper.ActiveWrappers.ForEach(l => l.Push());
+                    var workWrappers = LayerWrapper.ActiveWrappers.Where(w => w.LayerInfo.Prefix == NameParser.Current.Prefix).ToList();
+                    if (!workWrappers.Any())
+                    {
+                        Workstation.Logger?.LogInformation("Нет подходящих объектов в наборе");
+                        return;
+                    }
+
+                    bool targetValue = !workWrappers.First().LayerInfo.SuffixTagged[tag];
+                    workWrappers.ForEach(l => l.LayerInfo.SwitchSuffix(tag, targetValue));
+                    workWrappers.ForEach(l => l.Push());
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -355,8 +373,14 @@ namespace LayerWorks.Commands
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    LayerWrapper.ActiveWrappers.ForEach(w => w.LayerInfo.ChangeAuxilaryData(dataKey, newData));
-                    LayerWrapper.ActiveWrappers.ForEach(w => w.Push());
+                    var workWrappers = LayerWrapper.ActiveWrappers.Where(w => w.LayerInfo.Prefix == NameParser.Current.Prefix).ToList();
+                    if (!workWrappers.Any())
+                    {
+                        Workstation.Logger?.LogInformation("Нет подходящих объектов в наборе");
+                        return;
+                    }
+                    workWrappers.ForEach(w => w.LayerInfo.ChangeAuxilaryData(dataKey, newData));
+                    workWrappers.ForEach(w => w.Push());
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)

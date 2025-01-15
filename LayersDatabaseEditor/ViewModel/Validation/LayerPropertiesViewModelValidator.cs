@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using LayersDatabaseEditor.Utilities;
 
-namespace LayersDatabaseEditor.ViewModel
+namespace LayersDatabaseEditor.ViewModel.Validation
 {
     public class LayerPropertiesViewModelValidator : AbstractValidator<LayerPropertiesViewModel>
     {

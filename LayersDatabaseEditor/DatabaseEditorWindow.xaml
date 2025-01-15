@@ -43,7 +43,7 @@
                 <MenuItem Name="miSaveDb" Header="Сохранить" 
                           Command="{Binding UpdateDatabaseCommand}" CommandParameter="{Binding}"/>
                 <MenuItem Name="miSaveDbAs" Header="Сохранить как..."
-                          Command="{Binding SaveDbAsCommand}"/>
+                          Command="{Binding SaveDbAsCommand}" CommandParameter="{Binding}"/>
                 <Separator/>
                 <MenuItem Name="miLogClear" Header="Очистить лог" Click="LogClear"/>
                 <Separator/>

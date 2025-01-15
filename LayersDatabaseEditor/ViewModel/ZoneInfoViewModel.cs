@@ -1,6 +1,6 @@
-﻿using LayersIO.Connection;
+﻿using LayersDatabaseEditor.ViewModel.Validation;
+using LayersIO.Connection;
 using LayersIO.Model;
-using LoaderCore.SharedData;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 

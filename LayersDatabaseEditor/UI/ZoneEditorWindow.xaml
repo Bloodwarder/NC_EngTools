@@ -10,7 +10,7 @@
         Name="zoneEditorWindow"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=ViewModel, Mode=TwoWay}">
     <Window.Resources>
-        <CollectionViewSource x:Key="zonesViewSource" Source="{Binding Path=Zones, Mode=TwoWay}"/>
+        <CollectionViewSource x:Key="zonesViewSource" Source="{Binding Path=Zones, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -19,15 +19,15 @@
             <RowDefinition Height="70"/>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0" Name="spFilters" Margin="10" FlowDirection="LeftToRight" LastChildFill="False">
-            <local:UserStringInput x:Name="inputFilter" DockPanel.Dock="Left" LabelText="Поиск" Width="250" HorizontalAlignment="Left"/>
-            <Button Name="bToggleIgnoreConstructionWidth" DockPanel.Dock="Right" 
+            <local:UserStringInput x:Name="inputFilter" DockPanel.Dock="Left" LabelText="Фильтр" Width="250" HorizontalAlignment="Left"/>
+            <Button Name="bToggleIgnoreConstructionWidth" DockPanel.Dock="Right" Visibility="Collapsed"
                     VerticalAlignment="Center" Height="20" Width="50" Margin="20 5 20 5"
                     Content="Игн. ш."
                     ToolTip="Переключить игнорирование ширины конструкции"
                     Click="RefreshDataGrid"
                     Command="{Binding ToggleIgnoreConstructionWidthCommand}"
                     CommandParameter="{Binding ElementName=dgZones, Path=SelectedItems}"/>
-            <Button Name="bToggleEnabledZoneInfo" DockPanel.Dock="Right" 
+            <Button Name="bToggleEnabledZoneInfo" DockPanel.Dock="Right" Visibility="Collapsed"
                     VerticalAlignment="Center" Height="20" Width="50" Margin="20 5 20 5"
                     Content="Вкл."
                     ToolTip="Включить или выключить зону для слоя"
@@ -39,11 +39,27 @@
             <DataGrid Name="dgZones" AutoGenerateColumns="False"
                       ItemsSource="{Binding Source={StaticResource zonesViewSource}}">
                 <DataGrid.Columns>
-                    <DataGridCheckBoxColumn Header="Включено" Binding="{Binding Path=IsActivated, Mode=TwoWay}" MinWidth="20" Width="0.2*"/>
+                    <DataGridTemplateColumn Header="Включено" IsReadOnly="False" MinWidth="20" Width="0.2*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox Name="chbIsActivated" HorizontalAlignment="Center" 
+                                          IsChecked="{Binding Path=IsActivated, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Click="chbIsActivated_Click"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn Header="Слой источник" Binding="{Binding Path=SourceLayerName}" MinWidth="50" Width="*" IsReadOnly="True"/>
                     <DataGridTextColumn Header="Величина зоны" Binding="{Binding Path=Value}" MinWidth="30" Width="0.3*"/>
                     <DataGridTextColumn Header="Ширина по умолчанию" Binding="{Binding Path=DefaultConstructionWidth}" MinWidth="50" Width="0.3*"/>
-                    <DataGridCheckBoxColumn Header="Игн. ширину" Binding="{Binding Path=IgnoreConstructionWidth, Mode=TwoWay}" MinWidth="50" Width="0.2*"/>
+                    <DataGridTemplateColumn Header="Игн. ширину" IsReadOnly="False" MinWidth="50" Width="0.2*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox Name="chbIgnoreWidth" HorizontalAlignment="Center" 
+                                          IsChecked="{Binding Path=IgnoreConstructionWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Click="chbIgnoreWidth_Click"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </ScrollViewer>

@@ -20,7 +20,7 @@ namespace LayersDatabaseEditor.UI
     /// </summary>
     public partial class ZoneEditorWindow : Window
     {
-        public static DependencyProperty ViewModelProperty;
+        public static readonly DependencyProperty ViewModelProperty;
         private string _lastSearch = string.Empty;
 
         static ZoneEditorWindow()
@@ -42,6 +42,8 @@ namespace LayersDatabaseEditor.UI
             //BindingOperations.SetBinding(CollectionViewSource, CollectionViewSource.SourceProperty, b);
 
             CollectionViewSource.Filter += new FilterEventHandler(FilterCallback);
+            CollectionViewSource.LiveFilteringProperties.Add(nameof(ZoneInfoViewModel.SourceLayerName));
+            
             inputFilter.TextChanged += (s, e) =>
             {
                 var operation = Dispatcher.BeginInvoke(() => CollectionViewSource.View.Refresh());
@@ -61,15 +63,21 @@ namespace LayersDatabaseEditor.UI
 
         private void FilterCallback(object sender, FilterEventArgs e)
         {
-            //if (_lastSearch == inputFilter.inputText.Text)
-            //    return;
-            if (string.IsNullOrEmpty(inputFilter.inputText.Text))
+            string search = inputFilter.inputText.Text;
+
+            if (string.IsNullOrEmpty(search))
             {
                 e.Accepted = true;
                 return;
             }
 
-            if (e.Item is ZoneInfoViewModel item && item.SourceLayerName.Contains(inputFilter.inputText.Text))
+            //if (_lastSearch == search)
+            //{
+            //    e.Accepted = CollectionViewSource.View.Contains(e.Item); // тоже спорно - внутри ListCollectionView без хэша
+            //    return;
+            //}
+
+            if (e.Item is ZoneInfoViewModel item && item.SourceLayerName.Contains(search))
             {
                 e.Accepted = true;
             }
@@ -86,7 +94,36 @@ namespace LayersDatabaseEditor.UI
 
         private void RefreshDataGrid(object sender, RoutedEventArgs e)
         {
-            Dispatcher.BeginInvoke(() => CollectionViewSource.View.Refresh()); // BUG: Вызывает фильтр заново. Сделано, чтобы кнопки апдейтили вид чекбоксов. Найти другой способ их апдейтить
+            //Dispatcher.BeginInvoke(() => CollectionViewSource.View.Refresh()); // Вызывает фильтр заново. Сделано, чтобы кнопки апдейтили вид чекбоксов. Найти другой способ их апдейтить
+            dgZones.Items.Refresh();
+        }
+
+        private void chbIgnoreWidth_Click(object sender, RoutedEventArgs e)
+        {
+            if (dgZones.SelectedItems.Count > 1)
+            {
+                var checkBox = (CheckBox)sender;
+                UpdateZoneInfoViewModel(zi => zi.IgnoreConstructionWidth = checkBox.IsChecked ?? false);
+                e.Handled = true;
+                RefreshDataGrid(sender, e);
+            }
+        }
+
+        private void chbIsActivated_Click(object sender, RoutedEventArgs e)
+        {
+            if (dgZones.SelectedItems.Count > 1)
+            {
+                var checkBox = (CheckBox)sender;
+                UpdateZoneInfoViewModel(zi => zi.IsActivated = checkBox.IsChecked ?? false);
+                e.Handled = true;
+                RefreshDataGrid(sender, e);
+            }
+        }
+        private void UpdateZoneInfoViewModel(Action<ZoneInfoViewModel> action)
+        {
+            var updatedItems = dgZones.SelectedItems.Cast<ZoneInfoViewModel>();
+            foreach (var item in updatedItems)
+                action(item);
         }
     }
 }
