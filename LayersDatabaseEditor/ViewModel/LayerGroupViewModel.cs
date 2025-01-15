@@ -1,4 +1,5 @@
-﻿using LayersIO.Connection;
+﻿using LayersDatabaseEditor.ViewModel.Validation;
+using LayersIO.Connection;
 using LayersIO.Model;
 using NameClassifiers;
 using System.Collections.ObjectModel;
@@ -6,6 +7,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows.Controls;
+using Microsoft.EntityFrameworkCore;
 
 namespace LayersDatabaseEditor.ViewModel
 {
@@ -20,6 +22,7 @@ namespace LayersDatabaseEditor.ViewModel
         private string _separator;
         private string? _alternateLayer;
         private string _errors = "";
+        private LayerLegendViewModel _layerLegend = null!;
 
         public LayerGroupViewModel(string mainName, LayersDatabaseContextSqlite context)
         {
@@ -142,8 +145,15 @@ namespace LayersDatabaseEditor.ViewModel
                 OnPropertyChanged();
             }
         }
-        public LayerLegendViewModel LayerLegend { get; set; } = null!;
-
+        public LayerLegendViewModel LayerLegend
+        {
+            get => _layerLegend;
+            set
+            {
+                _layerLegend = value;
+                OnPropertyChanged();
+            }
+        }
         public ObservableCollection<LayerDataViewModel> Layers { get; } = new();
 
 
@@ -184,12 +194,28 @@ namespace LayersDatabaseEditor.ViewModel
             {
                 _layerGroupData.Prefix = Prefix!;
                 _layerGroupData.AlternateLayer = AlternateLayer;
+                var state = Database.Entry(_layerGroupData).State;
+                if (state == EntityState.Detached)
+                {
+                    // Проверка на случай "пересоздания" группы. Открепить от контекста удалённые сущности с 
+                    var deletedEntities = Database.ChangeTracker.Entries<LayerGroupData>()
+                                                                .Where(e => e.State == EntityState.Deleted
+                                                                            && e.Entity.Prefix == Prefix
+                                                                            && e.Entity.MainName == MainName)
+                                                                .AsEnumerable();
+                    foreach (var entity in deletedEntities)
+                        entity.State = EntityState.Detached;
+                    Database.LayerGroups.Add(_layerGroupData);
+                }
+                else
+                {
+                    //Database.Attach(_layerGroupData); // а надо ли? вероятно уже присоединена
+                }
                 LayerLegend.UpdateDbEntity();
                 foreach (var layer in Layers)
                 {
                     layer.UpdateDatabaseEntities();
                 }
-                _db.Attach(_layerGroupData);
                 OnPropertyChanged(nameof(IsUpdated));
             }
         }

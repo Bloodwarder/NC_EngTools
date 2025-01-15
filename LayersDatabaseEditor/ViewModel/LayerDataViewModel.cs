@@ -1,6 +1,8 @@
 ﻿using FluentValidation.Results;
+using LayersDatabaseEditor.ViewModel.Validation;
 using LayersIO.Connection;
 using LayersIO.Model;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -16,6 +18,8 @@ namespace LayersDatabaseEditor.ViewModel
         private string _errors = "";
         private bool _isValid;
         private string? _statusName = null!;
+        private LayerPropertiesViewModel _layerProperties = null!;
+        private LayerDrawTemplateViewModel _layerDrawTemplate = null!;
 
         public LayerDataViewModel(LayerGroupViewModel parentGroup, LayerData layerData, LayersDatabaseContextSqlite context)
         {
@@ -74,8 +78,24 @@ namespace LayersDatabaseEditor.ViewModel
                 return string.Join(_parentGroup.Separator, _parentGroup.Prefix, _parentGroup.MainName, StatusName);
             }
         }
-        public LayerPropertiesViewModel LayerProperties { get; set; } = null!;
-        public LayerDrawTemplateViewModel LayerDrawTemplate { get; set; } = null!;
+        public LayerPropertiesViewModel LayerProperties
+        {
+            get => _layerProperties;
+            set
+            {
+                _layerProperties = value;
+                OnPropertyChanged();
+            }
+        }
+        public LayerDrawTemplateViewModel LayerDrawTemplate
+        {
+            get => _layerDrawTemplate;
+            set
+            {
+                _layerDrawTemplate = value;
+                OnPropertyChanged();
+            }
+        }
         public ObservableCollection<ZoneInfoViewModel> Zones { get; set; } = new();
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -128,13 +148,30 @@ namespace LayersDatabaseEditor.ViewModel
 
         public void UpdateDatabaseEntities()
         {
+            var layerEntityState = Database.Entry(_layerData).State;
+            var layerGroupEntityState = Database.Entry(_layerData.LayerGroup).State;
+
+            if (layerEntityState == EntityState.Detached && layerGroupEntityState == EntityState.Detached)
+            {
+                System.Windows.MessageBox.Show("Группа слоёв не сохранена. Сначала сохраните группу",
+                                               "Несохранённая группа слоёв",
+                                               System.Windows.MessageBoxButton.OK,
+                                               System.Windows.MessageBoxImage.Warning);
+                // TODO: запись в лог
+                return;
+            }
 
             if (this.Validate())
             {
-                _db.Attach(_layerData);
                 _layerData.StatusName = StatusName!;
                 LayerProperties.UpdateDbEntity();
                 LayerDrawTemplate.UpdateDbEntity();
+                var state = Database.Entry(_layerData).State;
+                if (state == EntityState.Detached) // запрос был с трекингом, соответственно Detached только у новых сущностей
+                {
+                    Database.Layers.Add(_layerData);
+                }
+                OnPropertyChanged(nameof(IsUpdated));
             }
         }
 

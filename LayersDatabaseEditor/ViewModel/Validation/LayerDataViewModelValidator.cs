@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using NameClassifiers;
 
-namespace LayersDatabaseEditor.ViewModel
+namespace LayersDatabaseEditor.ViewModel.Validation
 {
     public class LayerDataViewModelValidator : AbstractValidator<LayerDataViewModel>
     {

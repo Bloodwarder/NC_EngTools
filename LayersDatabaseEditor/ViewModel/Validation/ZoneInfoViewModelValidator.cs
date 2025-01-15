@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
-using LayersDatabaseEditor.Utilities;
 
-namespace LayersDatabaseEditor.ViewModel
+namespace LayersDatabaseEditor.ViewModel.Validation
 {
     public class ZoneInfoViewModelValidator : AbstractValidator<ZoneInfoViewModel>
     {

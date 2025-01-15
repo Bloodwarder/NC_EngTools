@@ -13,15 +13,22 @@ namespace LayersIO.Database.Readers
         {
             using (var db = _contextFactory.CreateDbContext(_path))
             {
-                var layers = db.Layers.Include(l => l.LayerDrawTemplateData);
+                var layers = db.Layers.Include(l => l.LayerDrawTemplateData).Include(l => l.LayerGroup);
                 if (layers.Any())
                 {
                     var kvpCollection = layers.AsNoTracking()
-                                              .Where(l => !string.IsNullOrEmpty(l.MainName) && !string.IsNullOrEmpty(l.StatusName) && l.LayerDrawTemplateData != null)
+                                              .Where(l => l.LayerGroup != null && !string.IsNullOrEmpty(l.StatusName) && l.LayerDrawTemplateData != null)
                                               .Select(l => new KeyValuePair<string, LegendDrawTemplate>
                                                     (l.Name, TinyMapper.Map<LegendDrawTemplate>(l.LayerDrawTemplateData)));
-
-                    return new Dictionary<string, LegendDrawTemplate>(kvpCollection!);
+                    try
+                    {
+                        var dictionary = new Dictionary<string, LegendDrawTemplate>(kvpCollection!);
+                        return dictionary;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw;
+                    }
                 }
                 else
                 {

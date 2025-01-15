@@ -12,12 +12,21 @@ namespace LayersIO.Database.Readers
         {
             using (var db = _contextFactory.CreateDbContext(_path))
             {
-                var layers = db.Layers.Include(l => l.LayerPropertiesData);
+                var layers = db.Layers.Include(l => l.LayerPropertiesData)
+                                      .Include(l => l.LayerGroup);
                 var kvpCollection = layers.AsNoTracking()
-                                          .Where(l => !string.IsNullOrEmpty(l.MainName) && !string.IsNullOrEmpty(l.StatusName))
+                                          .Where(l => l.LayerGroup != null && !string.IsNullOrEmpty(l.StatusName))
                                           .Select(l => new KeyValuePair<string, LayerProps>
                                                 (l.Name, TinyMapper.Map<LayerProps>(l.LayerPropertiesData)));
-                return new Dictionary<string, LayerProps>(kvpCollection!);
+                try
+                {
+                    var dictionary = new Dictionary<string, LayerProps>(kvpCollection!);
+                    return dictionary;
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
             }
         }
 

@@ -168,6 +168,23 @@
 				<Double>0.2</Double>
 			</DefaultValue>
 		</Property>
+		<DrawProperty Name="DrawTemplate">
+			<ClassifierGroup>
+				<StatusReference Value="Общий"/>
+				<StatusReference Value="Существующие"/>
+				<StatusReference Value="Росреестр"/>
+				<DefaultValue>
+					<String>HatchedRectangle</String>
+				</DefaultValue>
+			</ClassifierGroup>
+			<ClassifierGroup>
+				<StatusReference Value="Проект"/>
+				<StatusReference Value="Переустройство"/>
+				<DefaultValue>
+					<String>Rectangle</String>
+				</DefaultValue>
+			</ClassifierGroup>
+		</DrawProperty>
 		<DrawProperty Name="InnerHatchPattern">
 			<ClassifierGroup>
 				<ChapterReference Value="ОЗ"/>
@@ -185,6 +202,13 @@
 				<StatusReference Value="Росреестр"/>
 				<DefaultValue>
 					<String>ANSI37</String>
+				</DefaultValue>
+			</ClassifierGroup>
+			<ClassifierGroup>
+				<StatusReference Value="Проект"/>
+				<StatusReference Value="Переустройство"/>
+				<DefaultValue>
+					<String>None</String>
 				</DefaultValue>
 			</ClassifierGroup>
 		</DrawProperty>

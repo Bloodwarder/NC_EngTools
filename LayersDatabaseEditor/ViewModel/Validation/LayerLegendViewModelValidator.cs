@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace LayersDatabaseEditor.ViewModel
+namespace LayersDatabaseEditor.ViewModel.Validation
 {
     public class LayerLegendViewModelValidator : AbstractValidator<LayerLegendViewModel>
     {
