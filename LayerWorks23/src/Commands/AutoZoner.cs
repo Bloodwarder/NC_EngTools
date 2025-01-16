@@ -1,22 +1,17 @@
-﻿using LayerWorks.LayerProcessing;
+﻿using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
+using Teigha.DatabaseServices;
+using LayerWorks.LayerProcessing;
 using LoaderCore.Interfaces;
 using LoaderCore.NanocadUtilities;
 using LoaderCore.SharedData;
-using Microsoft.Extensions.Logging;
 using NameClassifiers;
-using Org.BouncyCastle.Bcpg.Sig;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Teigha.DatabaseServices;
 
 namespace LayerWorks.Commands
 {
     internal class AutoZoner
     {
-        private readonly IBuffer _bufferizator;
+        private readonly IBuffer _bufferizer;
         private readonly IRepository<string, ZoneInfo[]> _zoneRepository;
         private readonly IEntityFormatter _entityFormatter;
         private readonly ILayerChecker _checker;
@@ -25,7 +20,7 @@ namespace LayerWorks.Commands
                          IBuffer bufferizator,
                          ILayerChecker checker)
         {
-            _bufferizator = bufferizator;
+            _bufferizer = bufferizator;
             _entityFormatter = entityFormatter;
             _zoneRepository = repository;
             _checker = checker;
@@ -49,14 +44,37 @@ namespace LayerWorks.Commands
                     List<KeyValuePair<string, ZoneInfo>> layersToZonePairs = new(); // можно было бы просто кортежем - квп в этом виде не используется
 
                     // Найти соответствия имён присутствующих слоёв с зонами и слоёв зон с присутствующими слоями
+
+                    Regex additionalFilterRegex = new(@"(\^?)([^_\-\.\ ]+)");
+
                     foreach (var wrapper in wrappers)
                     {
+                        // Проверить, есть ли зоны для слоя
                         bool success = _zoneRepository.TryGet(wrapper.LayerInfo.TrueName, out ZoneInfo[]? zoneInfos);
                         if (!success)
                             continue;
                         string layerName = wrapper.LayerInfo.Name;
+
+                        // Каждую зону добавить в словарь с соответствиями
                         foreach (var zi in zoneInfos!)
                         {
+                            Func<string, bool>? additionalFilterPredicate = null;
+                            // Если в ZoneInfo присутствует дополнительный фильтр - заменить предикат
+                            if (!string.IsNullOrEmpty(zi.AdditionalFilter))
+                            {
+                                var match = additionalFilterRegex.Match(zi.AdditionalFilter);
+                                if (match.Success)
+                                {
+                                    additionalFilterPredicate = match.Groups[1].Value == @"^" ?
+                                                                s => !s.Contains(match.Groups[2].Value) :
+                                                                s => s.Contains(match.Groups[2].Value);
+                                }
+                            }
+                            additionalFilterPredicate ??= s => true;
+                            // Если слой не подходит по дополнительному фильтру - перейти к следующему слою
+                            if (!additionalFilterPredicate(layerName))
+                                continue;
+                            // Добавить в словари
                             if (zoneToLayersMap.ContainsKey(zi.ZoneLayer))
                             {
                                 zoneToLayersMap[zi.ZoneLayer].Add(layerName);
@@ -69,17 +87,22 @@ namespace LayerWorks.Commands
                         }
                     }
 
-                    foreach (var zone in zoneToLayersMap.Keys)
+                    foreach (string zoneName in zoneToLayersMap.Keys)
                     {
-                        _checker.Check(zone);
+                        // Проверить/добавить слой
+                        _checker.Check(zoneName);
+
+                        // Создать словарь с шириной зоны для каждого исходного слоя
                         Dictionary<string, double> widthDict = layersToZonePairs
-                            .Where(kvp => kvp.Value.ZoneLayer == zone)
+                            .Where(kvp => kvp.Value.ZoneLayer == zoneName)
                             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DefaultConstructionWidth + kvp.Value.Value);
 
-                        var entities = wrappers.Where(lw => zoneToLayersMap[zone].Contains(lw.LayerInfo.Name))
+                        // Выбрать объекты чертежа и создать для них буфер
+                        var entities = wrappers.Where(lw => zoneToLayersMap[zoneName].Contains(lw.LayerInfo.Name))
                                                .SelectMany(lw => lw.BoundEntities);
-                        var buffers = _bufferizator.Buffer(entities, widthDict, zone).ToArray();
+                        var buffers = _bufferizer.Buffer(entities, widthDict, zoneName).ToArray();
 
+                        // Добавить в чертёж, отформатировать и по необходимости заштриховать полученные полилинии
                         BlockTableRecord modelSpace = Workstation.ModelSpace;
                         foreach (var polyline in buffers)
                         {
@@ -89,7 +112,7 @@ namespace LayerWorks.Commands
                         }
                         Hatch hatch = new()
                         {
-                            Layer = zone,
+                            Layer = zoneName,
                             HatchStyle = HatchStyle.Normal
                         };
                         hatch.AppendLoop(HatchLoopTypes.Polyline, new ObjectIdCollection(buffers.Select(p => p.Id).ToArray()));
@@ -101,6 +124,7 @@ namespace LayerWorks.Commands
                             transaction.AddNewlyCreatedDBObject(hatch, true);
                         }
                     }
+                    // TODO: Порядок прорисовки
                     transaction.Commit();
                 }
                 finally

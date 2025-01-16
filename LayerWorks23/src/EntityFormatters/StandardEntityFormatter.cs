@@ -10,6 +10,7 @@ namespace LayerWorks.EntityFormatters
 {
     public class StandardEntityFormatter : IEntityFormatter
     {
+        private const string NoneHatchPatternString = "None";
         private readonly IRepository<string, LayerProps> _propsRepository;
         private readonly IRepository<string, LegendDrawTemplate> _drawRepository;
 
@@ -34,7 +35,7 @@ namespace LayerWorks.EntityFormatters
             var layerInfoResult = parser?.GetLayerInfo(layerName);
             if (layerInfoResult!.Status == LayerInfoParseStatus.Success)
             {
-                string key = layerInfoResult.Value.TrueName;
+                string key = layerInfoResult.Value!.TrueName;
                 FormatEntity(entity, key);
             }
             else
@@ -74,7 +75,7 @@ namespace LayerWorks.EntityFormatters
             bool success = _drawRepository.TryGet(hatch.Layer, out var drawTemplate);
             if (!success)
                 return;
-            if (string.IsNullOrEmpty(drawTemplate!.InnerHatchPattern))
+            if (string.IsNullOrEmpty(drawTemplate!.InnerHatchPattern) || drawTemplate!.InnerHatchPattern == NoneHatchPatternString)
                 return;
             if (drawTemplate.InnerHatchPattern != null && drawTemplate.InnerHatchPattern != "SOLID")
             {

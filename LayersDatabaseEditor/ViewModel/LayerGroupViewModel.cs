@@ -197,7 +197,8 @@ namespace LayersDatabaseEditor.ViewModel
                 var state = Database.Entry(_layerGroupData).State;
                 if (state == EntityState.Detached)
                 {
-                    // Проверка на случай "пересоздания" группы. Открепить от контекста удалённые сущности с 
+                    // UNDONE: НЕДОРАБОТАНО. Пока просто не пересоздаём слои, но надо доработать. Возможно перезаписать удаляемую сущность.
+                    // Проверка на случай "пересоздания" группы. Открепить от контекста удалённые сущности.
                     var deletedEntities = Database.ChangeTracker.Entries<LayerGroupData>()
                                                                 .Where(e => e.State == EntityState.Deleted
                                                                             && e.Entity.Prefix == Prefix
