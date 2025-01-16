@@ -207,7 +207,7 @@
                                   CommandParameter="{Binding SelectedGroup}"/>
                         <MenuItem Header="Все изменения в базе"
                                   Command="{Binding UpdateDatabaseCommand}"
-                                  CommandParameter="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=DataContext}"/>
+                                  CommandParameter="{Binding}"/>
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
@@ -223,7 +223,7 @@
                                   CommandParameter="{Binding SelectedGroup}"/>
                         <MenuItem Header="Все изменения в базе"
                                   Command="{Binding ResetDatabaseCommand}"
-                                  CommandParameter="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=DataContext}"/>
+                                  CommandParameter="{Binding}"/>
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>

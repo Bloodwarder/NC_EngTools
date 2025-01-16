@@ -52,35 +52,54 @@ namespace LayersDatabaseEditor.ViewModel
 
         }
 
+        /// <summary>
+        /// Команда подключения к базе данных
+        /// </summary>
         public RelayCommand ConnectCommand
         {
             get => _connectCommand ??= new(obj => DatabaseConnect(obj), obj => true);
             set => _connectCommand = value;
         }
+
+        /// <summary>
+        /// Команда отключения от базы данных
+        /// </summary>
         public RelayCommand DisconnectCommand
         {
             get => _disconnectCommand ??= new(obj => DatabaseDisconnect(), obj => IsConnected);
             set => _disconnectCommand = value;
         }
 
+        /// <summary>
+        /// Команда выбора новой группы слоёв для редактирования
+        /// </summary>
         public RelayCommand ChangeSelectedGroupCommand
         {
             get => _changeSelectedGroupCommand ??= new(obj => SelectGroup(obj), obj => IsConnected);
             set => _changeSelectedGroupCommand = value;
         }
 
+        /// <summary>
+        /// Команда создания новой группы слоёв
+        /// </summary>
         public RelayCommand AddNewLayerGroupCommand
         {
             get => _addNewLayerGroupCommand ??= new(obj => AddNewLayerGroup(obj), obj => IsConnected && GroupInputState == GroupInputState.ValidNew);
             set => _addNewLayerGroupCommand = value;
         }
 
+        /// <summary>
+        /// Команда удаления группы слоёв
+        /// </summary>
         public RelayCommand DeleteLayerGroupsCommand
         {
             get => _deleteLayerGroupsCommand ??= new(obj => DeleteLayerGroups(obj), obj => IsConnected && (SelectedGroup != null || _selectedIndexes.Any()));
             set => _deleteLayerGroupsCommand = value;
         }
 
+        /// <summary>
+        /// Команда обновления базы данных (всех изменений, изменений группы или изменений слоя)
+        /// </summary>
         public RelayCommand UpdateDatabaseCommand
         {
             get => _updateDatabaseCommand ??= new(obj => UpdateDatabaseViewModel(obj), obj => IsConnected
@@ -89,24 +108,37 @@ namespace LayersDatabaseEditor.ViewModel
             set => _updateDatabaseCommand = value;
         }
 
+        /// <summary>
+        /// Команда отката изменений в ViewModel до исходных значений из БД
+        /// </summary>
         public RelayCommand ResetDatabaseCommand
         {
             get => _resetDatabaseCommand ??= new(obj => ResetDatabaseViewModel(obj), obj => IsConnected && ((obj as IDbRelatedViewModel)?.IsUpdated ?? false));
             set => _resetDatabaseCommand = value;
         }
 
+        /// <summary>
+        /// Сохранение базы данных по другому пути (Команда для SQLite - работает на уровне файлов)
+        /// </summary>
         public RelayCommand SaveDbAsCommand
         {
             get => _saveDbAsCommand ??= new(obj => SaveDbAs(obj), obj => IsConnected && ((obj as EditorViewModel)?.IsValid ?? false));
             set => _saveDbAsCommand = value;
         }
 
+        /// <summary>
+        /// Открыть редактор зон для выбранной группы слоёв
+        /// </summary>
         public RelayCommand OpenZoneEditorCommand
         {
             get => _openZoneEditorCommand ??= new(obj => OpenZoneEditor(obj), obj => IsConnected && IsGroupSelected);
             set => _openZoneEditorCommand = value;
         }
 
+        /// <summary>
+        /// Открыть редактор зон
+        /// </summary>
+        /// <param name="obj">Вызывающее окно (объект Window)</param>
         private void OpenZoneEditor(object? obj)
         {
             var window = obj as Window;
@@ -124,6 +156,9 @@ namespace LayersDatabaseEditor.ViewModel
             zoneEditorWindow.ShowDialog();
         }
 
+        /// <summary>
+        /// Имена групп слоёв из БД (с учётом подготовленных изменений)
+        /// </summary>
         public ObservableHashSet<string> LayerGroupNames { get; private set; } = new();
 
         public bool IsConnected => _db != null;
@@ -132,6 +167,9 @@ namespace LayersDatabaseEditor.ViewModel
 
         internal LayersDatabaseContextSqlite? Database { get => _db; set => _db = value; }
 
+        /// <summary>
+        /// Выбранная группа слоёв
+        /// </summary>
         public LayerGroupViewModel? SelectedGroup
         {
             get => _selectedGroup;
@@ -145,6 +183,9 @@ namespace LayersDatabaseEditor.ViewModel
             }
         }
 
+        /// <summary>
+        /// Выбранный слой
+        /// </summary>
         public LayerDataViewModel? SelectedLayer
         {
             get => _selectedLayer;
@@ -156,9 +197,19 @@ namespace LayersDatabaseEditor.ViewModel
             }
         }
 
+        /// <summary>
+        /// Группы слоёв с несохранёнными обновлениями за исключением выбранной
+        /// </summary>
         public ObservableCollection<LayerGroupViewModel> UpdatedGroups { get; private set; } = new();
+
+        /// <summary>
+        /// Id групп, помеченных к удалению из БД
+        /// </summary>
         public ObservableHashSet<int> GroupIdsToDelete { get; private set; } = new();
 
+        /// <summary>
+        /// Текст для ввода и проверки имени слоя перед добавлением/удалением
+        /// </summary>
         public string GroupInputText
         {
             get => _groupInputText;
@@ -169,6 +220,10 @@ namespace LayersDatabaseEditor.ViewModel
                 OnPropertyChanged(nameof(GroupInputState));
             }
         }
+
+        /// <summary>
+        /// Результат проверки введённого имени слоя - существующий, корректный для добавления, некорректный
+        /// </summary>
         public GroupInputState GroupInputState
         {
             get
@@ -196,11 +251,16 @@ namespace LayersDatabaseEditor.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
 
+        /// <summary>
+        /// Подключиться к БД
+        /// </summary>
+        /// <param name="obj">путь к файлу БД (SQLite)</param>
         private void DatabaseConnect(object? obj = null)
         {
             string fileName;
             if (obj == null)
             {
+                // Найти папку по умолчанию, где должен лежать файл БД
                 DirectoryInfo di = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.Parent!.Parent!.GetDirectories("UserData").First();
                 OpenFileDialog ofd = new OpenFileDialog()
                 {
@@ -226,6 +286,7 @@ namespace LayersDatabaseEditor.ViewModel
             }
             _databasePath = fileName;
 
+            // Очистить существующие выборы и несохранённые операции обновления и удаления, затем уничтожить контекст
             _selectedIndexes.Clear();
             UpdatedGroups.Clear();
             GroupIdsToDelete.Clear();
@@ -233,6 +294,8 @@ namespace LayersDatabaseEditor.ViewModel
             SelectedGroup = null;
 
             _db?.Dispose();
+
+            // Создать новый контекст для файла по ранее полученному пути
             try
             {
                 _db = _dbContextFactory.CreateDbContext(fileName);
@@ -243,6 +306,7 @@ namespace LayersDatabaseEditor.ViewModel
                 return;
             }
 
+            // Очистить имена групп и получить из открытой БД новые
             LayerGroupNames.Clear();
             _db.LayerGroups.AsNoTracking()
                            .Select(lg => new { lg.Prefix, lg.MainName })
@@ -252,10 +316,14 @@ namespace LayersDatabaseEditor.ViewModel
                            .Select(s => $"{s.Prefix}_{s.MainName}")
                            .ToList()
                            .ForEach(n => LayerGroupNames.Add(n));
+            // Оповестить UI
             OnPropertyChanged(nameof(IsConnected));
             OnPropertyChanged(nameof(IsUpdated));
         }
 
+        /// <summary>
+        /// Отключиться от БД
+        /// </summary>
         private void DatabaseDisconnect()
         {
             SelectedGroup = null;
@@ -264,22 +332,31 @@ namespace LayersDatabaseEditor.ViewModel
             _db = null;
             LayerGroupNames.Clear();
             OnPropertyChanged(nameof(IsConnected));
+            OnPropertyChanged(nameof(IsUpdated));
         }
 
+        /// <summary>
+        /// Выбрать группу
+        /// </summary>
+        /// <param name="obj">строка для поиска (имя или начало имени группы)</param>
         private void SelectGroup(object? obj)
         {
             if (obj == null)
                 return;
             string searchString = (string)obj;
+            // Определить префикс и основное имя
             var match = Regex.Match(searchString, @"(^[^_\s-\.]+)_?(.*$)?");
             string prefix = match.Groups[1].Value;
             string mainName = match.Groups[2].Value;
 
+            // Если текущая выбранная группа имеет несохранённые обновления - сохранить её в коллекции обновлённых групп (но не в БД)
             if (SelectedGroup?.IsUpdated ?? false)
                 UpdatedGroups.Add(SelectedGroup);
+            // Проверить, была ли планируемая к выбору группа ранее сохранена в коллекции UpdatedGroups
             var cachedGroup = UpdatedGroups.Where(g => g.Prefix == prefix && g.MainName == mainName).FirstOrDefault();
             if (cachedGroup != null)
             {
+                // Если да - вытащить оттуда
                 SelectedGroup = cachedGroup;
                 UpdatedGroups.Remove(cachedGroup);
                 _selectedIndexes.Clear();
@@ -288,11 +365,13 @@ namespace LayersDatabaseEditor.ViewModel
             }
             else
             {
+                // Если нет, запросить из БД
                 var query = Database?.LayerGroups.Where(lg => lg.Prefix == prefix && lg.MainName.StartsWith(mainName));
                 int? count = query?.Count();
                 _selectedIndexes.Clear();
                 if (count == 1)
                 {
+                    // Если по запросу ровно один результат - получить остальную информацию по группе и создать ViewModel
                     LayerGroupData result = query!.Include(lg => lg.Layers)
                                                   .ThenInclude(l => l.Zones)
                                                   .ThenInclude(z => z.ZoneLayer)
@@ -305,16 +384,19 @@ namespace LayersDatabaseEditor.ViewModel
                         OnPropertyChanged(nameof(IsUpdated));
                         OnPropertyChanged(nameof(IsValid));
                     };
-                    SelectedGroup = layerGroupViewModel; // TODO: кэшировать?
+                    SelectedGroup = layerGroupViewModel;
                 }
                 else if (count > 1)
                 {
+                    // Если по запросу более одного результата - сохранить Id объектов (для возможности удаления целого узла)
                     _selectedIndexes = query!.Select(lg => lg.Id).ToHashSet();
+                    // И обнулить выборы
                     SelectedGroup = null;
                     SelectedLayer = null;
                 }
                 else
                 {
+                    // Если ничего нет, просто обнулить все выборы
                     SelectedGroup = null;
                     SelectedLayer = null;
                 }
@@ -324,6 +406,7 @@ namespace LayersDatabaseEditor.ViewModel
         private void DeleteLayerGroups(object? obj)
         {
             int count = _selectedIndexes.Count;
+            // Предупреждаем, если к удалению планируется более одной группы
             if (count > 1)
             {
                 MessageBoxResult result = MessageBox.Show($"Узел содержит {count} групп слоёв. Действительно удалить узел целиком?",
@@ -333,20 +416,31 @@ namespace LayersDatabaseEditor.ViewModel
                 if (result != MessageBoxResult.Yes)
                     return;
             }
+            // Добавляем в коллекцию Id для удаления
             foreach (var id in _selectedIndexes)
                 GroupIdsToDelete.Add(id);
+
             var entitiesToRemove = Database!.LayerGroups.Where(g => _selectedIndexes.Contains(g.Id)).AsEnumerable();
-            var namesToRemove = entitiesToRemove.Select(g => g.Name);
+            var namesToRemove = entitiesToRemove.Select(g => g.Name).ToList();
             var cachedToRemove = UpdatedGroups.Where(g => _selectedIndexes.Contains(g.Id)).AsEnumerable();
+
+            // Если есть выбранная группа с Id==0 (не сохранённая в БД), добавить имя к удаляемым именам (для корректного обновления TreeView)
+            if (SelectedGroup != null && SelectedGroup.Id == 0)
+                namesToRemove.Add(SelectedGroup.Name);
 
             foreach (var entityToRemove in cachedToRemove)
                 UpdatedGroups.Remove(entityToRemove);
 
+            // Обнуляем выделение
+            // (не позже, чем удаляем имена - иначе несохранённые удаляемые группы попадут в коллекцию UpdatedGroups, а из UI исчезнут)
+            SelectedGroup = null;
+            SelectedLayer = null;
+
             foreach (string name in namesToRemove)
                 LayerGroupNames.Remove(name);
 
-            SelectedGroup = null;
-            SelectedLayer = null;
+            OnPropertyChanged(nameof(IsUpdated));
+            OnPropertyChanged(nameof(IsValid));
         }
 
         private void AddNewLayerGroup(object? obj)
@@ -356,7 +450,6 @@ namespace LayersDatabaseEditor.ViewModel
                 return;
             if (SelectedGroup != null && SelectedGroup.IsUpdated)
                 UpdatedGroups.Add(SelectedGroup);
-            LayerGroupNames.Add(groupName);
             var newGroupVm = new LayerGroupViewModel(groupName, Database!);
             newGroupVm.PropertyChanged += (s, e) =>
             {
@@ -364,8 +457,10 @@ namespace LayersDatabaseEditor.ViewModel
                 OnPropertyChanged(nameof(IsValid));
             };
             SelectedGroup = newGroupVm;
+            LayerGroupNames.Add(groupName);
         }
 
+        /// <inheritdoc/>
         public void UpdateDatabaseEntities()
         {
             if (Database == null)
@@ -375,17 +470,22 @@ namespace LayersDatabaseEditor.ViewModel
             Database.LayerGroups.RemoveRange(entitiesToDelete);
             GroupIdsToDelete.Clear();
 
-            foreach (var model in UpdatedGroups)
-                model.UpdateDatabaseEntities();
+            foreach (var groupVm in UpdatedGroups)
+                groupVm.UpdateDatabaseEntities();
 
             SelectedGroup?.UpdateDatabaseEntities();
         }
 
+        /// <inheritdoc/>
         public void ResetValues()
         {
             ConnectCommand.Execute(_databasePath);
         }
 
+        /// <summary>
+        /// Сохранить БД как другой файл (SQLite)
+        /// </summary>
+        /// <param name="obj">Путь для сохранения файла</param>
         private void SaveDbAs(object? obj)
         {
             string outputFile;
@@ -437,7 +537,10 @@ namespace LayersDatabaseEditor.ViewModel
             ConnectCommand.Execute(_databasePath);
         }
 
-
+        /// <summary>
+        /// Отменить подготовленные изменения в БД
+        /// </summary>
+        /// <param name="obj">Объект IDbRelatedViewModel, хранящий подготовленные изменения</param>
         private static void ResetDatabaseViewModel(object? obj)
         {
             if (obj is not IDbRelatedViewModel viewModel)
@@ -445,6 +548,11 @@ namespace LayersDatabaseEditor.ViewModel
             viewModel.ResetValues();
         }
 
+        /// <summary>
+        /// Записать изменения в БД
+        /// </summary>
+        /// <param name="obj">Объект IDbRelatedViewModel, хранящий подготовленные изменения</param>
+        /// <returns>Успех операции</returns>
         private bool UpdateDatabaseViewModel(object? obj)
         {
             if (obj is not IDbRelatedViewModel viewModel)
