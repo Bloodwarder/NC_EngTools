@@ -9,7 +9,7 @@
 		<PrimaryClassifier>
 			<Chapter Value="Водн.объекты" Description="Водные объекты"/>
 			<Chapter Value="ОКН" Description="Объекты культурного наследия"/>
-			<Chapter Value="МДР" Description="Минимальные расстояния до объектов"/>
+			<Chapter Value="МДР" Description="Минимальные расстояния"/>
 			<Chapter Value="ОЗ" Description="Охранные зоны"/>
 			<Chapter Value="ООПТ" Description="Особо охраняемые природные территории"/>
 			<Chapter Value="Лесничества" Description="Лесничества"/>
@@ -41,7 +41,7 @@
 					<StatusReference Value="Росреестр"/>
 				</Grid>
 			</Filter>
-			<Filter Name="Общие">
+			<Filter Name="Росррестр отдельно">
 				<Grid>
 					<StatusReference Value="Росреестр"/>
 				</Grid>
@@ -101,6 +101,7 @@
 				<StatusReference Value="Существующие"/>
 				<ChapterReference Value="ОЗ"/>
 				<ChapterReference Value="МДР"/>
+				<ChapterReference Value="СЗЗ"/>
 				<DefaultValue>
 					<Double>0.2</Double>
 				</DefaultValue>
@@ -147,10 +148,10 @@
 		</Property>
 		<Property Name="LinetypeName">
 			<ClassifierGroup>
-				<ChapterReference Value="Водн.объекты" Description="Водные объекты"/>
-				<ChapterReference Value="МДР" Description="Минимальные расстояния до объектов"/>
-				<ChapterReference Value="ОЗ" Description="Охранные зоны"/>
-				<ChapterReference Value="СЗЗ" Description="Санитарно-защитные зоны"/>
+				<ChapterReference Value="Водн.объекты"/>
+				<ChapterReference Value="МДР"/>
+				<ChapterReference Value="ОЗ"/>
+				<ChapterReference Value="СЗЗ"/>
 				<DefaultValue>
 					<String>ACAD_ISO02W100</String>
 				</DefaultValue>
@@ -209,6 +210,19 @@
 				<StatusReference Value="Переустройство"/>
 				<DefaultValue>
 					<String>None</String>
+				</DefaultValue>
+			</ClassifierGroup>
+			<ClassifierGroup>
+				<ChapterReference Value="Водн.объекты"/>
+				<DefaultValue>
+					<String>None</String>
+				</DefaultValue>
+			</ClassifierGroup>
+			<ClassifierGroup>
+				<ChapterReference Value="ОКН"/>
+				<StatusReference Value="Росреестр"/>
+				<DefaultValue>
+					<String>SOLID</String>
 				</DefaultValue>
 			</ClassifierGroup>
 		</DrawProperty>

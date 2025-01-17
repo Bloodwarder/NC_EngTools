@@ -5,6 +5,7 @@
 using LayersIO.DataTransfer;
 using LayerWorks.LayerProcessing;
 using LoaderCore.NanocadUtilities;
+using Microsoft.Extensions.Logging;
 //nanoCAD
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
@@ -37,22 +38,17 @@ namespace LayerWorks.ModelspaceDraw
         /// <param name="increasebrightness"> Изменение яркости относительно базового цвета слоя </param>
         protected void DrawHatch(IEnumerable<Polyline> borders, string patternname = DefaultHatchPatternName, double patternscale = 0.5d, double angle = 45d, double increasebrightness = 0.8)
         {
+            if (patternname == "None")
+            {
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Образец штриховки для слоя {Layer} указан как \"None\". Штриховка не подлежит отрисовке", nameof(AreaDraw), LayerWrapper.BoundLayer.Name);
+                return;
+            }
             Hatch hatch = new()
             {
                 Layer = LayerWrapper.BoundLayer.Name
             };
             hatch.AssignLoopByVerticesAndBulges(borders);
-            //foreach (Polyline pl in borders)
-            //{
-            //    Point2dCollection vertexCollection = new(pl.NumberOfVertices);
-            //    DoubleCollection bulgesCollection = new(pl.NumberOfVertices);
-            //    for (int i = 0; i < pl.NumberOfVertices; i++)
-            //    {
-            //        vertexCollection.Add(pl.GetPoint2dAt(i));
-            //        bulgesCollection.Add(pl.GetBulgeAt(i));
-            //    }
-            //    hatch.AppendLoop(HatchLoopTypes.Polyline, vertexCollection, bulgesCollection);
-            //}
+
             hatch.HatchStyle = HatchStyle.Normal;
             if (patternname != "SOLID")
             {

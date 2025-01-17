@@ -30,6 +30,10 @@ h3 {
     margin: 10px 0;
 }
 
+strong {
+    background-color: bisque;
+}
+
 /* Text styles */
 p {
     margin: 10px 0;
