@@ -29,6 +29,7 @@ namespace LoaderCore.UI
 
             PreInitializeSimpleLogger.Log += LogWindow;
 
+            // TODO: заменить на XmlDataProvider и привязки
 #nullable disable warnings
             chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("ShowStartup").Value);
 
@@ -42,7 +43,12 @@ namespace LoaderCore.UI
             tbSourcePath.Text = _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value;
 #nullable restore
             // Вывод данных о последнем обновлении
-            var patchNotesPath = Path.Combine(new FileInfo(_xmlConfigPath).DirectoryName!,"ExtensionLibraries", "LoaderCore", "Список изменений.md");
+            DisplayPatchNotes();
+        }
+
+        private void DisplayPatchNotes()
+        {
+            var patchNotesPath = Path.Combine(new FileInfo(_xmlConfigPath).DirectoryName!, "ExtensionLibraries", "LoaderCore", "Список изменений.md");
             var stylesPath = Path.Combine(new FileInfo(_xmlConfigPath).DirectoryName!, "ExtensionLibraries", "LoaderCore", "Styles.css");
             string? markdownText;
             string? styles;
@@ -54,23 +60,23 @@ namespace LoaderCore.UI
             {
                 styles = stylesReader.ReadToEnd();
             }
-                var pipeline = new MarkdownPipelineBuilder().Build();
+            var pipeline = new MarkdownPipelineBuilder().Build();
 
-                var content = Markdown.ToHtml(markdownText, pipeline);
+            var content = Markdown.ToHtml(markdownText, pipeline);
 
-                string htmlContent = $@"<!DOCTYPE html>
-                                        <html lang='en'>
-                                        <head>
-                                        <meta charset='utf-8'>
-                                        <style>
-                                        {styles}
-                                        </style>
-                                        </head>
-                                        <body>
-                                        {content}
-                                        </body>
-                                        </html>";
-                wbUpdates.NavigateToString(htmlContent);
+            string htmlContent = $@"<!DOCTYPE html>
+                                    <html lang='en'>
+                                    <head>
+                                    <meta charset='utf-8'>
+                                    <style>
+                                    {styles}
+                                    </style>
+                                    </head>
+                                    <body>
+                                    {content}
+                                    </body>
+                                    </html>";
+            wbUpdates.NavigateToString(htmlContent);
         }
 
         public void IncludeCheckChanged(object sender, RoutedEventArgs e)

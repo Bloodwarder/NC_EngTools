@@ -12,6 +12,7 @@ using LoaderCore.SharedData;
 using LayerWorks.Commands;
 using LayerWorks.EntityFormatters;
 using System.ComponentModel;
+using Microsoft.Extensions.Logging;
 
 namespace LayerWorks
 {
@@ -49,22 +50,24 @@ namespace LayerWorks
                                     .Where(p => p.Type == PathRoute.Local)
                                     .Single();
             var defaultLoadedParsers = config.GetSection("LayerWorksConfiguration:DefaultParsers:Parser")?.Get<string[]>();
-            
+
             Func<string, bool> predicate = defaultLoadedParsers == null ? s => true : s => defaultLoadedParsers.Any(p => s.EndsWith($"{p}.xml"));
 
             var parserXmlFiles = parsersPath.DirectoryInfo!.GetFiles("LayerParser_*.xml")
                                                            .Select(p => p.FullName)
                                                            .Where(predicate)
                                                            .ToArray();
-            foreach (var file in parserXmlFiles)
+
+            for (int i = parserXmlFiles.Length - 1; i >= 0; i--)
             {
+                var logger = NcetCore.ServiceProvider.GetRequiredService<ILogger>();
                 try
                 {
-                    NameParser.Load(file);
+                    NameParser.Load(parserXmlFiles[i]);
                 }
                 catch (Exception ex)
                 {
-                    // TODO: логгировать
+                    logger.LogError(ex, "{Message}", ex.Message);
                     continue;
                 }
             }
