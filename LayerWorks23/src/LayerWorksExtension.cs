@@ -15,9 +15,11 @@ namespace LayerWorks
         {
             TypeDescriptor.AddAttributes(typeof(Teigha.Colors.Color), new TypeConverterAttribute(typeof(TeighaColorTypeConverter)));
 
+            // регистрация сервисов, зависящих от нанокада
             NcetCore.Services.AddSingleton<IEntityFormatter, StandardEntityFormatter>()
                              .AddSingleton<ILayerChecker, LayerChecker>()
                              .AddSingleton<LayerChecker>()
+                             .AddSingleton<DrawOrderService>()
                              .AddTransient<LayerAlterer>()
                              .AddTransient<ChapterVisualizer>()
                              .AddTransient<AutoZoner>()

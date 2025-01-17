@@ -36,6 +36,24 @@ namespace LayerWorks.LayerProcessing
         /// Коллекция связанных объектов чертежа
         /// </summary>
         public List<Entity> BoundEntities = new();
+
+        public static IEnumerable<EntityLayerWrapper> CreateWrappers(IEnumerable<Entity> entities)
+        {
+            Dictionary<string, EntityLayerWrapper> dictionary = new();
+            foreach (var entity in entities)
+            {
+                if (dictionary.ContainsKey(entity.Layer))
+                {
+                    dictionary[entity.Layer].BoundEntities.Add(entity);
+                }
+                else
+                {
+                    dictionary[entity.Layer] = new EntityLayerWrapper(entity);
+                }
+            }
+            return dictionary.Values;
+        }
+
         /// <summary>
         /// Назначение выходного слоя и соответствующих ему свойств связанным объектам чертежа
         /// </summary>

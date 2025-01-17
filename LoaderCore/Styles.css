@@ -1,0 +1,45 @@
+﻿/* Global styles */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #fafafa;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header styles */
+h1 {
+    font-size: 2em;
+    color: #114276;
+    background-color: #f0f8ff;
+    padding: 10px;
+    margin: 20px 0;
+}
+
+h2 {
+    font-size: 1.5em;
+    color: #1a5276;
+    padding: 10px;
+    margin: 15px 0;
+}
+
+h3 {
+    font-size: 1.2em;
+    color: #1a5276;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+/* Text styles */
+p {
+    margin: 10px 0;
+}
+
+/* Example additional styles */
+ul {
+    margin: 10px 0;
+}
+
+li {
+    margin-left: 20px;
+}
