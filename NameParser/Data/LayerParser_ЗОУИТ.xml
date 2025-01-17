@@ -151,10 +151,10 @@
 				<ChapterReference Value="МДР" Description="Минимальные расстояния до объектов"/>
 				<ChapterReference Value="ОЗ" Description="Охранные зоны"/>
 				<ChapterReference Value="СЗЗ" Description="Санитарно-защитные зоны"/>
+				<DefaultValue>
+					<String>ACAD_ISO02W100</String>
+				</DefaultValue>
 			</ClassifierGroup>
-			<DefaultValue>
-				<String>ACAD_ISO02W100</String>
-			</DefaultValue>
 		</Property>
 		<Property Name="LinetypeScale">
 			<ClassifierGroup>
@@ -163,10 +163,10 @@
 				<StatusReference Value="Проект"/>
 				<StatusReference Value="Переустройство"/>
 				<StatusReference Value="Существующие"/>
+				<DefaultValue>
+					<Double>0.2</Double>
+				</DefaultValue>
 			</ClassifierGroup>
-			<DefaultValue>
-				<Double>0.2</Double>
-			</DefaultValue>
 		</Property>
 		<DrawProperty Name="DrawTemplate">
 			<ClassifierGroup>

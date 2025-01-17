@@ -135,26 +135,7 @@ namespace LayersDatabaseEditor.ViewModel
             set => _openZoneEditorCommand = value;
         }
 
-        /// <summary>
-        /// Открыть редактор зон
-        /// </summary>
-        /// <param name="obj">Вызывающее окно (объект Window)</param>
-        private void OpenZoneEditor(object? obj)
-        {
-            var window = obj as Window;
-            if (window == null)
-                return;
-            var group = Database!.LayerGroups.SingleOrDefault(g => g.Id == SelectedGroup!.Id);
-            if (group == null)
-            {
-                // Message = Группа не сохранена в базе данных. Сохраните группу.
-                return;
-            }
-            ZoneEditorViewModel viewModel = new(group, Database);
-            var zoneEditorWindow = new ZoneEditorWindow(viewModel);
-            zoneEditorWindow.Owner = window;
-            zoneEditorWindow.ShowDialog();
-        }
+
 
         /// <summary>
         /// Имена групп слоёв из БД (с учётом подготовленных изменений)
@@ -448,7 +429,7 @@ namespace LayersDatabaseEditor.ViewModel
             string? groupName = obj as string;
             if (groupName == null)
                 return;
-            if (SelectedGroup != null && SelectedGroup.IsUpdated)
+            if (SelectedGroup?.IsUpdated ?? false)
                 UpdatedGroups.Add(SelectedGroup);
             var newGroupVm = new LayerGroupViewModel(groupName, Database!);
             newGroupVm.PropertyChanged += (s, e) =>
@@ -472,6 +453,7 @@ namespace LayersDatabaseEditor.ViewModel
 
             foreach (var groupVm in UpdatedGroups)
                 groupVm.UpdateDatabaseEntities();
+            UpdatedGroups.Clear();
 
             SelectedGroup?.UpdateDatabaseEntities();
         }
@@ -526,7 +508,7 @@ namespace LayersDatabaseEditor.ViewModel
 
             try
             {
-                sourceFile.CopyTo(outputFile);
+                sourceFile.CopyTo(outputFile, true);
             }
             catch (IOException ex)
             {
@@ -582,6 +564,27 @@ namespace LayersDatabaseEditor.ViewModel
             OnPropertyChanged(nameof(IsUpdated));
             OnPropertyChanged(nameof(IsValid));
             return true;
+        }
+
+        /// <summary>
+        /// Открыть редактор зон
+        /// </summary>
+        /// <param name="obj">Вызывающее окно (объект Window)</param>
+        private void OpenZoneEditor(object? obj)
+        {
+            var window = obj as Window;
+            if (window == null)
+                return;
+            var group = Database!.LayerGroups.SingleOrDefault(g => g.Id == SelectedGroup!.Id);
+            if (group == null)
+            {
+                MessageBox.Show("Группа не сохранена в базе данных. Сохраните группу", "Несохранённая группа", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            ZoneEditorViewModel viewModel = new(group, Database);
+            var zoneEditorWindow = new ZoneEditorWindow(viewModel);
+            zoneEditorWindow.Owner = window;
+            zoneEditorWindow.ShowDialog();
         }
     }
 }

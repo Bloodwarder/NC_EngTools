@@ -117,7 +117,7 @@
                                                   ItemsSource="{Binding Source={StaticResource linetypesProvider}}"
                                                   SelectedItem="{Binding Path=LinetypeName, Mode=TwoWay}"/>
                             <ui:UserNumericInput LabelText="Вес линий" InputValue="{Binding Path=LineWeight, Mode=TwoWay}"/>
-                            <ui:UserNumericInput LabelText="Вес линий" InputValue="{Binding Path=DrawOrderIndex, Mode=TwoWay}"/>
+                            <ui:UserNumericInput LabelText="Z-индекс порядка отрисовки" InputValue="{Binding Path=DrawOrderIndex, Mode=TwoWay}"/>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>

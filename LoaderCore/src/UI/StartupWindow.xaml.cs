@@ -1,7 +1,9 @@
 ﻿using LoaderCore.Integrity;
 using LoaderCore.Utilities;
+using Markdig;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -40,17 +42,35 @@ namespace LoaderCore.UI
             tbSourcePath.Text = _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value;
 #nullable restore
             // Вывод данных о последнем обновлении
-            var patchNotesPath = Path.Combine(new FileInfo(_xmlConfigPath).DirectoryName!, "Список изменений.txt");
+            var patchNotesPath = Path.Combine(new FileInfo(_xmlConfigPath).DirectoryName!,"ExtensionLibraries", "LoaderCore", "Список изменений.md");
+            var stylesPath = Path.Combine(new FileInfo(_xmlConfigPath).DirectoryName!, "ExtensionLibraries", "LoaderCore", "Styles.css");
+            string? markdownText;
+            string? styles;
             using (StreamReader reader = new(patchNotesPath))
             {
-                string? line;
-                PreInitializeSimpleLogger.Log("Последние обновления:");
-                while ((line = reader.ReadLine()) != "" || reader.EndOfStream)
-                {
-                    PreInitializeSimpleLogger.Log(line ?? string.Empty);
-                }
-                //LoggingRouter.LogInformation("\n");
+                markdownText = reader.ReadToEnd();
             }
+            using (StreamReader stylesReader = new(stylesPath))
+            {
+                styles = stylesReader.ReadToEnd();
+            }
+                var pipeline = new MarkdownPipelineBuilder().Build();
+
+                var content = Markdown.ToHtml(markdownText, pipeline);
+
+                string htmlContent = $@"<!DOCTYPE html>
+                                        <html lang='en'>
+                                        <head>
+                                        <meta charset='utf-8'>
+                                        <style>
+                                        {styles}
+                                        </style>
+                                        </head>
+                                        <body>
+                                        {content}
+                                        </body>
+                                        </html>";
+                wbUpdates.NavigateToString(htmlContent);
         }
 
         public void IncludeCheckChanged(object sender, RoutedEventArgs e)
@@ -121,7 +141,7 @@ namespace LoaderCore.UI
 
         private void LogWindow(string message)
         {
-            fdLog.Blocks.Add(new Paragraph(new Run($"{message}")));
+            //fdLog.Blocks.Add(new Paragraph(new Run($"{message}")));
             //tbLog.Text += $"\n{message}";
         }
 

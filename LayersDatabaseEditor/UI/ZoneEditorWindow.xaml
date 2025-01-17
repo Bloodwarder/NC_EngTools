@@ -39,7 +39,8 @@
             <DataGrid Name="dgZones" AutoGenerateColumns="False"
                       ItemsSource="{Binding Source={StaticResource zonesViewSource}}">
                 <DataGrid.Columns>
-                    <DataGridTemplateColumn Header="Включено" IsReadOnly="False" MinWidth="20" Width="0.2*">
+                    <DataGridTemplateColumn Header="Включено" IsReadOnly="False" MinWidth="20" Width="0.2*" 
+                                            SortMemberPath="IsActivated">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox Name="chbIsActivated" HorizontalAlignment="Center" 

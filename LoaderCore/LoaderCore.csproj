@@ -49,9 +49,16 @@
 		<None Update="StartUpConfig.xml">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<None Update="Styles.css">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Список изменений.md">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="FluentValidation" Version="11.11.0" />
+		<PackageReference Include="Markdig" Version="0.40.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="7.0.0" />

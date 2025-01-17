@@ -90,10 +90,11 @@
                 <Button x:Name="bKnownIssues" DockPanel.Dock="Right" Width="130" Margin="20 5 20 5" HorizontalAlignment="Right" Content="Известные проблемы" Click="KnownIssuesClick"/>
             </DockPanel>
         </Grid>
-        <FlowDocumentScrollViewer Grid.Row="1" Margin="3,5,3,3" BorderBrush="#FF4A4A4A" Foreground="Black">
+        <!--<FlowDocumentScrollViewer Grid.Row="1" Margin="3,5,3,3" BorderBrush="#FF4A4A4A" Foreground="Black">
             <FlowDocument x:Name="fdLog" FontSize="14" Foreground="Navy" Background="WhiteSmoke" TextAlignment="Left" FontFamily="Corbel" ColumnWidth="650" LineHeight="5">
             </FlowDocument>
-            <!--<TextBlock x:Name="tbLog" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="12" Foreground="Blue" TextWrapping="Wrap"/>-->
-        </FlowDocumentScrollViewer>
+            --><!--<TextBlock x:Name="tbLog" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="12" Foreground="Blue" TextWrapping="Wrap"/>--><!--
+        </FlowDocumentScrollViewer>-->
+        <WebBrowser x:Name="wbUpdates" Grid.Row="1" Margin="10"/>
     </Grid>
 </Window>

@@ -15,15 +15,18 @@ namespace LayerWorks.Commands
         private readonly IRepository<string, ZoneInfo[]> _zoneRepository;
         private readonly IEntityFormatter _entityFormatter;
         private readonly ILayerChecker _checker;
+        private readonly DrawOrderService _drawOrderService;
         public AutoZoner(IEntityFormatter entityFormatter,
                          IRepository<string, ZoneInfo[]> repository,
                          IBuffer bufferizator,
-                         ILayerChecker checker)
+                         ILayerChecker checker,
+                         DrawOrderService drawOrderService)
         {
             _bufferizer = bufferizator;
             _entityFormatter = entityFormatter;
             _zoneRepository = repository;
             _checker = checker;
+            _drawOrderService = drawOrderService;
         }
 
         internal void AutoZone()
@@ -87,6 +90,8 @@ namespace LayerWorks.Commands
                         }
                     }
 
+                    List<Entity> entitiesToDraw = new();
+
                     foreach (string zoneName in zoneToLayersMap.Keys)
                     {
                         // Проверить/добавить слой
@@ -106,6 +111,7 @@ namespace LayerWorks.Commands
                         BlockTableRecord modelSpace = Workstation.ModelSpace;
                         foreach (var polyline in buffers)
                         {
+                            entitiesToDraw.Add(polyline);
                             modelSpace.AppendEntity(polyline);
                             transaction.AddNewlyCreatedDBObject(polyline, true);
                             _entityFormatter.FormatEntity(polyline);
@@ -120,11 +126,14 @@ namespace LayerWorks.Commands
                         // Если параметры не нашлись - не добавлять штриховку в чертёж
                         if (hatch.PatternName != "")
                         {
+                            entitiesToDraw.Add(hatch);
                             modelSpace.AppendEntity(hatch);
                             transaction.AddNewlyCreatedDBObject(hatch, true);
                         }
                     }
                     // TODO: Порядок прорисовки
+                    _drawOrderService.ArrangeDrawOrder(entitiesToDraw);
+
                     transaction.Commit();
                 }
                 finally

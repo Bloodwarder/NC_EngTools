@@ -127,7 +127,7 @@ namespace LayersDatabaseEditor.ViewModel
             var validationResult = Validator.Validate(this);
             if (!validationResult.IsValid)
             {
-                // LOG validationResult.Errors
+                // TODO: LOG validationResult.Errors
                 return;
             }
 
