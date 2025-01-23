@@ -156,10 +156,10 @@ namespace LoaderCore.UI
             string path = new DirectoryInfo(NcetCore.RootLocalDirectory).GetFiles("Команды.txt").Single().FullName;
             System.Diagnostics.Process.Start("notepad.exe", path);
         }
-        private void UpdateLogClick(object sender, RoutedEventArgs e)
+        private void LaunchEditorClick(object sender, RoutedEventArgs e)
         {
-            string path = new DirectoryInfo(NcetCore.RootLocalDirectory).GetFiles("Список изменений.txt").Single().FullName;
-            System.Diagnostics.Process.Start("notepad.exe", path);
+            string path = new DirectoryInfo(NcetCore.RootLocalDirectory).GetFiles("LayersDatabaseEditor.exe", SearchOption.AllDirectories).Single().FullName;
+            System.Diagnostics.Process.Start(path);
         }
         private void KnownIssuesClick(object sender, RoutedEventArgs e)
         {
