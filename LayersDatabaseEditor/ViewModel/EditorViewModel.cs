@@ -3,24 +3,31 @@ using LayersDatabaseEditor.Utilities;
 using LayersIO.Connection;
 using LayersIO.Database;
 using LayersIO.Model;
+using LoaderCore.Configuration;
+using LoaderCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using NameClassifiers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace LayersDatabaseEditor.ViewModel
 {
     public class EditorViewModel : INotifyPropertyChanged, IDbRelatedViewModel
     {
+        private const string LayersDbFileName = "LayerData.db";
+
         private LayersDatabaseContextSqlite? _db;
-        private SQLiteLayerDataContextFactory _dbContextFactory;
+        private readonly SQLiteLayerDataContextFactory _dbContextFactory;
         private LayerGroupViewModel? _selectedGroup;
         private LayerDataViewModel? _selectedLayer;
         private RelayCommand? _connectCommand;
@@ -37,9 +44,23 @@ namespace LayersDatabaseEditor.ViewModel
         private string _groupInputText = string.Empty;
         private string? _databasePath;
 
-        public EditorViewModel(SQLiteLayerDataContextFactory contextFactory)
+        public EditorViewModel(SQLiteLayerDataContextFactory contextFactory, IConfiguration configuration, IFilePathProvider provider)
         {
             _dbContextFactory = contextFactory;
+
+            LocalDatabasePath = provider.GetPath(LayersDbFileName);
+
+            var dbDirectoryPath = configuration.GetRequiredSection("LayerWorksConfiguration:LayerStandardPaths:LayerWorksPath")
+                                           .Get<LayerWorksPath[]>()!
+                                           .Where(p => p.Type == PathRoute.Shared)
+                                           .FirstOrDefault()?
+                                           .Path;
+            FileInfo dbSharedFile = new(Path.Combine(dbDirectoryPath ?? "", LayersDbFileName));
+            if (dbDirectoryPath != null && dbSharedFile.Exists)
+                SharedDatabasePath = dbSharedFile.FullName;
+#if DEBUG
+            DevDatabasePath = @"C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\LayersDatabase\Data\LayerData.db"; // TODO: переделать на User Secrets
+#endif
             UpdatedGroups.CollectionChanged += (s, e) =>
             {
                 OnPropertyChanged(nameof(IsValid));
@@ -146,6 +167,11 @@ namespace LayersDatabaseEditor.ViewModel
         public bool IsLayerSelected => SelectedLayer != null;
         public bool IsGroupSelected => SelectedGroup != null;
 
+        public bool IsDebugAssembly { get; } = Assembly.GetExecutingAssembly()
+                                               .GetCustomAttributes(false)
+                                               .OfType<DebuggableAttribute>()
+                                               .Any(da => da.IsJITTrackingEnabled);
+
         internal LayersDatabaseContextSqlite? Database { get => _db; set => _db = value; }
 
         /// <summary>
@@ -226,6 +252,10 @@ namespace LayersDatabaseEditor.ViewModel
 
         public bool IsUpdated => (SelectedGroup?.IsUpdated ?? false) || UpdatedGroups.Any() || GroupIdsToDelete.Any();
 
+        public string LocalDatabasePath { get; }
+        public string? SharedDatabasePath { get; }
+        public string? DevDatabasePath { get; } = null;
+
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string property = "")
         {
@@ -243,7 +273,7 @@ namespace LayersDatabaseEditor.ViewModel
             {
                 // Найти папку по умолчанию, где должен лежать файл БД
                 DirectoryInfo di = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.Parent!.Parent!.GetDirectories("UserData").First();
-                OpenFileDialog ofd = new OpenFileDialog()
+                OpenFileDialog ofd = new()
                 {
                     DefaultExt = ".db",
                     Filter = "SQLite database files|*.db;*.sqlite",
@@ -441,8 +471,7 @@ namespace LayersDatabaseEditor.ViewModel
 
         private void AddNewLayerGroup(object? obj)
         {
-            string? groupName = obj as string;
-            if (groupName == null)
+            if (obj is not string groupName)
                 return;
             if (SelectedGroup?.IsUpdated ?? false)
                 UpdatedGroups.Add(SelectedGroup);
@@ -583,8 +612,7 @@ namespace LayersDatabaseEditor.ViewModel
         /// <param name="obj">Вызывающее окно (объект Window)</param>
         private void OpenZoneEditor(object? obj)
         {
-            var window = obj as Window;
-            if (window == null)
+            if (obj is not Window window)
                 return;
             var group = Database!.LayerGroups.SingleOrDefault(g => g.Id == SelectedGroup!.Id);
             if (group == null)
@@ -593,8 +621,10 @@ namespace LayersDatabaseEditor.ViewModel
                 return;
             }
             ZoneEditorViewModel viewModel = new(group, Database);
-            var zoneEditorWindow = new ZoneEditorWindow(viewModel);
-            zoneEditorWindow.Owner = window;
+            ZoneEditorWindow zoneEditorWindow = new(viewModel)
+            {
+                Owner = window
+            };
             zoneEditorWindow.ShowDialog();
         }
     }

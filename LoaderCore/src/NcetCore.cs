@@ -67,6 +67,7 @@ namespace LoaderCore
             configurationXml = XDocument.Load(Path.Combine(RootLocalDirectory, ConfigurationXmlFileName));
 
             InitializeModules(configurationXml);
+            UpdateDataFolder();
             IndexAssemblies();
             RegisterNcDependencies();
             RegisterCommonDependencies();
@@ -86,6 +87,7 @@ namespace LoaderCore
             CheckConfigurationXml(configurationXml);
             UpdateInfoFiles();
             InitializeModules(configurationXml);
+            UpdateDataFolder();
             IndexAssemblies();
             RegisterCommonDependencies();
             PostInitializeModules();
@@ -163,52 +165,17 @@ namespace LoaderCore
         /// <summary>
         /// Обновление файлов со списком команд, списком обновлений и известными проблемами
         /// </summary>
-        private static void UpdateInfoFiles()
+        private static void UpdateInfoFiles() => UpdateDirectory(RootLocalDirectory, RootUpdateDirectory, "*.txt", "*.md");
+
+        private static void UpdateDataFolder()
         {
             if (RootUpdateDirectory == null)
             {
                 return;
             }
-            var updateDir = new DirectoryInfo(RootUpdateDirectory);
-            var localDir = new DirectoryInfo(RootLocalDirectory);
-
-            static Dictionary<string, FileInfo> GetDirectoryTextFiles(DirectoryInfo dir)
-            {
-                var dirTxt = dir.GetFiles("*.txt", SearchOption.TopDirectoryOnly).ToList();
-                dirTxt.AddRange(dir.GetFiles("*.md"));
-                return dirTxt.ToDictionary(fi => fi.Name);
-            }
-
-            var updateDict = GetDirectoryTextFiles(updateDir);
-
-            var localDict = GetDirectoryTextFiles(localDir);
-
-            foreach (string file in updateDict.Keys)
-            {
-                try
-                {
-                    if (!localDict.ContainsKey(file) || localDict[file].LastWriteTime < updateDict[file].LastWriteTime)
-                        updateDict[file].CopyTo(localDict[file].FullName, true);
-                }
-                catch (System.Exception ex)
-                {
-                    Logger?.LogWarning(ex, "Ошибка обновления файла \"{File}\":\n{Exception}", file, ex.Message);
-                    continue;
-                }
-            }
-            foreach (string file in localDict.Keys)
-            {
-                if (!updateDict.ContainsKey(file))
-                    try
-                    {
-                        localDict[file].Delete();
-                    }
-                    catch (System.Exception ex)
-                    {
-                        Logger?.LogWarning(ex, "Ошибка обновления файла \"{File}\":\n{Exception}", file, ex.Message);
-                        continue;
-                    }
-            }
+            var updateDir = Path.Combine(RootUpdateDirectory, "UserData");
+            var localDir = Path.Combine(RootLocalDirectory, "UserData");
+            UpdateDirectory(localDir, updateDir);
         }
 
         /// <summary>
@@ -317,7 +284,71 @@ namespace LoaderCore
             return null;
         }
 
+        private static void UpdateDirectory(string localPath, string? sourcePath, params string[] filters)
+        {
+            if (string.IsNullOrEmpty(sourcePath))
+            {
+                Logger?.LogWarning("Ошибка обновления - не указана директория источник обновлений");
+                return;
+            }
 
+            var updateDir = new DirectoryInfo(sourcePath);
+            var localDir = new DirectoryInfo(localPath);
+
+            static Dictionary<string, FileInfo> GetDirectoryTextFiles(DirectoryInfo dir, string[] filters)
+            {
+                if (filters == null || !filters.Any())
+                {
+                    return dir.GetFiles("*", SearchOption.AllDirectories).ToDictionary(fi => fi.Name);
+                }
+                else
+                {
+                    List<FileInfo> list = new();
+                    foreach (string filter in filters)
+                        list.AddRange(dir.GetFiles(filter, SearchOption.AllDirectories));
+                    return list.ToDictionary(fi => fi.Name);
+                }
+            }
+
+            var updateDict = GetDirectoryTextFiles(updateDir, filters);
+            var localDict = GetDirectoryTextFiles(localDir, filters);
+
+            foreach (string file in updateDict.Keys)
+            {
+                try
+                {
+                    if (!localDict.ContainsKey(file) || localDict[file].LastWriteTime < updateDict[file].LastWriteTime)
+#if !DEBUG
+                        updateDict[file].CopyTo(updateDict[file].FullName.Replace(sourcePath, localPath), true);
+#endif
+                        Logger?.LogWarning("Обновление файла \"{File}\"", file);
+
+                }
+                catch (System.Exception ex)
+                {
+                    Logger?.LogWarning(ex, "Ошибка обновления файла \"{File}\":\n{Exception}", file, ex.Message);
+                    continue;
+                }
+            }
+
+            foreach (string file in localDict.Keys)
+            {
+                if (!updateDict.ContainsKey(file))
+                    try
+                    {
+#if !DEBUG
+                        localDict[file].Delete();
+#endif
+                        Logger?.LogWarning("Удаление файла \"{File}\"", file);
+
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Logger?.LogWarning(ex, "Ошибка удаления файла \"{File}\":\n{Exception}", file, ex.Message);
+                        continue;
+                    }
+            }
+        }
 
         /// <summary>
         /// Команда вызова окна конфигурации

@@ -52,7 +52,18 @@
             <MenuItem Header="База данных">
                 <MenuItem Name="miSqliteConnect" Header="Подключиться к SQLite"
                           Command="{Binding Path=ConnectCommand}"/>
-                <MenuItem Header="Подключиться к PostgreSQL" IsEnabled="False"/>
+                <Separator/>
+                <MenuItem Name="miLocalSqliteConnect" Header="Подключиться к локальной БД"
+                          Command="{Binding Path=ConnectCommand}"
+                          CommandParameter="{Binding Path=LocalDatabasePath}"/>
+                <MenuItem Name="miSharedSqliteConnect" Header="Подключиться к общей БД"
+                          Command="{Binding Path=ConnectCommand}"
+                          CommandParameter="{Binding Path=SharedDatabasePath}"/>
+                <MenuItem Name="miDevSqliteConnect" Header="Подключиться к БД разработки" IsEnabled="{Binding Path=IsDebugAssembly}"
+                          Command="{Binding Path=ConnectCommand}"
+                          CommandParameter="{Binding Path=DevDatabasePath}"/>
+                <Separator/>
+                <MenuItem Header="Подключиться к PostgreSQL" IsEnabled="False" Visibility="Collapsed"/>
                 <Separator/>
                 <MenuItem Header="Отключиться от базы данных"
                           Command="{Binding Path=DisconnectCommand}"/>

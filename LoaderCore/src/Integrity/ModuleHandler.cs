@@ -72,13 +72,20 @@ namespace LoaderCore.Integrity
                 bool success = localFilesDictionary.TryGetValue(sourceFile.Name, out FileInfo? localFile);
                 if (!success || localFile!.LastWriteTime < sourceFile.LastWriteTime)
                 {
-                    var newLocalFile = sourceFile.CopyTo(localFile?.FullName
-                                                         ?? sourceFile.FullName.Replace(
-                                                             updateSourceDirectory.FullName,
-                                                             _moduleDirectory.FullName),
-                                                                true);
-                    PreInitializeSimpleLogger.Log?.Invoke($"Файл {newLocalFile.Name} обновлён");
-                    updated = true;
+                    try
+                    {
+                        var newLocalFile = sourceFile.CopyTo(localFile?.FullName
+                                                     ?? sourceFile.FullName.Replace(
+                                                         updateSourceDirectory.FullName,
+                                                         _moduleDirectory.FullName),
+                                                            true);
+                        PreInitializeSimpleLogger.Log?.Invoke($"Файл {newLocalFile.Name} обновлён");
+                        updated = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        PreInitializeSimpleLogger.Log?.Invoke($"Не удалось обновить файл {localFile.Name}: {ex.Message}");
+                    }
                 }
             }
             foreach (var localFile in localFilesDictionary.Values)

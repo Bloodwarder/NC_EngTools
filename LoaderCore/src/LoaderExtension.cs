@@ -26,7 +26,10 @@ namespace LoaderCore
 
             NcetCore.Initialize();
         }
+    }
 
+    public static class LibraryLoaderExtension
+    { 
         public static void InitializeAsLibrary()
         {
             // НЕ ВСТАВЛЯТЬ СЮДА КОД С ЗАВИСИМОСТЯМИ

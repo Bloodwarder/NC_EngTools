@@ -15,8 +15,6 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Media;
 using LayersIO.DataTransfer;
-using System.Windows.Controls.Primitives;
-using LayersDatabaseEditor.UI;
 
 namespace LayersDatabaseEditor
 {
@@ -33,7 +31,11 @@ namespace LayersDatabaseEditor
 
         public DatabaseEditorWindow()
         {
-
+#if !DEBUG
+            miTestRun.Visibility = Visibility.Collapsed;
+            miLogClear.Visibility = Visibility.Collapsed;            
+            miDevSqliteConnect.Visibility = Visibility.Collapsed;
+#endif
             InitializeComponent();
             PreInitializeSimpleLogger.Log += LogWrite;
             EditorViewModel = NcetCore.ServiceProvider.GetRequiredService<EditorViewModel>();
@@ -41,7 +43,6 @@ namespace LayersDatabaseEditor
 
             cmUpdate.DataContext = EditorViewModel;
             cmReset.DataContext = EditorViewModel;
-
         }
 
 
