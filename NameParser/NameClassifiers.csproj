@@ -47,7 +47,7 @@
 		<ItemGroup>
 			<PublishUserData Include="$(PublishDir)\Data\LayerParser_*.xml" />
 		</ItemGroup>
-		<Move SourceFiles="@(PublishUserData)" DestinationFolder="$(PublishDir)\..\UserData" />
+		<Move SourceFiles="@(PublishUserData)" DestinationFolder="$(PublishDir)\..\..\UserData" />
 		<RemoveDir Directories="$(PublishDir)\Data" />
 	</Target>
 

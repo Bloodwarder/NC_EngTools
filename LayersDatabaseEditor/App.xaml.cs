@@ -17,17 +17,26 @@ namespace LayersDatabaseEditor
     {
         static App()
         {
-            DirectoryInfo? dir = Directory.GetParent(Assembly.GetExecutingAssembly().Location)!;
-            DirectoryInfo mainDirectory = dir.Parent!.Parent!;
-            string path = Path.Combine(dir!.Parent!.FullName,"LoaderCore","LoaderCore.dll");
-            string diLibPath = Path.Combine(dir!.Parent!.FullName, "LoaderCore", "Microsoft.Extensions.DependencyInjection.Abstractions.dll");
-            Assembly.LoadFrom(path);
-            Assembly.LoadFrom(diLibPath);
-            InitializeLoaderCore();
+            try
+            {
+                Thread.Sleep(10000);
+                DirectoryInfo? dir = Directory.GetParent(Assembly.GetExecutingAssembly().Location)!;
+                DirectoryInfo mainDirectory = dir.Parent!.Parent!;
+                string path = Path.Combine(dir!.Parent!.FullName, "LoaderCore", "LoaderCore.dll");
+                string diLibPath = Path.Combine(dir!.Parent!.FullName, "LoaderCore", "Microsoft.Extensions.DependencyInjection.Abstractions.dll");
+                Assembly.LoadFrom(path);
+                Assembly.LoadFrom(diLibPath);
+                InitializeLoaderCore();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                throw;
+            }       
         }
         private static void InitializeLoaderCore()
         {
-            LoaderExtension.InitializeAsLibrary(RegisterServices);
+            LibraryLoaderExtension.InitializeAsLibrary(RegisterServices);
         }
 
         
