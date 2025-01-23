@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LayersDatabaseEditor.ViewModel
 {
-    public class LayerGroupViewModel : INotifyPropertyChanged, IDbRelatedViewModel
+    public class LayerGroupViewModel : INotifyPropertyChanged, INotifyPropertyChanging, IDbRelatedViewModel
     {
         private readonly LayerGroupData _layerGroupData;
         private readonly LayersDatabaseContextSqlite _db;
@@ -97,6 +97,7 @@ namespace LayersDatabaseEditor.ViewModel
             get => _prefix;
             set
             {
+                OnPropertyChanging();
                 _prefix = value;
                 OnPropertyChanged();
             }
@@ -108,6 +109,7 @@ namespace LayersDatabaseEditor.ViewModel
             get => _mainName;
             set
             {
+                OnPropertyChanging();
                 _mainName = value;
                 OnPropertyChanged();
             }
@@ -158,9 +160,7 @@ namespace LayersDatabaseEditor.ViewModel
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
-
-
-
+        public event PropertyChangingEventHandler? PropertyChanging;
 
         internal bool Validate()
         {
@@ -250,8 +250,6 @@ namespace LayersDatabaseEditor.ViewModel
                     Layers.Add(layerModel);
                 }
             }
-
-            //OnPropertyChanged(nameof(IsUpdated));
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = "")
@@ -263,6 +261,11 @@ namespace LayersDatabaseEditor.ViewModel
                 if (propertyName != nameof(IsUpdated))
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsUpdated)));
             }
+        }
+
+        private void OnPropertyChanging([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
     }
 }

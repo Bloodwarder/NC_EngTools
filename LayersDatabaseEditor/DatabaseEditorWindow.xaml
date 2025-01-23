@@ -96,13 +96,13 @@
 
         <DockPanel Grid.Row="3" Grid.Column="1" Margin="3">
             <TabControl Name="tcProperties" SelectedIndex="0" DataContextChanged="tcProperties_DataContextChanged"
-                        IsEnabled="{Binding Path=IsGroupSelected}"
+                        IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsGroupSelected}"
                         DataContext="{Binding Path=SelectedLayer}">
                 <TabItem Header="Общие" Width="100" IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
                     <StackPanel IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
-                        <ui:UserStringInput LabelText="Префикс" InputValue="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.Prefix, Mode=TwoWay}"/>
-                        <ui:UserStringInput LabelText="Основное имя" InputValue="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.MainName, Mode=TwoWay}"/>
-                        <ui:UserStringInput LabelText="Статус" InputValue="{Binding Path=StatusName, Mode=TwoWay}"/>
+                        <ui:UserStringInput IsEnabled="False" LabelText="Префикс" InputValue="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.Prefix, Mode=TwoWay}"/>
+                        <ui:UserStringInput IsEnabled="False" LabelText="Основное имя" InputValue="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.MainName, Mode=TwoWay}"/>
+                        <ui:UserStringInput IsEnabled="False" LabelText="Статус" InputValue="{Binding Path=StatusName, Mode=TwoWay}"/>
                     </StackPanel>
                 </TabItem>
                 <TabItem Header="Свойства" Width="100"

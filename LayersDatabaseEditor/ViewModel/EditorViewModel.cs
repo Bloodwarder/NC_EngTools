@@ -350,7 +350,7 @@ namespace LayersDatabaseEditor.ViewModel
                 var query = Database?.LayerGroups.Where(lg => lg.Prefix == prefix && lg.MainName.StartsWith(mainName));
                 int? count = query?.Count();
                 _selectedIndexes.Clear();
-                if (count == 1)
+                if (count == 1 && query?.First().MainName == mainName)
                 {
                     // Если по запросу ровно один результат - получить остальную информацию по группе и создать ViewModel
                     LayerGroupData result = query!.Include(lg => lg.Layers)
@@ -360,16 +360,12 @@ namespace LayersDatabaseEditor.ViewModel
                     _selectedIndexes.Add(result.Id);
 
                     LayerGroupViewModel layerGroupViewModel = new(result, _db!);
-                    layerGroupViewModel.PropertyChanged += (s, e) =>
-                    {
-                        OnPropertyChanged(nameof(IsUpdated));
-                        OnPropertyChanged(nameof(IsValid));
-                    };
+                    AssignLayerGroupEvents(layerGroupViewModel);
                     SelectedGroup = layerGroupViewModel;
                 }
-                else if (count > 1)
+                else if (count != 0)
                 {
-                    // Если по запросу более одного результата - сохранить Id объектов (для возможности удаления целого узла)
+                    // Если по запросу более одного результата или один объект, но не в конце дерева - сохранить Id объектов (для возможности удаления целого узла)
                     _selectedIndexes = query!.Select(lg => lg.Id).ToHashSet();
                     // И обнулить выборы
                     SelectedGroup = null;
@@ -382,6 +378,25 @@ namespace LayersDatabaseEditor.ViewModel
                     SelectedLayer = null;
                 }
             }
+        }
+
+        private void AssignLayerGroupEvents(LayerGroupViewModel layerGroupViewModel)
+        {
+            layerGroupViewModel.PropertyChanging += (s, e) =>
+            {
+                if (e.PropertyName == nameof(LayerGroupViewModel.Prefix) || e.PropertyName == nameof(LayerGroupViewModel.MainName))
+                {
+                    UpdatedGroups.Add((LayerGroupViewModel)s);
+                    LayerGroupNames.Remove(((LayerGroupViewModel)s!).Name);
+                }
+            };
+            layerGroupViewModel.PropertyChanged += (s, e) =>
+            {
+                OnPropertyChanged(nameof(IsUpdated));
+                OnPropertyChanged(nameof(IsValid));
+                if (e.PropertyName == nameof(LayerGroupViewModel.Prefix) || e.PropertyName == nameof(LayerGroupViewModel.MainName))
+                    LayerGroupNames.Add(((LayerGroupViewModel)s!).Name);
+            };
         }
 
         private void DeleteLayerGroups(object? obj)
@@ -432,11 +447,7 @@ namespace LayersDatabaseEditor.ViewModel
             if (SelectedGroup?.IsUpdated ?? false)
                 UpdatedGroups.Add(SelectedGroup);
             var newGroupVm = new LayerGroupViewModel(groupName, Database!);
-            newGroupVm.PropertyChanged += (s, e) =>
-            {
-                OnPropertyChanged(nameof(IsUpdated));
-                OnPropertyChanged(nameof(IsValid));
-            };
+            AssignLayerGroupEvents(newGroupVm);
             SelectedGroup = newGroupVm;
             LayerGroupNames.Add(groupName);
         }

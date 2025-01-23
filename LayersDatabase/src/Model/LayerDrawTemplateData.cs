@@ -36,11 +36,11 @@
         /// <summary>
         /// Дополнительная яркость внутренней штриховки  (от - 1 до 1)
         /// </summary>
-        public double? InnerHatchBrightness { get; set; }
+        public double? InnerHatchBrightness { get; set; } = 0;
         /// <summary>
         /// Угол поворота внутренней штриховки
         /// </summary>
-        public double? InnerHatchAngle { get; set; }
+        public double? InnerHatchAngle { get; set; } = 0;
         /// <summary>
         /// Ширина внешнего прямоугольника
         /// </summary>
@@ -64,11 +64,11 @@
         /// <summary>
         /// Дополнительная яркость внешней штриховки (от - 1 до 1)
         /// </summary>
-        public double? OuterHatchBrightness { get; set; }
+        public double? OuterHatchBrightness { get; set; } = 0;
         /// <summary>
         /// Угол поворота внешней штриховки
         /// </summary>
-        public double? OuterHatchAngle { get; set; }
+        public double? OuterHatchAngle { get; set; } = 0;
         /// <summary>
         /// Радиус
         /// </summary>
@@ -80,11 +80,11 @@
         /// <summary>
         /// Смещение точки вставки блока по оси X
         /// </summary>
-        public double? BlockXOffset { get; set; }
+        public double? BlockXOffset { get; set; } = 0;
         /// <summary>
         /// Смещение точки вставки блока по оси Y
         /// </summary>
-        public double? BlockYOffset { get; set; }
+        public double? BlockYOffset { get; set; } = 0;
         /// <summary>
         /// Путь к файлу для импорта блока
         /// </summary>
