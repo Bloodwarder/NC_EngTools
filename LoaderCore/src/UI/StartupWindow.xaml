@@ -70,7 +70,7 @@
                     Click="UpdateButtonClick" IsEnabled="False"/>
             <DockPanel Grid.Row="4" Grid.Column="3">
                 <TextBlock Text="Utilities" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
-                <Button x:Name="bUpdateLog" DockPanel.Dock="Right" Width="130" Margin="20 5 20 5" Visibility="Hidden" HorizontalAlignment="Right" Content="Список обновлений" Click="UpdateLogClick"/>
+                <Button x:Name="bLaunchEditor" DockPanel.Dock="Right" Width="130" Margin="20 5 20 5" HorizontalAlignment="Right" Content="Редактор слоёв" Click="LaunchEditorClick"/>
             </DockPanel>
 
 

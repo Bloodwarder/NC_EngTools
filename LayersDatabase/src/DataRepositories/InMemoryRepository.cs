@@ -8,13 +8,14 @@ namespace LayerWorks.DataRepositories
     {
         private const string DatabaseFileName = "LayerData.db";
 
-        private readonly Dictionary<TKey, TData> _dictionary;
+        private Dictionary<TKey, TData> _dictionary;
+        private readonly ILayerDataProvider<TKey, TData> _dataProvider;
 
         public InMemoryRepository(IDataProviderFactory<TKey, TData> factory, IFilePathProvider pathProvider)
         {
             var path = pathProvider.GetPath(DatabaseFileName); // TODO : вставить универсальную конструкцию
-            var reader = factory.CreateProvider(path);
-            _dictionary = reader.GetData();
+            _dataProvider = factory.CreateProvider(path);
+            _dictionary = _dataProvider.GetData();
         }
 
         public TData Get(TKey key)
@@ -47,6 +48,11 @@ namespace LayerWorks.DataRepositories
         {
             bool success = _dictionary.TryGetValue(key, out value);
             return success;
+        }
+
+        public void Reload()
+        {
+            _dictionary = _dataProvider.GetData();
         }
     }
 

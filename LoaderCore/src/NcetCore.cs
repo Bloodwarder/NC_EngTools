@@ -171,20 +171,43 @@ namespace LoaderCore
             }
             var updateDir = new DirectoryInfo(RootUpdateDirectory);
             var localDir = new DirectoryInfo(RootLocalDirectory);
-            var updateTxt = updateDir.GetFiles("*.txt", SearchOption.TopDirectoryOnly).ToDictionary(fi => fi.Name);
-            var localTxt = localDir.GetFiles("*.txt", SearchOption.TopDirectoryOnly).ToDictionary(fi => fi.Name);
-            foreach (var file in updateTxt.Keys)
+
+            static Dictionary<string, FileInfo> GetDirectoryTextFiles(DirectoryInfo dir)
+            {
+                var dirTxt = dir.GetFiles("*.txt", SearchOption.TopDirectoryOnly).ToList();
+                dirTxt.AddRange(dir.GetFiles("*.md"));
+                return dirTxt.ToDictionary(fi => fi.Name);
+            }
+
+            var updateDict = GetDirectoryTextFiles(updateDir);
+
+            var localDict = GetDirectoryTextFiles(localDir);
+
+            foreach (string file in updateDict.Keys)
             {
                 try
                 {
-                    if (!localTxt.ContainsKey(file) || localTxt[file].LastWriteTime < updateTxt[file].LastWriteTime)
-                        updateTxt[file].CopyTo(localTxt[file].FullName, true);
+                    if (!localDict.ContainsKey(file) || localDict[file].LastWriteTime < updateDict[file].LastWriteTime)
+                        updateDict[file].CopyTo(localDict[file].FullName, true);
                 }
                 catch (System.Exception ex)
                 {
                     Logger?.LogWarning(ex, "Ошибка обновления файла \"{File}\":\n{Exception}", file, ex.Message);
                     continue;
                 }
+            }
+            foreach (string file in localDict.Keys)
+            {
+                if (!updateDict.ContainsKey(file))
+                    try
+                    {
+                        localDict[file].Delete();
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Logger?.LogWarning(ex, "Ошибка обновления файла \"{File}\":\n{Exception}", file, ex.Message);
+                        continue;
+                    }
             }
         }
 

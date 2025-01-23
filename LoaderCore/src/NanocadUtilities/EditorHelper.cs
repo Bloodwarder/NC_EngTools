@@ -15,6 +15,13 @@ namespace LoaderCore.NanocadUtilities
             // Если всего один элемент, то и выбирать нечего
             if (keywordsArray.Length == 1)
                 return keywordsArray[0];
+
+            bool whitespaceReplaced = false;
+            if (keywordsArray.Any(s => s.Contains(" ")))
+            {
+                keywordsArray = keywordsArray.Select(s => s.Replace(" ", "_")).ToArray();
+                whitespaceReplaced = true;
+            }
             PromptKeywordOptions pko = new($"{message} [{string.Join("/", descriptionArray)}]", string.Join(" ", keywordsArray))
             {
                 AppendKeywordsToMessage = true,
@@ -24,7 +31,8 @@ namespace LoaderCore.NanocadUtilities
             PromptResult keywordResult = Workstation.Editor.GetKeywords(pko);
             if (keywordResult.Status != PromptStatus.OK)
                 throw new System.Exception("Ошибка ввода");
-            return keywordResult.StringResult;
+            string formatted = !whitespaceReplaced ? keywordResult.StringResult : keywordResult.StringResult.Replace("_", " ");
+            return formatted;
         }
 
         public static string GetStringKeyword(string[] keywordsArray, string[] descriptionArray, string message, params string[] additional)
