@@ -26,17 +26,21 @@ namespace LayersDatabaseEditor
         public static readonly DependencyProperty EditorViewModelProperty =
             DependencyProperty.Register("EditorViewModel", typeof(EditorViewModel), typeof(DatabaseEditorWindow), new PropertyMetadata());
 
-        readonly ILogger? _logger = NcetCore.ServiceProvider.GetService<ILogger>();
-        readonly IFilePathProvider _pathProvider = NcetCore.ServiceProvider.GetRequiredService<IFilePathProvider>();
+        readonly ILogger? _logger;
+        readonly IFilePathProvider _pathProvider;
 
         public DatabaseEditorWindow()
         {
+            InitializeComponent();
 #if !DEBUG
             miTestRun.Visibility = Visibility.Collapsed;
             miLogClear.Visibility = Visibility.Collapsed;            
             miDevSqliteConnect.Visibility = Visibility.Collapsed;
 #endif
-            InitializeComponent();
+            // TODO: перестроить на constructor injection
+            _logger = NcetCore.ServiceProvider.GetService<ILogger>();
+            _pathProvider = NcetCore.ServiceProvider.GetRequiredService<IFilePathProvider>();
+
             PreInitializeSimpleLogger.Log += LogWrite;
             EditorViewModel = NcetCore.ServiceProvider.GetRequiredService<EditorViewModel>();
             EditorViewModel.LayerGroupNames.CollectionChanged += (s, e) => UpdateTreeView(s, e);

@@ -30,7 +30,8 @@ namespace StartUp
                 {
                     try
                     {
-                        XDocument xDocument = XDocument.Load(ConfigurationXmlName);
+                        string configPath = Path.Combine(Assembly.GetExecutingAssembly().Location, ConfigurationXmlName);
+                        XDocument xDocument = XDocument.Load(configPath);
                         _sourceDirectory = xDocument.Root?.Element("Directories")?.Element("UpdateDirectory")?.Value;
                     }
                     catch (System.Exception)
