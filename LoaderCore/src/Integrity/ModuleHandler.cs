@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
+using System.Windows;
 using System.Xml.Linq;
 using LoaderCore.Interfaces;
 using LoaderCore.Utilities;
@@ -19,7 +21,7 @@ namespace LoaderCore.Integrity
         private readonly string _mainAssemblyPath;
         private readonly DirectoryInfo _moduleDirectory;
         private INcetInitializer? _initializer;
-        internal ModuleHandler(string name)
+        public ModuleHandler(string name)
         {
             Name = name;
             DllName = $"{name}.dll";
@@ -168,18 +170,36 @@ namespace LoaderCore.Integrity
             else
             {
                 _mainAssembly = Assembly.LoadFrom(_mainAssemblyPath);
+
             }
             _initializer = GetInitializer();
         }
         private void LoadDependencies()
         {
+            var context = AssemblyLoadContext.GetLoadContext(_mainAssembly!);
+
             foreach (var file in _moduleDirectory.EnumerateFiles("*.dll", SearchOption.AllDirectories))
             {
-                bool isValidAssembly = TryGetAssemblyName(file.FullName, out var name);
-                bool isNotLoaded = AppDomain.CurrentDomain.GetAssemblies().Any(a => a.FullName == name?.FullName);
-                if (isValidAssembly && isNotLoaded)
-                    Assembly.LoadFrom(file.FullName);
+                try
+                {
+                    bool isValidAssembly = TryGetAssemblyName(file.FullName, out var name);
+                    //bool isNotLoaded = AppDomain.CurrentDomain.GetAssemblies().Any(a => a.FullName == name?.FullName);
+                    bool isNotLoaded = AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().Name == name?.Name);
+
+                    if (isValidAssembly && isNotLoaded)
+                    {
+                        context.LoadFromAssemblyName(name);
+                        //context.LoadFromAssemblyPath(file.FullName);
+                        //Assembly.LoadFrom(file.FullName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // TODO: Log this
+                    continue;
+                }
             }
+
         }
 
         private void RunInitializer()

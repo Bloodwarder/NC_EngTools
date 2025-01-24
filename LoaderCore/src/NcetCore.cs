@@ -68,6 +68,7 @@ namespace LoaderCore
 
             InitializeModules(configurationXml);
             UpdateDataFolder();
+            UpdateIntermediateFolder();
             IndexAssemblies();
             RegisterNcDependencies();
             RegisterCommonDependencies();
@@ -88,6 +89,7 @@ namespace LoaderCore
             UpdateInfoFiles();
             InitializeModules(configurationXml);
             UpdateDataFolder();
+            UpdateIntermediateFolder();
             IndexAssemblies();
             RegisterCommonDependencies();
             PostInitializeModules();
@@ -165,7 +167,7 @@ namespace LoaderCore
         /// <summary>
         /// Обновление файлов со списком команд, списком обновлений и известными проблемами
         /// </summary>
-        private static void UpdateInfoFiles() => UpdateDirectory(RootLocalDirectory, RootUpdateDirectory, "*.txt", "*.md");
+        private static void UpdateInfoFiles() => UpdateDirectory(RootLocalDirectory, RootUpdateDirectory, SearchOption.AllDirectories, "*.txt", "*.md");
 
         private static void UpdateDataFolder()
         {
@@ -175,7 +177,18 @@ namespace LoaderCore
             }
             var updateDir = Path.Combine(RootUpdateDirectory, "UserData");
             var localDir = Path.Combine(RootLocalDirectory, "UserData");
-            UpdateDirectory(localDir, updateDir);
+            UpdateDirectory(localDir, updateDir, SearchOption.AllDirectories);
+        }
+
+        private static void UpdateIntermediateFolder()
+        {
+            if (RootUpdateDirectory == null)
+            {
+                return;
+            }
+            var updateDir = Path.Combine(RootUpdateDirectory, "ExtensionLibraries");
+            var localDir = Path.Combine(RootLocalDirectory, "ExtensionLibraries");
+            UpdateDirectory(localDir, updateDir, SearchOption.TopDirectoryOnly);
         }
 
         /// <summary>
@@ -262,7 +275,7 @@ namespace LoaderCore
 
         private static void PostInitializeModules()
         {
-            foreach (var module in Modules)
+            foreach (ModuleHandler module in Modules)
             {
                 module.PostInitialize();
             }
@@ -284,7 +297,7 @@ namespace LoaderCore
             return null;
         }
 
-        private static void UpdateDirectory(string localPath, string? sourcePath, params string[] filters)
+        private static void UpdateDirectory(string localPath, string? sourcePath, SearchOption searchOption, params string[] filters)
         {
             if (string.IsNullOrEmpty(sourcePath))
             {
@@ -295,23 +308,23 @@ namespace LoaderCore
             var updateDir = new DirectoryInfo(sourcePath);
             var localDir = new DirectoryInfo(localPath);
 
-            static Dictionary<string, FileInfo> GetDirectoryTextFiles(DirectoryInfo dir, string[] filters)
+            static Dictionary<string, FileInfo> GetDirectoryTextFiles(DirectoryInfo dir, SearchOption searchOption, string[] filters)
             {
                 if (filters == null || !filters.Any())
                 {
-                    return dir.GetFiles("*", SearchOption.AllDirectories).ToDictionary(fi => fi.Name);
+                    return dir.GetFiles("*", searchOption).ToDictionary(fi => fi.Name);
                 }
                 else
                 {
                     List<FileInfo> list = new();
                     foreach (string filter in filters)
-                        list.AddRange(dir.GetFiles(filter, SearchOption.AllDirectories));
+                        list.AddRange(dir.GetFiles(filter, searchOption));
                     return list.ToDictionary(fi => fi.Name);
                 }
             }
 
-            var updateDict = GetDirectoryTextFiles(updateDir, filters);
-            var localDict = GetDirectoryTextFiles(localDir, filters);
+            var updateDict = GetDirectoryTextFiles(updateDir, searchOption, filters);
+            var localDict = GetDirectoryTextFiles(localDir, searchOption, filters);
 
             foreach (string file in updateDict.Keys)
             {

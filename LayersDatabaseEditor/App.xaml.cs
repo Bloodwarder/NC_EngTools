@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Windows;
 
 namespace LayersDatabaseEditor
@@ -19,14 +20,18 @@ namespace LayersDatabaseEditor
         {
             try
             {
-                Thread.Sleep(10000);
+                //Thread.Sleep(10000);
                 DirectoryInfo? dir = Directory.GetParent(Assembly.GetExecutingAssembly().Location)!;
                 DirectoryInfo mainDirectory = dir.Parent!.Parent!;
                 string path = Path.Combine(dir!.Parent!.FullName, "LoaderCore", "LoaderCore.dll");
-                string diLibPath = Path.Combine(dir!.Parent!.FullName, "LoaderCore", "Microsoft.Extensions.DependencyInjection.Abstractions.dll");
+                string diLibPath = Path.Combine(dir!.Parent!.FullName, "LayerWorks", "Microsoft.Extensions.DependencyInjection.Abstractions.dll");
+                //AssemblyLoadContext context = new("LoadingContext", true);
+                var context = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly());
                 Assembly.LoadFrom(path);
-                Assembly.LoadFrom(diLibPath);
+                context.LoadFromAssemblyPath(diLibPath);
+                //Assembly.LoadFrom(diLibPath);
                 InitializeLoaderCore();
+                //context.Unload();
             }
             catch (Exception ex)
             {
