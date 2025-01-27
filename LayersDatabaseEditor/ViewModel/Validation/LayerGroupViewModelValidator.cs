@@ -9,7 +9,7 @@ namespace LayersDatabaseEditor.ViewModel.Validation
         {
             RuleFor(l => l.Prefix).NotNull().NotEmpty().Must(p => NameParser.LoadedParsers.ContainsKey(p!)).WithMessage("Парсер с указанным префиксом должен быть загружен");
             RuleFor(l => l.LayerLegend).SetValidator(new LayerLegendViewModelValidator());
-            //RuleForEach(lg => lg.Layers).SetValidator( new LayerDataViewModelValidator());
+            // TODO: проверка наличия AlterLayer в списке существующих слоёв
         }
     }
 }
