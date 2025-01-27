@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:LayersDatabaseEditor.UI"
         xmlns:vm="clr-namespace:LayersDatabaseEditor.ViewModel"
         mc:Ignorable="d"
-        Title="ZoneEditorWindow" Height="500" Width="800"
+        Title="{Binding Path=EditorCaption}" Height="500" Width="800"
         Name="zoneEditorWindow"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=ViewModel, Mode=TwoWay}">
     <Window.Resources>
@@ -49,7 +49,10 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Слой источник" Binding="{Binding Path=SourceLayerName}" MinWidth="50" Width="*" IsReadOnly="True"/>
+                    <DataGridTextColumn x:Name="dgtcSourceLayerName" Header="Слой источник" Binding="{Binding Path=SourceLayerName}" MinWidth="50" Width="*"
+                                        IsReadOnly="True"/>
+                    <DataGridTextColumn x:Name="dgtcZoneLayerName" Header="Слой зон" Binding="{Binding Path=ZoneLayerName}" MinWidth="50" Width="*"
+                                        IsReadOnly="True"/>
                     <DataGridTextColumn Header="Величина зоны" Binding="{Binding Path=Value}" MinWidth="30" Width="0.3*"/>
                     <DataGridTextColumn Header="Ширина по умолчанию" Binding="{Binding Path=DefaultConstructionWidth}" MinWidth="50" Width="0.3*"/>
                     <DataGridTemplateColumn Header="Игн. ширину" IsReadOnly="False" MinWidth="50" Width="0.2*">

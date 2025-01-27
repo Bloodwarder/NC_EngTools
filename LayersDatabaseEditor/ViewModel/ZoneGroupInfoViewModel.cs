@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace LayersDatabaseEditor.ViewModel
 {
-    public class ZoneInfoViewModel
+    public class ZoneGroupInfoViewModel
     {
         private readonly LayersDatabaseContextSqlite _db;
         private bool _isActivated;
@@ -19,9 +19,9 @@ namespace LayersDatabaseEditor.ViewModel
         private string _zoneLayerName = null!;
         private string _sourceLayerName = null!;
 
-        private ZoneMapping[]? _mappings;
+        private readonly ZoneMapping[]? _mappings;
 
-        public ZoneInfoViewModel(LayerGroupData zoneGroup, LayerGroupData sourceGroup, LayersDatabaseContextSqlite context, IEnumerable<ZoneMapping> mappings)
+        public ZoneGroupInfoViewModel(LayerGroupData zoneGroup, LayerGroupData sourceGroup, LayersDatabaseContextSqlite context, IEnumerable<ZoneMapping> mappings)
         {
             _db = context;
             _zoneGroup = zoneGroup;
@@ -41,7 +41,7 @@ namespace LayersDatabaseEditor.ViewModel
                 IgnoreConstructionWidth = valuesInfo.First().IgnoreConstructionWidth;
             }
         }
-        public ZoneInfoViewModel(IEnumerable<ZoneInfoData> zoneInfos, LayersDatabaseContextSqlite context)
+        public ZoneGroupInfoViewModel(IEnumerable<ZoneInfoData> zoneInfos, LayersDatabaseContextSqlite context)
         {
             _db = context;
             _zoneInfoData.AddRange(zoneInfos);

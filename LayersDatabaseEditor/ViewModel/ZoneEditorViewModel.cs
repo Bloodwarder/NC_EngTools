@@ -13,29 +13,70 @@ namespace LayersDatabaseEditor.ViewModel
     public class ZoneEditorViewModel : INotifyPropertyChanged
     {
         private readonly LayersDatabaseContextSqlite _db;
-        private readonly LayerGroupData _zoneGroup;
+        private readonly LayerGroupData _layerGroup;
 
         private RelayCommand? _saveAndExitCommand;
         private RelayCommand? _toggleZoneInfoEnabledCommand;
         private RelayCommand? _toggleIgnoreConstructionWidthCommand;
+        private Visibility _isSourceVisible;
+        private Visibility _isZoneVisible;
 
-        public ZoneEditorViewModel(LayerGroupData zoneLayerGroup, LayersDatabaseContextSqlite context)
+        public ZoneEditorViewModel(LayerGroupData layerGroup, LayersDatabaseContextSqlite context, ZoneRelation zoneRelation)
         {
-            _zoneGroup = zoneLayerGroup;
+            _layerGroup = layerGroup;
             _db = context;
             var groups = Database.LayerGroups.Include(g => g.Layers)
                                              .ThenInclude(l => l.Zones)
                                              .ThenInclude(z => z.ZoneLayer)
-                                             .Where(g => g != zoneLayerGroup)
+                                             .Where(g => g != layerGroup)
                                              .OrderBy(g => g.Prefix)
                                              .ThenBy(g => g.MainName)
                                              .AsEnumerable();
-            var mappings = Database.ZoneMappings.Where(m => m.TargetPrefix == zoneLayerGroup.Prefix).AsEnumerable();
-            foreach (var group in groups)
+            var mappings = Database.ZoneMappings.Where(m => m.TargetPrefix == layerGroup.Prefix).AsEnumerable();
+            switch (zoneRelation)
             {
-                Zones.Add(new(_zoneGroup, group, _db, mappings));
+                case ZoneRelation.ZoneGroup:
+                    foreach (var group in groups)
+                    {
+                        Zones.Add(new(_layerGroup, group, _db, mappings));
+                    }
+                    IsSourceVisible = Visibility.Visible;
+                    IsZoneVisible = Visibility.Collapsed;
+                    EditorCaption = $"Источники для слоя зон {_layerGroup.Name}";
+                    break;
+                case ZoneRelation.SourceGroup:
+                    foreach (var group in groups)
+                    {
+                        Zones.Add(new(group, _layerGroup, _db, mappings));
+                    }
+                    IsSourceVisible = Visibility.Collapsed;
+                    IsZoneVisible = Visibility.Visible;
+                    EditorCaption = $"Зоны для слоя {_layerGroup.Name}";
+                    break;
             }
         }
+
+        public string EditorCaption { get; private set; }
+
+        public Visibility IsSourceVisible
+        {
+            get => _isSourceVisible;
+            private set
+            {
+                _isSourceVisible = value;
+                OnPropertyChanged();
+            }
+        }
+        public Visibility IsZoneVisible
+        {
+            get => _isZoneVisible;
+            private set
+            {
+                _isZoneVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         public RelayCommand SaveAndExitCommand
         {
@@ -57,11 +98,11 @@ namespace LayersDatabaseEditor.ViewModel
             set => _toggleIgnoreConstructionWidthCommand = value;
         }
 
-        private void ZoneInfoAction(object? collection, Action<ZoneInfoViewModel> action)
+        private void ZoneInfoAction(object? collection, Action<ZoneGroupInfoViewModel> action)
         {
             if (collection == null)
                 return;
-            var infos = ((IEnumerable)collection).Cast<ZoneInfoViewModel>();
+            var infos = ((IEnumerable)collection).Cast<ZoneGroupInfoViewModel>();
             foreach (var info in infos)
             {
                 action(info);
@@ -96,7 +137,7 @@ namespace LayersDatabaseEditor.ViewModel
 
         internal LayersDatabaseContextSqlite Database => _db;
 
-        public ObservableCollection<ZoneInfoViewModel> Zones { get; set; } = new();
+        public ObservableCollection<ZoneGroupInfoViewModel> Zones { get; set; } = new();
 
 
         public event PropertyChangedEventHandler? PropertyChanged;

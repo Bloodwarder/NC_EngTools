@@ -96,7 +96,7 @@ namespace LayersDatabaseEditor.ViewModel
                 OnPropertyChanged();
             }
         }
-        public ObservableCollection<ZoneInfoViewModel> Zones { get; set; } = new();
+        public ObservableCollection<ZoneGroupInfoViewModel> Zones { get; set; } = new();
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
