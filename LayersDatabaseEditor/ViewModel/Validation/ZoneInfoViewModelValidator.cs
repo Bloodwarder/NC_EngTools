@@ -2,7 +2,7 @@
 
 namespace LayersDatabaseEditor.ViewModel.Validation
 {
-    public class ZoneInfoViewModelValidator : AbstractValidator<ZoneInfoViewModel>
+    public class ZoneInfoViewModelValidator : AbstractValidator<ZoneGroupInfoViewModel>
     {
         public ZoneInfoViewModelValidator()
         {

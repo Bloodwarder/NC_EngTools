@@ -613,7 +613,7 @@ namespace LayersDatabaseEditor.ViewModel
         /// <param name="obj">Вызывающее окно (объект Window)</param>
         private void OpenZoneEditor(object? obj)
         {
-            if (obj is not Window window)
+            if (obj is not ZoneRelation zoneRelation)
                 return;
             var group = Database!.LayerGroups.SingleOrDefault(g => g.Id == SelectedGroup!.Id);
             if (group == null)
@@ -621,10 +621,10 @@ namespace LayersDatabaseEditor.ViewModel
                 MessageBox.Show("Группа не сохранена в базе данных. Сохраните группу", "Несохранённая группа", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            ZoneEditorViewModel viewModel = new(group, Database);
+            ZoneEditorViewModel viewModel = new(group, Database, zoneRelation);
             ZoneEditorWindow zoneEditorWindow = new(viewModel)
             {
-                Owner = window
+                //Owner = window
             };
             zoneEditorWindow.ShowDialog();
         }

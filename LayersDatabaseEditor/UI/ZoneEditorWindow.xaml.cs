@@ -22,7 +22,7 @@ namespace LayersDatabaseEditor.UI
     {
         public static readonly DependencyProperty ViewModelProperty;
         private string _lastSearch = string.Empty;
-
+        
         static ZoneEditorWindow()
         {
             ViewModelProperty = DependencyProperty.Register("ViewModel", typeof(ZoneEditorViewModel), typeof(ZoneEditorWindow));
@@ -34,6 +34,11 @@ namespace LayersDatabaseEditor.UI
 
             InitializeComponent();
 
+            var foo = dgZones.Columns.Where(c => c.Header.ToString() == "Слой источник").Single();
+            var bar = dgZones.Columns.Where(c => c.Header.ToString() == "Слой зон").Single();
+            foo.Visibility = ViewModel.IsSourceVisible;
+            bar.Visibility = ViewModel.IsZoneVisible;
+
             CollectionViewSource = (CollectionViewSource)Resources["zonesViewSource"];
 
             //Binding b = new("Zones");
@@ -42,7 +47,7 @@ namespace LayersDatabaseEditor.UI
             //BindingOperations.SetBinding(CollectionViewSource, CollectionViewSource.SourceProperty, b);
 
             CollectionViewSource.Filter += new FilterEventHandler(FilterCallback);
-            CollectionViewSource.LiveFilteringProperties.Add(nameof(ZoneInfoViewModel.SourceLayerName));
+            CollectionViewSource.LiveFilteringProperties.Add(nameof(ZoneGroupInfoViewModel.SourceLayerName));
             
             inputFilter.TextChanged += (s, e) =>
             {
@@ -77,7 +82,7 @@ namespace LayersDatabaseEditor.UI
             //    return;
             //}
 
-            if (e.Item is ZoneInfoViewModel item && item.SourceLayerName.Contains(search))
+            if (e.Item is ZoneGroupInfoViewModel item && item.SourceLayerName.Contains(search))
             {
                 e.Accepted = true;
             }
@@ -119,9 +124,9 @@ namespace LayersDatabaseEditor.UI
                 RefreshDataGrid(sender, e);
             }
         }
-        private void UpdateZoneInfoViewModel(Action<ZoneInfoViewModel> action)
+        private void UpdateZoneInfoViewModel(Action<ZoneGroupInfoViewModel> action)
         {
-            var updatedItems = dgZones.SelectedItems.Cast<ZoneInfoViewModel>();
+            var updatedItems = dgZones.SelectedItems.Cast<ZoneGroupInfoViewModel>();
             foreach (var item in updatedItems)
                 action(item);
         }
