@@ -30,7 +30,7 @@ namespace LayersDatabaseEditor.ViewModel
             SourceLayerName = sourceGroup.Name;
             ZoneLayerName = zoneGroup.Name;
             var valuesInfo = sourceGroup.Layers.FirstOrDefault(l => l.Zones.Any(z => z.ZoneLayer.LayerGroup == zoneGroup))?.Zones
-                                               .Where(z => z.ZoneLayer.LayerGroup == zoneGroup)
+                                               .Where(z => z.ZoneLayer.LayerGroup == zoneGroup && !z.IsSpecial)
                                                .AsEnumerable();
             if (valuesInfo != null)
             {
@@ -40,17 +40,6 @@ namespace LayersDatabaseEditor.ViewModel
                 DefaultConstructionWidth = valuesInfo.First().DefaultConstructionWidth;
                 IgnoreConstructionWidth = valuesInfo.First().IgnoreConstructionWidth;
             }
-        }
-        public ZoneGroupInfoViewModel(IEnumerable<ZoneInfoData> zoneInfos, LayersDatabaseContextSqlite context)
-        {
-            _db = context;
-            _zoneInfoData.AddRange(zoneInfos);
-            IsActivated = true;
-            SourceLayerName = zoneInfos.First().SourceLayer.LayerGroup.Name;
-            ZoneLayerName = zoneInfos.First().ZoneLayer.LayerGroup.Name;
-            IgnoreConstructionWidth = zoneInfos.First().IgnoreConstructionWidth;
-            DefaultConstructionWidth = zoneInfos.First().DefaultConstructionWidth;
-            Value = zoneInfos.First().Value;
         }
 
         public static ZoneInfoViewModelValidator Validator { get; } = new();

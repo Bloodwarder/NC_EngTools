@@ -12,7 +12,7 @@ namespace LayersIO.Model
             builder.HasKey(z => z.Id).HasName($"ZoneInfo_PrimaryKey");
             builder.Property(z => z.Id).ValueGeneratedOnAdd();
 
-            builder.HasIndex(z => new { z.SourceLayerId, z.ZoneLayerId, z.AdditionalFilter }).IsUnique(); // UNDONE: добавить в индекс поле доп-фильтра
+            builder.HasIndex(z => new { z.SourceLayerId, z.ZoneLayerId, z.AdditionalFilter }).IsUnique();
             builder.Property(z => z.SourceLayerId).IsRequired();
             builder.Property(z => z.ZoneLayerId).IsRequired();
 

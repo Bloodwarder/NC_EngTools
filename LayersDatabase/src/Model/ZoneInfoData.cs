@@ -14,5 +14,6 @@
         public bool IgnoreConstructionWidth { get; set; } = true;
         public double Value { get; set; }
         public double DefaultConstructionWidth { get; set; }
+        public bool IsSpecial { get; set; } = false;
     }
 }
