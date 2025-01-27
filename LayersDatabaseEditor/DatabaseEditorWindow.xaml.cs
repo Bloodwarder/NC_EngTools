@@ -144,6 +144,9 @@ namespace LayersDatabaseEditor
                 case NotifyCollectionChangedAction.Add:
                     foreach (string str in e.NewItems!.Cast<string>())
                     {
+                        if (string.IsNullOrEmpty(str))
+                            continue;
+
                         string[] decomp = str.Split("_"); // UNDONE: сепаратор в хардкоде
                         TreeView treeView = twLayerGroups;
                         var items = treeView.Items;

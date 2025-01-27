@@ -161,7 +161,7 @@ namespace LayersDatabaseEditor.ViewModel
         /// <summary>
         /// Имена групп слоёв из БД (с учётом подготовленных изменений)
         /// </summary>
-        public ObservableHashSet<string> LayerGroupNames { get; private set; } = new();
+        public ObservableHashSet<string?> LayerGroupNames { get; private set; } = new();
 
         public bool IsConnected => _db != null;
         public bool IsLayerSelected => SelectedLayer != null;
@@ -319,6 +319,7 @@ namespace LayersDatabaseEditor.ViewModel
 
             // Очистить имена групп и получить из открытой БД новые
             LayerGroupNames.Clear();
+            LayerGroupNames.Add(string.Empty); // для возможности выбора пустого значения в AlterLayer
             _db.LayerGroups.AsNoTracking()
                            .Select(lg => new { lg.Prefix, lg.MainName })
                            .OrderBy(s => s.Prefix)
@@ -416,7 +417,7 @@ namespace LayersDatabaseEditor.ViewModel
             {
                 if (e.PropertyName == nameof(LayerGroupViewModel.Prefix) || e.PropertyName == nameof(LayerGroupViewModel.MainName))
                 {
-                    UpdatedGroups.Add((LayerGroupViewModel)s);
+                    UpdatedGroups.Add((LayerGroupViewModel)s!);
                     LayerGroupNames.Remove(((LayerGroupViewModel)s!).Name);
                 }
             };

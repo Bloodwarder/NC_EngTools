@@ -84,7 +84,8 @@ namespace LayersDatabaseEditor.ViewModel
                 bool valuesUpdated = Prefix != _layerGroupData.Prefix
                                      || MainName != _layerGroupData.MainName
                                      || Separator != _layerGroupData.Separator
-                                     || AlternateLayer != _layerGroupData.AlternateLayer;
+                                     || (AlternateLayer == null && _layerGroupData.AlternateLayer != null)
+                                     || (AlternateLayer != null && AlternateLayer != $"{_parser.Prefix}{_parser.Separator}{_layerGroupData.AlternateLayer}");
                 bool layersUpdated = Layers.Any(l => l.IsUpdated);
                 return valuesUpdated || legendUpdated || layersUpdated;
             }
@@ -97,9 +98,12 @@ namespace LayersDatabaseEditor.ViewModel
             get => _prefix;
             set
             {
-                OnPropertyChanging();
-                _prefix = value;
-                OnPropertyChanged();
+                if (_prefix != value)
+                {
+                    OnPropertyChanging();
+                    _prefix = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -109,9 +113,12 @@ namespace LayersDatabaseEditor.ViewModel
             get => _mainName;
             set
             {
-                OnPropertyChanging();
-                _mainName = value;
-                OnPropertyChanged();
+                if (_mainName != value)
+                {
+                    OnPropertyChanging();
+                    _mainName = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -193,7 +200,14 @@ namespace LayersDatabaseEditor.ViewModel
             if (this.IsValid)
             {
                 _layerGroupData.Prefix = Prefix!;
-                _layerGroupData.AlternateLayer = AlternateLayer;
+                if (AlternateLayer == string.Empty)
+                {
+                    _layerGroupData.AlternateLayer = null;
+                }
+                else
+                {
+                    _layerGroupData.AlternateLayer = AlternateLayer?.Replace($"{_parser.Prefix}{_parser.Separator}", string.Empty);
+                }
                 var state = Database.Entry(_layerGroupData).State;
                 if (state == EntityState.Detached)
                 {
@@ -208,10 +222,7 @@ namespace LayersDatabaseEditor.ViewModel
                         entity.State = EntityState.Detached;
                     Database.LayerGroups.Add(_layerGroupData);
                 }
-                else
-                {
-                    //Database.Attach(_layerGroupData); // а надо ли? вероятно уже присоединена
-                }
+
                 LayerLegend.UpdateDbEntity();
                 foreach (var layer in Layers)
                 {
@@ -226,7 +237,7 @@ namespace LayersDatabaseEditor.ViewModel
             Prefix = _layerGroupData.Prefix;
             MainName = _layerGroupData.MainName;
             Separator = _layerGroupData.Separator;
-            AlternateLayer = _layerGroupData.AlternateLayer;
+            AlternateLayer = _layerGroupData.AlternateLayer != null ? $"{_parser.Prefix}{_parser.Separator}{_layerGroupData.AlternateLayer}" : null;
 
             if (LayerLegend == null)
             {
