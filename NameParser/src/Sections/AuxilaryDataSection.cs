@@ -59,7 +59,7 @@ namespace NameClassifiers.Sections
         }
         internal override bool ValidateString(string str)
         {
-            return str.StartsWith(Brackets[0]);
+            return str.StartsWith(Brackets[0]) || (NextSection?.ValidateString(str) ?? true);
         }
 
         internal override void ExtractDistinctInfo(IEnumerable<LayerInfo> layerInfos, out string[] keywords, out Func<string, string> descriptionFunc)

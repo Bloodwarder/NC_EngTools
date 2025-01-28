@@ -23,6 +23,13 @@
 			<Classifier Value ="т" Description="Точечный"/>
 		</AuxilaryClassifier>
 		<SecondaryClassifiers/>
+		<AuxilaryData Name="OknZoneIndex" Brackets="[]" Description="Индекс зоны ОКН">
+			<Validation>
+				<ValidSet>
+					<ChapterReference Value="ОКН"/>
+				</ValidSet>
+			</Validation>
+		</AuxilaryData>
 		<StatusClassifier>
 			<Status Value="Росреестр" Description="По данным Росреестра"/>
 			<Status Value="Общий" Description="С учётом проектных объектов"/>
