@@ -72,4 +72,8 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
+
+    <Style TargetType="Paragraph" x:Key="logParagraph">
+        <Setter Property="Margin" Value="0,0,0,3"/>
+    </Style>
 </ResourceDictionary>

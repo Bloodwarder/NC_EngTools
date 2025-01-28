@@ -1,12 +1,14 @@
 ﻿using LoaderCore.NanocadUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Windows.Documents;
 
 namespace LayersDatabaseEditor.Utilities
 {
     public class EditorWindowLogger : ILogger
     {
         private readonly LogLevel _logLevel;
+        private DatabaseEditorWindow? _editorWindow;
         internal EditorWindowLogger()
         {
             _logLevel = LogLevel.Information;
@@ -28,9 +30,8 @@ namespace LayersDatabaseEditor.Utilities
             {
                 try
                 {
-                    string message = formatter(state, exception);
-                    // TODO: собственно, логгировать
-                    //Workstation.Editor.WriteMessage(message);
+                    string message = $"[{DateTime.Now.ToLongTimeString()}]\t{formatter(state, exception)}";
+                    _editorWindow?.fdLog.Blocks.Add(new Paragraph(new Run(message)));
                 }
                 catch (AccessViolationException ex)
                 {
@@ -38,5 +39,6 @@ namespace LayersDatabaseEditor.Utilities
                 }
             }
         }
+        internal void RegisterWindow(DatabaseEditorWindow editorWindow) => _editorWindow = editorWindow;
     }
 }

@@ -268,7 +268,7 @@
         </WrapPanel>
         <Expander Name="expLog" Grid.Row="5" Grid.ColumnSpan="2" Height="25" Collapsed="expLog_Collapsed" Expanded="expLog_Expanded" >
             <FlowDocumentScrollViewer Name="fdsvLog" Grid.Row="5" Grid.ColumnSpan="2" Margin="3,5,3,3" BorderBrush="#FF4A4A4A" Foreground="Black">
-                <FlowDocument x:Name="fdLog" FontSize="12" FontFamily="SegoeUI" Foreground="Blue" Background="WhiteSmoke" LineHeight="16" LineStackingStrategy="BlockLineHeight"/>
+                <FlowDocument x:Name="fdLog" FontSize="12" FontFamily="SegoeUI" Foreground="#00007f" Background="WhiteSmoke" LineHeight="8" LineStackingStrategy="BlockLineHeight"/>
             </FlowDocumentScrollViewer>
         </Expander>
     </Grid>

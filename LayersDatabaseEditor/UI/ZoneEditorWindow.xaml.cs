@@ -34,10 +34,10 @@ namespace LayersDatabaseEditor.UI
 
             InitializeComponent();
 
-            var foo = dgZones.Columns.Where(c => c.Header.ToString() == "Слой источник").Single();
-            var bar = dgZones.Columns.Where(c => c.Header.ToString() == "Слой зон").Single();
-            foo.Visibility = ViewModel.IsSourceVisible;
-            bar.Visibility = ViewModel.IsZoneVisible;
+            DataGridColumn sourceLayerColumn = dgZones.Columns.Single(c => c.Header.ToString() == "Слой источник");
+            DataGridColumn zoneLayerColumn = dgZones.Columns.Single(c => c.Header.ToString() == "Слой зон");
+            sourceLayerColumn.Visibility = ViewModel.IsSourceVisible;
+            zoneLayerColumn.Visibility = ViewModel.IsZoneVisible;
 
             CollectionViewSource = (CollectionViewSource)Resources["zonesViewSource"];
 

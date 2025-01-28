@@ -28,6 +28,7 @@ namespace LayersDatabaseEditor.ViewModel
 
         private LayersDatabaseContextSqlite? _db;
         private readonly SQLiteLayerDataContextFactory _dbContextFactory;
+        private readonly ILogger _logger;
         private LayerGroupViewModel? _selectedGroup;
         private LayerDataViewModel? _selectedLayer;
         private RelayCommand? _connectCommand;
@@ -44,10 +45,10 @@ namespace LayersDatabaseEditor.ViewModel
         private string _groupInputText = string.Empty;
         private string? _databasePath;
 
-        public EditorViewModel(SQLiteLayerDataContextFactory contextFactory, IConfiguration configuration, IFilePathProvider provider)
+        public EditorViewModel(SQLiteLayerDataContextFactory contextFactory, IConfiguration configuration, IFilePathProvider provider, ILogger logger)
         {
             _dbContextFactory = contextFactory;
-
+            _logger = logger;
             LocalDatabasePath = provider.GetPath(LayersDbFileName);
 
             var dbDirectoryPath = configuration.GetRequiredSection("LayerWorksConfiguration:LayerStandardPaths:LayerWorksPath")
@@ -331,6 +332,7 @@ namespace LayersDatabaseEditor.ViewModel
             // Оповестить UI
             OnPropertyChanged(nameof(IsConnected));
             OnPropertyChanged(nameof(IsUpdated));
+            _logger?.LogInformation("Подключение к {DbFile} установлено", fileName);
         }
 
         /// <summary>
@@ -345,6 +347,7 @@ namespace LayersDatabaseEditor.ViewModel
             LayerGroupNames.Clear();
             OnPropertyChanged(nameof(IsConnected));
             OnPropertyChanged(nameof(IsUpdated));
+            _logger?.LogInformation("Отключение от {DbFile}", _databasePath);
         }
 
         /// <summary>
@@ -365,7 +368,7 @@ namespace LayersDatabaseEditor.ViewModel
             if (SelectedGroup?.IsUpdated ?? false)
                 UpdatedGroups.Add(SelectedGroup);
             // Проверить, была ли планируемая к выбору группа ранее сохранена в коллекции UpdatedGroups
-            var cachedGroup = UpdatedGroups.Where(g => g.Prefix == prefix && g.MainName == mainName).FirstOrDefault();
+            var cachedGroup = UpdatedGroups.FirstOrDefault(g => g.Prefix == prefix && g.MainName == mainName);
             if (cachedGroup != null)
             {
                 // Если да - вытащить оттуда
@@ -464,7 +467,10 @@ namespace LayersDatabaseEditor.ViewModel
             SelectedLayer = null;
 
             foreach (string name in namesToRemove)
+            {
                 LayerGroupNames.Remove(name);
+                _logger?.LogInformation("Группа слоёв {GroupName} удалена", name);
+            }
 
             OnPropertyChanged(nameof(IsUpdated));
             OnPropertyChanged(nameof(IsValid));
@@ -490,10 +496,14 @@ namespace LayersDatabaseEditor.ViewModel
 
             var entitiesToDelete = Database.LayerGroups.Where(g => GroupIdsToDelete.ExposedSet.Contains(g.Id)).AsEnumerable();
             Database.LayerGroups.RemoveRange(entitiesToDelete);
+            //int deleteCount = entitiesToDelete.Count();
             GroupIdsToDelete.Clear();
 
             foreach (var groupVm in UpdatedGroups)
+            {
                 groupVm.UpdateDatabaseEntities();
+            }
+            //int updateCount = UpdatedGroups.Count();
             UpdatedGroups.Clear();
 
             SelectedGroup?.UpdateDatabaseEntities();

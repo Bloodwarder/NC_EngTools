@@ -15,6 +15,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Media;
 using LayersIO.DataTransfer;
+using LayersDatabaseEditor.Utilities;
 
 namespace LayersDatabaseEditor
 {
@@ -34,11 +35,13 @@ namespace LayersDatabaseEditor
             InitializeComponent();
 #if !DEBUG
             miTestRun.Visibility = Visibility.Collapsed;
-            miLogClear.Visibility = Visibility.Collapsed;            
             miDevSqliteConnect.Visibility = Visibility.Collapsed;
 #endif
             // TODO: перестроить на constructor injection
             _logger = NcetCore.ServiceProvider.GetService<ILogger>();
+            if (_logger is EditorWindowLogger ewLogger)
+                ewLogger.RegisterWindow(this);
+
             _pathProvider = NcetCore.ServiceProvider.GetRequiredService<IFilePathProvider>();
 
             PreInitializeSimpleLogger.Log += LogWrite;
@@ -216,7 +219,7 @@ namespace LayersDatabaseEditor
         private void miSqliteConnect_Click(object sender, RoutedEventArgs e)
         {
             DirectoryInfo di = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.Parent!.Parent!.GetDirectories("UserData").First();
-            OpenFileDialog ofd = new OpenFileDialog()
+            OpenFileDialog ofd = new()
             {
                 DefaultExt = ".db",
                 Filter = "SQLite database files|*.db;*.sqlite",
