@@ -11,6 +11,7 @@ using GeoMod.Commands;
 using GeoMod.NtsServices;
 using GeoMod.Processing;
 using Teigha.Runtime;
+using Teigha.DatabaseServices;
 
 namespace GeoMod
 {
@@ -39,7 +40,9 @@ namespace GeoMod
                              .AddTransient<GeomodPrecisionCommands>()
                              .AddTransient<GeomodWktCommands>()
                              .AddTransient<GeomodBufferizationCommands>()
-                             .AddTransient<GeomodAutoBufferizationCommand>();
+                             .AddTransient<GeomodAutoBufferizationCommand>()
+                             .AddSingleton<IEntityPropertyRecognizer<Entity, string?>, GeomodLabelRecognizer>();
+            ;
         }
 
         public void Terminate()

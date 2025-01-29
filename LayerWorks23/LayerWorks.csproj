@@ -89,9 +89,9 @@
 
 	<Target Name="MoveDataAfterPublish" AfterTargets="Publish">
 		<ItemGroup>
-			<PublishUserData Include="$(PublishDir)\LayersData\*.*"/>
+			<PublishUserData Include="$(PublishDir)\LayersData\*.*" />
 		</ItemGroup>
-		<Move SourceFiles="@(PublishUserData)" DestinationFolder="$(PublishDir)\..\..\UserData"/>
+		<Move SourceFiles="@(PublishUserData)" DestinationFolder="$(PublishDir)\..\..\UserData" />
 		<RemoveDir Directories="$(PublishDir)\LayersData" />
 	</Target>	
 	

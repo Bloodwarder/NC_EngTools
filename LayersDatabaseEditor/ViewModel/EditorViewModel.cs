@@ -50,7 +50,6 @@ namespace LayersDatabaseEditor.ViewModel
             _dbContextFactory = contextFactory;
             _logger = logger;
             LocalDatabasePath = provider.GetPath(LayersDbFileName);
-
             var dbDirectoryPath = configuration.GetRequiredSection("LayerWorksConfiguration:LayerStandardPaths:LayerWorksPath")
                                            .Get<LayerWorksPath[]>()!
                                            .Where(p => p.Type == PathRoute.Shared)

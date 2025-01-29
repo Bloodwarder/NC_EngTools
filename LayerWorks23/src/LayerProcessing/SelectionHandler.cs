@@ -23,14 +23,14 @@ namespace LayerWorks.LayerProcessing
                 SelectionSet selectionSet = result.Value;
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Выбрано {Count} объектов", nameof(SelectionHandler), selectionSet.Count);
 
-                if (selectionSet.Count < MaxSimple)
-                {
-                    ProcessSimple(selectionSet);
-                }
-                else
-                {
+                //if (selectionSet.Count < MaxSimple)
+                //{
+                //    ProcessSimple(selectionSet);
+                //}
+                //else
+                //{
                     ProcessBulk(selectionSet);
-                }
+                //}
             }
             else
             {

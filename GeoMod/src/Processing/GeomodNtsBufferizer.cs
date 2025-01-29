@@ -7,6 +7,7 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Teigha.DatabaseServices;
 
 namespace GeoMod.Processing
@@ -58,6 +59,17 @@ namespace GeoMod.Processing
             }
         }
 
+        public IEnumerable<Polyline> Buffer(Dictionary<Entity, double> entities, string layerName)
+        {
+            var polylines = ProcessGeometry(entities);
+            ObjectId layerId = _layerChecker?.Check(layerName) ?? Workstation.Database.Clayer;
+            foreach (var polyline in polylines)
+            {
+                polyline.LayerId = layerId;
+                yield return polyline;
+            }
+        }
+
         private IEnumerable<Polyline> ProcessGeometry(IEnumerable<Entity> entities, double width)
         {
             return ProcessGeometry(entities, s => width);
@@ -80,6 +92,24 @@ namespace GeoMod.Processing
                 Geometry fixedGeometry = GeometryFixer.Fix(sourceGeom);
                 double width = func(entity.Layer);
                 Geometry bufferGeom = fixedGeometry.Buffer(width, _bufferParametersProvider.GetBufferParameters(width));
+                bufferGeoms.Add(bufferGeom);
+            }
+            Geometry buffer = geometryFactory.CreateGeometryCollection(bufferGeoms.ToArray()).Union();
+            return GeometryToDwgConverter.ToDWGPolylines(buffer);
+        }
+
+        private IEnumerable<Polyline> ProcessGeometry(Dictionary<Entity, double> entityDictionary)
+        {
+            var geometryFactory = _geometryServices.CreateGeometryFactory();
+            List<Geometry> bufferGeoms = new();
+            var pairs = entityDictionary.AsEnumerable();
+            foreach (var pair in pairs)
+            {
+                Geometry? sourceGeom = EntityToGeometryConverter.TransferGeometry(pair.Key, geometryFactory);
+                if (sourceGeom == null)
+                    continue;
+                Geometry fixedGeometry = GeometryFixer.Fix(sourceGeom);
+                Geometry bufferGeom = fixedGeometry.Buffer(pair.Value, _bufferParametersProvider.GetBufferParameters(pair.Value));
                 bufferGeoms.Add(bufferGeom);
             }
             Geometry buffer = geometryFactory.CreateGeometryCollection(bufferGeoms.ToArray()).Union();
