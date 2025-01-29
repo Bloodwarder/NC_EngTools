@@ -8,5 +8,6 @@ namespace LoaderCore.Interfaces
         public IEnumerable<Polyline> Buffer(IEnumerable<Entity> entities, double width);
         public IEnumerable<Polyline> Buffer(IEnumerable<Entity> entities, double width, string layerName);
         public IEnumerable<Polyline> Buffer(IEnumerable<Entity> entities, Dictionary<string, double> width, string layerName);
+        public IEnumerable<Polyline> Buffer(Dictionary<Entity, double> width, string layerName);
     }
 }
