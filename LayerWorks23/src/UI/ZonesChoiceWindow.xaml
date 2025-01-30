@@ -6,13 +6,13 @@
         xmlns:local="clr-namespace:LayerWorks.UI"
         mc:Ignorable="d"
         Title="Выбор зон" Height="450" Width="400" MinWidth="300"
-        Name="zonesChoiceWindow" KeyUp="zonesChoiceWindow_KeyUp">
+        Name="zonesChoiceWindow" Loaded="zonesChoiceWindow_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <ScrollViewer Grid.Row="0" Margin="5">
+        <ScrollViewer Name="svActiveZones" Grid.Row="0" Margin="5" PreviewMouseWheel="svActiveZones_PreviewMouseWheel" >
             <DataGrid Name="dgActiveZones" AutoGenerateColumns="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Слой зон" Width="*" Binding="{Binding}"/>

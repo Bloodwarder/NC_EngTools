@@ -130,5 +130,15 @@ namespace LayersDatabaseEditor.UI
             foreach (var item in updatedItems)
                 action(item);
         }
+
+        private void svZones_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            var scrollViewer = sender as ScrollViewer;
+            if (scrollViewer != null)
+            {
+                scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta);
+                e.Handled = true;
+            }
+        }
     }
 }

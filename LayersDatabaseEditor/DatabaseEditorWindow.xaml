@@ -93,7 +93,7 @@
                       Text="{Binding Path=GroupInputText, Mode=TwoWay}"/>
         </DockPanel>
 
-        <ScrollViewer Name="svLayers" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="3">
+        <ScrollViewer Name="svLayers" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="3" PreviewMouseWheel="svLayers_PreviewMouseWheel" >
             <ListView Name="lvLayers" SelectionChanged="lvLayers_SelectionChanged"
                       ItemsSource="{Binding Path=SelectedGroup.Layers, Mode=OneWay}"
                       SelectedItem="{Binding Path=SelectedLayer, Mode=TwoWay}">
@@ -206,11 +206,11 @@
                                     Command="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.OpenZoneEditorCommand}"
                                     CommandParameter="{Binding Source={x:Static vm:ZoneRelation.ZoneGroup}}"/>
                             <TextBlock Text="От слоёв текущей группы отбиваются следующие зоны (общие):" Margin="0 10 0 0"/>
-                            <Button Content="Выбрать слои зон"
+                            <Button Name="bZoneEditorForSource" Content="Выбрать слои зон"
                                     Command="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.OpenZoneEditorCommand}"
                                     CommandParameter="{Binding Source={x:Static vm:ZoneRelation.SourceGroup}}"/>
                             <TextBlock Text="От текущего слоя отбиваются следующие зоны (специальные):" Margin="0 10 0 0"/>
-                            <Button Content="Определить специальные зоны"
+                            <Button Name="bSpecialZoneEditor" Content="Определить специальные зоны"
                                     ToolTip="Специальные зоны определяются для слоя (не для группы) по отдельным для каждого слоя правилам"/>
                             <TextBlock Text="Альтернативный слой" Margin="0 10 0 0"/>
                             <ComboBox Name="cbAlterLayer" Margin="0 3 0 20"

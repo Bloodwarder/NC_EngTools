@@ -36,6 +36,7 @@ namespace LayersDatabaseEditor
 #if !DEBUG
             miTestRun.Visibility = Visibility.Collapsed;
             miDevSqliteConnect.Visibility = Visibility.Collapsed;
+            bSpecialZoneEditor.IsEnabled = false;
 #endif
             // TODO: перестроить на constructor injection
             _logger = NcetCore.ServiceProvider.GetService<ILogger>();
@@ -311,7 +312,15 @@ namespace LayersDatabaseEditor
             EditorViewModel.Database?.Dispose();
         }
 
-
+        private void svLayers_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            var scrollViewer = sender as ScrollViewer;
+            if (scrollViewer != null)
+            {
+                scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta);
+                e.Handled = true;
+            }
+        }
     }
 
 }

@@ -23,12 +23,12 @@ namespace LayerWorks.Commands
         private readonly Regex _diameterRegex = new(@"(\d)?(%%C(\d{1,5}))");
         public AutoZoner(IEntityFormatter entityFormatter,
                          IRepository<string, ZoneInfo[]> repository,
-                         IBuffer bufferizator,
+                         IBuffer bufferizer,
                          ILayerChecker checker,
                          DrawOrderService drawOrderService,
                          IEntityPropertyRecognizer<Entity, string?>? diameterRecognizer)
         {
-            _bufferizer = bufferizator;
+            _bufferizer = bufferizer;
             _entityFormatter = entityFormatter;
             _zoneRepository = repository;
             _checker = checker;
@@ -59,33 +59,7 @@ namespace LayerWorks.Commands
                     Regex additionalFilterRegex = new(@"(\^?)([^_\-\.\ ]+)");
 
                     // Выбрать дополнительные опции
-                    bool isZoneChoiceNeeded = false;
-                    bool isLabelRecognizeAttemptNeeded = true;
-                    PromptKeywordOptions pko = new("При необходимости выберите дополнительные опции [Продолжить/Выбрать/Диаметры] <Продолжить>", "Продолжить Выбрать Диаметры")
-                    {
-                        AppendKeywordsToMessage = true,
-                        AllowNone = false,
-                        AllowArbitraryInput = false
-                    };
-                    PromptResult result = Workstation.Editor.GetKeywords(pko);
-                    while(result.StringResult != "Продолжить")
-                    {
-                        if (result.Status != PromptStatus.OK)
-                            return;
-                        switch (result.StringResult)
-                        {
-                            case "Выбрать":
-                                isZoneChoiceNeeded = !isZoneChoiceNeeded;
-                                Workstation.Editor.WriteMessage(isZoneChoiceNeeded ? "Выбрать состав зон" : "Отбить все зоны");
-                                result = Workstation.Editor.GetKeywords(pko);
-                                break;
-                            case "Диаметры":
-                                isLabelRecognizeAttemptNeeded = !isLabelRecognizeAttemptNeeded;
-                                Workstation.Editor.WriteMessage($"Диаметры {(isLabelRecognizeAttemptNeeded ? "определяются" : "не определяются")} по подписям");
-                                result = Workstation.Editor.GetKeywords(pko);
-                                break;
-                        }
-                    }    
+                    AskForOptions(out bool isZoneChoiceNeeded, out bool isLabelRecognizeAttemptNeeded, out bool calculateSinglePipe);
 
                     foreach (var wrapper in wrappers)
                     {
@@ -96,16 +70,7 @@ namespace LayerWorks.Commands
                         string layerName = wrapper.LayerInfo.Name;
 
                         // Попытка получить диаметр из LayerInfo
-
-                        bool diameterGetSuccess = wrapper.LayerInfo.AuxilaryData.TryGetValue("Diameter", out string? constructionWidthString) && constructionWidthString != null;
-                        double constructionWidth = 0;
-                        bool diameterParseSuccess = false;
-                        if (diameterGetSuccess)
-                        {
-                            diameterParseSuccess = double.TryParse(constructionWidthString!, out var parsedNumber);
-                            if (diameterParseSuccess)
-                                constructionWidth = parsedNumber * 0.001d;
-                        }
+                        bool diameterGetSuccess = TryGetDiameterFromLayerInfo(wrapper.LayerInfo, out double constructionWidth);
 
                         // Каждую зону добавить в словарь с соответствиями
                         foreach (var zi in zoneInfos!)
@@ -139,65 +104,25 @@ namespace LayerWorks.Commands
                             // Сопоставить диаметры
                             if (zi.IgnoreConstructionWidth)
                             {
-                                entityZoneParameters.Add(new(layerName, zi, wrapper.BoundEntities));
+                                entityZoneParameters.Add(new(wrapper, zi));
                             }
-                            else if (diameterParseSuccess)
+                            else if (diameterGetSuccess)
                             {
                                 // Если ранее найден из LayerInfo - добавить статический
-                                entityZoneParameters.Add(new(layerName, zi, wrapper.BoundEntities, constructionWidth));
+                                entityZoneParameters.Add(new(wrapper, zi, constructionWidth));
                             }
                             else if (_diameterRecognizer != null && isLabelRecognizeAttemptNeeded)
                             {
-                                // Если не найден - попытаться найти подписи через буферы
-                                var diameterStringDictionary = _diameterRecognizer.RecognizeProperty(wrapper.BoundEntities);
-                                if (diameterStringDictionary.All(p => p.Value == null))
-                                {
-                                    // Если ничего не найдено - назначить по умолчанию
-                                    entityZoneParameters.Add(new(layerName, zi, wrapper.BoundEntities, zi.DefaultConstructionWidth));
-                                }
-                                else
-                                {
-                                    // Если подписи найдены - парсить
-                                    var widthDictionary = new Dictionary<Entity, double?>();
-                                    foreach (var kvp in diameterStringDictionary)
-                                    {
-                                        if (kvp.Value == null)
-                                        {
-                                            widthDictionary[kvp.Key] = null;
-                                        }
-                                        else
-                                        {
-                                            // Парсить и найти максимальное значение
-                                            double value = 0;
-                                            string[] labels = kvp.Value.Split(", ");
-                                            foreach (var label in labels)
-                                            {
-                                                bool labelParseSuccess = TryParseDiameter(label, out var parsedLabelValue);
-                                                if (labelParseSuccess && parsedLabelValue > value)
-                                                    value = parsedLabelValue;
-                                            }
-                                            if (value != 0)
-                                            {
-                                                widthDictionary[kvp.Key] = value;
-                                            }
-                                            else
-                                            {
-                                                // Если ничего не распарсилось - назначить по умолчанию
-                                                widthDictionary[kvp.Key] = zi.DefaultConstructionWidth;
-                                            }
-                                        }
-                                    }
-                                    entityZoneParameters.Add(new(layerName, zi, widthDictionary));
-                                }
+                                // Если не найден - попытаться найти из подписейподписи через буферы
+                                var ezp = GetZoneParametersByMtextLabels(wrapper, zi, calculateSinglePipe);
+                                entityZoneParameters.Add(ezp);
                             }
                             else
                             {
-                                entityZoneParameters.Add(new(layerName, zi, wrapper.BoundEntities, zi.DefaultConstructionWidth));
+                                entityZoneParameters.Add(new(wrapper, zi, zi.DefaultConstructionWidth));
                             }
                         }
                     }
-
-                    List<Entity> entitiesToDraw = new();
 
                     // При необходимости выбрать зоны
                     IEnumerable<string>? enabledZoneNames = null;
@@ -207,6 +132,8 @@ namespace LayerWorks.Commands
                         window.ShowDialog();
                         enabledZoneNames = window.EnabledZones.AsEnumerable();
                     }
+
+                    List<Entity> entitiesToDraw = new();
 
                     foreach (string zoneName in enabledZoneNames ?? zoneToLayersMap.Keys)
                     {
@@ -221,13 +148,15 @@ namespace LayerWorks.Commands
                         {
                             // Если есть динамическая ширина конструкции для каждого объекта, полученная из подписей
 
-                            // Или выбрать квп из словаря, или создать по статической ширине.
+                            // Или выбрать квп из словаря,
+                            // или создать по статической ширине.
                             // Также привести к нужной ширине буфера - половина ширины конструкции плюс ширина зоны
                             Func<EntityZoneParameters, IEnumerable<KeyValuePair<Entity, double>>> kvpFromEzpFunc =
                                 ezp => ezp.DynamicWidth?.Select(kvp => new KeyValuePair<Entity, double>(kvp.Key, kvp.Value / 2 + ezp.ZoneInfo.Value)) ??
                                 ezp.Entities.Select(e => new KeyValuePair<Entity, double>(e, ezp.StaticWidth!.Value / 2 + ezp.ZoneInfo.Value));
-
-                            var dictionary = ezps.SelectMany(kvpFromEzpFunc).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                            // Объединить в один словарь
+                            Dictionary<Entity, double> dictionary = new(ezps.SelectMany(kvpFromEzpFunc));
+                            // Отбить зоны
                             buffers = _bufferizer.Buffer(dictionary, zoneName).ToArray();
                         }
                         else
@@ -238,14 +167,6 @@ namespace LayerWorks.Commands
                                                    .SelectMany(lw => lw.BoundEntities);
                             buffers = _bufferizer.Buffer(entities, widthDict, zoneName).ToArray();
                         }
-                        //Dictionary<string, double> widthDict = entityZoneParameters
-                        //    .Where(ezp => ezp.ZoneInfo.ZoneLayer == zoneName)
-                        //    .ToDictionary(ezp => ezp.ZoneLayerName, ezp => ezp.ZoneInfo.DefaultConstructionWidth + ezp.ZoneInfo.Value);
-
-                        // Выбрать объекты чертежа и создать для них буфер
-                        //var entities = wrappers.Where(lw => zoneToLayersMap[zoneName].Contains(lw.LayerInfo.Name))
-                        //                       .SelectMany(lw => lw.BoundEntities);
-                        //var buffers = _bufferizer.Buffer(entities, widthDict, zoneName).ToArray();
 
                         // Добавить в чертёж, отформатировать и по необходимости заштриховать полученные полилинии
                         BlockTableRecord modelSpace = Workstation.ModelSpace;
@@ -282,13 +203,73 @@ namespace LayerWorks.Commands
             }
         }
 
-        private bool TryParseDiameter(string diameterString, out double constructionWidth)
+        private static void AskForOptions(out bool isZoneChoiceNeeded, out bool isLabelRecognizeAttemptNeeded, out bool calculateSinglePipe)
+        {
+            var window = new AutoZonerOptionsWindow();
+            window.ShowDialog();
+            isZoneChoiceNeeded = window.IsZoneChoiceNeeded;
+            isLabelRecognizeAttemptNeeded = window.IsLabelRecognizeAttemptNeeded;
+            calculateSinglePipe = window.CalculateSinglePipe;
+            //isZoneChoiceNeeded = false;
+            //isLabelRecognizeAttemptNeeded = true;
+            //calculateSinglePipe = false;
+            //PromptKeywordOptions pko = new("При необходимости выберите дополнительные опции [Продолжить/Выбрать/Диаметры/Однотрубный] <Продолжить>", "Продолжить Выбрать Диаметры Однотрубный")
+            //{
+            //    AppendKeywordsToMessage = true,
+            //    AllowNone = false,
+            //    AllowArbitraryInput = false
+            //};
+            //PromptResult result = Workstation.Editor.GetKeywords(pko);
+            //while (result.StringResult != "Продолжить")
+            //{
+            //    if (result.Status != PromptStatus.OK)
+            //        return;
+            //    switch (result.StringResult)
+            //    {
+            //        case "Выбрать":
+            //            isZoneChoiceNeeded = !isZoneChoiceNeeded;
+            //            Workstation.Editor.WriteMessage(isZoneChoiceNeeded ? "Выбрать состав зон" : "Отбить все зоны");
+            //            result = Workstation.Editor.GetKeywords(pko);
+            //            break;
+            //        case "Диаметры":
+            //            isLabelRecognizeAttemptNeeded = !isLabelRecognizeAttemptNeeded;
+            //            Workstation.Editor.WriteMessage($"Диаметры {(isLabelRecognizeAttemptNeeded ? "определяются" : "не определяются")} по подписям");
+            //            result = Workstation.Editor.GetKeywords(pko);
+            //            break;
+            //        case "Однотрубный":
+            //            calculateSinglePipe = !calculateSinglePipe;
+            //            Workstation.Editor.WriteMessage(calculateSinglePipe ? 
+            //                "Расчёт диаметров многотрубных линий: линия - труба" :
+            //                "Расчёт диаметров многотрубных линий: линия - ось многотрубной линии");
+            //            result = Workstation.Editor.GetKeywords(pko);
+            //            break;
+            //    }
+            //}
+        }
+
+        private static bool TryGetDiameterFromLayerInfo(LayerInfo layerInfo, out double diameter)
+        {
+            bool diameterGetSuccess = layerInfo.AuxilaryData.TryGetValue("Diameter", out string? constructionWidthString) && constructionWidthString != null;
+            if (diameterGetSuccess)
+            {
+                bool diameterParseSuccess = double.TryParse(constructionWidthString!, out double parsedNumber);
+                if (diameterParseSuccess)
+                {
+                    diameter = parsedNumber * 0.001d;
+                    return diameterParseSuccess;
+                }
+            }
+            diameter = 0;
+            return false;
+        }
+
+        private bool TryParseDiameter(string diameterString, out double constructionWidth, bool calculateSinglePipe = false)
         {
             var match = _diameterRegex.Match(diameterString);
             if (match.Success)
             {
                 string miltiplierGroup = match.Groups[1].Value;
-                double multiplier = string.IsNullOrEmpty(miltiplierGroup) ? 1d : double.Parse(match.Groups[1].Value);
+                double multiplier = string.IsNullOrEmpty(miltiplierGroup) || calculateSinglePipe ? 1d : double.Parse(match.Groups[1].Value);
                 double diameter = double.Parse(match.Groups[3].Value) * 0.001d;
                 constructionWidth = (multiplier - 1) * DefaultBetweenPipesSpace + multiplier * diameter;
                 return true;
@@ -300,46 +281,87 @@ namespace LayerWorks.Commands
             }
         }
 
-        class EntityZoneParameters
+        private EntityZoneParameters GetZoneParametersByMtextLabels(EntityLayerWrapper wrapper, ZoneInfo zoneInfo, bool calculateSinglePipe)
         {
-            public EntityZoneParameters(string sourceLayerName, ZoneInfo zoneInfo, List<Entity> entities)
+            Dictionary<Entity, string?> diameterStringDictionary = _diameterRecognizer!.RecognizeProperty(wrapper.BoundEntities);
+            string layerName = wrapper.LayerInfo.Name;
+            if (diameterStringDictionary.All(p => p.Value == null))
             {
-                SourceLayerName = sourceLayerName;
+                // Если ничего не найдено - назначить по умолчанию
+                return new(wrapper, zoneInfo, zoneInfo.DefaultConstructionWidth);
+            }
+            else
+            {
+                // Если подписи найдены - парсить
+                var widthDictionary = new Dictionary<Entity, double>();
+                foreach (var kvp in diameterStringDictionary)
+                {
+                    if (kvp.Value == null)
+                    {
+                        widthDictionary[kvp.Key] = zoneInfo.DefaultConstructionWidth;
+                    }
+                    else
+                    {
+                        // Парсить и найти максимальное значение
+                        double value = 0;
+                        string[] labels = kvp.Value.Split(", ");
+                        foreach (var label in labels)
+                        {
+                            bool labelParseSuccess = TryParseDiameter(label, out var parsedLabelValue, calculateSinglePipe);
+                            if (labelParseSuccess && parsedLabelValue > value)
+                                value = parsedLabelValue;
+                        }
+                        if (value != 0)
+                        {
+                            widthDictionary[kvp.Key] = value;
+                        }
+                        else
+                        {
+                            // Если ничего не распарсилось - назначить по умолчанию
+                            widthDictionary[kvp.Key] = zoneInfo.DefaultConstructionWidth;
+                        }
+                    }
+                }
+                return new(wrapper, zoneInfo, widthDictionary);
+            }
+        }
+
+        private class EntityZoneParameters
+        {
+            public EntityZoneParameters(EntityLayerWrapper wrapper, ZoneInfo zoneInfo)
+            {
+                SourceLayerName = wrapper.LayerInfo.Name;
                 ZoneInfo = zoneInfo;
                 StaticWidth = 0d;
-                Entities = entities;
+                Entities = wrapper.BoundEntities;
             }
 
-            public EntityZoneParameters(string zoneName, ZoneInfo zoneInfo, List<Entity> entities, double staticWidth) : this(zoneName, zoneInfo, entities)
+            public EntityZoneParameters(EntityLayerWrapper wrapper, ZoneInfo zoneInfo, double staticWidth) : this(wrapper, zoneInfo)
             {
                 StaticWidth = zoneInfo.IgnoreConstructionWidth ? 0d : staticWidth;
             }
 
-            public EntityZoneParameters(string zoneName, ZoneInfo zoneInfo, Dictionary<Entity, double?> dynamicWidth) : this(zoneName, zoneInfo, dynamicWidth.Keys.ToList())
+            public EntityZoneParameters(EntityLayerWrapper wrapper, ZoneInfo zoneInfo, Dictionary<Entity, double> dynamicWidth) : this(wrapper, zoneInfo)
             {
-                if (!zoneInfo.IgnoreConstructionWidth)
+                if (dynamicWidth.Any())
                 {
-                    DynamicWidth = new();
-                    foreach (var kvp in dynamicWidth.AsEnumerable())
-                    {
-                        if (kvp.Value != null)
-                            DynamicWidth[kvp.Key] = kvp.Value!.Value;
-                        else
-                            DynamicWidth[kvp.Key] = zoneInfo.DefaultConstructionWidth;
-                    }
+                    DynamicWidth = dynamicWidth;
                 }
-                else
+                else if (zoneInfo.IgnoreConstructionWidth)
                 {
                     StaticWidth = 0d;
                 }
+                else
+                {
+                    StaticWidth = zoneInfo.DefaultConstructionWidth;
+                }
             }
 
-            public string SourceLayerName { get; private set; }
-            public ZoneInfo ZoneInfo { get; private set; }
-            public double? StaticWidth { get; set; }
-            public Dictionary<Entity, double>? DynamicWidth { get; set; }
-
-            public List<Entity> Entities { get; set; }
+            public string SourceLayerName { get; }
+            public ZoneInfo ZoneInfo { get; }
+            public double? StaticWidth { get; }
+            public Dictionary<Entity, double>? DynamicWidth { get; }
+            public List<Entity> Entities { get; }
         }
 
     }

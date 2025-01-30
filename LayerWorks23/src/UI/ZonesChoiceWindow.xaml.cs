@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace LayerWorks.UI
 {
@@ -23,8 +13,9 @@ namespace LayerWorks.UI
         public ZonesChoiceWindow(IEnumerable<string> zoneLayerNames)
         {
             InitializeComponent();
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             EnabledZones = zoneLayerNames.ToHashSet();
-            foreach (string zoneLayerName in zoneLayerNames)
+            foreach (string zoneLayerName in zoneLayerNames.OrderBy(n => n).AsEnumerable())
                 ZoneLayerNames.Add(zoneLayerName);
             DataContext = this;
             dgActiveZones.ItemsSource = ZoneLayerNames;
@@ -51,13 +42,30 @@ namespace LayerWorks.UI
             this.Close();
         }
 
-        private void zonesChoiceWindow_KeyUp(object sender, KeyEventArgs e)
+        private void zonesChoiceWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter || e.Key == Key.Escape)
+            var focusedElement = FocusManager.GetFocusedElement(this);
+            bool isNullOrMainFocused = focusedElement == this || focusedElement == null;
+            if (isNullOrMainFocused && (e.Key == Key.Enter || e.Key == Key.Escape))
             {
                 e.Handled = true;
                 this.Close();
             }
+        }
+
+        private void svActiveZones_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            var scrollViewer = sender as ScrollViewer;
+            if (scrollViewer != null)
+            {
+                scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta);
+                e.Handled = true;
+            }
+        }
+
+        private void zonesChoiceWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.PreviewKeyDown += zonesChoiceWindow_PreviewKeyDown;
         }
     }
 }
