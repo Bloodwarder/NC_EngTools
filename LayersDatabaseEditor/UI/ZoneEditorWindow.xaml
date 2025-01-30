@@ -35,7 +35,7 @@
                     Command="{Binding ToggleZoneInfoEnabledCommand}"
                     CommandParameter="{Binding ElementName=dgZones, Path=SelectedItems}"/>
         </DockPanel>
-        <ScrollViewer Grid.Row="1" Margin="15">
+        <ScrollViewer Name="svZones" Grid.Row="1" Margin="15" PreviewMouseWheel="svZones_PreviewMouseWheel" >
             <DataGrid Name="dgZones" AutoGenerateColumns="False"
                       ItemsSource="{Binding Source={StaticResource zonesViewSource}}">
                 <DataGrid.Columns>

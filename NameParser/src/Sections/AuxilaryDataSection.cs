@@ -26,7 +26,7 @@ namespace NameClassifiers.Sections
         internal override void Process(string[] str, LayerInfoResult layerInfoResult, ref int pointer)
         {
             // Проверить текущую строку массива на начало с нужной скобки, если нет, проверить следующий классификатор
-            if (!str[pointer].StartsWith(Brackets[0]))
+            if (pointer > str.Length - 1 || !str[pointer].StartsWith(Brackets[0]))
             {
                 layerInfoResult.Value.AuxilaryData[Name] = null;
                 NextSection?.Process(str, layerInfoResult, ref pointer);
