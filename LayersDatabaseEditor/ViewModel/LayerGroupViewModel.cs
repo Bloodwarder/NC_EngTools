@@ -15,7 +15,7 @@ namespace LayersDatabaseEditor.ViewModel
     {
         private readonly LayerGroupData _layerGroupData;
         private readonly LayersDatabaseContextSqlite _db;
-        private readonly NameParser _parser;
+        private NameParser _parser;
         private string? _prefix;
         private bool _isValid;
         private string? _mainName;
@@ -199,6 +199,38 @@ namespace LayersDatabaseEditor.ViewModel
         {
             if (this.IsValid)
             {
+                if (_layerGroupData.Prefix != Prefix || _layerGroupData.MainName != MainName)
+                {
+                    // Проверить, нет ли в базе группы с таким именем (и выбросить исключение, если есть)
+                    var checkedGroup = Database.LayerGroups.FirstOrDefault(lg => lg.Prefix == Prefix && lg.MainName == MainName);
+                    if (checkedGroup != _layerGroupData && checkedGroup != null)
+                        throw new InvalidOperationException($"Группа слоёв с именем {Name} уже есть в базе даных");
+
+                    // TODO: пока убрано, целесообразность возможности изменения префикса в принципе пересматривается
+                    //bool parserGetSuccess = NameParser.LoadedParsers.TryGetValue(Prefix!, out NameParser? newParser);
+                    //_parser = parserGetSuccess ? newParser! : throw new InvalidOperationException($"Префикс {Prefix!} отсутствует в списке допустимых");
+
+                    // загрузить старые имена слоёв, если назначаемое имя есть в старых - удалить, добавить старое имя
+                    Database.Entry(_layerGroupData).Collection(lg => lg.OldLayerReferences).Load();
+                    var checkedOldName = _layerGroupData.OldLayerReferences.FirstOrDefault(lg => lg.OldLayerGroupName == Name);
+                    if (checkedOldName != null)
+                        Database.OldLayers.Remove(checkedOldName);
+                    Database.OldLayers.Add(new()
+                    {
+                        NewLayerGroup = _layerGroupData,
+                        OldLayerGroupName = _layerGroupData.Name
+                    });
+
+                    // найти все слои, у которых этот был альтернативным и переименовать его
+                    // TODO: переделать альтернативный слой на айдишник, чтобы избежать всех лишних операций
+                    var alternates = Database.LayerGroups.Where(lg => lg.AlternateLayer == _layerGroupData.MainName).AsEnumerable();
+                    foreach (var lg in alternates)
+                        lg.AlternateLayer = MainName;
+
+                    _layerGroupData.Prefix = Prefix!;
+                    _layerGroupData.MainName = MainName!;
+                }
+
                 if (AlternateLayer == string.Empty)
                 {
                     _layerGroupData.AlternateLayer = null;
@@ -207,6 +239,7 @@ namespace LayersDatabaseEditor.ViewModel
                 {
                     _layerGroupData.AlternateLayer = AlternateLayer?.Replace($"{_parser.Prefix}{_parser.Separator}", string.Empty);
                 }
+
                 var state = Database.Entry(_layerGroupData).State;
                 if (state == EntityState.Detached)
                 {
@@ -226,16 +259,6 @@ namespace LayersDatabaseEditor.ViewModel
                 foreach (var layer in Layers)
                 {
                     layer.UpdateDatabaseEntities();
-                }
-
-                if (_layerGroupData.Prefix != Prefix || _layerGroupData.MainName != MainName)
-                {
-                    //var legend = (LayerLegendData)_layerGroupData.LayerLegendData.Clone();
-                    //Database.LayerGroups.Remove(_layerGroupData);
-                    _layerGroupData.Prefix = Prefix!;
-                    _layerGroupData.MainName = MainName!;
-                    //Database.LayerGroups.Add(_layerGroupData);
-                    //_layerGroupData.LayerLegendData = legend;
                 }
 
                 OnPropertyChanged(nameof(IsUpdated));

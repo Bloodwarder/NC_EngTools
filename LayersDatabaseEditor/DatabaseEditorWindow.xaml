@@ -6,6 +6,7 @@
         xmlns:ui="clr-namespace:LayersDatabaseEditor.UI"
         xmlns:u="clr-namespace:LayersDatabaseEditor.Utilities"
         xmlns:vm="clr-namespace:LayersDatabaseEditor.ViewModel"
+        xmlns:vmz="clr-namespace:LayersDatabaseEditor.ViewModel.Zones"
         xmlns:io="clr-namespace:LayersIO.DataTransfer;assembly=LayersIO"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
@@ -108,20 +109,18 @@
 
         <DockPanel Grid.Row="3" Grid.Column="1" Margin="3">
             <TabControl Name="tcProperties" SelectedIndex="0" DataContextChanged="tcProperties_DataContextChanged"
-                        IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsGroupSelected}"
-                        DataContext="{Binding Path=SelectedLayer}">
-                <TabItem Header="Общие" Width="100" IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
-                    <StackPanel IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
-                        <ui:UserStringInput x:Name="inputPrefix" LabelText="Префикс" InputValue="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.Prefix, Mode=TwoWay}"/>
-                        <ui:UserStringInput x:Name="inputMainName" LabelText="Основное имя" InputValue="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.MainName, Mode=TwoWay}"/>
-                        <ui:UserStringInput x:Name="inputStatus" IsEnabled="False" LabelText="Статус" InputValue="{Binding Path=StatusName, Mode=TwoWay}"/>
+                        IsEnabled="{Binding Path=IsGroupSelected}">
+                <TabItem Header="Общие" Width="100" IsEnabled="{Binding Path=IsGroupSelected}">
+                    <StackPanel IsEnabled="{Binding Path=EditorViewModel.IsGroupSelected}">
+                        <ui:UserStringInput x:Name="inputPrefix" IsEnabled="False" LabelText="Префикс" InputValue="{Binding Path=SelectedGroup.Prefix, Mode=TwoWay}"/>
+                        <ui:UserStringInput x:Name="inputMainName" LabelText="Основное имя" InputValue="{Binding Path=SelectedGroup.MainName, Mode=TwoWay}"/>
+                        <ui:UserStringInput x:Name="inputStatus" IsEnabled="False" LabelText="Статус" InputValue="{Binding Path=SelectedLayer.StatusName, Mode=TwoWay}"/>
                     </StackPanel>
                 </TabItem>
                 <TabItem Header="Свойства" Width="100"
-                         IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}"
-                         DataContext="{Binding Path=LayerProperties}">
-                    <ScrollViewer IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
-                        <StackPanel Margin="5 15 5 5">
+                         IsEnabled="{Binding Path=IsLayerSelected}">
+                    <ScrollViewer IsEnabled="{Binding Path=IsLayerSelected}">
+                        <StackPanel Margin="5 15 5 5" DataContext="{Binding Path=SelectedLayer.LayerProperties}">
                             <ui:UserNumericInput LabelText="Глобальная ширина" InputValue="{Binding Path=ConstantWidth, Mode=TwoWay}"/>
                             <ui:UserNumericInput LabelText="Масштаб типа линий" InputValue="{Binding Path=LinetypeScale, Mode=TwoWay}"/>
                             <ui:ColorAdjuster x:Name="caBaseColor" LabelText="Цвет" Color="{Binding Path=Color, Mode=TwoWay}"/>
@@ -138,10 +137,10 @@
                     </ScrollViewer>
                 </TabItem>
                 <TabItem Name ="tiLegend" Header="Легенда" Width="100"
-                         IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsGroupSelected}">
+                         IsEnabled="{Binding Path=IsGroupSelected}">
                     <ScrollViewer>
                         <StackPanel Name="spLegend" Margin="5 15 5 5"
-                                    DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.LayerLegend}">
+                                    DataContext="{Binding Path=SelectedGroup.LayerLegend}">
                             <ui:UserNumericInput LabelText="Положение в таблице" InputValue="{Binding Path=Rank, Mode=TwoWay}"/>
                             <Button Name="bLegendRankWindowShow" Content="Порядок отображения легенды" Margin="10 5 25 5"
                                     DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel}"
@@ -154,9 +153,9 @@
                     </ScrollViewer>
                 </TabItem>
                 <TabItem Header="Отрисовка" Width="100"
-                         DataContext="{Binding Path=LayerDrawTemplate}"
-                         IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
-                    <ScrollViewer IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
+                         IsEnabled="{Binding Path=IsLayerSelected}">
+                    <ScrollViewer IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}"
+                                  DataContext="{Binding Path=SelectedLayer.LayerDrawTemplate}">
                         <StackPanel Margin="5 15 5 5">
                             <ui:UserComboBoxInput x:Name="cbDrawTemplate" LabelText="Тип шаблона" 
                                                   ItemsSource="{Binding Source={x:Static io:DrawTemplate.Undefined}, Converter={StaticResource EnumToItemsSourceConverter}}"
@@ -205,25 +204,24 @@
                     </ScrollViewer>
                 </TabItem>
                 <TabItem Header="Дополнительно" Width="100"
-                         IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsGroupSelected}"
-                         DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup}">
+                         IsEnabled="{Binding Path=IsGroupSelected}">
                     <ScrollViewer>
                         <StackPanel Margin="5 5 5 5">
                             <TextBlock Text="Слои текущей группы являются зонами для слоёв:" Margin="0 3 0 0"/>
                             <Button Name="bZoneEditor" Content="Выбрать исходные слои"
-                                    Command="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.OpenZoneEditorCommand}"
-                                    CommandParameter="{Binding Source={x:Static vm:ZoneRelation.ZoneGroup}}"/>
+                                    Command="{Binding Path=OpenZoneEditorCommand}"
+                                    CommandParameter="{Binding Source={x:Static vmz:ZoneRelation.ZoneGroup}}"/>
                             <TextBlock Text="От слоёв текущей группы отбиваются следующие зоны (общие):" Margin="0 10 0 0"/>
                             <Button Name="bZoneEditorForSource" Content="Выбрать слои зон"
-                                    Command="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.OpenZoneEditorCommand}"
-                                    CommandParameter="{Binding Source={x:Static vm:ZoneRelation.SourceGroup}}"/>
+                                    Command="{Binding Path=OpenZoneEditorCommand}"
+                                    CommandParameter="{Binding Source={x:Static vmz:ZoneRelation.SourceGroup}}"/>
                             <TextBlock Text="От текущего слоя отбиваются следующие зоны (специальные):" Margin="0 10 0 0"/>
                             <Button Name="bSpecialZoneEditor" Content="Определить специальные зоны"
                                     ToolTip="Специальные зоны определяются для слоя (не для группы) по отдельным для каждого слоя правилам"/>
                             <TextBlock Text="Альтернативный слой" Margin="0 10 0 0"/>
                             <ComboBox Name="cbAlterLayer" Margin="0 3 0 20"
-                                      ItemsSource="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.LayerGroupNames}"
-                                      SelectedItem="{Binding Path=AlternateLayer}"/>
+                                      ItemsSource="{Binding Path=LayerGroupNames}"
+                                      SelectedItem="{Binding Path=SelectedGroup.AlternateLayer}"/>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>

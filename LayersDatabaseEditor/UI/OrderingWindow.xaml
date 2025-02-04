@@ -40,11 +40,11 @@
                     <DataGridTextColumn Header="Имя" Width="0.8*" IsReadOnly="True" Binding="{Binding Path=Name}"/>
                     <DataGridTextColumn Header="Индекс" Width="0.2*" IsReadOnly="False" Binding="{Binding Path=Index, Mode=TwoWay}"/>
                 </DataGrid.Columns>
-                <!--<DataGrid.Resources>
+                <DataGrid.Resources>
                     <Style TargetType="DataGridCell">
                         <EventSetter Event="PreviewKeyDown" Handler="DataGridCell_PreviewKeyDown"/>
                     </Style>
-                </DataGrid.Resources>-->
+                </DataGrid.Resources>
             </DataGrid>
             <DockPanel Grid.Column="1" LastChildFill="False">
                 <Button DockPanel.Dock="Bottom" Height="37" Width="37" Margin="2 5 5 10" VerticalAlignment="Bottom"
