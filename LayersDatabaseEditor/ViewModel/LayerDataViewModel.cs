@@ -27,6 +27,14 @@ namespace LayersDatabaseEditor.ViewModel
             _parentGroup = parentGroup;
             _db = context;
             _layerData = layerData;
+            _parentGroup.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(LayerGroupViewModel.MainName) || e.PropertyName == nameof(LayerGroupViewModel.Prefix))
+                {
+                    OnPropertyChanged(nameof(IsValid));
+                    OnPropertyChanged(nameof(IsUpdated));
+                }
+            };
             ResetValues();
         }
         internal static LayerDataViewModelValidator Validator { get; } = new();

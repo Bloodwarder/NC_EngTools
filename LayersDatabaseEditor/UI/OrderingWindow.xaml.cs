@@ -1,17 +1,7 @@
 ﻿using LayersDatabaseEditor.ViewModel.Ordering;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace LayersDatabaseEditor.UI
 {
@@ -35,15 +25,6 @@ namespace LayersDatabaseEditor.UI
             get { return (OrderingWindowViewModel)GetValue(ViewModelProperty); }
             set { SetValue(ViewModelProperty, value); }
         }
-
-
-
-
-
-
-
-
-
 
         private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -73,18 +54,25 @@ namespace LayersDatabaseEditor.UI
             }
         }
 
-        //private void DataGridCell_PreviewKeyDown(object sender, KeyEventArgs e)
-        //{
-        //    DataGridCell? cell = sender as DataGridCell;
-        //    if (cell != null)
-        //    {
-        //        if (e.Key == Key.Enter)
-        //        {
-                    
-                    
-        //            e.Handled = true;
-        //        }
-        //    }
-        //}
+        private void DataGridCell_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            //DataGridCell? cell = sender as DataGridCell;
+            //if (cell != null)
+            //{
+            //    if (e.Key == Key.Enter)
+            //    {
+            //        cell.IsEditing = false;
+            //        var itemVm = (OrderedItemViewModel)cell.DataContext;
+            //        PropertyChangedEventHandler? handler = null;
+            //        handler = (s, e) =>
+            //        {
+            //            ViewModel.ItemsView.Refresh();
+            //            ((OrderedItemViewModel)sender).PropertyChanged -= handler;
+            //        };
+            //        itemVm.PropertyChanged += handler;
+            //        e.Handled = true;
+            //    }
+            //}
+        }
     }
 }
