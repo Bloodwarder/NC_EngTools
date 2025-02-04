@@ -20,7 +20,6 @@ using static LoaderCore.NanocadUtilities.EditorHelper;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using NPOI.XWPF.UserModel;
 
 namespace LayerWorks.Commands
 {
@@ -158,23 +157,26 @@ namespace LayerWorks.Commands
         /// </summary>
         public void LayerStatusChange()
         {
-            NameParser.Current.ExtractSectionInfo<StatusSection>(out string[] statuses, out Func<string, string> descriptions);
-            string newStatus = GetStringKeyword(statuses, statuses.Select(s => descriptions(s)).ToArray(), $"Укажите статус объекта <{PrevStatus}>");
-            PrevStatus = descriptions(newStatus);
-
-            Workstation.Logger?.LogDebug("{ProcessingObject}: Выбран статус \"{Status}\"", nameof(LayerAlterer), newStatus);
-
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    var workWrappers = LayerWrapper.ActiveWrappers.Where(w => w.LayerInfo.Prefix == NameParser.Current.Prefix).ToList();
+                    var parser = LayerWrapper.ActiveWrappers.FirstOrDefault()?.LayerInfo.ParentParser;
+                    var workWrappers = LayerWrapper.ActiveWrappers.Where(w => w.LayerInfo.Prefix == parser?.Prefix).ToList();
                     if (!workWrappers.Any())
                     {
                         Workstation.Logger?.LogInformation("Нет подходящих объектов в наборе");
                         return;
                     }
+
+                    parser!.ExtractSectionInfo<StatusSection>(out string[] statuses, out Func<string, string> descriptions);
+                    string newStatus = GetStringKeyword(statuses, statuses.Select(s => descriptions(s)).ToArray(), $"Укажите статус объекта <{PrevStatus}>");
+                    PrevStatus = descriptions(newStatus);
+
+                    Workstation.Logger?.LogDebug("{ProcessingObject}: Выбран статус \"{Status}\"", nameof(LayerAlterer), newStatus);
+
+
                     workWrappers.ForEach(w => w.LayerInfo.SwitchStatus(newStatus));
                     workWrappers.ForEach(w => w.Push());
                     transaction.Commit();
@@ -253,7 +255,8 @@ namespace LayerWorks.Commands
                 {
                     var repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, string>>();
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    var workWrappers = LayerWrapper.ActiveWrappers.Where(w => w.LayerInfo.Prefix == NameParser.Current.Prefix).ToList();
+                    var parser = LayerWrapper.ActiveWrappers.FirstOrDefault()?.LayerInfo.ParentParser;
+                    var workWrappers = LayerWrapper.ActiveWrappers.Where(w => w.LayerInfo.Prefix == parser?.Prefix).ToList();
                     if (!workWrappers.Any())
                     {
                         Workstation.Logger?.LogInformation("Нет подходящих объектов в наборе");
@@ -284,22 +287,22 @@ namespace LayerWorks.Commands
         /// </summary>
         public void LayerTag()
         {
-            Workstation.Define();
-            NameParser workParser = NameParser.Current;
-            string[] suffixTags = workParser.SuffixKeys.Keys.ToArray();
-            string[] descriptions = workParser.SuffixKeys.Values.ToArray();
-            string tag = GetStringKeyword(suffixTags, descriptions, "Выберите тип суффикса для отметки объекта");
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    var workWrappers = LayerWrapper.ActiveWrappers.Where(w => w.LayerInfo.Prefix == NameParser.Current.Prefix).ToList();
+                    NameParser? workParser = LayerWrapper.ActiveWrappers.FirstOrDefault()?.LayerInfo.ParentParser;
+                    var workWrappers = LayerWrapper.ActiveWrappers.Where(w => w.LayerInfo.Prefix == workParser?.Prefix).ToList();
                     if (!workWrappers.Any())
                     {
                         Workstation.Logger?.LogInformation("Нет подходящих объектов в наборе");
                         return;
                     }
+
+                    string[] suffixTags = workParser!.SuffixKeys.Keys.ToArray();
+                    string[] descriptions = workParser.SuffixKeys.Values.ToArray();
+                    string tag = GetStringKeyword(suffixTags, descriptions, "Выберите тип суффикса для отметки объекта");
 
                     bool targetValue = !workWrappers.First().LayerInfo.SuffixTagged[tag];
                     workWrappers.ForEach(l => l.LayerInfo.SwitchSuffix(tag, targetValue));
@@ -322,63 +325,64 @@ namespace LayerWorks.Commands
         /// </summary>
         public void AuxDataAssign()
         {
-            NameParser workParser = NameParser.Current;
-            var dataSections = workParser.AuxilaryDataKeys;
-            string dataKey = GetStringKeyword(dataSections.Keys.ToArray(), dataSections.Values.ToArray(), "Выберите тип дополнительных данных:");
-            if (!PreviousAssignedData.ContainsKey(dataKey))
-            {
-                PreviousAssignedData[dataKey] = "";
-            }
-            string previousAssignedData = PreviousAssignedData[dataKey];
-            PromptKeywordOptions pko = new($"Введите значение [{previousAssignedData}/Сброс]: <{previousAssignedData}>", $"{previousAssignedData} Сброс")
-            {
-                AllowArbitraryInput = true,
-                AllowNone = true,
-                AppendKeywordsToMessage = true
-            };
-            PromptResult result = Workstation.Editor.GetKeywords(pko);
-
-            string? newData;
-            if (result.Status == PromptStatus.None)
-            {
-                if (previousAssignedData != "")
-                {
-                    newData = previousAssignedData;
-                }
-                else
-                {
-                    newData = null;
-                }
-            }
-            else if (result.Status != PromptStatus.Error && result.Status != PromptStatus.Cancel)
-            {
-                if (result.StringResult == "Сброс" || result.StringResult == "")
-                {
-                    newData = null;
-                    PreviousAssignedData[dataKey] = "";
-                }
-                else
-                {
-                    newData = result.StringResult;
-                    PreviousAssignedData[dataKey] = newData;
-                }
-            }
-            else
-            {
-                return;
-            }
-
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 try
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
-                    var workWrappers = LayerWrapper.ActiveWrappers.Where(w => w.LayerInfo.Prefix == NameParser.Current.Prefix).ToList();
+                    NameParser? workParser = LayerWrapper.ActiveWrappers.FirstOrDefault()?.LayerInfo.ParentParser;
+                    var workWrappers = LayerWrapper.ActiveWrappers.Where(w => w.LayerInfo.Prefix == workParser?.Prefix).ToList();
                     if (!workWrappers.Any())
                     {
                         Workstation.Logger?.LogInformation("Нет подходящих объектов в наборе");
                         return;
                     }
+
+                    var dataSections = workParser!.AuxilaryDataKeys;
+                    string dataKey = GetStringKeyword(dataSections.Keys.ToArray(), dataSections.Values.ToArray(), "Выберите тип дополнительных данных:");
+                    if (!PreviousAssignedData.ContainsKey(dataKey))
+                    {
+                        PreviousAssignedData[dataKey] = "";
+                    }
+                    string previousAssignedData = PreviousAssignedData[dataKey];
+                    PromptKeywordOptions pko = new($"Введите значение [{previousAssignedData}/Сброс]: <{previousAssignedData}>", $"{previousAssignedData} Сброс")
+                    {
+                        AllowArbitraryInput = true,
+                        AllowNone = true,
+                        AppendKeywordsToMessage = true
+                    };
+                    PromptResult result = Workstation.Editor.GetKeywords(pko);
+
+                    string? newData;
+                    if (result.Status == PromptStatus.None)
+                    {
+                        if (previousAssignedData != "")
+                        {
+                            newData = previousAssignedData;
+                        }
+                        else
+                        {
+                            newData = null;
+                        }
+                    }
+                    else if (result.Status != PromptStatus.Error && result.Status != PromptStatus.Cancel)
+                    {
+                        if (result.StringResult == "Сброс" || result.StringResult == "")
+                        {
+                            newData = null;
+                            PreviousAssignedData[dataKey] = "";
+                        }
+                        else
+                        {
+                            newData = result.StringResult;
+                            PreviousAssignedData[dataKey] = newData;
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
+
                     workWrappers.ForEach(w => w.LayerInfo.ChangeAuxilaryData(dataKey, newData));
                     workWrappers.ForEach(w => w.Push());
                     transaction.Commit();

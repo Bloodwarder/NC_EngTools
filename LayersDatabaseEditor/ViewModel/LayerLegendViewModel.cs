@@ -86,7 +86,7 @@ namespace LayersDatabaseEditor.ViewModel
 
             _layerLegendData.Rank = Rank;
             _layerLegendData.Label = Label!; // не нулл после валидации
-            _layerLegendData.SubLabel = SubLabel;
+            _layerLegendData.SubLabel = SubLabel == string.Empty ? null : SubLabel;
             _layerLegendData.IgnoreLayer = IgnoreLayer;
         }
 
@@ -99,7 +99,7 @@ namespace LayersDatabaseEditor.ViewModel
         {
             bool isUpdated = _rank != _layerLegendData.Rank ||
                             _label != _layerLegendData.Label ||
-                            _subLabel != _layerLegendData.SubLabel ||
+                            (_subLabel != _layerLegendData.SubLabel && !(_subLabel == "" && _layerLegendData.SubLabel == null)) ||
                             _ignoreLayer != _layerLegendData.IgnoreLayer;
             return isUpdated;
         }

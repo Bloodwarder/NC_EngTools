@@ -1,0 +1,24 @@
+﻿<Window x:Class="LoaderCore.UI.ErrorListWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LoaderCore.UI"
+        mc:Ignorable="d"
+        Title="ErrorListWindow" Height="450" Width="500"
+        Name="errorListWindow"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}" Loaded="errorListWindow_Loaded">
+    <Grid>
+        <ScrollViewer Name="svEntries" Margin="3" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+            <ListView Name="lvEntries"
+                      ItemsSource="{Binding Path=Errors}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Элемент" DisplayMemberBinding="{Binding Path=ElementName}"/>
+                        <GridViewColumn Header="Ошибка" DisplayMemberBinding="{Binding Path=Message}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </ScrollViewer>
+    </Grid>
+</Window>

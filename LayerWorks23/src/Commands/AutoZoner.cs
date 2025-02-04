@@ -8,6 +8,8 @@ using LoaderCore.SharedData;
 using NameClassifiers;
 using HostMgd.EditorInput;
 using LayerWorks.UI;
+using LoaderCore.Utilities;
+using LoaderCore.UI;
 
 namespace LayerWorks.Commands
 {
@@ -61,12 +63,20 @@ namespace LayerWorks.Commands
                     // Выбрать дополнительные опции
                     AskForOptions(out bool isZoneChoiceNeeded, out bool isLabelRecognizeAttemptNeeded, out bool calculateSinglePipe);
 
+                    List<ErrorEntry> unprocessedLayers = new();
+
                     foreach (var wrapper in wrappers)
                     {
                         // Проверить, есть ли зоны для слоя
                         bool success = _zoneRepository.TryGet(wrapper.LayerInfo.TrueName, out ZoneInfo[]? zoneInfos);
                         if (!success)
+                        {
+                            string layer = wrapper.LayerInfo.Name;
+                            string message = $"Нет зон для слоя {layer}";
+                            Workstation.Logger?.LogDebug("{ProcessingObject}: {Message}", nameof(AutoZoner), message);
+                            unprocessedLayers.Add(new(layer, message));
                             continue;
+                        }
                         string layerName = wrapper.LayerInfo.Name;
 
                         // Попытка получить диаметр из LayerInfo
@@ -90,7 +100,13 @@ namespace LayerWorks.Commands
                             additionalFilterPredicate ??= s => true;
                             // Если слой не подходит по дополнительному фильтру - перейти к следующему слою
                             if (!additionalFilterPredicate(layerName))
+                            {
+                                Workstation.Logger?.LogDebug("{ProcessingObject}: Зона {Zone} от слоя {Layer} не отбивается по заданному фильтру",
+                                                             nameof(AutoZoner),
+                                                             zi.ZoneLayer,
+                                                             layerName);
                                 continue;
+                            }
                             // Добавить в словари
                             if (zoneToLayersMap.ContainsKey(zi.ZoneLayer))
                             {
@@ -168,6 +184,15 @@ namespace LayerWorks.Commands
                             buffers = _bufferizer.Buffer(entities, widthDict, zoneName).ToArray();
                         }
 
+                        if (!buffers.Any())
+                        {
+                            string layer = zoneName;
+                            string message = $"Нет объектов для создания зон в слоях {string.Join(", ", ezps.Select(e => e.SourceLayerName))}";
+                            Workstation.Logger?.LogDebug("{ProcessingObject}: {Message}", nameof(AutoZoner), message);
+                            unprocessedLayers.Add(new(layer, message));
+                            continue;
+                        }
+
                         // Добавить в чертёж, отформатировать и по необходимости заштриховать полученные полилинии
                         BlockTableRecord modelSpace = Workstation.ModelSpace;
                         foreach (var polyline in buffers)
@@ -195,6 +220,12 @@ namespace LayerWorks.Commands
                     _drawOrderService.ArrangeDrawOrder(entitiesToDraw);
 
                     transaction.Commit();
+
+                    if (unprocessedLayers.Any())
+                    {
+                        var errorsWindow = new ErrorListWindow(unprocessedLayers, "Необработанные слои");
+                        errorsWindow.ShowDialog();
+                    }
                 }
                 finally
                 {
@@ -210,41 +241,46 @@ namespace LayerWorks.Commands
             isZoneChoiceNeeded = window.IsZoneChoiceNeeded;
             isLabelRecognizeAttemptNeeded = window.IsLabelRecognizeAttemptNeeded;
             calculateSinglePipe = window.CalculateSinglePipe;
-            //isZoneChoiceNeeded = false;
-            //isLabelRecognizeAttemptNeeded = true;
-            //calculateSinglePipe = false;
-            //PromptKeywordOptions pko = new("При необходимости выберите дополнительные опции [Продолжить/Выбрать/Диаметры/Однотрубный] <Продолжить>", "Продолжить Выбрать Диаметры Однотрубный")
-            //{
-            //    AppendKeywordsToMessage = true,
-            //    AllowNone = false,
-            //    AllowArbitraryInput = false
-            //};
-            //PromptResult result = Workstation.Editor.GetKeywords(pko);
-            //while (result.StringResult != "Продолжить")
-            //{
-            //    if (result.Status != PromptStatus.OK)
-            //        return;
-            //    switch (result.StringResult)
-            //    {
-            //        case "Выбрать":
-            //            isZoneChoiceNeeded = !isZoneChoiceNeeded;
-            //            Workstation.Editor.WriteMessage(isZoneChoiceNeeded ? "Выбрать состав зон" : "Отбить все зоны");
-            //            result = Workstation.Editor.GetKeywords(pko);
-            //            break;
-            //        case "Диаметры":
-            //            isLabelRecognizeAttemptNeeded = !isLabelRecognizeAttemptNeeded;
-            //            Workstation.Editor.WriteMessage($"Диаметры {(isLabelRecognizeAttemptNeeded ? "определяются" : "не определяются")} по подписям");
-            //            result = Workstation.Editor.GetKeywords(pko);
-            //            break;
-            //        case "Однотрубный":
-            //            calculateSinglePipe = !calculateSinglePipe;
-            //            Workstation.Editor.WriteMessage(calculateSinglePipe ? 
-            //                "Расчёт диаметров многотрубных линий: линия - труба" :
-            //                "Расчёт диаметров многотрубных линий: линия - ось многотрубной линии");
-            //            result = Workstation.Editor.GetKeywords(pko);
-            //            break;
-            //    }
-            //}
+        }
+
+        private static void AskForOptionsInCommandLine(out bool isZoneChoiceNeeded, out bool isLabelRecognizeAttemptNeeded, out bool calculateSinglePipe)
+        {
+            // Не используется, так как найдено неудобным. Оставлено, на случай, если в будущем появится серьёзная проблема с WPF
+            isZoneChoiceNeeded = false;
+            isLabelRecognizeAttemptNeeded = true;
+            calculateSinglePipe = false;
+            PromptKeywordOptions pko = new("При необходимости выберите дополнительные опции [Продолжить/Выбрать/Диаметры/Однотрубный] <Продолжить>", "Продолжить Выбрать Диаметры Однотрубный")
+            {
+                AppendKeywordsToMessage = true,
+                AllowNone = false,
+                AllowArbitraryInput = false
+            };
+            PromptResult result = Workstation.Editor.GetKeywords(pko);
+            while (result.StringResult != "Продолжить")
+            {
+                if (result.Status != PromptStatus.OK)
+                    return;
+                switch (result.StringResult)
+                {
+                    case "Выбрать":
+                        isZoneChoiceNeeded = !isZoneChoiceNeeded;
+                        Workstation.Editor.WriteMessage(isZoneChoiceNeeded ? "Выбрать состав зон" : "Отбить все зоны");
+                        result = Workstation.Editor.GetKeywords(pko);
+                        break;
+                    case "Диаметры":
+                        isLabelRecognizeAttemptNeeded = !isLabelRecognizeAttemptNeeded;
+                        Workstation.Editor.WriteMessage($"Диаметры {(isLabelRecognizeAttemptNeeded ? "определяются" : "не определяются")} по подписям");
+                        result = Workstation.Editor.GetKeywords(pko);
+                        break;
+                    case "Однотрубный":
+                        calculateSinglePipe = !calculateSinglePipe;
+                        Workstation.Editor.WriteMessage(calculateSinglePipe ?
+                            "Расчёт диаметров многотрубных линий: линия - труба" :
+                            "Расчёт диаметров многотрубных линий: линия - ось многотрубной линии");
+                        result = Workstation.Editor.GetKeywords(pko);
+                        break;
+                }
+            }
         }
 
         private static bool TryGetDiameterFromLayerInfo(LayerInfo layerInfo, out double diameter)
