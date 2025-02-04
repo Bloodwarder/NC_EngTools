@@ -4,7 +4,7 @@ using LayersIO.Model;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace LayersDatabaseEditor.ViewModel
+namespace LayersDatabaseEditor.ViewModel.Zones
 {
     public class ZoneGroupInfoViewModel
     {

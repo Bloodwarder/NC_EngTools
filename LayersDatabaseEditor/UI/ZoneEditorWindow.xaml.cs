@@ -1,4 +1,4 @@
-﻿using LayersDatabaseEditor.ViewModel;
+﻿using LayersDatabaseEditor.ViewModel.Zones;
 using System;
 using System.Collections.Generic;
 using System.Linq;

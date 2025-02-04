@@ -8,7 +8,7 @@ using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using System.Windows;
 
-namespace LayersDatabaseEditor.ViewModel
+namespace LayersDatabaseEditor.ViewModel.Zones
 {
     public class ZoneEditorViewModel : INotifyPropertyChanged
     {

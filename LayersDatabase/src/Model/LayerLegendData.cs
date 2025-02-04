@@ -3,7 +3,7 @@
     /// <summary>
     /// Собственнный тип LayerGroupData, содержащий информацию для сборки легенды
     /// </summary>
-    public class LayerLegendData
+    public class LayerLegendData : ICloneable
     {
         /// <summary>
         /// Ранг. Меньше - отображается выше
@@ -21,5 +21,7 @@
         /// Показывает, нужно ли компоновщику игнорировать указанный слой
         /// </summary>
         public bool IgnoreLayer { get; set; } = false;
+
+        public object Clone() => MemberwiseClone();
     }
 }

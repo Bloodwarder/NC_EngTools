@@ -37,6 +37,8 @@
         </DockPanel>
         <ScrollViewer Name="svZones" Grid.Row="1" Margin="15" PreviewMouseWheel="svZones_PreviewMouseWheel" >
             <DataGrid Name="dgZones" AutoGenerateColumns="False"
+                      EnableRowVirtualization="True"
+                      VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                       ItemsSource="{Binding Source={StaticResource zonesViewSource}}">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="Включено" IsReadOnly="False" MinWidth="20" Width="0.2*" 

@@ -75,7 +75,7 @@
                 <MenuItem Header="Импортировать слои из Excel" Click="miExportLayersFromExcel_Click" IsEnabled="False"/>
             </MenuItem>
         </Menu>
-        <ScrollViewer Grid.Row="1" Grid.Column="0" Margin="3" Grid.RowSpan="3">
+        <ScrollViewer Grid.Row="1" Grid.Column="0" Margin="3" Grid.RowSpan="3" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
             <TreeView Name="twLayerGroups" SelectedItemChanged="twLayerGroups_SelectedItemChanged"/>
         </ScrollViewer>
         <DockPanel Grid.Row="4" MaxHeight="60" Margin="3 0 17 1">
@@ -93,7 +93,7 @@
                       Text="{Binding Path=GroupInputText, Mode=TwoWay}"/>
         </DockPanel>
 
-        <ScrollViewer Name="svLayers" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="3" PreviewMouseWheel="svLayers_PreviewMouseWheel" >
+        <ScrollViewer Name="svLayers" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Margin="3" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
             <ListView Name="lvLayers" SelectionChanged="lvLayers_SelectionChanged"
                       ItemsSource="{Binding Path=SelectedGroup.Layers, Mode=OneWay}"
                       SelectedItem="{Binding Path=SelectedLayer, Mode=TwoWay}">
@@ -112,9 +112,9 @@
                         DataContext="{Binding Path=SelectedLayer}">
                 <TabItem Header="Общие" Width="100" IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
                     <StackPanel IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}">
-                        <ui:UserStringInput IsEnabled="False" LabelText="Префикс" InputValue="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.Prefix, Mode=TwoWay}"/>
-                        <ui:UserStringInput IsEnabled="False" LabelText="Основное имя" InputValue="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.MainName, Mode=TwoWay}"/>
-                        <ui:UserStringInput IsEnabled="False" LabelText="Статус" InputValue="{Binding Path=StatusName, Mode=TwoWay}"/>
+                        <ui:UserStringInput x:Name="inputPrefix" LabelText="Префикс" InputValue="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.Prefix, Mode=TwoWay}"/>
+                        <ui:UserStringInput x:Name="inputMainName" LabelText="Основное имя" InputValue="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.MainName, Mode=TwoWay}"/>
+                        <ui:UserStringInput x:Name="inputStatus" IsEnabled="False" LabelText="Статус" InputValue="{Binding Path=StatusName, Mode=TwoWay}"/>
                     </StackPanel>
                 </TabItem>
                 <TabItem Header="Свойства" Width="100"
@@ -130,6 +130,10 @@
                                                   SelectedItem="{Binding Path=LinetypeName, Mode=TwoWay}"/>
                             <ui:UserNumericInput LabelText="Вес линий" InputValue="{Binding Path=LineWeight, Mode=TwoWay}"/>
                             <ui:UserNumericInput LabelText="Z-индекс порядка отрисовки" InputValue="{Binding Path=DrawOrderIndex, Mode=TwoWay}"/>
+                            <Button Name="bDrawOrderWindowShow" Content="Порядок прорисовки слоёв" Margin="10 5 25 5"
+                                    DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel}"
+                                    Command="{Binding Path=OpenOrderingWindowCommand}"
+                                    CommandParameter="{Binding Path=SelectedLayer}"/>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
@@ -139,6 +143,10 @@
                         <StackPanel Name="spLegend" Margin="5 15 5 5"
                                     DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.SelectedGroup.LayerLegend}">
                             <ui:UserNumericInput LabelText="Положение в таблице" InputValue="{Binding Path=Rank, Mode=TwoWay}"/>
+                            <Button Name="bLegendRankWindowShow" Content="Порядок отображения легенды" Margin="10 5 25 5"
+                                    DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel}"
+                                    Command="{Binding Path=OpenOrderingWindowCommand}"
+                                    CommandParameter="{Binding Path=SelectedGroup}"/>
                             <ui:UserStringInput LabelText="Заголовок для однотипных объектов" Height="100" InputValue="{Binding Path=SubLabel, Mode=TwoWay}"/>
                             <ui:UserStringInput LabelText="Заголовок" Height="100" InputValue="{Binding Path=Label, Mode=TwoWay}"/>
                             <ui:UserBoolInput LabelText="Игнорировать при автосборке" State="{Binding Path=IgnoreLayer, Mode=TwoWay}"/>
