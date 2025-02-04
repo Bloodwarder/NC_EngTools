@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using LayersDatabaseEditor.ViewModel.Zones;
 
 namespace LayersDatabaseEditor.ViewModel.Validation
 {

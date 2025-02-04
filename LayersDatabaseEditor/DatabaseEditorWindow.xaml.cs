@@ -37,6 +37,8 @@ namespace LayersDatabaseEditor
             miTestRun.Visibility = Visibility.Collapsed;
             miDevSqliteConnect.Visibility = Visibility.Collapsed;
             bSpecialZoneEditor.IsEnabled = false;
+            inputPrefix.IsEnabled = false;
+            inputMainName.IsEnabled = false;
 #endif
             // TODO: перестроить на constructor injection
             _logger = NcetCore.ServiceProvider.GetService<ILogger>();
@@ -105,6 +107,7 @@ namespace LayersDatabaseEditor
         {
             fdLog.Blocks.Clear();
         }
+#pragma warning disable IDE1006 // Стили именования
 
         private async void miExportLayersFromExcel_Click(object sender, RoutedEventArgs e)
         {
@@ -146,6 +149,7 @@ namespace LayersDatabaseEditor
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
+                    SolidColorBrush endpointMarkBrush = new(Color.FromRgb(220, 255, 255));
                     foreach (string str in e.NewItems!.Cast<string>())
                     {
                         if (string.IsNullOrEmpty(str))
@@ -171,6 +175,8 @@ namespace LayersDatabaseEditor
                                 items.Add(item);
                             }
                             items = item.Items;
+                            if (i == decomp.Length - 1)
+                                item.Background = endpointMarkBrush;
                         }
                     }
                     break;
@@ -192,12 +198,19 @@ namespace LayersDatabaseEditor
                             }
                         }
                         var parentItem = item.Parent;
-                        items.Remove(item);
-                        while (parentItem is TreeViewItem twi && !twi.Items.Cast<TreeViewItem>().Any())
+                        if (item.Items.Count > 0)
                         {
-                            TreeViewItem? newParentItem = twi.Parent as TreeViewItem;
-                            newParentItem?.Items.Remove(parentItem);
-                            parentItem = newParentItem;
+                            item.ClearValue(BackgroundProperty);
+                        }
+                        else
+                        {
+                            items.Remove(item);
+                            while (parentItem is TreeViewItem twi && !twi.Items.Cast<TreeViewItem>().Any())
+                            {
+                                TreeViewItem? newParentItem = twi.Parent as TreeViewItem;
+                                newParentItem?.Items.Remove(parentItem);
+                                parentItem = newParentItem;
+                            }
                         }
                     }
                     break;
@@ -312,7 +325,7 @@ namespace LayersDatabaseEditor
             EditorViewModel.Database?.Dispose();
         }
 
-        private void svLayers_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
             var scrollViewer = sender as ScrollViewer;
             if (scrollViewer != null)
@@ -322,5 +335,5 @@ namespace LayersDatabaseEditor
             }
         }
     }
-
+#pragma warning restore IDE1006 // Стили именования
 }

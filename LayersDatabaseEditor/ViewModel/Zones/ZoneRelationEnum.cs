@@ -1,4 +1,4 @@
-﻿namespace LayersDatabaseEditor.ViewModel
+﻿namespace LayersDatabaseEditor.ViewModel.Zones
 {
     public enum ZoneRelation
     {

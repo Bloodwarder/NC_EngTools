@@ -1,5 +1,7 @@
 ﻿using LayersDatabaseEditor.UI;
 using LayersDatabaseEditor.Utilities;
+using LayersDatabaseEditor.ViewModel.Ordering;
+using LayersDatabaseEditor.ViewModel.Zones;
 using LayersIO.Connection;
 using LayersIO.Database;
 using LayersIO.Model;
@@ -40,6 +42,7 @@ namespace LayersDatabaseEditor.ViewModel
         private RelayCommand? _resetDatabaseCommand;
         private RelayCommand? _saveDbAsCommand;
         private RelayCommand? _openZoneEditorCommand;
+        private RelayCommand? _openOrderingWindow;
 
         private HashSet<int> _selectedIndexes = new();
         private string _groupInputText = string.Empty;
@@ -156,6 +159,11 @@ namespace LayersDatabaseEditor.ViewModel
             set => _openZoneEditorCommand = value;
         }
 
+        public RelayCommand OpenOrderingWindowCommand
+        {
+            get => _openOrderingWindow ??= new(obj => OpenOrderingWindow(obj), obj => IsConnected);
+            set => _openOrderingWindow = value;
+        }
 
 
         /// <summary>
@@ -358,6 +366,11 @@ namespace LayersDatabaseEditor.ViewModel
             if (obj == null)
                 return;
             string searchString = (string)obj;
+
+            // Если уже выбрана эта группа - ничего не делать
+            if (searchString == SelectedGroup?.Name)
+                return;
+
             // Определить префикс и основное имя
             var match = Regex.Match(searchString, @"(^[^_\s-\.]+)_?(.*$)?");
             string prefix = match.Groups[1].Value;
@@ -366,50 +379,55 @@ namespace LayersDatabaseEditor.ViewModel
             // Если текущая выбранная группа имеет несохранённые обновления - сохранить её в коллекции обновлённых групп (но не в БД)
             if (SelectedGroup?.IsUpdated ?? false)
                 UpdatedGroups.Add(SelectedGroup);
-            // Проверить, была ли планируемая к выбору группа ранее сохранена в коллекции UpdatedGroups
-            var cachedGroup = UpdatedGroups.FirstOrDefault(g => g.Prefix == prefix && g.MainName == mainName);
-            if (cachedGroup != null)
-            {
-                // Если да - вытащить оттуда
-                SelectedGroup = cachedGroup;
-                UpdatedGroups.Remove(cachedGroup);
-                _selectedIndexes.Clear();
-                if (SelectedGroup.Id != 0)
-                    _selectedIndexes.Add(SelectedGroup.Id);
-            }
-            else
-            {
-                // Если нет, запросить из БД
-                var query = Database?.LayerGroups.Where(lg => lg.Prefix == prefix && lg.MainName.StartsWith(mainName));
-                int? count = query?.Count();
-                _selectedIndexes.Clear();
-                if (count == 1 && query?.First().MainName == mainName)
-                {
-                    // Если по запросу ровно один результат - получить остальную информацию по группе и создать ViewModel
-                    LayerGroupData result = query!.Include(lg => lg.Layers)
-                                                  .ThenInclude(l => l.Zones)
-                                                  .ThenInclude(z => z.ZoneLayer)
-                                                  .First();
-                    _selectedIndexes.Add(result.Id);
 
-                    LayerGroupViewModel layerGroupViewModel = new(result, _db!);
-                    AssignLayerGroupEvents(layerGroupViewModel);
-                    SelectedGroup = layerGroupViewModel;
-                }
-                else if (count != 0)
+
+            // Обновить сет индексов выбранных групп
+            _selectedIndexes = Database!.LayerGroups.Where(lg => lg.Prefix == prefix && lg.MainName.StartsWith(mainName))
+                                                    .Select(lg => lg.Id)
+                                                    .ToHashSet();
+
+            var cachedGroup = UpdatedGroups.FirstOrDefault(g => g.Prefix == prefix && g.MainName == mainName);
+            if (_selectedIndexes.Any() || cachedGroup != null)
+            {
+                // Проверить, была ли планируемая к выбору группа ранее сохранена в коллекции UpdatedGroups
+                if (cachedGroup != null)
                 {
-                    // Если по запросу более одного результата или один объект, но не в конце дерева - сохранить Id объектов (для возможности удаления целого узла)
-                    _selectedIndexes = query!.Select(lg => lg.Id).ToHashSet();
-                    // И обнулить выборы
-                    SelectedGroup = null;
-                    SelectedLayer = null;
+                    // Если да - вытащить оттуда
+                    SelectedGroup = cachedGroup;
+                    UpdatedGroups.Remove(cachedGroup);
+                    _selectedIndexes = new() { SelectedGroup.Id };
                 }
                 else
                 {
-                    // Если ничего нет, просто обнулить все выборы
-                    SelectedGroup = null;
-                    SelectedLayer = null;
+                    // Если нет - запросить в БД
+                    LayerGroupData? result = Database.LayerGroups.Where(lg => lg.MainName == mainName)
+                                                                 .Include(lg => lg.Layers)
+                                                                 .ThenInclude(l => l.Zones)
+                                                                 .ThenInclude(z => z.ZoneLayer)
+                                                                 .Include(lg => lg.LayerLegendData)
+                                                                 .AsEnumerable()
+                                                                 .FirstOrDefault(lg => !GroupIdsToDelete.Contains(lg.Id));
+                    if (result != null)
+                    {
+                        LayerGroupViewModel layerGroupViewModel = new(result, _db!);
+                        AssignLayerGroupEvents(layerGroupViewModel);
+                        SelectedGroup = layerGroupViewModel;
+                        SelectedLayer = null;
+                    }
+                    else
+                    {
+                        SelectedGroup = null;
+                        SelectedLayer = null;
+                    }
                 }
+                if (SelectedGroup != null)
+                    _selectedIndexes = new() { SelectedGroup.Id };
+            }
+            else
+            {
+                // Если ничего нет, просто обнулить все выборы
+                SelectedGroup = null;
+                SelectedLayer = null;
             }
         }
 
@@ -481,7 +499,27 @@ namespace LayersDatabaseEditor.ViewModel
                 return;
             if (SelectedGroup?.IsUpdated ?? false)
                 UpdatedGroups.Add(SelectedGroup);
-            var newGroupVm = new LayerGroupViewModel(groupName, Database!);
+            // Проверить, не была ли ранее удалена группа с таким же именем. Если была - выбрать её
+            var deletedGroup = Database!.LayerGroups.Where(lg => GroupIdsToDelete.ExposedSet.Contains(lg.Id)
+                                                                 && groupName.StartsWith(lg.Prefix)
+                                                                 && groupName.EndsWith(lg.MainName))
+                                                    .Include(lg => lg.Layers)
+                                                    .ThenInclude(l => l.Zones)
+                                                    .ThenInclude(z => z.ZoneLayer)
+                                                    .Include(lg => lg.LayerLegendData)
+                                                    .FirstOrDefault();
+
+            LayerGroupViewModel newGroupVm;
+            if (deletedGroup != null)
+            {
+                GroupIdsToDelete.Remove(deletedGroup.Id);
+                newGroupVm = new(deletedGroup, Database!);
+                _selectedIndexes = new() { deletedGroup.Id };
+            }
+            else
+            {
+                newGroupVm = new(groupName, Database!);
+            }
             AssignLayerGroupEvents(newGroupVm);
             SelectedGroup = newGroupVm;
             LayerGroupNames.Add(groupName);
@@ -636,6 +674,28 @@ namespace LayersDatabaseEditor.ViewModel
                 //Owner = window
             };
             zoneEditorWindow.ShowDialog();
+        }
+
+        private void OpenOrderingWindow(object? obj)
+        {
+            OrderingWindow window;
+            if (obj is LayerGroupViewModel)
+            {
+                var groups = Database!.LayerGroups.Where(lg => lg.Prefix == SelectedGroup!.Prefix).AsEnumerable();
+                OrderingWindowViewModel viewModel = new(groups, Database);
+                window = new(viewModel);
+            }
+            else if (obj is LayerDataViewModel)
+            {
+                var layers = Database!.Layers.Include(l => l.LayerGroup).AsEnumerable();
+                OrderingWindowViewModel viewModel = new(layers, Database);
+                window = new(viewModel);
+            }
+            else
+            {
+                return;
+            }
+            window.ShowDialog();
         }
     }
 }

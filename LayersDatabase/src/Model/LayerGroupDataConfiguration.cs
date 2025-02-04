@@ -13,7 +13,7 @@ namespace LayersIO.Model
                    .Ignore(ld => ld.Separator);
 
             builder.HasKey(lgd => lgd.Id);
-            builder.HasAlternateKey(ld => new { ld.Prefix, ld.MainName });
+            builder.HasIndex(ld => new { ld.Prefix, ld.MainName }).IsUnique();
             builder.HasIndex(lg => lg.Prefix);
 
             builder.Property(lgd => lgd.Id).ValueGeneratedOnAdd();

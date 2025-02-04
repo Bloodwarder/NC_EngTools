@@ -199,7 +199,6 @@ namespace LayersDatabaseEditor.ViewModel
         {
             if (this.IsValid)
             {
-                _layerGroupData.Prefix = Prefix!;
                 if (AlternateLayer == string.Empty)
                 {
                     _layerGroupData.AlternateLayer = null;
@@ -228,6 +227,17 @@ namespace LayersDatabaseEditor.ViewModel
                 {
                     layer.UpdateDatabaseEntities();
                 }
+
+                if (_layerGroupData.Prefix != Prefix || _layerGroupData.MainName != MainName)
+                {
+                    //var legend = (LayerLegendData)_layerGroupData.LayerLegendData.Clone();
+                    //Database.LayerGroups.Remove(_layerGroupData);
+                    _layerGroupData.Prefix = Prefix!;
+                    _layerGroupData.MainName = MainName!;
+                    //Database.LayerGroups.Add(_layerGroupData);
+                    //_layerGroupData.LayerLegendData = legend;
+                }
+
                 OnPropertyChanged(nameof(IsUpdated));
             }
         }

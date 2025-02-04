@@ -35,6 +35,7 @@ namespace LayersIO.Model
         public string? AlternateLayer { get; set; }
 
         public List<LayerData> Layers { get; } = new();
+        public List<OldLayerReference> OldLayerReferences { get; } = new();
 
     }
 }
