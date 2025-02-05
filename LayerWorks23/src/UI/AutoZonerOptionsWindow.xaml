@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:LayerWorks.UI"
         mc:Ignorable="d"
         Name="autoZonerOptionsWindow"
+        DataContext="{d:DesignInstance Type=local:AutoZonerOptionsWindow, IsDesignTimeCreatable=True}"
         Title="Выбор опций" Height="200" Width="300" Loaded="autoZonerOptionsWindow_Loaded" >
     <Grid Margin="5">
         <Grid.RowDefinitions>
@@ -25,13 +26,13 @@
                   HorizontalAlignment="Center" VerticalAlignment="Center"
                   PreviewKeyDown="CheckBox_PreviewKeyDown"
                   IsChecked="{Binding Path=IsZoneChoiceNeeded}"/>
-        <TextBlock Text="Распознать диаметры по подписям"
+        <TextBlock Text="Не распознавать диаметры по подписям"
                    VerticalAlignment="Center" TextWrapping="Wrap" 
                    Grid.Row="1" Grid.Column="0"/>
         <CheckBox Grid.Row="1" Grid.Column="1"
                   HorizontalAlignment="Center" VerticalAlignment="Center"
                   PreviewKeyDown="CheckBox_PreviewKeyDown"
-                  IsChecked="{Binding Path=IsLabelRecognizeAttemptNeeded}"/>
+                  IsChecked="{Binding Path=IgnoreLabelRecognition}"/>
         <TextBlock Text="Диаметры многотрубных линий учитывать для одной трубы" 
                    VerticalAlignment="Center" TextWrapping="Wrap" 
                    Grid.Row="2" Grid.Column="0"/>

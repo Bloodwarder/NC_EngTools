@@ -19,12 +19,14 @@ namespace LayerWorks.Commands
             LegendAssembler = NcetCore.ServiceProvider.GetRequiredService<LegendAssembler>();
             LayerEntitiesReportWriter = NcetCore.ServiceProvider.GetRequiredService<LayerEntitiesReportWriter>();
             AutoZoner = NcetCore.ServiceProvider.GetRequiredService<AutoZoner>();
+            DrawOrderProcessor = NcetCore.ServiceProvider.GetRequiredService<DrawOrderProcessor>();
         }
         private static LayerAlterer LayerAlterer { get; }
         internal static ChapterVisualizer ChapterVisualizer { get; }
         private static LegendAssembler LegendAssembler { get; }
         private static LayerEntitiesReportWriter LayerEntitiesReportWriter { get; }
         private static AutoZoner AutoZoner { get; }
+        private static DrawOrderProcessor DrawOrderProcessor { get; }
 
 
         [CommandMethod("ИЗМСТАТУС", CommandFlags.Redraw)]
@@ -102,6 +104,12 @@ namespace LayerWorks.Commands
         public static void AutoZoneCommand()
         {
             NcetCommand.ExecuteCommand(AutoZoner.AutoZone);
+        }
+
+        [CommandMethod("ПОРЯДОКСЛОЁВ", CommandFlags.UsePickSet)]
+        public static void ArrangeDrawOrderCommand()
+        {
+            NcetCommand.ExecuteCommand(DrawOrderProcessor.ArrangeEntities);
         }
 
         [CommandMethod("NCET_RELOAD")]

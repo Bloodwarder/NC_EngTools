@@ -61,7 +61,7 @@ namespace LayerWorks.Commands
                     Regex additionalFilterRegex = new(@"(\^?)([^_\-\.\ ]+)");
 
                     // Выбрать дополнительные опции
-                    AskForOptions(out bool isZoneChoiceNeeded, out bool isLabelRecognizeAttemptNeeded, out bool calculateSinglePipe);
+                    AskForOptions(out bool isZoneChoiceNeeded, out bool ignoreLabelRecognition, out bool calculateSinglePipe);
 
                     List<ErrorEntry> unprocessedLayers = new();
 
@@ -127,7 +127,7 @@ namespace LayerWorks.Commands
                                 // Если ранее найден из LayerInfo - добавить статический
                                 entityZoneParameters.Add(new(wrapper, zi, constructionWidth));
                             }
-                            else if (_diameterRecognizer != null && isLabelRecognizeAttemptNeeded)
+                            else if (_diameterRecognizer != null && !ignoreLabelRecognition)
                             {
                                 // Если не найден - попытаться найти из подписейподписи через буферы
                                 var ezp = GetZoneParametersByMtextLabels(wrapper, zi, calculateSinglePipe);
@@ -234,12 +234,12 @@ namespace LayerWorks.Commands
             }
         }
 
-        private static void AskForOptions(out bool isZoneChoiceNeeded, out bool isLabelRecognizeAttemptNeeded, out bool calculateSinglePipe)
+        private static void AskForOptions(out bool isZoneChoiceNeeded, out bool ignoreLabelRecognition, out bool calculateSinglePipe)
         {
             var window = new AutoZonerOptionsWindow();
             window.ShowDialog();
             isZoneChoiceNeeded = window.IsZoneChoiceNeeded;
-            isLabelRecognizeAttemptNeeded = window.IsLabelRecognizeAttemptNeeded;
+            ignoreLabelRecognition = window.IgnoreLabelRecognition;
             calculateSinglePipe = window.CalculateSinglePipe;
         }
 

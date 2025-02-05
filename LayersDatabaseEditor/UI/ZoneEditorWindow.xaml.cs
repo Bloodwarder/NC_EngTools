@@ -1,17 +1,9 @@
 ﻿using LayersDatabaseEditor.ViewModel.Zones;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace LayersDatabaseEditor.UI
 {
@@ -20,9 +12,12 @@ namespace LayersDatabaseEditor.UI
     /// </summary>
     public partial class ZoneEditorWindow : Window
     {
+        private const int DebounceMillisecondsTimeout = 400;
         public static readonly DependencyProperty ViewModelProperty;
         private string _lastSearch = string.Empty;
-        
+        private Task? _debounceTimeoutTask;
+        private CancellationTokenSource _cts = null!;
+
         static ZoneEditorWindow()
         {
             ViewModelProperty = DependencyProperty.Register("ViewModel", typeof(ZoneEditorViewModel), typeof(ZoneEditorWindow));
@@ -41,22 +36,32 @@ namespace LayersDatabaseEditor.UI
 
             CollectionViewSource = (CollectionViewSource)Resources["zonesViewSource"];
 
-            //Binding b = new("Zones");
-            //b.Source = viewModel;
-            //b.Mode = BindingMode.TwoWay;
-            //BindingOperations.SetBinding(CollectionViewSource, CollectionViewSource.SourceProperty, b);
-
             CollectionViewSource.Filter += new FilterEventHandler(FilterCallback);
             CollectionViewSource.LiveFilteringProperties.Add(nameof(ZoneGroupInfoViewModel.SourceLayerName));
-            
+
             inputFilter.TextChanged += (s, e) =>
             {
-                var operation = Dispatcher.BeginInvoke(() => CollectionViewSource.View.Refresh());
-                operation.Completed += (s, e) => _lastSearch = inputFilter.inputText.Text;
+                //Debug.WriteLine(_debounceTimeoutTask?.Status);
+                if (_debounceTimeoutTask?.Status == TaskStatus.Running)
+                {
+                    _cts.Cancel();
+                }
+                _cts = new();
+                _debounceTimeoutTask = Task.Run(() =>
+                {
+                    Thread.Sleep(DebounceMillisecondsTimeout);
+                    //await Task.Delay(DebounceMillisecondsTimeout);
+                    //var operation = Dispatcher.BeginInvoke(() => CollectionViewSource.View.Refresh());
+                    Dispatcher.Invoke(() =>
+                    {
+                        CollectionViewSource.View.Refresh();
+                        _lastSearch = inputFilter.inputText.Text;
+                    }
+                    , DispatcherPriority.Background);
+                    //operation.Completed += (s, e) => _lastSearch = inputFilter.inputText.Text;
+                }, _cts.Token);
             };
         }
-
-
 
         public ZoneEditorViewModel ViewModel
         {
