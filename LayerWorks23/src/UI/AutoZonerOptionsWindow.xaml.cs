@@ -19,7 +19,7 @@ namespace LayerWorks.UI
         }
 
         public bool IsZoneChoiceNeeded { get; set; } = false;
-        public bool IsLabelRecognizeAttemptNeeded { get; set; } = true;
+        public bool IgnoreLabelRecognition { get; set; } = false;
         public bool CalculateSinglePipe { get; set; } = false;
 
         private void autoZonerOptionsWindow_PreviewKeyDown(object sender, KeyEventArgs e)

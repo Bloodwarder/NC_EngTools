@@ -688,7 +688,7 @@ namespace LayersDatabaseEditor.ViewModel
             else if (obj is LayerDataViewModel)
             {
                 var layers = Database!.Layers.Include(l => l.LayerGroup).AsEnumerable();
-                OrderingWindowViewModel viewModel = new(layers, Database);
+                OrderingWindowViewModel viewModel = new(layers, Database, false);
                 window = new(viewModel);
             }
             else

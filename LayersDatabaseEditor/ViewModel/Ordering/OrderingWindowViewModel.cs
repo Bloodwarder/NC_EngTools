@@ -16,9 +16,10 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
         private ListCollectionView _itemsView;
         private OrderedItemViewModel? _selectedItem;
         private int _itemsCount;
+        private bool _splitEqualIndexes;
 
 
-        public OrderingWindowViewModel(LayersDatabaseContextSqlite context)
+        private OrderingWindowViewModel(LayersDatabaseContextSqlite context, bool splitEqualIndexes = true)
         {
             _itemsView = new ListCollectionView(_items);
             _itemsView.SortDescriptions.Add(new(nameof(OrderedItemViewModel.Index), ListSortDirection.Ascending));
@@ -31,9 +32,10 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
             SaveChangesCommand = new RelayCommand(obj => UpdateDatabaseEntities(), obj => IsValid && IsUpdated);
             ResetChangesCommand = new RelayCommand(obj => ResetValues(), obj => IsUpdated);
             Database = context;
+            _splitEqualIndexes = splitEqualIndexes;
         }
 
-        public OrderingWindowViewModel(IEnumerable<LayerData> layers, LayersDatabaseContextSqlite context) : this(context)
+        public OrderingWindowViewModel(IEnumerable<LayerData> layers, LayersDatabaseContextSqlite context, bool splitEqualIndexes = true) : this(context, splitEqualIndexes)
         {
             foreach (var layer in layers.OrderBy(lg => lg.LayerPropertiesData.DrawOrderIndex).AsEnumerable())
             {
@@ -42,7 +44,7 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
             }
         }
 
-        public OrderingWindowViewModel(IEnumerable<LayerGroupData> layerGroups, LayersDatabaseContextSqlite context) : this(context)
+        public OrderingWindowViewModel(IEnumerable<LayerGroupData> layerGroups, LayersDatabaseContextSqlite context, bool splitEqualIndexes = true) : this(context, splitEqualIndexes)
         {
             foreach (var layerGroup in layerGroups.OrderBy(lg => lg.LayerLegendData.Rank))
             {
@@ -125,17 +127,21 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
         private void RebuildIndexes()
         {
             int index = 100;
-            var firstItem = (OrderedItemViewModel)ItemsView.GetItemAt(0);
+            var previousItem = (OrderedItemViewModel)ItemsView.GetItemAt(0);
             var separators = NameParser.LoadedParsers.ToDictionary(p => p.Key, p => p.Value.Separator);
-            _ = separators.TryGetValue(NameParser.GetPrefix(firstItem.Name) ?? "", out string? separator);
-            string[] prevDecomp = firstItem.Name.Split(separator ?? "_");
-            firstItem.Index = index;
+            _ = separators.TryGetValue(NameParser.GetPrefix(previousItem.Name) ?? "", out string? separator);
+            string[] prevDecomp = previousItem.Name.Split(separator ?? "_");
+            previousItem.Index = index;
 
             for (int i = 1; i < _itemsCount; i++)
             {
                 var item = (OrderedItemViewModel)ItemsView.GetItemAt(i);
                 _ = separators.TryGetValue(NameParser.GetPrefix(item.Name) ?? "", out separator);
                 string[] decomp = item.Name.Split(separator ?? "_");
+
+                if (previousItem.Index == item.Index && !_splitEqualIndexes)
+                    continue;
+
                 if (decomp[0] != prevDecomp[0])
                     index = index + 1000 - index % 1000;
                 else if (decomp == prevDecomp)
@@ -148,6 +154,7 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
                     index += 100;
                 item.Index = index;
                 prevDecomp = decomp;
+                previousItem = item;
             }
         }
 

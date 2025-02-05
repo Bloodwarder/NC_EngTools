@@ -26,13 +26,22 @@ namespace LayerWorks.LayerProcessing
 
         public void ArrangeDrawOrder(IEnumerable<EntityLayerWrapper> wrappers)
         {
-            
             DrawOrderTable dot = (DrawOrderTable)Workstation.TransactionManager.TopTransaction.GetObject(Workstation.ModelSpace.DrawOrderTableId, OpenMode.ForWrite);
             var orderedWrappers = wrappers.OrderBy(w => _repository.Get(w.LayerInfo.TrueName).DrawOrderIndex);
+
             foreach (var wrapper in orderedWrappers)
             {
-                dot.MoveToTop(new(wrapper.BoundEntities.Select(e => e.Id).ToArray()));
+                dot.MoveToTop(new(wrapper.BoundEntities.Where(e => e is not MText and not MLeader and not DBText)
+                                                       .Select(e => e.Id)
+                                                       .ToArray()));
             }
+            foreach (var wrapper in orderedWrappers)
+            {
+                dot.MoveToTop(new(wrapper.BoundEntities.Where(e => e is MText or MLeader or DBText)
+                                                       .Select(e => e.Id)
+                                                       .ToArray()));
+            }
+
         }
     }
 }
