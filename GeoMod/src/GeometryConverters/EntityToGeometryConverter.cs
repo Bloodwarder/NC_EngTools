@@ -1,5 +1,6 @@
 ﻿using GeoMod.GeometryConverters;
 using LoaderCore.NanocadUtilities;
+using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using System.Collections.Generic;
 using Teigha.DatabaseServices;
@@ -20,23 +21,25 @@ namespace GeoMod.GeometryConverters
             bool warningShow = false;
             foreach (Entity entity in entities)
             {
-                if (entity is Polyline pl)
+                switch (entity)
                 {
-                    if (pl.HasBulges)
-                        warningShow = true;
-                    geometries.Add(pl.ToNTSGeometry(geometryFactory));
-                }
-                else if (entity is BlockReference bref)
-                {
-                    geometries.Add(bref.ToNTSGeometry(geometryFactory));
-                }
-                else
-                {
-                    continue;
+                    case Polyline pl:
+                        if (pl.HasBulges)
+                            warningShow = true;
+                        geometries.Add(pl.ToNTSGeometry(geometryFactory));
+                        break;
+                    case BlockReference bref:
+                        geometries.Add(bref.ToNTSGeometry(geometryFactory));
+                        break;
+                    case Circle circle:
+                        geometries.Add(circle.ToNTSGeometry(geometryFactory));
+                        break;
+                    default:
+                        continue;
                 }
             }
             if (warningShow)
-                Workstation.Editor.WriteMessage("Внимание! Кривые не поддерживаются. Для корректного вывода аппроксимируйте геометрию с дуговыми сегментами");
+                Workstation.Logger?.LogWarning("Внимание! Кривые не поддерживаются. Для корректного вывода аппроксимируйте геометрию с дуговыми сегментами");
             return geometries;
         }
 
@@ -48,18 +51,14 @@ namespace GeoMod.GeometryConverters
         /// <returns></returns>
         public static Geometry? TransferGeometry(Entity entity, GeometryFactory geometryFactory)
         {
-            if (entity is Polyline pl)
+            return entity switch
             {
-                return pl.ToNTSGeometry(geometryFactory);
-            }
-            else if (entity is BlockReference bref)
-            {
-                return bref.ToNTSGeometry(geometryFactory);
-            }
-            else
-            {
-                return null;
-            }
+                Polyline pl => pl.ToNTSGeometry(geometryFactory),
+                BlockReference bref => bref.ToNTSGeometry(geometryFactory),
+                Circle circle => circle.ToNTSGeometry(geometryFactory),
+                _ => null,
+            };
         }
+
     }
 }

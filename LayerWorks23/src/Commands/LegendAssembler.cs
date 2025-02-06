@@ -1,7 +1,5 @@
 ﻿//System
-using System.Text;
 //Microsoft
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 //nanoCAD
 using HostMgd.EditorInput;
@@ -16,8 +14,6 @@ using LayerWorks.Legend;
 using NameClassifiers;
 using LayersIO.DataTransfer;
 using static LoaderCore.NanocadUtilities.EditorHelper;
-using LayerWorks.EntityFormatters;
-using LoaderCore;
 using LoaderCore.Utilities;
 using LoaderCore.UI;
 
