@@ -1,0 +1,81 @@
+﻿<Window x:Class="LayersDatabaseEditor.UI.SpecialZoneWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LayersDatabaseEditor.UI"
+        xmlns:vm="clr-namespace:LayersDatabaseEditor.ViewModel.Zones" 
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        DataContext="{Binding RelativeSource={RelativeSource Self}, Path=ViewModel}"
+        Title="SpecialZoneWindow" Height="600" Width="800">
+    <Window.Resources>
+        <ObjectDataProvider x:Key="PrefixProvider" ObjectType="{x:Type vm:SpecialZoneLayerViewModel}" MethodName="GetPrefixes"/>
+        <ObjectDataProvider x:Key="StatusProvider" ObjectType="{x:Type vm:SpecialZoneLayerViewModel}" MethodName="GetStatuses">
+            <ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="StatusProviderPlus" ObjectType="{x:Type vm:SpecialZoneLayerViewModel}" MethodName="GetStatusesAddAll">
+            <!--<ObjectDataProvider.MethodParameters>
+                <Binding Path="SourceVm.Prefix"/>
+            </ObjectDataProvider.MethodParameters>-->
+        </ObjectDataProvider>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition/>
+            <RowDefinition Height="50"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0">
+            <MenuItem Header="Меню">
+                <MenuItem Header="Сохранить"/>
+                <Separator/>
+                <MenuItem Header="Выход"/>
+            </MenuItem>
+        </Menu>
+        <DockPanel Grid.Row="1" Margin="5">
+
+        </DockPanel>
+        <ListView Grid.Row="2" Margin="5"/>
+        <DockPanel Grid.Row="3" Margin="5"/>
+        <DataGrid Grid.Row="4" AutoGenerateColumns="False" Margin="5" ItemsSource="{Binding SpecialZones}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Префикс" IsReadOnly="True"
+                                    Binding="{Binding SourceLayerVm.Prefix}"/>
+                <DataGridTextColumn Header="Имя" IsReadOnly="True" 
+                                    Binding="{Binding SourceLayerVm.MainName}"/>
+                <DataGridComboBoxColumn Header="Статус"
+                                        ItemsSource="{Binding Source={StaticResource ResourceKey=StatusProviderPlus}}"
+                                        SelectedItemBinding="{Binding SourceLayerVm.Prefix}"/>
+                <DataGridTemplateColumn Width="135" Header="&#8592; Исходный &#124; Зона &#8594;">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="&#8594;"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridComboBoxColumn Header="Префикс" 
+                                        ItemsSource="{Binding Source={StaticResource PrefixProvider}}"
+                                        SelectedItemBinding="{Binding Path=ZoneLayerVm.Prefix}"/>
+                <DataGridComboBoxColumn Header="Имя"/>
+                <DataGridComboBoxColumn Header="Статус"
+                                        ItemsSource="{Binding Source={StaticResource StatusProvider}}"
+                                        SelectedItemBinding="{Binding Path=ZoneLayerVm.Status}"/>
+                <DataGridTextColumn Header="Величина зоны"
+                                    Binding="{Binding Value}"/>
+                <DataGridTextColumn Header="Доп.фильтр"
+                                    Binding="{Binding AdditionalFilter}"/>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button x:Name="bCancelZone" Width="15" Height="15" Content="&#215;" FontSize="9" Foreground="Red" FontStretch="Expanded" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

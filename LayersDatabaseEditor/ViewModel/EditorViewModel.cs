@@ -24,7 +24,7 @@ using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace LayersDatabaseEditor.ViewModel
 {
-    public class EditorViewModel : INotifyPropertyChanged, IDbRelatedViewModel
+    public partial class EditorViewModel : INotifyPropertyChanged, IDbRelatedViewModel
     {
         private const string LayersDbFileName = "LayerData.db";
 
@@ -43,6 +43,7 @@ namespace LayersDatabaseEditor.ViewModel
         private RelayCommand? _saveDbAsCommand;
         private RelayCommand? _openZoneEditorCommand;
         private RelayCommand? _openOrderingWindow;
+        private RelayCommand? _openSpecialZoneEditor;
 
         private HashSet<int> _selectedIndexes = new();
         private string _groupInputText = string.Empty;
@@ -163,6 +164,12 @@ namespace LayersDatabaseEditor.ViewModel
         {
             get => _openOrderingWindow ??= new(obj => OpenOrderingWindow(obj), obj => IsConnected);
             set => _openOrderingWindow = value;
+        }
+
+        public RelayCommand OpenSpecialZoneEditorCommand
+        {
+            get => _openSpecialZoneEditor ??= new(obj => OpenSpecialZoneEditor(obj), obj => IsGroupSelected);
+            set => _openSpecialZoneEditor = value;
         }
 
 
@@ -695,6 +702,15 @@ namespace LayersDatabaseEditor.ViewModel
             {
                 return;
             }
+            window.ShowDialog();
+        }
+
+        private void OpenSpecialZoneEditor(object? obj)
+        {
+            if (obj is not LayerGroupViewModel groupViewModel)
+                return;
+            SpecialZoneEditorViewModel viewModel = new(Database!, groupViewModel);
+            var window = new SpecialZoneWindow(viewModel);
             window.ShowDialog();
         }
     }

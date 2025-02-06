@@ -13,16 +13,17 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
     {
 
         private readonly ObservableCollection<OrderedItemViewModel> _items = new();
-        private ListCollectionView _itemsView;
+        private readonly ListCollectionView _itemsView;
         private OrderedItemViewModel? _selectedItem;
-        private int _itemsCount;
-        private bool _splitEqualIndexes;
+        private readonly int _itemsCount;
+        private readonly bool _splitEqualIndexes;
 
 
         private OrderingWindowViewModel(LayersDatabaseContextSqlite context, bool splitEqualIndexes = true)
         {
             _itemsView = new ListCollectionView(_items);
             _itemsView.SortDescriptions.Add(new(nameof(OrderedItemViewModel.Index), ListSortDirection.Ascending));
+            _itemsView.SortDescriptions.Add(new(nameof(OrderedItemViewModel.Name), ListSortDirection.Ascending));
             _itemsView.IsLiveSorting = true;
             _itemsView.LiveSortingProperties.Add(nameof(OrderedItemViewModel.Index));
 
@@ -127,34 +128,58 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
         private void RebuildIndexes()
         {
             int index = 100;
-            var previousItem = (OrderedItemViewModel)ItemsView.GetItemAt(0);
+            var collection = _items.OrderBy(item => item.Index).ThenBy(item => item.Name).ToArray();
+
+            var firstItem = collection[0];
             var separators = NameParser.LoadedParsers.ToDictionary(p => p.Key, p => p.Value.Separator);
-            _ = separators.TryGetValue(NameParser.GetPrefix(previousItem.Name) ?? "", out string? separator);
-            string[] prevDecomp = previousItem.Name.Split(separator ?? "_");
-            previousItem.Index = index;
+            _ = separators.TryGetValue(NameParser.GetPrefix(firstItem.Name) ?? "", out string? separator);
+            string[] prevDecomp = firstItem.Name.Split(separator ?? "_");
 
-            for (int i = 1; i < _itemsCount; i++)
+            using (var deferRefresh = ItemsView.DeferRefresh())
             {
-                var item = (OrderedItemViewModel)ItemsView.GetItemAt(i);
-                _ = separators.TryGetValue(NameParser.GetPrefix(item.Name) ?? "", out separator);
-                string[] decomp = item.Name.Split(separator ?? "_");
+                //previousItem.Index = index;
 
-                if (previousItem.Index == item.Index && !_splitEqualIndexes)
-                    continue;
+                var item = collection[1];
+                for (int i = 1; i < _itemsCount; i++)
+                {
+                    _ = separators.TryGetValue(NameParser.GetPrefix(item.Name) ?? "", out separator);
+                    string[] decomp = item.Name.Split(separator ?? "_");
 
-                if (decomp[0] != prevDecomp[0])
-                    index = index + 1000 - index % 1000;
-                else if (decomp == prevDecomp)
-                    index++;
-                else if (decomp[1] != prevDecomp[1])
-                    index = index + 500 - index % 500;
-                else if (decomp[^1] != prevDecomp[^1])
-                    index = index + 10 - index % 10;
-                else
-                    index += 100;
-                item.Index = index;
-                prevDecomp = decomp;
-                previousItem = item;
+                    //if (previousItem.Index == item.Index && !_splitEqualIndexes)
+                    //    continue;
+
+                    if (decomp[0] != prevDecomp[0])
+                        index = index + 1000 - index % 1000;
+                    else if (decomp == prevDecomp)
+                        index++;
+                    else if (decomp[1] != prevDecomp[1])
+                        index = index + 500 - index % 500;
+                    else if (decomp[^1] != prevDecomp[^1])
+                        index = index + 10 - index % 10;
+                    else
+                        index += 100;
+                    if (_splitEqualIndexes)
+                    {
+                        item.Index = index;
+                        prevDecomp = decomp;
+                        firstItem = item;
+                        item = collection[i + 1];
+                    }
+                    else
+                    {
+                        int initialIndex = item.Index;
+                        bool shifted = false;
+                        while (i < _itemsCount - 1 && item.Index == initialIndex)
+                        {
+                            item.Index = index;
+                            prevDecomp = decomp;
+                            firstItem = item;
+                            item = collection[++i];
+                            shifted = true;
+                        }
+                        i = shifted ? i - 1 : i;
+                    }
+                }
             }
         }
 

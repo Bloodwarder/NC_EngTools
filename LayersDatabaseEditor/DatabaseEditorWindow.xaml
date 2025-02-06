@@ -70,7 +70,25 @@
                 <MenuItem Header="Отключиться от базы данных"
                           Command="{Binding Path=DisconnectCommand}"/>
             </MenuItem>
-            <MenuItem Header="Слои">
+            <MenuItem Header="Дополнительные возможности">
+                <MenuItem Name="miZoneEditor" Header="Зоны - исходные слои для группы"
+                          Command="{Binding Path=OpenZoneEditorCommand}"
+                          CommandParameter="{Binding Source={x:Static vmz:ZoneRelation.ZoneGroup}}"/>
+                <MenuItem Name="miZoneEditorForSource" Header="Зоны - зоны для группы"
+                          Command="{Binding Path=OpenZoneEditorCommand}"
+                          CommandParameter="{Binding Source={x:Static vmz:ZoneRelation.SourceGroup}}"/>
+                <MenuItem Name="miSpecialZoneEditor" Header="Зоны Специальные зоны для группы"
+                          Command="{Binding Path=OpenSpecialZoneEditorCommand}"
+                          CommandParameter="{Binding Path=SelectedGroup}"/>
+                <Separator/>
+                <MenuItem Name="miDrawOrderWindowShow" Header="Порядок прорисовки слоёв" Margin="10 5 25 5"
+                          Command="{Binding Path=OpenOrderingWindowCommand}"
+                          CommandParameter="{Binding Path=SelectedLayer}"/>
+                <MenuItem Name="miLegendRankWindowShow" Header="Порядок отображения легенды" Margin="10 5 25 5"
+                          Command="{Binding Path=OpenOrderingWindowCommand}"
+                          CommandParameter="{Binding Path=SelectedGroup}"/>
+            </MenuItem>
+            <MenuItem Header="Слои" Visibility="Collapsed">
                 <MenuItem Header="Добавить слой"/>
                 <Separator/>
                 <MenuItem Header="Импортировать слои из Excel" Click="miExportLayersFromExcel_Click" IsEnabled="False"/>
@@ -111,7 +129,7 @@
             <TabControl Name="tcProperties" SelectedIndex="0" DataContextChanged="tcProperties_DataContextChanged"
                         IsEnabled="{Binding Path=IsGroupSelected}">
                 <TabItem Header="Общие" Width="100" IsEnabled="{Binding Path=IsGroupSelected}">
-                    <StackPanel IsEnabled="{Binding Path=EditorViewModel.IsGroupSelected}">
+                    <StackPanel IsEnabled="{Binding Path=IsGroupSelected}">
                         <ui:UserStringInput x:Name="inputPrefix" IsEnabled="False" LabelText="Префикс" InputValue="{Binding Path=SelectedGroup.Prefix, Mode=TwoWay}"/>
                         <ui:UserStringInput x:Name="inputMainName" LabelText="Основное имя" InputValue="{Binding Path=SelectedGroup.MainName, Mode=TwoWay}"/>
                         <ui:UserStringInput x:Name="inputStatus" IsEnabled="False" LabelText="Статус" InputValue="{Binding Path=SelectedLayer.StatusName, Mode=TwoWay}"/>
@@ -217,7 +235,9 @@
                                     CommandParameter="{Binding Source={x:Static vmz:ZoneRelation.SourceGroup}}"/>
                             <TextBlock Text="От текущего слоя отбиваются следующие зоны (специальные):" Margin="0 10 0 0"/>
                             <Button Name="bSpecialZoneEditor" Content="Определить специальные зоны"
-                                    ToolTip="Специальные зоны определяются для слоя (не для группы) по отдельным для каждого слоя правилам"/>
+                                    ToolTip="Специальные зоны определяются для слоя (не для группы) по отдельным для каждого слоя правилам"
+                                    Command="{Binding Path=OpenSpecialZoneEditorCommand}"
+                                    CommandParameter="{Binding Path=SelectedGroup}"/>
                             <TextBlock Text="Альтернативный слой" Margin="0 10 0 0"/>
                             <ComboBox Name="cbAlterLayer" Margin="0 3 0 20"
                                       ItemsSource="{Binding Path=LayerGroupNames}"
