@@ -18,6 +18,8 @@ using LayersIO.DataTransfer;
 using static LoaderCore.NanocadUtilities.EditorHelper;
 using LayerWorks.EntityFormatters;
 using LoaderCore;
+using LoaderCore.Utilities;
+using LoaderCore.UI;
 
 namespace LayerWorks.Commands
 {
@@ -28,12 +30,15 @@ namespace LayerWorks.Commands
     {
         private readonly string[] _modeKeywords = { "Все", "Полигон" };
         private readonly LayerChecker _checker;
-        
+        private readonly IRepository<string, LegendData> _repository;
+
+
         static LegendAssembler() { }
 
-        public LegendAssembler(LayerChecker checker)
+        public LegendAssembler(LayerChecker checker, IRepository<string, LegendData> repository)
         {
             _checker = checker;
+            _repository = repository;
         }
 
         /// <summary>
@@ -88,20 +93,22 @@ namespace LayerWorks.Commands
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Выбрано {FoundLayers} слоёв", nameof(LegendAssembler), layers.Count);
 
                 // Создать парсеры для слоёв
-                StringBuilder wrongLayersStringBuilder = new();
+                //StringBuilder wrongLayersStringBuilder = new();
+                List<ErrorEntry> wrongLayers = new();
                 List<RecordLayerWrapper> layersList = new();
-                var repository = LoaderCore.NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LegendData>>();
                 foreach (LayerTableRecord ltr in layers)
                 {
                     try
                     {
                         Workstation.Logger?.LogDebug("{ProcessingObject}: Создание RecordLayerWrapper для слоя {Layer}", nameof(LegendAssembler), ltr.Name);
                         RecordLayerWrapper rlp = new(ltr);
-                        if (!repository.Has(rlp.LayerInfo.MainName))
+                        if (!_repository.Has(rlp.LayerInfo.MainName))
                         {
-                            string wrongLayerLine = $"Нет данных для слоя {rlp.LayerInfo.Prefix}{rlp.LayerInfo.ParentParser.Separator}{rlp.LayerInfo.MainName}";
+                            string wrongLayerName = string.Join(rlp.LayerInfo.ParentParser.Separator, rlp.LayerInfo.Prefix, rlp.LayerInfo.MainName);
+                            string wrongLayerLine = $"Нет данных для слоя {wrongLayerName}";
                             Workstation.Logger?.LogDebug("{ProcessingObject}: {WrongLayer}", nameof(LegendAssembler), wrongLayerLine);
-                            wrongLayersStringBuilder.AppendLine(wrongLayerLine);
+                            //wrongLayersStringBuilder.AppendLine(wrongLayerLine);
+                            wrongLayers.Add(new(wrongLayerName, wrongLayerLine));
                             continue;
                         }
                         layersList.Add(rlp);
@@ -109,7 +116,8 @@ namespace LayerWorks.Commands
                     catch (WrongLayerException ex)
                     {
                         Workstation.Logger?.LogDebug(ex, "{ProcessingObject}: Слой {Layer} не обработан. {Error}", nameof(LegendAssembler), ltr.Name, ex.Message);
-                        wrongLayersStringBuilder.AppendLine($"Слой {ltr.Name} не обработан. {ex.Message}");
+                        //wrongLayersStringBuilder.AppendLine($"Слой {ltr.Name} не обработан. {ex.Message}");
+                        wrongLayers.Add(new(ltr.Name, ex.Message));
                         continue;
                     }
                 }
@@ -183,8 +191,14 @@ namespace LayerWorks.Commands
                     rlp.BoundLayer.Dispose();
                 // Завершить транзакцию и вывести список необработанных слоёв в консоль
                 transaction.Commit();
-                Workstation.Logger?.LogDebug("{ProcessingObject}: Транзакция завершена: Вывод сообщений о необработанных слоях:", nameof(LegendAssembler));
-                Workstation.Logger?.LogInformation("{WrongLayersMessage}", wrongLayersStringBuilder.ToString());
+                //Workstation.Logger?.LogDebug("{ProcessingObject}: Транзакция завершена: Вывод сообщений о необработанных слоях:", nameof(LegendAssembler));
+                Workstation.Logger?.LogDebug("{ProcessingObject}: Транзакция завершена: Вывод окна снеобработанными слоями:", nameof(LegendAssembler));
+                if (wrongLayers.Any())
+                {
+                    var window = new ErrorListWindow(wrongLayers, "Необработанные слои");
+                    window.ShowDialog();
+                }
+                //Workstation.Logger?.LogInformation("{WrongLayersMessage}", wrongLayersStringBuilder.ToString());
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Команда выполнена.", nameof(LegendAssembler));
             }
         }
