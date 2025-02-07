@@ -669,49 +669,73 @@ namespace LayersDatabaseEditor.ViewModel
         {
             if (obj is not ZoneRelation zoneRelation)
                 return;
-            var group = Database!.LayerGroups.SingleOrDefault(g => g.Id == SelectedGroup!.Id);
-            if (group == null)
+            try
             {
-                MessageBox.Show("Группа не сохранена в базе данных. Сохраните группу", "Несохранённая группа", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                var group = Database!.LayerGroups.SingleOrDefault(g => g.Id == SelectedGroup!.Id);
+                if (group == null)
+                {
+                    MessageBox.Show("Группа не сохранена в базе данных. Сохраните группу", "Несохранённая группа", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                ZoneEditorViewModel viewModel = new(group, Database, zoneRelation);
+                ZoneEditorWindow zoneEditorWindow = new(viewModel)
+                {
+                    //Owner = window
+                };
+                zoneEditorWindow.ShowDialog();
             }
-            ZoneEditorViewModel viewModel = new(group, Database, zoneRelation);
-            ZoneEditorWindow zoneEditorWindow = new(viewModel)
+            catch (Exception ex)
             {
-                //Owner = window
-            };
-            zoneEditorWindow.ShowDialog();
+                _logger.LogError(ex, "Во время работы редактора зон возникла ошибка: {Message}", ex.Message);
+                MessageBox.Show($"Во время работы редактора зон возникла ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void OpenOrderingWindow(object? obj)
         {
-            OrderingWindow window;
-            if (obj is LayerGroupViewModel)
+            try
             {
-                var groups = Database!.LayerGroups.Where(lg => lg.Prefix == SelectedGroup!.Prefix).AsEnumerable();
-                OrderingWindowViewModel viewModel = new(groups, Database);
-                window = new(viewModel);
+                OrderingWindow window;
+                if (obj is LayerGroupViewModel)
+                {
+                    var groups = Database!.LayerGroups.Where(lg => lg.Prefix == SelectedGroup!.Prefix).AsEnumerable();
+                    OrderingWindowViewModel viewModel = new(groups, Database);
+                    window = new(viewModel);
+                }
+                else if (obj is LayerDataViewModel)
+                {
+                    var layers = Database!.Layers.Include(l => l.LayerGroup).AsEnumerable();
+                    OrderingWindowViewModel viewModel = new(layers, Database, false);
+                    window = new(viewModel);
+                }
+                else
+                {
+                    return;
+                }
+                window.ShowDialog();
             }
-            else if (obj is LayerDataViewModel)
+            catch (Exception ex)
             {
-                var layers = Database!.Layers.Include(l => l.LayerGroup).AsEnumerable();
-                OrderingWindowViewModel viewModel = new(layers, Database, false);
-                window = new(viewModel);
+                _logger.LogError(ex, "Во время работы редактора порядковых номеров возникла ошибка: {Message}", ex.Message);
+                MessageBox.Show($"Во время работы редактора порядковых номеров возникла ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            else
-            {
-                return;
-            }
-            window.ShowDialog();
         }
 
         private void OpenSpecialZoneEditor(object? obj)
         {
             if (obj is not LayerGroupViewModel groupViewModel)
                 return;
-            SpecialZoneEditorViewModel viewModel = new(Database!, groupViewModel);
-            var window = new SpecialZoneWindow(viewModel);
-            window.ShowDialog();
+            try
+            {
+                SpecialZoneEditorViewModel viewModel = new(Database!, groupViewModel);
+                var window = new SpecialZoneWindow(viewModel);
+                window.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Во время работы редактора особых зон возникла ошибка: {Message}", ex.Message);
+                MessageBox.Show($"Во время работы редактора особых зон возникла ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

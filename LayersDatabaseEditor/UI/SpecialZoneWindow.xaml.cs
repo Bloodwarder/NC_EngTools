@@ -35,5 +35,12 @@ namespace LayersDatabaseEditor.UI
             get { return (SpecialZoneEditorViewModel)GetValue(ViewModelProperty); }
             set { SetValue(ViewModelProperty, value); }
         }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var item = dgSpecialZones.SelectedItem;
+            //var selectedRow = (DataGridRow)dgSpecialZones.ItemContainerGenerator.ContainerFromItem(item);
+            //var column = (DataGridComboBoxColumn)dgSpecialZones.Columns[2];
+        }
     }
 }
