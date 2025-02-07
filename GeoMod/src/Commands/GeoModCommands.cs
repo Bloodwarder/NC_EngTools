@@ -36,17 +36,23 @@ namespace GeoMod.Commands
             NcetCommand.ExecuteCommand(_bufferizationCommands.SimpleZone);
         }
 
+        [CommandMethod("ЗОНАТОЧ", CommandFlags.UsePickSet)]
+        public static void PointZoneCommand()
+        {
+            NcetCommand.ExecuteCommand(_bufferizationCommands.PointZone);
+        }
+        [CommandMethod("ЗОНАСОКР", CommandFlags.UsePickSet)]
+        public static void ReducedLinearZoneCommand()
+        {
+            NcetCommand.ExecuteCommand(_bufferizationCommands.ReducedLinearZone);
+        }
+
         [CommandMethod("ЗОНАДИФФ", CommandFlags.UsePickSet)]
         public static void DiverseZoneCommand()
         {
             NcetCommand.ExecuteCommand(_bufferizationCommands.DiverseZone);
         }
 
-        //[CommandMethod("ЗОНААВТО", CommandFlags.UsePickSet)]
-        //public static void AutoZoneCommand()
-        //{
-        //    NcetCommand.ExecuteCommand(_bufferizationCommands.AutoZone);
-        //}
 
         [CommandMethod("ЗОНОБЪЕД", CommandFlags.UsePickSet)]
         public static void ZoneJoinCommand()
