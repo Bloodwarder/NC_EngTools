@@ -1,6 +1,8 @@
-﻿using LayersIO.Connection;
+﻿using LayersDatabaseEditor.UI;
+using LayersIO.Connection;
 using LayersIO.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NameClassifiers;
 using System;
 using System.Collections.Generic;
@@ -11,6 +13,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace LayersDatabaseEditor.ViewModel.Zones
 {
@@ -27,6 +30,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
                                                                   .Include(lg => lg.Layers)
                                                                   .ThenInclude(l => l.Zones)
                                                                   .ThenInclude(z => z.ZoneLayer)
+                                                                  .ThenInclude(z => z.LayerGroup)
                                                                   .SelectMany(lg => lg.Layers)
                                                                   .SelectMany(l => l.Zones)
                                                                   .Where(z => z.IsSpecial)
@@ -66,6 +70,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
             };
         }
 
+        public SimpleLayer[] LayerNames { get; set; }
         public SpecialZoneLayerViewModel SourceGroup { get; set; }
         public LayersDatabaseContextSqlite Database { get; }
         public ObservableCollection<SpecialZoneViewModel> SpecialZones { get; } = new();
@@ -87,25 +92,71 @@ namespace LayersDatabaseEditor.ViewModel.Zones
         }
     }
 
-    public class SpecialZoneViewModel : IDbRelatedViewModel
+    public class SpecialZoneViewModel : IDbRelatedViewModel, INotifyPropertyChanged
     {
+        private SpecialZoneLayerViewModel _sourceLayerVm;
+        private SpecialZoneLayerViewModel _zoneLayerVm;
+
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         public SpecialZoneViewModel(SpecialZoneLayerViewModel source,
-                                    SpecialZoneLayerViewModel zone,
-                                    double value,
-                                    double defaultConstructionWidth,
-                                    string? filter,
-                                    LayersDatabaseContextSqlite context)
+                                            SpecialZoneLayerViewModel zone,
+                                            double value,
+                                            double defaultConstructionWidth,
+                                            string? filter,
+                                            LayersDatabaseContextSqlite context)
         {
             Database = context;
+
             SourceLayerVm = source;
+            SourceLayerVm.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(SpecialZoneLayerViewModel.Prefix))
+                    //AvailableSourceStatuses = new ObservableCollection<string>(SpecialZoneLayerViewModel.GetStatusesAddAll(SourceLayerVm.Prefix));
+                    OnPropertyChanged(nameof(AvailableSourceStatuses));
+            };
+            //AvailableSourceStatuses = new ObservableCollection<string>(SpecialZoneLayerViewModel.GetStatusesAddAll(SourceLayerVm.Prefix));
+
             ZoneLayerVm = zone;
+            ZoneLayerVm.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(SpecialZoneLayerViewModel.Prefix))
+                    //AvailableZoneStatuses = new ObservableCollection<string>(SpecialZoneLayerViewModel.GetStatuses(ZoneLayerVm.Prefix));
+                    OnPropertyChanged(nameof(AvailableZoneStatuses));
+
+            };
+            //AvailableZoneStatuses = new ObservableCollection<string>(SpecialZoneLayerViewModel.GetStatuses(ZoneLayerVm.Prefix));
+
             Value = value;
             DefaultConstructionWidth = defaultConstructionWidth;
             AdditionalFilter = filter;
         }
 
-        public SpecialZoneLayerViewModel SourceLayerVm { get; set; }
-        public SpecialZoneLayerViewModel ZoneLayerVm { get; set; }
+        public SpecialZoneLayerViewModel SourceLayerVm
+        {
+            get => _sourceLayerVm;
+            set
+            {
+                _sourceLayerVm = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        public SpecialZoneLayerViewModel ZoneLayerVm
+        {
+            get => _zoneLayerVm;
+            set
+            {
+                _zoneLayerVm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public IEnumerable<string>? AvailableSourceStatuses => SpecialZoneLayerViewModel.GetStatusesAddAll(SourceLayerVm.Prefix);
+
+        public IEnumerable<string>? AvailableZoneStatuses => SpecialZoneLayerViewModel.GetStatuses(ZoneLayerVm.Prefix);
 
         internal LayersDatabaseContextSqlite Database { get; }
 
@@ -158,6 +209,10 @@ namespace LayersDatabaseEditor.ViewModel.Zones
                 zoneInfo.Value = Value;
                 zoneInfo.IsSpecial = true;
             };
+        }
+        private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 

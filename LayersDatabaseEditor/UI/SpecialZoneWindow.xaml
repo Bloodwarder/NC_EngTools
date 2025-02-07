@@ -6,20 +6,14 @@
         xmlns:local="clr-namespace:LayersDatabaseEditor.UI"
         xmlns:vm="clr-namespace:LayersDatabaseEditor.ViewModel.Zones" 
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:u="clr-namespace:LayersDatabaseEditor.Utilities"
         mc:Ignorable="d"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=ViewModel}"
-        Title="SpecialZoneWindow" Height="600" Width="800">
+        Title="SpecialZoneWindow" Height="600" Width="800"
+        Name="specialZoneWindow">
     <Window.Resources>
         <ObjectDataProvider x:Key="PrefixProvider" ObjectType="{x:Type vm:SpecialZoneLayerViewModel}" MethodName="GetPrefixes"/>
-        <ObjectDataProvider x:Key="StatusProvider" ObjectType="{x:Type vm:SpecialZoneLayerViewModel}" MethodName="GetStatuses">
-            <ObjectDataProvider.MethodParameters>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-        <ObjectDataProvider x:Key="StatusProviderPlus" ObjectType="{x:Type vm:SpecialZoneLayerViewModel}" MethodName="GetStatusesAddAll">
-            <!--<ObjectDataProvider.MethodParameters>
-                <Binding Path="SourceVm.Prefix"/>
-            </ObjectDataProvider.MethodParameters>-->
-        </ObjectDataProvider>
+        <u:PrefixToAvailableNamesConverter x:Key="prefixToNamesConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -27,10 +21,11 @@
             <RowDefinition Height="50"/>
             <RowDefinition/>
             <RowDefinition Height="50"/>
-            <RowDefinition/>
+            <RowDefinition Height="1.5*"/>
         </Grid.RowDefinitions>
         <Menu Grid.Row="0">
             <MenuItem Header="Меню">
+                <MenuItem Header="Тестовая команда" Click="MenuItem_Click"/>
                 <MenuItem Header="Сохранить"/>
                 <Separator/>
                 <MenuItem Header="Выход"/>
@@ -41,15 +36,21 @@
         </DockPanel>
         <ListView Grid.Row="2" Margin="5"/>
         <DockPanel Grid.Row="3" Margin="5"/>
-        <DataGrid Grid.Row="4" AutoGenerateColumns="False" Margin="5" ItemsSource="{Binding SpecialZones}">
+        <DataGrid Name="dgSpecialZones" Grid.Row="4" AutoGenerateColumns="False" Margin="5" ItemsSource="{Binding SpecialZones}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Префикс" IsReadOnly="True"
-                                    Binding="{Binding SourceLayerVm.Prefix}"/>
+                                    Binding="{Binding Path=SourceLayerVm.Prefix}"/>
                 <DataGridTextColumn Header="Имя" IsReadOnly="True" 
-                                    Binding="{Binding SourceLayerVm.MainName}"/>
-                <DataGridComboBoxColumn Header="Статус"
-                                        ItemsSource="{Binding Source={StaticResource ResourceKey=StatusProviderPlus}}"
-                                        SelectedItemBinding="{Binding SourceLayerVm.Prefix}"/>
+                                    Binding="{Binding Path=SourceLayerVm.MainName}"/>
+                <DataGridTemplateColumn Header="Статус"
+                                        x:Name="dgscSourceStatus">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox SelectedItem="{Binding Path=SourceLayerVm.Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged }"
+                                      ItemsSource="{Binding Path=AvailableSourceStatuses}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTemplateColumn Width="135" Header="&#8592; Исходный &#124; Зона &#8594;">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -57,13 +58,40 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridComboBoxColumn Header="Префикс" 
-                                        ItemsSource="{Binding Source={StaticResource PrefixProvider}}"
-                                        SelectedItemBinding="{Binding Path=ZoneLayerVm.Prefix}"/>
-                <DataGridComboBoxColumn Header="Имя"/>
-                <DataGridComboBoxColumn Header="Статус"
-                                        ItemsSource="{Binding Source={StaticResource StatusProvider}}"
-                                        SelectedItemBinding="{Binding Path=ZoneLayerVm.Status}"/>
+                <DataGridTemplateColumn Header="Префикс"
+                                        x:Name="dgscZonePrefix">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox SelectedItem="{Binding Path=ZoneLayerVm.Prefix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      ItemsSource="{Binding Source={StaticResource PrefixProvider}}"
+                                      DisplayMemberPath="."/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="Имя"
+                                        x:Name="dgscZoneMainName">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox SelectedItem="{Binding Path=ZoneLayerVm.MainName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBox.ItemsSource>
+                                    <MultiBinding Converter="{StaticResource prefixToNamesConverter}">
+                                        <Binding Path="ZoneLayerVm.Prefix"/>
+                                        <Binding ElementName="specialZoneWindow" Path="ViewModel.LayerNames"/>
+                                    </MultiBinding>
+                                </ComboBox.ItemsSource>
+                            </ComboBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>                <DataGridTemplateColumn Header="Статус"
+                                        x:Name="dgscZoneStatus">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox SelectedItem="{Binding Path=ZoneLayerVm.Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      ItemsSource="{Binding Path=AvailableZoneStatuses}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Величина зоны"
                                     Binding="{Binding Value}"/>
                 <DataGridTextColumn Header="Доп.фильтр"

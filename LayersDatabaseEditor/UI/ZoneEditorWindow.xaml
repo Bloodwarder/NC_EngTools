@@ -36,7 +36,7 @@
                     CommandParameter="{Binding ElementName=dgZones, Path=SelectedItems}"/>
         </DockPanel>
         <ScrollViewer Name="svZones" Grid.Row="1" Margin="15" PreviewMouseWheel="svZones_PreviewMouseWheel" >
-            <DataGrid Name="dgZones" AutoGenerateColumns="False"
+            <DataGrid Name="dgZones" AutoGenerateColumns="False" CanUserDeleteRows="False"
                       EnableRowVirtualization="True"
                       VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                       ItemsSource="{Binding Source={StaticResource zonesViewSource}}">

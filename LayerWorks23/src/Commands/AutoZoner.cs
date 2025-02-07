@@ -10,6 +10,7 @@ using HostMgd.EditorInput;
 using LayerWorks.UI;
 using LoaderCore.Utilities;
 using LoaderCore.UI;
+using HostMgd.ApplicationServices;
 
 namespace LayerWorks.Commands
 {
@@ -224,7 +225,7 @@ namespace LayerWorks.Commands
                     if (unprocessedLayers.Any())
                     {
                         var errorsWindow = new ErrorListWindow(unprocessedLayers, "Необработанные слои");
-                        errorsWindow.ShowDialog();
+                        Application.ShowModalWindow(errorsWindow);
                     }
                 }
                 finally
@@ -237,7 +238,7 @@ namespace LayerWorks.Commands
         private static void AskForOptions(out bool isZoneChoiceNeeded, out bool ignoreLabelRecognition, out bool calculateSinglePipe)
         {
             var window = new AutoZonerOptionsWindow();
-            window.ShowDialog();
+            Application.ShowModalWindow(window);
             isZoneChoiceNeeded = window.IsZoneChoiceNeeded;
             ignoreLabelRecognition = window.IgnoreLabelRecognition;
             calculateSinglePipe = window.CalculateSinglePipe;

@@ -16,6 +16,7 @@ using LayersIO.DataTransfer;
 using static LoaderCore.NanocadUtilities.EditorHelper;
 using LoaderCore.Utilities;
 using LoaderCore.UI;
+using HostMgd.ApplicationServices;
 
 namespace LayerWorks.Commands
 {
@@ -192,7 +193,7 @@ namespace LayerWorks.Commands
                 if (wrongLayers.Any())
                 {
                     var window = new ErrorListWindow(wrongLayers, "Необработанные слои");
-                    window.ShowDialog();
+                    Application.ShowModalWindow(window);
                 }
                 //Workstation.Logger?.LogInformation("{WrongLayersMessage}", wrongLayersStringBuilder.ToString());
                 Workstation.Logger?.LogDebug("{ProcessingObject}: Команда выполнена.", nameof(LegendAssembler));
