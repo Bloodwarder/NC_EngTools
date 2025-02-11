@@ -10,7 +10,7 @@ using System.Windows;
 
 namespace LayersDatabaseEditor.ViewModel.Zones
 {
-    public class ZoneEditorViewModel : INotifyPropertyChanged
+    public class ZoneEditorVm : INotifyPropertyChanged
     {
         private readonly LayersDatabaseContextSqlite _db;
         private readonly LayerGroupData _layerGroup;
@@ -21,7 +21,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
         private Visibility _isSourceVisible;
         private Visibility _isZoneVisible;
 
-        public ZoneEditorViewModel(LayerGroupData layerGroup, LayersDatabaseContextSqlite context, ZoneRelation zoneRelation)
+        public ZoneEditorVm(LayerGroupData layerGroup, LayersDatabaseContextSqlite context, ZoneRelation zoneRelation)
         {
             _layerGroup = layerGroup;
             _db = context;
@@ -98,11 +98,11 @@ namespace LayersDatabaseEditor.ViewModel.Zones
             set => _toggleIgnoreConstructionWidthCommand = value;
         }
 
-        private void ZoneInfoAction(object? collection, Action<ZoneGroupInfoViewModel> action)
+        private void ZoneInfoAction(object? collection, Action<ZoneGroupInfoVm> action)
         {
             if (collection == null)
                 return;
-            var infos = ((IEnumerable)collection).Cast<ZoneGroupInfoViewModel>();
+            var infos = ((IEnumerable)collection).Cast<ZoneGroupInfoVm>();
             foreach (var info in infos)
             {
                 action(info);
@@ -137,7 +137,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
 
         internal LayersDatabaseContextSqlite Database => _db;
 
-        public ObservableCollection<ZoneGroupInfoViewModel> Zones { get; set; } = new();
+        public ObservableCollection<ZoneGroupInfoVm> Zones { get; set; } = new();
 
 
         public event PropertyChangedEventHandler? PropertyChanged;

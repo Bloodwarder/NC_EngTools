@@ -24,15 +24,15 @@ using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace LayersDatabaseEditor.ViewModel
 {
-    public partial class EditorViewModel : INotifyPropertyChanged, IDbRelatedViewModel
+    public partial class MainWindowVm : INotifyPropertyChanged, IDbRelatedViewModel
     {
         private const string LayersDbFileName = "LayerData.db";
 
         private LayersDatabaseContextSqlite? _db;
         private readonly SQLiteLayerDataContextFactory _dbContextFactory;
         private readonly ILogger _logger;
-        private LayerGroupViewModel? _selectedGroup;
-        private LayerDataViewModel? _selectedLayer;
+        private LayerGroupVm? _selectedGroup;
+        private LayerDataVm? _selectedLayer;
         private RelayCommand? _connectCommand;
         private RelayCommand? _disconnectCommand;
         private RelayCommand? _changeSelectedGroupCommand;
@@ -49,7 +49,7 @@ namespace LayersDatabaseEditor.ViewModel
         private string _groupInputText = string.Empty;
         private string? _databasePath;
 
-        public EditorViewModel(SQLiteLayerDataContextFactory contextFactory, IConfiguration configuration, IFilePathProvider provider, ILogger logger)
+        public MainWindowVm(SQLiteLayerDataContextFactory contextFactory, IConfiguration configuration, IFilePathProvider provider, ILogger logger)
         {
             _dbContextFactory = contextFactory;
             _logger = logger;
@@ -147,7 +147,7 @@ namespace LayersDatabaseEditor.ViewModel
         /// </summary>
         public RelayCommand SaveDbAsCommand
         {
-            get => _saveDbAsCommand ??= new(obj => SaveDbAs(obj), obj => IsConnected && ((obj as EditorViewModel)?.IsValid ?? false));
+            get => _saveDbAsCommand ??= new(obj => SaveDbAs(obj), obj => IsConnected && ((obj as MainWindowVm)?.IsValid ?? false));
             set => _saveDbAsCommand = value;
         }
 
@@ -192,7 +192,7 @@ namespace LayersDatabaseEditor.ViewModel
         /// <summary>
         /// Выбранная группа слоёв
         /// </summary>
-        public LayerGroupViewModel? SelectedGroup
+        public LayerGroupVm? SelectedGroup
         {
             get => _selectedGroup;
             set
@@ -208,7 +208,7 @@ namespace LayersDatabaseEditor.ViewModel
         /// <summary>
         /// Выбранный слой
         /// </summary>
-        public LayerDataViewModel? SelectedLayer
+        public LayerDataVm? SelectedLayer
         {
             get => _selectedLayer;
             set
@@ -222,7 +222,7 @@ namespace LayersDatabaseEditor.ViewModel
         /// <summary>
         /// Группы слоёв с несохранёнными обновлениями за исключением выбранной
         /// </summary>
-        public ObservableCollection<LayerGroupViewModel> UpdatedGroups { get; private set; } = new();
+        public ObservableCollection<LayerGroupVm> UpdatedGroups { get; private set; } = new();
 
         /// <summary>
         /// Id групп, помеченных к удалению из БД
@@ -416,7 +416,7 @@ namespace LayersDatabaseEditor.ViewModel
                                                                  .FirstOrDefault(lg => !GroupIdsToDelete.Contains(lg.Id));
                     if (result != null)
                     {
-                        LayerGroupViewModel layerGroupViewModel = new(result, _db!);
+                        LayerGroupVm layerGroupViewModel = new(result, _db!);
                         AssignLayerGroupEvents(layerGroupViewModel);
                         SelectedGroup = layerGroupViewModel;
                         SelectedLayer = null;
@@ -438,22 +438,22 @@ namespace LayersDatabaseEditor.ViewModel
             }
         }
 
-        private void AssignLayerGroupEvents(LayerGroupViewModel layerGroupViewModel)
+        private void AssignLayerGroupEvents(LayerGroupVm layerGroupViewModel)
         {
             layerGroupViewModel.PropertyChanging += (s, e) =>
             {
-                if (e.PropertyName == nameof(LayerGroupViewModel.Prefix) || e.PropertyName == nameof(LayerGroupViewModel.MainName))
+                if (e.PropertyName == nameof(LayerGroupVm.Prefix) || e.PropertyName == nameof(LayerGroupVm.MainName))
                 {
-                    UpdatedGroups.Add((LayerGroupViewModel)s!);
-                    LayerGroupNames.Remove(((LayerGroupViewModel)s!).Name);
+                    UpdatedGroups.Add((LayerGroupVm)s!);
+                    LayerGroupNames.Remove(((LayerGroupVm)s!).Name);
                 }
             };
             layerGroupViewModel.PropertyChanged += (s, e) =>
             {
                 OnPropertyChanged(nameof(IsUpdated));
                 OnPropertyChanged(nameof(IsValid));
-                if (e.PropertyName == nameof(LayerGroupViewModel.Prefix) || e.PropertyName == nameof(LayerGroupViewModel.MainName))
-                    LayerGroupNames.Add(((LayerGroupViewModel)s!).Name);
+                if (e.PropertyName == nameof(LayerGroupVm.Prefix) || e.PropertyName == nameof(LayerGroupVm.MainName))
+                    LayerGroupNames.Add(((LayerGroupVm)s!).Name);
             };
         }
 
@@ -516,7 +516,7 @@ namespace LayersDatabaseEditor.ViewModel
                                                     .Include(lg => lg.LayerLegendData)
                                                     .FirstOrDefault();
 
-            LayerGroupViewModel newGroupVm;
+            LayerGroupVm newGroupVm;
             if (deletedGroup != null)
             {
                 GroupIdsToDelete.Remove(deletedGroup.Id);
@@ -677,7 +677,7 @@ namespace LayersDatabaseEditor.ViewModel
                     MessageBox.Show("Группа не сохранена в базе данных. Сохраните группу", "Несохранённая группа", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-                ZoneEditorViewModel viewModel = new(group, Database, zoneRelation);
+                ZoneEditorVm viewModel = new(group, Database, zoneRelation);
                 ZoneEditorWindow zoneEditorWindow = new(viewModel)
                 {
                     //Owner = window
@@ -696,13 +696,13 @@ namespace LayersDatabaseEditor.ViewModel
             try
             {
                 OrderingWindow window;
-                if (obj is LayerGroupViewModel)
+                if (obj is LayerGroupVm)
                 {
                     var groups = Database!.LayerGroups.Where(lg => lg.Prefix == SelectedGroup!.Prefix).AsEnumerable();
                     OrderingWindowViewModel viewModel = new(groups, Database);
                     window = new(viewModel);
                 }
-                else if (obj is LayerDataViewModel)
+                else if (obj is LayerDataVm)
                 {
                     var layers = Database!.Layers.Include(l => l.LayerGroup).AsEnumerable();
                     OrderingWindowViewModel viewModel = new(layers, Database, false);
@@ -723,11 +723,11 @@ namespace LayersDatabaseEditor.ViewModel
 
         private void OpenSpecialZoneEditor(object? obj)
         {
-            if (obj is not LayerGroupViewModel groupViewModel)
+            if (obj is not LayerGroupVm groupViewModel)
                 return;
             try
             {
-                SpecialZoneEditorViewModel viewModel = new(Database!, groupViewModel);
+                SpecialZoneEditorVm viewModel = new(Database!, groupViewModel);
                 var window = new SpecialZoneWindow(viewModel);
                 window.ShowDialog();
             }

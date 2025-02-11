@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace LayersDatabaseEditor.ViewModel.Zones
 {
-    public class ZoneGroupInfoViewModel
+    public class ZoneGroupInfoVm
     {
         private readonly LayersDatabaseContextSqlite _db;
         private bool _isActivated;
@@ -21,7 +21,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
 
         private readonly ZoneMapping[]? _mappings;
 
-        public ZoneGroupInfoViewModel(LayerGroupData zoneGroup, LayerGroupData sourceGroup, LayersDatabaseContextSqlite context, IEnumerable<ZoneMapping> mappings)
+        public ZoneGroupInfoVm(LayerGroupData zoneGroup, LayerGroupData sourceGroup, LayersDatabaseContextSqlite context, IEnumerable<ZoneMapping> mappings)
         {
             _db = context;
             _zoneGroup = zoneGroup;

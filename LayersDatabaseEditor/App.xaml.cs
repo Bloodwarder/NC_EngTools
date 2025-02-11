@@ -44,7 +44,7 @@ namespace LayersDatabaseEditor
         private static void RegisterServices(IServiceCollection services)
         {
             services.AddSingleton<ILogger, EditorWindowLogger>()
-                    .AddTransient<EditorViewModel>();
+                    .AddTransient<MainWindowVm>();
         }
     }
 }

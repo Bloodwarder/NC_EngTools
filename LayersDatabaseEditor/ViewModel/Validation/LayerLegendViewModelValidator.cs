@@ -2,7 +2,7 @@
 
 namespace LayersDatabaseEditor.ViewModel.Validation
 {
-    public class LayerLegendViewModelValidator : AbstractValidator<LayerLegendViewModel>
+    public class LayerLegendViewModelValidator : AbstractValidator<LayerLegendVm>
     {
         public LayerLegendViewModelValidator()
         {

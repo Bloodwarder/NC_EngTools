@@ -3,7 +3,7 @@ using LayersDatabaseEditor.ViewModel.Zones;
 
 namespace LayersDatabaseEditor.ViewModel.Validation
 {
-    public class ZoneInfoViewModelValidator : AbstractValidator<ZoneGroupInfoViewModel>
+    public class ZoneInfoViewModelValidator : AbstractValidator<ZoneGroupInfoVm>
     {
         public ZoneInfoViewModelValidator()
         {

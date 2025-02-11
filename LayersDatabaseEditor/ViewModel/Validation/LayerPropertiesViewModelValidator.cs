@@ -3,7 +3,7 @@ using LayersDatabaseEditor.Utilities;
 
 namespace LayersDatabaseEditor.ViewModel.Validation
 {
-    public class LayerPropertiesViewModelValidator : AbstractValidator<LayerPropertiesViewModel>
+    public class LayerPropertiesViewModelValidator : AbstractValidator<LayerPropertiesVm>
     {
         HashSet<string> _availableLinetypes;
         public LayerPropertiesViewModelValidator()

@@ -4,7 +4,7 @@ using System.IO;
 
 namespace LayersDatabaseEditor.ViewModel.Validation
 {
-    public class LayerDrawTemplateViewModelValidator : AbstractValidator<LayerDrawTemplateViewModel>
+    public class LayerDrawTemplateViewModelValidator : AbstractValidator<LayerDrawTemplateVm>
     {
         public LayerDrawTemplateViewModelValidator()
         {
@@ -38,7 +38,7 @@ namespace LayersDatabaseEditor.ViewModel.Validation
                                       || File.Exists(l.BlockPath) && l.BlockPath.EndsWith(".dwg"))
                            .WithMessage("Полный путь к файлу блока должен вести к существующему .dwg файлу");
 
-            Func<LayerDrawTemplateViewModel, bool> dbPredicate =
+            Func<LayerDrawTemplateVm, bool> dbPredicate =
                 l => string.IsNullOrEmpty(l.FenceLayer) || l.Database.Layers.Any(lyr => l.FenceLayer.StartsWith(lyr.Prefix) && l.FenceLayer.EndsWith(lyr.MainName));
             RuleFor(l => l).Must(dbPredicate);
         }

@@ -11,25 +11,25 @@ using System.Text;
 
 namespace LayersDatabaseEditor.ViewModel
 {
-    public class LayerDataViewModel : INotifyPropertyChanged, IDbRelatedViewModel
+    public class LayerDataVm : INotifyPropertyChanged, IDbRelatedViewModel
     {
         private readonly LayerData _layerData;
         private readonly LayersDatabaseContextSqlite _db;
-        private readonly LayerGroupViewModel _parentGroup;
+        private readonly LayerGroupVm _parentGroup;
         private string _errors = "";
         private bool _isValid;
         private string? _statusName = null!;
-        private LayerPropertiesViewModel _layerProperties = null!;
-        private LayerDrawTemplateViewModel _layerDrawTemplate = null!;
+        private LayerPropertiesVm _layerProperties = null!;
+        private LayerDrawTemplateVm _layerDrawTemplate = null!;
 
-        public LayerDataViewModel(LayerGroupViewModel parentGroup, LayerData layerData, LayersDatabaseContextSqlite context)
+        public LayerDataVm(LayerGroupVm parentGroup, LayerData layerData, LayersDatabaseContextSqlite context)
         {
             _parentGroup = parentGroup;
             _db = context;
             _layerData = layerData;
             _parentGroup.PropertyChanged += (s, e) =>
             {
-                if (e.PropertyName == nameof(LayerGroupViewModel.MainName) || e.PropertyName == nameof(LayerGroupViewModel.Prefix))
+                if (e.PropertyName == nameof(LayerGroupVm.MainName) || e.PropertyName == nameof(LayerGroupVm.Prefix))
                 {
                     OnPropertyChanged(nameof(IsValid));
                     OnPropertyChanged(nameof(IsUpdated));
@@ -87,7 +87,7 @@ namespace LayersDatabaseEditor.ViewModel
                 return string.Join(_parentGroup.Separator, _parentGroup.Prefix, _parentGroup.MainName, StatusName);
             }
         }
-        public LayerPropertiesViewModel LayerProperties
+        public LayerPropertiesVm LayerProperties
         {
             get => _layerProperties;
             set
@@ -96,7 +96,7 @@ namespace LayersDatabaseEditor.ViewModel
                 OnPropertyChanged();
             }
         }
-        public LayerDrawTemplateViewModel LayerDrawTemplate
+        public LayerDrawTemplateVm LayerDrawTemplate
         {
             get => _layerDrawTemplate;
             set
@@ -105,7 +105,7 @@ namespace LayersDatabaseEditor.ViewModel
                 OnPropertyChanged();
             }
         }
-        public ObservableCollection<ZoneGroupInfoViewModel> Zones { get; set; } = new();
+        public ObservableCollection<ZoneGroupInfoVm> Zones { get; set; } = new();
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

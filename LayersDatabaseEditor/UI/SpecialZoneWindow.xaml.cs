@@ -2,6 +2,7 @@
 using LayersDatabaseEditor.ViewModel.Zones;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,17 +23,17 @@ namespace LayersDatabaseEditor.UI
     public partial class SpecialZoneWindow : Window
     {
         public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register(nameof(ViewModel), typeof(SpecialZoneEditorViewModel), typeof(SpecialZoneWindow), new PropertyMetadata());
+            DependencyProperty.Register(nameof(ViewModel), typeof(SpecialZoneEditorVm), typeof(SpecialZoneWindow), new PropertyMetadata());
 
-        public SpecialZoneWindow(SpecialZoneEditorViewModel viewModel)
+        public SpecialZoneWindow(SpecialZoneEditorVm viewModel)
         {
             InitializeComponent();
             ViewModel = viewModel;
         }
 
-        public SpecialZoneEditorViewModel ViewModel
+        public SpecialZoneEditorVm ViewModel
         {
-            get { return (SpecialZoneEditorViewModel)GetValue(ViewModelProperty); }
+            get { return (SpecialZoneEditorVm)GetValue(ViewModelProperty); }
             set { SetValue(ViewModelProperty, value); }
         }
 
@@ -41,6 +42,32 @@ namespace LayersDatabaseEditor.UI
             var item = dgSpecialZones.SelectedItem;
             //var selectedRow = (DataGridRow)dgSpecialZones.ItemContainerGenerator.ContainerFromItem(item);
             //var column = (DataGridComboBoxColumn)dgSpecialZones.Columns[2];
+        }
+
+        private void miExit_Click(object sender, RoutedEventArgs e)
+        {
+
+                this.Close();
+        }
+
+        private void OnWindowClosing(object sender, CancelEventArgs e)
+        {
+            if (ViewModel.IsUpdated)
+            {
+                MessageBoxResult result = MessageBox.Show("Список специальных зон изменён. Записать изменения в базу данных?", "Записать изменения", MessageBoxButton.YesNoCancel);
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        ViewModel.UpdateDatabaseEntities();
+                        break;
+                    case MessageBoxResult.No:
+                        ViewModel.ResetValues();
+                        break;
+                    case MessageBoxResult.Cancel:
+                        e.Cancel = true;
+                        return;
+                }
+            }
         }
     }
 }

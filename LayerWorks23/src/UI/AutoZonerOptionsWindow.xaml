@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:LayerWorks.UI"
         mc:Ignorable="d"
         Name="autoZonerOptionsWindow"
-        DataContext="{d:DesignInstance Type=local:AutoZonerOptionsWindow, IsDesignTimeCreatable=True}"
         Title="Выбор опций" Height="200" Width="300" Loaded="autoZonerOptionsWindow_Loaded" >
     <Grid Margin="5">
         <Grid.RowDefinitions>
