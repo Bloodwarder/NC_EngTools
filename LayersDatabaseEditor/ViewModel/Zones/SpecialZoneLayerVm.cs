@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace LayersDatabaseEditor.ViewModel.Zones
 {
-    public class SpecialZoneLayerVm : INotifyPropertyChanged
+    public class SpecialZoneLayerVm : INotifyPropertyChanged, ICloneable
     {
         internal const string AllStatusesString = "Все статусы";
 
@@ -109,6 +109,8 @@ namespace LayersDatabaseEditor.ViewModel.Zones
         {
             _layerGroupData = context.LayerGroups.Where(g => g.Prefix == Prefix && g.MainName == MainName).Include(g => g.Layers).Single();
         }
+
+        public object Clone() => MemberwiseClone();
     }
 
 

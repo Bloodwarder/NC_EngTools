@@ -19,6 +19,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
     {
         private RelayCommand? _addSpecialZoneCommand;
         private RelayCommand? _removeSpecialZoneCommand;
+        private RelayCommand? _updateDatabaseCommand;
         public SpecialZoneEditorVm(LayersDatabaseContextSqlite context, LayerGroupVm layerGroup)
         {
             Database = context;
@@ -94,6 +95,13 @@ namespace LayersDatabaseEditor.ViewModel.Zones
             set => _removeSpecialZoneCommand = value;
         }
 
+        public RelayCommand UpdateDatabaseCommand
+        {
+            get => _updateDatabaseCommand ??= new(obj => UpdateDatabaseEntities(), obj => true); // записи, не прошедшие валидацию, удалятся из таблицы
+            set => _updateDatabaseCommand = value;
+        }
+
+
         public SimpleLayer[] LayerNames { get; set; }
         public SpecialZoneLayerVm SourceGroup { get; set; }
         public LayersDatabaseContextSqlite Database { get; }
@@ -140,6 +148,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
                     {
                         specialZone.UpdateDatabaseEntities();
                     }
+                    Database.SaveChanges();
                     transaction.Commit();
                 }
                 catch (DbUpdateException ex)
@@ -152,7 +161,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
 
         internal void AddSpecialZone(object? obj)
         {
-            SpecialZoneVm zone = new(SourceGroup, Database);
+            SpecialZoneVm zone = new((SpecialZoneLayerVm)SourceGroup.Clone(), Database);
             SpecialZones.Add(zone);
         }
 
