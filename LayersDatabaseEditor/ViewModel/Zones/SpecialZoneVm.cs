@@ -26,11 +26,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
             _sourceLayerVm = source;
             _sourceLayerVm.PropertyChanged += OnSourcePrefixChanged;
             _zoneLayerVm = new SpecialZoneLayerVm();
-            _zoneLayerVm.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(SpecialZoneLayerVm.Prefix))
-                    OnPropertyChanged(nameof(AvailableZoneStatuses));
-            };
+            _zoneLayerVm.PropertyChanged += OnZonePrefixChanged;
             ZoneInfos = Array.Empty<ZoneInfoData>();
         }
 
@@ -127,7 +123,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
 
         public void ResetValues()
         {
-            if (ZoneInfos == null)
+            if (!ZoneInfos.Any())
             {
                 return; // Удалится из коллекции на следующем уровне. Прямой вызов в UI не предусмотрен
             }
@@ -228,7 +224,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
                 zoneInfo.Value = Value;
                 zoneInfo.IsSpecial = true;
                 ZoneInfos = new ZoneInfoData[] { zoneInfo };
-            };
+            }
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = "")
