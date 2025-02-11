@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace LayersDatabaseEditor.ViewModel
 {
-    public class LayerDrawTemplateViewModel : INotifyPropertyChanged
+    public class LayerDrawTemplateVm : INotifyPropertyChanged
     {
         readonly LayerDrawTemplateData _layerDrawTemplateData;
         private LayersDatabaseContextSqlite _db;
@@ -36,7 +36,7 @@ namespace LayersDatabaseEditor.ViewModel
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public LayerDrawTemplateViewModel(LayerDrawTemplateData layerDrawTemplateData, LayersDatabaseContextSqlite context)
+        public LayerDrawTemplateVm(LayerDrawTemplateData layerDrawTemplateData, LayersDatabaseContextSqlite context)
         {
             _db = context;
             _layerDrawTemplateData = layerDrawTemplateData;

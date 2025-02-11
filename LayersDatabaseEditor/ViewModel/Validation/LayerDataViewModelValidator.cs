@@ -3,7 +3,7 @@ using NameClassifiers;
 
 namespace LayersDatabaseEditor.ViewModel.Validation
 {
-    public class LayerDataViewModelValidator : AbstractValidator<LayerDataViewModel>
+    public class LayerDataViewModelValidator : AbstractValidator<LayerDataVm>
     {
         public LayerDataViewModelValidator()
         {

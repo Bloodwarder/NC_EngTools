@@ -20,10 +20,10 @@ namespace LayersDatabaseEditor.UI
 
         static ZoneEditorWindow()
         {
-            ViewModelProperty = DependencyProperty.Register("ViewModel", typeof(ZoneEditorViewModel), typeof(ZoneEditorWindow));
+            ViewModelProperty = DependencyProperty.Register("ViewModel", typeof(ZoneEditorVm), typeof(ZoneEditorWindow));
         }
 
-        public ZoneEditorWindow(ZoneEditorViewModel viewModel)
+        public ZoneEditorWindow(ZoneEditorVm viewModel)
         {
             ViewModel = viewModel;
 
@@ -37,7 +37,7 @@ namespace LayersDatabaseEditor.UI
             CollectionViewSource = (CollectionViewSource)Resources["zonesViewSource"];
 
             CollectionViewSource.Filter += new FilterEventHandler(FilterCallback);
-            CollectionViewSource.LiveFilteringProperties.Add(nameof(ZoneGroupInfoViewModel.SourceLayerName));
+            CollectionViewSource.LiveFilteringProperties.Add(nameof(ZoneGroupInfoVm.SourceLayerName));
 
             inputFilter.TextChanged += (s, e) =>
             {
@@ -63,9 +63,9 @@ namespace LayersDatabaseEditor.UI
             };
         }
 
-        public ZoneEditorViewModel ViewModel
+        public ZoneEditorVm ViewModel
         {
-            get => (ZoneEditorViewModel)GetValue(ViewModelProperty);
+            get => (ZoneEditorVm)GetValue(ViewModelProperty);
             set => SetValue(ViewModelProperty, value);
         }
 
@@ -87,7 +87,7 @@ namespace LayersDatabaseEditor.UI
             //    return;
             //}
 
-            if (e.Item is ZoneGroupInfoViewModel item && item.SourceLayerName.Contains(search))
+            if (e.Item is ZoneGroupInfoVm item && item.SourceLayerName.Contains(search))
             {
                 e.Accepted = true;
             }
@@ -129,9 +129,9 @@ namespace LayersDatabaseEditor.UI
                 RefreshDataGrid(sender, e);
             }
         }
-        private void UpdateZoneInfoViewModel(Action<ZoneGroupInfoViewModel> action)
+        private void UpdateZoneInfoViewModel(Action<ZoneGroupInfoVm> action)
         {
-            var updatedItems = dgZones.SelectedItems.Cast<ZoneGroupInfoViewModel>();
+            var updatedItems = dgZones.SelectedItems.Cast<ZoneGroupInfoVm>();
             foreach (var item in updatedItems)
                 action(item);
         }

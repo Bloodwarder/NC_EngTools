@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LayersDatabaseEditor.ViewModel
 {
-    public class LayerGroupViewModel : INotifyPropertyChanged, INotifyPropertyChanging, IDbRelatedViewModel
+    public class LayerGroupVm : INotifyPropertyChanged, INotifyPropertyChanging, IDbRelatedViewModel
     {
         private readonly LayerGroupData _layerGroupData;
         private readonly LayersDatabaseContextSqlite _db;
@@ -22,9 +22,9 @@ namespace LayersDatabaseEditor.ViewModel
         private string _separator;
         private string? _alternateLayer;
         private string _errors = "";
-        private LayerLegendViewModel _layerLegend = null!;
+        private LayerLegendVm _layerLegend = null!;
 
-        public LayerGroupViewModel(string mainName, LayersDatabaseContextSqlite context)
+        public LayerGroupVm(string mainName, LayersDatabaseContextSqlite context)
         {
             _db = context;
             string prefix = NameParser.GetPrefix(mainName) ?? throw new ArgumentNullException("Префикс не найден");
@@ -46,7 +46,7 @@ namespace LayersDatabaseEditor.ViewModel
                 Layers.Add(LayerDataViewModelFactory.Create(this, layerGroupData, status));
             }
         }
-        public LayerGroupViewModel(LayerGroupData layerGroupData, LayersDatabaseContextSqlite context)
+        public LayerGroupVm(LayerGroupData layerGroupData, LayersDatabaseContextSqlite context)
         {
             _parser = NameParser.LoadedParsers[layerGroupData.Prefix];
             _db = context;
@@ -154,7 +154,7 @@ namespace LayersDatabaseEditor.ViewModel
                 OnPropertyChanged();
             }
         }
-        public LayerLegendViewModel LayerLegend
+        public LayerLegendVm LayerLegend
         {
             get => _layerLegend;
             set
@@ -163,7 +163,7 @@ namespace LayersDatabaseEditor.ViewModel
                 OnPropertyChanged();
             }
         }
-        public ObservableCollection<LayerDataViewModel> Layers { get; } = new();
+        public ObservableCollection<LayerDataVm> Layers { get; } = new();
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -289,7 +289,7 @@ namespace LayersDatabaseEditor.ViewModel
                 }
                 else
                 {
-                    layerModel = new LayerDataViewModel(this, layer, _db);
+                    layerModel = new LayerDataVm(this, layer, _db);
                     layerModel.PropertyChanged += (s, e) => OnPropertyChanged(nameof(IsUpdated));
                     Layers.Add(layerModel);
                 }

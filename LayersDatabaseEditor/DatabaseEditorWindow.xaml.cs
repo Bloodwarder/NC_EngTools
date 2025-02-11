@@ -25,7 +25,7 @@ namespace LayersDatabaseEditor
     public partial class DatabaseEditorWindow : Window
     {
         public static readonly DependencyProperty EditorViewModelProperty =
-            DependencyProperty.Register("EditorViewModel", typeof(EditorViewModel), typeof(DatabaseEditorWindow), new PropertyMetadata());
+            DependencyProperty.Register("EditorViewModel", typeof(MainWindowVm), typeof(DatabaseEditorWindow), new PropertyMetadata());
 
         readonly ILogger? _logger;
         readonly IFilePathProvider _pathProvider;
@@ -48,7 +48,7 @@ namespace LayersDatabaseEditor
             _pathProvider = NcetCore.ServiceProvider.GetRequiredService<IFilePathProvider>();
 
             PreInitializeSimpleLogger.Log += LogWrite;
-            EditorViewModel = NcetCore.ServiceProvider.GetRequiredService<EditorViewModel>();
+            EditorViewModel = NcetCore.ServiceProvider.GetRequiredService<MainWindowVm>();
             EditorViewModel.LayerGroupNames.CollectionChanged += (s, e) => UpdateTreeView(s, e);
 
             cmUpdate.DataContext = EditorViewModel;
@@ -56,9 +56,9 @@ namespace LayersDatabaseEditor
         }
 
 
-        public EditorViewModel EditorViewModel
+        public MainWindowVm EditorViewModel
         {
-            get { return (EditorViewModel)GetValue(EditorViewModelProperty); }
+            get { return (MainWindowVm)GetValue(EditorViewModelProperty); }
             set { SetValue(EditorViewModelProperty, value); }
         }
 
@@ -274,7 +274,7 @@ namespace LayersDatabaseEditor
         private void tcProperties_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             TabControl tc = (TabControl)sender;
-            var context = tc.DataContext as LayerDataViewModel;
+            var context = tc.DataContext as LayerDataVm;
 
             if (context != null)
             {

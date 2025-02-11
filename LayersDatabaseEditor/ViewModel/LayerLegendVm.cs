@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace LayersDatabaseEditor.ViewModel
 {
-    public class LayerLegendViewModel : INotifyPropertyChanged
+    public class LayerLegendVm : INotifyPropertyChanged
     {
         private readonly LayerLegendData _layerLegendData;
         private int _rank;
@@ -13,7 +13,7 @@ namespace LayersDatabaseEditor.ViewModel
         private string? _subLabel;
         private bool _ignoreLayer;
 
-        public LayerLegendViewModel(LayerLegendData layerLegendData)
+        public LayerLegendVm(LayerLegendData layerLegendData)
         {
             _layerLegendData = layerLegendData;
             ResetValues();

@@ -13,9 +13,9 @@ namespace LayersDatabaseEditor.Utilities
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            string prefix = (string)values[0];
-            IEnumerable<SimpleLayer> collection = (IEnumerable<SimpleLayer>)values[1];
-            return collection.Where(l => l.Prefix == prefix).OrderBy(l => l.MainName).AsEnumerable();
+            if (values[0] is not string prefix || values[1] is not IEnumerable<SimpleLayer> collection)
+                return Array.Empty<string>();
+            return collection.Where(l => l.Prefix == prefix).Select(l => l.MainName).OrderBy(l => l).AsEnumerable();
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

@@ -7,7 +7,7 @@ using System.Windows.Media;
 
 namespace LayersDatabaseEditor.ViewModel
 {
-    public class LayerPropertiesViewModel : INotifyPropertyChanged
+    public class LayerPropertiesVm : INotifyPropertyChanged
     {
         private readonly LayerPropertiesData _layerPropertiesData;
         private readonly LayersDatabaseContextSqlite _db;
@@ -19,11 +19,11 @@ namespace LayersDatabaseEditor.ViewModel
         private int _lineWeight;
         private int _drawOrderIndex;
 
-        static LayerPropertiesViewModel()
+        static LayerPropertiesVm()
         {
             
         }
-        public LayerPropertiesViewModel(LayerPropertiesData layerPropertiesData, LayersDatabaseContextSqlite context)
+        public LayerPropertiesVm(LayerPropertiesData layerPropertiesData, LayersDatabaseContextSqlite context)
         {
             _db = context;
             _layerPropertiesData = layerPropertiesData;

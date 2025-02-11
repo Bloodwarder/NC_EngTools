@@ -15,25 +15,25 @@ namespace LayersDatabaseEditor.ViewModel
 {
     internal static class LayerDataViewModelFactory
     {
-        private static Dictionary<string, PropertyBinder<LayerPropertiesViewModel>> _propertyBinders = new();
-        private static Dictionary<string, PropertyBinder<LayerDrawTemplateViewModel>> _drawBinders = new();
+        private static Dictionary<string, PropertyBinder<LayerPropertiesVm>> _propertyBinders = new();
+        private static Dictionary<string, PropertyBinder<LayerDrawTemplateVm>> _drawBinders = new();
         static LayerDataViewModelFactory()
         {
-            foreach(PropertyInfo propertyInfo in typeof(LayerPropertiesViewModel).GetProperties())
+            foreach(PropertyInfo propertyInfo in typeof(LayerPropertiesVm).GetProperties())
             {
-                _propertyBinders[propertyInfo.Name] = PropertyBinder<LayerPropertiesViewModel>.Create(propertyInfo.Name);
+                _propertyBinders[propertyInfo.Name] = PropertyBinder<LayerPropertiesVm>.Create(propertyInfo.Name);
             }
-            foreach (PropertyInfo propertyInfo in typeof(LayerDrawTemplateViewModel).GetProperties())
+            foreach (PropertyInfo propertyInfo in typeof(LayerDrawTemplateVm).GetProperties())
             {
-                _drawBinders[propertyInfo.Name] = PropertyBinder<LayerDrawTemplateViewModel>.Create(propertyInfo.Name);
+                _drawBinders[propertyInfo.Name] = PropertyBinder<LayerDrawTemplateVm>.Create(propertyInfo.Name);
             }
         }
 
-        public static LayerDataViewModel Create(LayerGroupViewModel layerGroupViewModel, LayerGroupData layerGroup, string status)
+        public static LayerDataVm Create(LayerGroupVm layerGroupViewModel, LayerGroupData layerGroup, string status)
         {
             NameParser parser = NameParser.LoadedParsers[layerGroup.Prefix!];
             LayerData layer = new(layerGroup, status);
-            LayerDataViewModel viewModel = new(layerGroupViewModel, layer, layerGroupViewModel.Database);
+            LayerDataVm viewModel = new(layerGroupViewModel, layer, layerGroupViewModel.Database);
             viewModel.ResetValues();
             SharedPropertiesCollection sharedProperties = parser.SharedProperties;
             LayerInfoResult layerInfoResult = parser.GetLayerInfo(viewModel.Name);
