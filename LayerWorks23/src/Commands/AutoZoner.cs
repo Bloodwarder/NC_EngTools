@@ -59,7 +59,8 @@ namespace LayerWorks.Commands
 
                     // Найти соответствия имён присутствующих слоёв с зонами и слоёв зон с присутствующими слоями
 
-                    Regex additionalFilterRegex = new(@"(\^?)([^_\-\.\ ]+)");
+                    //Regex additionalFilterRegex = new(@"(\^?)([^_\-\.\ ]+)"); //удалить после тестирования нового
+                    Regex additionalFilterRegex = new(@"(^|;)(\^?)([^_\-\.\ ;]+)");
 
                     // Выбрать дополнительные опции
                     AskForOptions(out bool isZoneChoiceNeeded, out bool ignoreLabelRecognition, out bool calculateSinglePipe);
@@ -69,7 +70,7 @@ namespace LayerWorks.Commands
                     foreach (var wrapper in wrappers)
                     {
                         // Проверить, есть ли зоны для слоя
-                        bool success = _zoneRepository.TryGet(wrapper.LayerInfo.TrueName, out ZoneInfo[]? zoneInfos);
+                        bool success = _zoneRepository.TryGet(wrapper.LayerInfo.TrueName, out ZoneInfo[]? initialZoneInfos);
                         if (!success)
                         {
                             string layer = wrapper.LayerInfo.Name;
@@ -83,6 +84,8 @@ namespace LayerWorks.Commands
                         // Попытка получить диаметр из LayerInfo
                         bool diameterGetSuccess = TryGetDiameterFromLayerInfo(wrapper.LayerInfo, out double constructionWidth);
 
+                        // Если есть особые правила для зон - обработать
+                        var zoneInfos = initialZoneInfos!.AggregateFilters();
                         // Каждую зону добавить в словарь с соответствиями
                         foreach (var zi in zoneInfos!)
                         {
@@ -90,12 +93,24 @@ namespace LayerWorks.Commands
                             // Если в ZoneInfo присутствует дополнительный фильтр - заменить предикат
                             if (!string.IsNullOrEmpty(zi.AdditionalFilter))
                             {
-                                var match = additionalFilterRegex.Match(zi.AdditionalFilter);
-                                if (match.Success)
+                                // удалить после тестирования нового
+                                //var match = additionalFilterRegex.Match(zi.AdditionalFilter);
+                                //if (match.Success)
+                                //{
+                                //    additionalFilterPredicate = match.Groups[1].Value == @"^" ?
+                                //                                s => !s.Contains(match.Groups[2].Value) :
+                                //                                s => s.Contains(match.Groups[2].Value);
+                                //}
+                                var matches = additionalFilterRegex.Matches(zi.AdditionalFilter);
+                                if (matches.Any()) 
                                 {
-                                    additionalFilterPredicate = match.Groups[1].Value == @"^" ?
-                                                                s => !s.Contains(match.Groups[2].Value) :
-                                                                s => s.Contains(match.Groups[2].Value);
+                                    Func<Match, Func<string,bool>> matchToSinglePredicate = 
+                                        m => m.Groups[2].Value == @"^" ? 
+                                        s => !s.Contains(m.Groups[3].Value) : 
+                                        s => s.Contains(m.Groups[3].Value);
+
+                                    var predicates = matches.Select(m => matchToSinglePredicate(m));
+                                    additionalFilterPredicate = s => predicates.All(p => p(s));
                                 }
                             }
                             additionalFilterPredicate ??= s => true;

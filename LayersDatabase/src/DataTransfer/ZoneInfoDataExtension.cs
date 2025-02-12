@@ -11,7 +11,8 @@ namespace LayersIO.DataTransfer
                                 zoneInfoData.Value,
                                 zoneInfoData.DefaultConstructionWidth,
                                 zoneInfoData.AdditionalFilter,
-                                zoneInfoData.IgnoreConstructionWidth);
+                                zoneInfoData.IgnoreConstructionWidth,
+                                zoneInfoData.IsSpecial);
             return info;
         }
     }
