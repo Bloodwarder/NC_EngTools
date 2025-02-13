@@ -33,8 +33,8 @@
                 <MenuItem Name="miExit" Header="Выход" Click="miExit_Click"/>
             </MenuItem>
         </Menu>
-        <DockPanel Grid.Row="1" Margin="5">
-
+        <DockPanel Grid.Row="1" Margin="5" LastChildFill="False">
+            <Ellipse DockPanel.Dock="Right" Height="30" Width="30" Margin="0 0 10 0" Style="{StaticResource ellipseIndicatorStyle}"/>
         </DockPanel>
         <ListView Grid.Row="2" Margin="5"
                   ItemsSource="{Binding Path=RegularZones}">

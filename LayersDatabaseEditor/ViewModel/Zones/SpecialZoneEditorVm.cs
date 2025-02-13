@@ -8,14 +8,16 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace LayersDatabaseEditor.ViewModel.Zones
 {
-    public class SpecialZoneEditorVm : IDbRelatedViewModel
+    public class SpecialZoneEditorVm : IDbRelatedViewModel, INotifyPropertyChanged
     {
         private RelayCommand? _addSpecialZoneCommand;
         private RelayCommand? _removeSpecialZoneCommand;
@@ -56,10 +58,15 @@ namespace LayersDatabaseEditor.ViewModel.Zones
             var fullGroups = zoneInfos.GroupBy(zi => new { zi.SourceLayer.LayerGroup.Id, zi.ZoneLayerId, zi.AdditionalFilter, zi.Value })
                                       .Where(g => g.Count() == maxStatus)
                                       .AsEnumerable();
-
+            PropertyChangedEventHandler handler = (s, e) =>
+            {
+                OnPropertyChanged(nameof(IsValid));
+                OnPropertyChanged(nameof(IsUpdated));
+            };
             foreach (var group in fullGroups)
             {
                 var gridItemVm = new SpecialZoneVm(group, Database);
+                gridItemVm.PropertyChanged += handler;
                 SpecialZones.Add(gridItemVm);
                 foreach (ZoneInfoData item in group)
                     zoneInfos.Remove(item);
@@ -67,6 +74,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
             foreach (ZoneInfoData zoneInfo in zoneInfos)
             {
                 var gridItemVm = new SpecialZoneVm(zoneInfo, Database);
+                gridItemVm.PropertyChanged += handler;
                 SpecialZones.Add(gridItemVm);
             }
 
@@ -112,6 +120,8 @@ namespace LayersDatabaseEditor.ViewModel.Zones
         public bool IsValid => SpecialZones.All(z => z.IsValid);
 
         public bool IsUpdated => SpecialZones.Any(z => z.IsUpdated) || RemovedSpecialZones.Any();
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public void ResetValues()
         {
@@ -163,6 +173,13 @@ namespace LayersDatabaseEditor.ViewModel.Zones
         {
             SpecialZoneVm zone = new((SpecialZoneLayerVm)SourceGroup.Clone(), Database);
             SpecialZones.Add(zone);
+            OnPropertyChanged(nameof(IsValid));
+            OnPropertyChanged(nameof(IsUpdated));
+            zone.PropertyChanged += (s, e) =>
+            {
+                OnPropertyChanged(nameof(IsValid));
+                OnPropertyChanged(nameof(IsUpdated));
+            };
         }
 
         internal void RemoveSpecialZone(object? obj)
@@ -175,6 +192,14 @@ namespace LayersDatabaseEditor.ViewModel.Zones
             {
                 RemovedSpecialZones.Add(zone);
             }
+            OnPropertyChanged(nameof(IsValid));
+            OnPropertyChanged(nameof(IsUpdated));
         }
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
     }
 }
