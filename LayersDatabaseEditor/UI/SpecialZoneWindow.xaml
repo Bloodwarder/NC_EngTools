@@ -120,7 +120,11 @@
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button x:Name="bCancelZone" Width="15" Height="15" Content="&#215;" FontSize="9" Foreground="Red" FontStretch="Expanded" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                            <Button x:Name="bCancelZone" Width="15" Height="15"
+                                    Content="&#215;" FontSize="9" Foreground="Red" FontStretch="Expanded" 
+                                    VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                                    Command="{Binding Path=CancelZoneCommand}"
+                                    CommandParameter="{Binding}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

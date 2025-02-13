@@ -20,7 +20,7 @@ namespace LayerWorks.LayerProcessing
 
         public void ArrangeDrawOrder(IEnumerable<Entity> entities)
         {
-            IEnumerable<EntityLayerWrapper> wrappers = EntityLayerWrapper.CreateWrappers(entities);
+            IEnumerable<EntityLayerWrapper> wrappers = EntityLayerWrapper.CreateWrappers(entities, out var _);
             ArrangeDrawOrder(wrappers);
         }
 
@@ -31,17 +31,20 @@ namespace LayerWorks.LayerProcessing
 
             foreach (var wrapper in orderedWrappers)
             {
-                dot.MoveToTop(new(wrapper.BoundEntities.Where(e => e is not MText and not MLeader and not DBText)
-                                                       .Select(e => e.Id)
-                                                       .ToArray()));
+                var entities = wrapper.BoundEntities.Where(e => e is not MText and not MLeader and not DBText)
+                                                    .Select(e => e.Id)
+                                                    .ToArray();
+                if (entities.Any())
+                    dot.MoveToTop(new(entities));
             }
             foreach (var wrapper in orderedWrappers)
             {
-                dot.MoveToTop(new(wrapper.BoundEntities.Where(e => e is MText or MLeader or DBText)
-                                                       .Select(e => e.Id)
-                                                       .ToArray()));
+                var entities = wrapper.BoundEntities.Where(e => e is MText or MLeader or DBText)
+                                                    .Select(e => e.Id)
+                                                    .ToArray();
+                if (entities.Any())
+                    dot.MoveToTop(new(entities));
             }
-
         }
     }
 }

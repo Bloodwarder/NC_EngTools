@@ -205,7 +205,7 @@ namespace GeoMod.Commands
                 if (result2.Status != PromptStatus.OK)
                     linearBufferDistance = endBufferDistance / DefaultReductionMultiplier;
                 else
-                    linearBufferDistance = result.Value;
+                    linearBufferDistance = result2.Value;
 
                 // Создать геометрию буферных зон и объединить
                 Geometry endBuffer1 = startPoint.Buffer(endBufferDistance, _defaultBufferParameters);

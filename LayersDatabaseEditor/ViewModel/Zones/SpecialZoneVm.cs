@@ -5,6 +5,7 @@ using LoaderCore.SharedData;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace LayersDatabaseEditor.ViewModel.Zones
 {
@@ -16,6 +17,8 @@ namespace LayersDatabaseEditor.ViewModel.Zones
         private double _defaultConstructionWidth;
         private string? _additionalFilter;
         private static readonly SpecialZoneVmValidator _validator = new();
+
+        private static RelayCommand? _cancelZoneCommand;
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -45,6 +48,23 @@ namespace LayersDatabaseEditor.ViewModel.Zones
             ResetValues();
         }
 
+        public RelayCommand CancelZoneCommand
+        {
+            get => _cancelZoneCommand ??= new(obj => CancelZone(obj), obj => true);
+            set => _cancelZoneCommand = value;
+        }
+
+        private static void CancelZone(object? obj)
+        {
+            if (obj is not SpecialZoneVm zoneVm)
+                return;
+            if (zoneVm!.AdditionalFilter?.EndsWith("Cancel") ?? false)
+                zoneVm.AdditionalFilter = Regex.Replace(zoneVm.AdditionalFilter, @";?Cancel", string.Empty);
+            else
+            {
+                zoneVm.AdditionalFilter = string.IsNullOrEmpty(zoneVm.AdditionalFilter) ? "Cancel" : string.Join(";", zoneVm.AdditionalFilter, "Cancel");
+            }
+        }
 
         public SpecialZoneLayerVm SourceLayerVm
         {

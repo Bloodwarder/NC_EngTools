@@ -29,7 +29,7 @@ namespace LayerWorks.LayerProcessing
         /// <param name="entity"></param>
         public EntityLayerWrapper(Entity entity) : base(entity.Layer)
         {
-            BoundEntities.Add(entity); 
+            BoundEntities.Add(entity);
             ActiveWrappers.Add(this);
         }
         /// <summary>
@@ -37,18 +37,27 @@ namespace LayerWorks.LayerProcessing
         /// </summary>
         public List<Entity> BoundEntities = new();
 
-        public static IEnumerable<EntityLayerWrapper> CreateWrappers(IEnumerable<Entity> entities)
+        public static IEnumerable<EntityLayerWrapper> CreateWrappers(IEnumerable<Entity> entities, out List<WrongLayerException> errors)
         {
             Dictionary<string, EntityLayerWrapper> dictionary = new();
+            errors = new();
             foreach (var entity in entities)
             {
-                if (dictionary.ContainsKey(entity.Layer))
+                try
                 {
-                    dictionary[entity.Layer].BoundEntities.Add(entity);
+                    if (dictionary.ContainsKey(entity.Layer))
+                    {
+                        dictionary[entity.Layer].BoundEntities.Add(entity);
+                    }
+                    else
+                    {
+                        dictionary[entity.Layer] = new EntityLayerWrapper(entity);
+                    }
                 }
-                else
+                catch (WrongLayerException ex)
                 {
-                    dictionary[entity.Layer] = new EntityLayerWrapper(entity);
+                    errors.Add(ex);
+                    continue;
                 }
             }
             return dictionary.Values;

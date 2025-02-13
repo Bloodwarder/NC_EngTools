@@ -24,6 +24,7 @@ namespace LayerWorks
                              .AddTransient<ChapterVisualizer>()
                              .AddTransient<AutoZoner>()
                              .AddTransient<LegendAssembler>()
+                             .AddTransient<DrawOrderProcessor>()
                              .AddTransient<LayerEntitiesReportWriter>()
 ;
         }
