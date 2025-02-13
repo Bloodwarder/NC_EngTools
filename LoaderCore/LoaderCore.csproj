@@ -29,6 +29,7 @@
 		<Deterministic>True</Deterministic>
 		<OutputPath>$(RootOutputPath)\ExtensionLibraries\LoaderCore</OutputPath>
 		<SignAssembly>False</SignAssembly>
+		<UserSecretsId>8d2a1669-0bee-4fad-9b9b-288ff6bf5016</UserSecretsId>
 	</PropertyGroup>
 	
 	<ItemGroup>
@@ -63,6 +64,7 @@
 		<PackageReference Include="Markdig" Version="0.40.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />

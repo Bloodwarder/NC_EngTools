@@ -63,7 +63,7 @@ namespace LayersDatabaseEditor.ViewModel
             if (dbDirectoryPath != null && dbSharedFile.Exists)
                 SharedDatabasePath = dbSharedFile.FullName;
 #if DEBUG
-            DevDatabasePath = @"C:\Users\konovalove\source\repos\Bloodwarder\NC_EngTools\LayersDatabase\Data\LayerData.db"; // TODO: переделать на User Secrets
+            DevDatabasePath = configuration.GetSection("DevSqliteDatabase").Value;
 #endif
             UpdatedGroups.CollectionChanged += (s, e) =>
             {

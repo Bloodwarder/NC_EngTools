@@ -262,6 +262,9 @@ namespace LoaderCore
         {
             var configPath = Path.Combine(RootLocalDirectory, ConfigurationXmlFileName);
             IConfiguration config = new ConfigurationBuilder().AddXmlFile(configPath, optional: false, reloadOnChange: true)
+#if DEBUG
+                                                              .AddUserSecrets(Assembly.GetExecutingAssembly())
+#endif
                                                               .Build();
 
             Services.AddSingleton(config)

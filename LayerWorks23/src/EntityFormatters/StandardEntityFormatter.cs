@@ -77,6 +77,7 @@ namespace LayerWorks.EntityFormatters
                 return;
             if (string.IsNullOrEmpty(drawTemplate!.InnerHatchPattern) || drawTemplate!.InnerHatchPattern == NoneHatchPatternString)
                 return;
+            Action<Hatch>? delayedBackgroundSetAction = null;
             if (drawTemplate.InnerHatchPattern != null && drawTemplate.InnerHatchPattern != "SOLID")
             {
                 hatch.PatternAngle = drawTemplate.InnerHatchAngle * Math.PI / 180;
@@ -84,7 +85,12 @@ namespace LayerWorks.EntityFormatters
                 if (drawTemplate.InnerHatchBrightness != 0)
                 {
                     var color = hatch.LayerId.GetObject<LayerTableRecord>(OpenMode.ForRead).Color;
-                    hatch.BackgroundColor = color.BrightnessShift(drawTemplate.InnerHatchBrightness);
+
+                    if (hatch.PatternName != "SOLID")
+                        hatch.BackgroundColor = color.BrightnessShift(drawTemplate.InnerHatchBrightness);
+                    else
+                        // если исходный образец штриховки - SOLID - отложить назначение фонового цвета до изменения образца
+                        delayedBackgroundSetAction = h => h.BackgroundColor = color.BrightnessShift(drawTemplate.InnerHatchBrightness);
                 }
             }
             else
@@ -115,6 +121,7 @@ namespace LayerWorks.EntityFormatters
                     }
                 }
             }
+            delayedBackgroundSetAction?.Invoke(hatch);
         }
     }
 
