@@ -16,7 +16,9 @@ namespace LayersDatabaseEditor
     /// </summary>
     public partial class App : Application
     {
-        static App()
+        static App() { }
+
+        protected override void OnStartup(StartupEventArgs e)
         {
             try
             {
@@ -33,14 +35,16 @@ namespace LayersDatabaseEditor
             {
                 MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 throw;
-            }       
+            }
+            base.OnStartup(e);
         }
+
         private static void InitializeLoaderCore()
         {
             LibraryLoaderExtension.InitializeAsLibrary(RegisterServices);
         }
 
-        
+
         private static void RegisterServices(IServiceCollection services)
         {
             services.AddSingleton<ILogger, EditorWindowLogger>()

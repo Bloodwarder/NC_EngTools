@@ -38,7 +38,7 @@ namespace LayersDatabaseEditor
             miDevSqliteConnect.Visibility = Visibility.Collapsed;
             bSpecialZoneEditor.IsEnabled = false;
             inputPrefix.IsEnabled = false;
-            inputMainName.IsEnabled = false;
+            //inputMainName.IsEnabled = false;
 #endif
             // TODO: перестроить на constructor injection
             _logger = NcetCore.ServiceProvider.GetService<ILogger>();
