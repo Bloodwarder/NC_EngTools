@@ -28,6 +28,9 @@ namespace LayersDatabaseEditor.UI
         public SpecialZoneWindow(SpecialZoneEditorVm viewModel)
         {
             InitializeComponent();
+#if !DEBUG
+            miTestButton.Visibility = Visibility.Collapsed;
+#endif
             ViewModel = viewModel;
         }
 
@@ -54,7 +57,8 @@ namespace LayersDatabaseEditor.UI
         {
             if (ViewModel.IsUpdated)
             {
-                MessageBoxResult result = MessageBox.Show("Список специальных зон изменён. Записать изменения в базу данных?", "Записать изменения", MessageBoxButton.YesNoCancel);
+                MessageBoxResult result = 
+                    MessageBox.Show("Список специальных зон изменён. Записать изменения в базу данных?", "Записать изменения", MessageBoxButton.YesNoCancel, MessageBoxImage.Exclamation);
                 switch (result)
                 {
                     case MessageBoxResult.Yes:

@@ -105,7 +105,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
 
         public RelayCommand UpdateDatabaseCommand
         {
-            get => _updateDatabaseCommand ??= new(obj => UpdateDatabaseEntities(), obj => true); // записи, не прошедшие валидацию, удалятся из таблицы
+            get => _updateDatabaseCommand ??= new(obj => UpdateDatabaseEntities(), obj => IsUpdated); // записи, не прошедшие валидацию, удалятся из таблицы
             set => _updateDatabaseCommand = value;
         }
 
@@ -160,6 +160,12 @@ namespace LayersDatabaseEditor.ViewModel.Zones
                     }
                     Database.SaveChanges();
                     transaction.Commit();
+                    foreach (var specialZone in SpecialZones)
+                    {
+                        specialZone.SourceLayerVm.InitialStatus = specialZone.SourceLayerVm.Status;
+                        specialZone.ZoneLayerVm.InitialStatus = specialZone.ZoneLayerVm.Status;
+                    }
+                    OnPropertyChanged(nameof(IsUpdated));
                 }
                 catch (DbUpdateException ex)
                 {

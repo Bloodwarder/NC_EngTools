@@ -30,6 +30,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
             _mainName = layer.MainName;
             _status = layer.StatusName;
             _layerGroupData = layer.LayerGroup;
+            InitialStatus = _status;
         }
 
         public SpecialZoneLayerVm(LayerGroupData layerGroup)
@@ -38,6 +39,7 @@ namespace LayersDatabaseEditor.ViewModel.Zones
             _mainName = layerGroup.MainName;
             _status = AllStatusesString;
             _layerGroupData = layerGroup;
+            InitialStatus = _status;
         }
 
 
@@ -72,11 +74,14 @@ namespace LayersDatabaseEditor.ViewModel.Zones
             }
         }
 
-        internal LayerGroupData? LayerGroup => _layerGroupData;
+        public LayerGroupData? LayerGroup => _layerGroupData;
+
+        internal string? InitialStatus { get; set; }
+
         internal LayerData? Layer =>
             Status != AllStatusesString ?
             _layerGroupData?.Layers.First(l => l.StatusName == Status) :
-            throw new InvalidOperationException("Нельзя найти конкретный слой для элемента с указанным статусом \"Все\"");
+            null;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

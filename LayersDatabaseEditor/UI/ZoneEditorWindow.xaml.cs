@@ -17,6 +17,7 @@ namespace LayersDatabaseEditor.UI
         private string _lastSearch = string.Empty;
         private Task? _debounceTimeoutTask;
         private CancellationTokenSource _cts = null!;
+        private Func<ZoneGroupInfoVm, string, bool> _filterPredicate;
 
         static ZoneEditorWindow()
         {
@@ -33,6 +34,7 @@ namespace LayersDatabaseEditor.UI
             DataGridColumn zoneLayerColumn = dgZones.Columns.Single(c => c.Header.ToString() == "Слой зон");
             sourceLayerColumn.Visibility = ViewModel.IsSourceVisible;
             zoneLayerColumn.Visibility = ViewModel.IsZoneVisible;
+            _filterPredicate = ViewModel.IsSourceVisible == Visibility.Visible ? (zg, search) => zg.SourceLayerName.Contains(search) : (zg, search) => zg.ZoneLayerName.Contains(search);
 
             CollectionViewSource = (CollectionViewSource)Resources["zonesViewSource"];
 
@@ -41,24 +43,20 @@ namespace LayersDatabaseEditor.UI
 
             inputFilter.TextChanged += (s, e) =>
             {
-                //Debug.WriteLine(_debounceTimeoutTask?.Status);
                 if (_debounceTimeoutTask?.Status == TaskStatus.Running)
                 {
                     _cts.Cancel();
                 }
                 _cts = new();
-                _debounceTimeoutTask = Task.Run(() =>
+                _debounceTimeoutTask =  Task.Run(() =>
                 {
-                    Thread.Sleep(DebounceMillisecondsTimeout);
-                    //await Task.Delay(DebounceMillisecondsTimeout);
-                    //var operation = Dispatcher.BeginInvoke(() => CollectionViewSource.View.Refresh());
+                    Task.Delay(DebounceMillisecondsTimeout, _cts.Token).Wait();
                     Dispatcher.Invoke(() =>
                     {
                         CollectionViewSource.View.Refresh();
                         _lastSearch = inputFilter.inputText.Text;
                     }
                     , DispatcherPriority.Background);
-                    //operation.Completed += (s, e) => _lastSearch = inputFilter.inputText.Text;
                 }, _cts.Token);
             };
         }
@@ -81,13 +79,7 @@ namespace LayersDatabaseEditor.UI
                 return;
             }
 
-            //if (_lastSearch == search)
-            //{
-            //    e.Accepted = CollectionViewSource.View.Contains(e.Item); // тоже спорно - внутри ListCollectionView без хэша
-            //    return;
-            //}
-
-            if (e.Item is ZoneGroupInfoVm item && item.SourceLayerName.Contains(search))
+            if (e.Item is ZoneGroupInfoVm item && _filterPredicate(item, search))
             {
                 e.Accepted = true;
             }

@@ -27,9 +27,9 @@ namespace LayersDatabaseEditor.ViewModel.Zones
         {
             Database = context;
             _sourceLayerVm = source;
-            _sourceLayerVm.PropertyChanged += OnSourcePrefixChanged;
+            _sourceLayerVm.PropertyChanged += OnSourceLayerChanged;
             _zoneLayerVm = new SpecialZoneLayerVm();
-            _zoneLayerVm.PropertyChanged += OnZonePrefixChanged;
+            _zoneLayerVm.PropertyChanged += OnZoneLayerChanged;
             ZoneInfos = Array.Empty<ZoneInfoData>();
         }
 
@@ -135,7 +135,9 @@ namespace LayersDatabaseEditor.ViewModel.Zones
 
         public bool IsValid => _validator.Validate(this).IsValid;
 
-        public bool IsUpdated => ZoneLayerVm.MainName != ZoneLayerVm.LayerGroup?.MainName
+        public bool IsUpdated => SourceLayerVm.Status != SourceLayerVm.InitialStatus 
+                                 || ZoneLayerVm.Status != ZoneLayerVm.InitialStatus
+                                 || ZoneLayerVm.MainName != ZoneLayerVm.LayerGroup?.MainName
                                  || ZoneLayerVm.Prefix != ZoneLayerVm.LayerGroup?.Prefix
                                  || Value != ZoneInfos?.First().Value
                                  || AdditionalFilter != ZoneInfos.First().AdditionalFilter
@@ -152,10 +154,10 @@ namespace LayersDatabaseEditor.ViewModel.Zones
                 var first = ZoneInfos.First();
 
                 SourceLayerVm = new SpecialZoneLayerVm(first.SourceLayer);
-                SourceLayerVm.PropertyChanged += OnSourcePrefixChanged;
+                SourceLayerVm.PropertyChanged += OnSourceLayerChanged;
 
                 ZoneLayerVm = new SpecialZoneLayerVm(first.ZoneLayer);
-                ZoneLayerVm.PropertyChanged += OnZonePrefixChanged;
+                ZoneLayerVm.PropertyChanged += OnZoneLayerChanged;
 
                 Value = first.Value;
                 DefaultConstructionWidth = first.DefaultConstructionWidth;
@@ -166,10 +168,10 @@ namespace LayersDatabaseEditor.ViewModel.Zones
                 var first = ZoneInfos.First();
 
                 SourceLayerVm = new SpecialZoneLayerVm(first.SourceLayer.LayerGroup); // Передаётся группа, а не слой, чтобы выбрать все статусы
-                SourceLayerVm.PropertyChanged += OnSourcePrefixChanged;
+                SourceLayerVm.PropertyChanged += OnSourceLayerChanged;
 
                 ZoneLayerVm = new SpecialZoneLayerVm(first.ZoneLayer);
-                ZoneLayerVm.PropertyChanged += OnZonePrefixChanged;
+                ZoneLayerVm.PropertyChanged += OnZoneLayerChanged;
 
                 Value = first.Value;
                 DefaultConstructionWidth = first.DefaultConstructionWidth;
@@ -252,16 +254,20 @@ namespace LayersDatabaseEditor.ViewModel.Zones
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void OnSourcePrefixChanged(object? sender, PropertyChangedEventArgs e)
+        private void OnSourceLayerChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SpecialZoneLayerVm.Prefix))
                 OnPropertyChanged(nameof(AvailableSourceStatuses));
+            if (e.PropertyName is not nameof(IsValid) and not nameof(IsUpdated))
+                OnPropertyChanged(nameof(SourceLayerVm));
         }
 
-        private void OnZonePrefixChanged(object? sender, PropertyChangedEventArgs e)
+        private void OnZoneLayerChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SpecialZoneLayerVm.Prefix))
                 OnPropertyChanged(nameof(AvailableZoneStatuses));
+            if (e.PropertyName is not nameof(IsValid) and not nameof(IsUpdated))
+                OnPropertyChanged(nameof(ZoneLayerVm));
         }
     }
 }

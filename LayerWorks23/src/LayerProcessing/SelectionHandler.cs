@@ -39,38 +39,6 @@ namespace LayerWorks.LayerProcessing
             }
         }
 
-        private static void ProcessSimple(SelectionSet selectionSet)
-        {
-
-            foreach (Entity entity in (from ObjectId elem in selectionSet.GetObjectIds()
-                                       let ent = Workstation.TransactionManager.TopTransaction.GetObject(elem, OpenMode.ForWrite) as Entity
-                                       select ent).ToArray())
-            {
-                try
-                {
-                    EntityLayerWrapper entlp = new(entity);
-                    Workstation.Logger?.LogDebug("{ProcessingObject}: Создан EntityLayerWrapper для объекта {ObjectType} слоя {LayerName}",
-                                                 nameof(SelectionHandler),
-                                                 entity.GetType().Name,
-                                                 entity.Layer);
-                }
-                catch (WrongLayerException ex)
-                {
-                    Workstation.Logger?.LogDebug(
-                        "{ProcessingObject}: Объект {ObjectType} слоя {LayerName} не обработан: {Exception}",
-                        nameof(SelectionHandler),
-                        entity.GetType().Name,
-                        entity.Layer,
-                        ex.Message);
-                    continue;
-                }
-                catch (Exception ex)
-                {
-                    Workstation.Logger?.LogWarning("Ошибка: {Exception}", ex.Message);
-                }
-            }
-        }
-
         private static void ProcessBulk(SelectionSet selectionSet)
         {
             Dictionary<string, EntityLayerWrapper> dct = new();
