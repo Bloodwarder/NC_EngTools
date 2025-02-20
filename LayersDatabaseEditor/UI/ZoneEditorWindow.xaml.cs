@@ -17,7 +17,7 @@ namespace LayersDatabaseEditor.UI
         private string _lastSearch = string.Empty;
         private Task? _debounceTimeoutTask;
         private CancellationTokenSource _cts = null!;
-        private Func<ZoneGroupInfoVm, string, bool> _filterPredicate;
+        private readonly Func<ZoneGroupInfoVm, string, bool> _filterPredicate;
 
         static ZoneEditorWindow()
         {
@@ -56,7 +56,7 @@ namespace LayersDatabaseEditor.UI
                     Dispatcher.Invoke(() =>
                     {
                         CollectionViewSource.View.Refresh();
-                        _lastSearch = inputFilter.inputText.Text;
+                        _lastSearch = inputFilter.InputValue;
                     }
                     , DispatcherPriority.Background);
                 }, _cts.Token);
@@ -73,7 +73,7 @@ namespace LayersDatabaseEditor.UI
 
         private void FilterCallback(object sender, FilterEventArgs e)
         {
-            string search = inputFilter.inputText.Text;
+            string search = inputFilter.InputValue;
 
             if (string.IsNullOrEmpty(search))
             {
@@ -98,7 +98,6 @@ namespace LayersDatabaseEditor.UI
 
         private void RefreshDataGrid(object sender, RoutedEventArgs e)
         {
-            //Dispatcher.BeginInvoke(() => CollectionViewSource.View.Refresh()); // Вызывает фильтр заново. Сделано, чтобы кнопки апдейтили вид чекбоксов. Найти другой способ их апдейтить
             dgZones.Items.Refresh();
         }
 

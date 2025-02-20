@@ -85,10 +85,10 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="135" Header="&#8592; Исходный &#124; Зона &#8594;">
+                <DataGridTemplateColumn Width="135" Header="&#8592; Исх. &#124; Зона &#8594;">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="&#8594;"/>
+                            <TextBlock Text="&#8594;" HorizontalAlignment="Center"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

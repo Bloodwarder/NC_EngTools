@@ -1,5 +1,4 @@
-﻿using LayersDatabaseEditor.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -16,7 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace LayersDatabaseEditor.UI
+namespace LoaderCore.Controls
 {
     /// <summary>
     /// Логика взаимодействия для ColorAdjuster.xaml

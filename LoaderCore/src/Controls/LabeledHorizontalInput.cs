@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace LayersDatabaseEditor.UI
+namespace LoaderCore.Controls
 {
     public partial class LabeledHorizontalInput : UserControl
     {

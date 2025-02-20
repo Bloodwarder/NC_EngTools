@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LayersDatabaseEditor.UI"
+        xmlns:controls="clr-namespace:LoaderCore.Controls;assembly=LoaderCore"
         xmlns:vm="clr-namespace:LayersDatabaseEditor.ViewModel"
         mc:Ignorable="d"
         Title="{Binding Path=EditorCaption}" Height="500" Width="800"
@@ -19,7 +20,7 @@
             <RowDefinition Height="70"/>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0" Name="spFilters" Margin="10" FlowDirection="LeftToRight" LastChildFill="False">
-            <local:UserStringInput x:Name="inputFilter" DockPanel.Dock="Left" LabelText="Фильтр" Width="250" HorizontalAlignment="Left"/>
+            <controls:UserStringInput x:Name="inputFilter" DockPanel.Dock="Left" LabelText="Фильтр" Width="250" HorizontalAlignment="Left"/>
             <Button Name="bToggleIgnoreConstructionWidth" DockPanel.Dock="Right" Visibility="Collapsed"
                     VerticalAlignment="Center" Height="20" Width="50" Margin="20 5 20 5"
                     Content="Игн. ш."

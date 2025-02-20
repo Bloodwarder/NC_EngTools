@@ -13,28 +13,38 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace LayersDatabaseEditor.UI
+namespace LoaderCore.Controls
 {
     /// <summary>
-    /// Логика взаимодействия для UserNumericInput.xaml
+    /// Логика взаимодействия для UserStringInput.xaml
     /// </summary>
-    public partial class UserPseudoNumericInput : LabeledHorizontalInput
+    public partial class UserStringInput : LabeledHorizontalInput
     {
         public static readonly DependencyProperty InputValueProperty;
-        static UserPseudoNumericInput()
+        static UserStringInput()
         {
-            InputValueProperty = DependencyProperty.Register(nameof(InputValue), typeof(string), typeof(UserPseudoNumericInput), new("0"));
+            InputValueProperty = DependencyProperty.Register(nameof(InputValue), typeof(string), typeof(UserStringInput));
         }
 
         public string InputValue
         {
             get => (string)GetValue(InputValueProperty);
             set => SetValue(InputValueProperty, value);
+
+            //get => (string)GetValue(InputValueProperty);
+            //set => SetValue(InputValueProperty, value);
         }
 
-        public UserPseudoNumericInput()
+        public UserStringInput()
         {
             InitializeComponent();
         }
+
+        public event TextChangedEventHandler? TextChanged
+        {
+            add => inputText.TextChanged += value;
+            remove => inputText.TextChanged -= value;
+        }
+
     }
 }

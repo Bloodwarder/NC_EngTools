@@ -13,35 +13,28 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace LayersDatabaseEditor.UI
+namespace LoaderCore.Controls
 {
     /// <summary>
-    /// Логика взаимодействия для UserStringInput.xaml
+    /// Логика взаимодействия для UserIndicator.xaml
     /// </summary>
-    public partial class UserStringInput : LabeledHorizontalInput
+    public partial class UserIndicator : LabeledHorizontalInput
     {
         public static readonly DependencyProperty InputValueProperty;
-        static UserStringInput()
+        static UserIndicator()
         {
-            InputValueProperty = DependencyProperty.Register(nameof(InputValue), typeof(string), typeof(UserStringInput));
+            InputValueProperty = DependencyProperty.Register(nameof(InputValue), typeof(double), typeof(UserIndicator), new(0d));
         }
 
-        public string InputValue
+        public double InputValue
         {
-            get => (string)GetValue(InputValueProperty);
+            get => (double)GetValue(InputValueProperty);
             set => SetValue(InputValueProperty, value);
         }
 
-        public UserStringInput()
+        public UserIndicator()
         {
             InitializeComponent();
         }
-
-        public event TextChangedEventHandler? TextChanged
-        {
-            add => inputText.TextChanged += value;
-            remove => inputText.TextChanged -= value;
-        }
-
     }
 }

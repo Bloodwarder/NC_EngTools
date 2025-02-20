@@ -99,6 +99,14 @@
 	  <Compile Update="src\Controls\UserPseudoNumericInput.xaml.cs">
 	    <SubType>Code</SubType>
 	  </Compile>
+	  <Compile Update="src\Controls\UserStringInput.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="src\Controls\UserStringInput.xaml">
+	    <SubType>Designer</SubType>
+	  </Page>
 	</ItemGroup>
 
 	<Target Name="MoveConfigurationFile" AfterTargets="Build">

@@ -15,7 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace LayersDatabaseEditor.UI
+namespace LoaderCore.Controls
 {
     /// <summary>
     /// Логика взаимодействия для UserStringInput.xaml
