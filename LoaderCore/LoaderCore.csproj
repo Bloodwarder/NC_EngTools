@@ -11,7 +11,7 @@
 		<ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-		<VersionPrefix>2.1.3</VersionPrefix>
+		<VersionPrefix>2.1.4</VersionPrefix>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -23,13 +23,13 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<UserSecretsId>8d2a1669-0bee-4fad-9b9b-288ff6bf5016</UserSecretsId>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<Deterministic>True</Deterministic>
 		<OutputPath>$(RootOutputPath)\ExtensionLibraries\LoaderCore</OutputPath>
 		<SignAssembly>False</SignAssembly>
-		<UserSecretsId>8d2a1669-0bee-4fad-9b9b-288ff6bf5016</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -49,11 +49,14 @@
 		<None Update="ConfigurationSchema.xsd">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="StartUpConfig.xml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 		<None Update="Styles.css">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Известные проблемы.md">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Команды.md">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<None Update="Список изменений.md">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -70,6 +73,32 @@
 	</ItemGroup>
 	<ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Update="src\Controls\BrightnessAdjuster.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="src\Controls\ColorAdjuster.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="src\Controls\UserBoolInput.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="src\Controls\UserComboBoxInput.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="src\Controls\UserFilePathInput.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="src\Controls\UserIndicator.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="src\Controls\UserNumericInput.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
+	  <Compile Update="src\Controls\UserPseudoNumericInput.xaml.cs">
+	    <SubType>Code</SubType>
+	  </Compile>
 	</ItemGroup>
 
 	<Target Name="MoveConfigurationFile" AfterTargets="Build">

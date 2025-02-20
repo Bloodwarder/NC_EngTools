@@ -6,6 +6,9 @@
         xmlns:local="clr-namespace:LoaderCore.UI"
         mc:Ignorable="d"
         Title="Автозапуск NC EngTools" Height="600" MinHeight="550" Width="700" MaxWidth="700" Closing="StartUpWindowClosing" KeyDown="Window_KeyDown" Loaded="Window_Loaded">
+    <Window.Resources>
+        <XmlDataProvider x:Key="configurationProvider" Source="Configuration.xml" XPath="configuration"/>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -38,7 +41,8 @@
                     </LinearGradientBrush>
                 </TextBlock.Foreground>NC EngTools</TextBlock>
             <DockPanel Grid.Row="0" Grid.Column="3">
-                <CheckBox DockPanel.Dock="Right" Margin="10" VerticalAlignment="Top" Name="chbShowOnStartUp" IsChecked="True"/>
+                <CheckBox DockPanel.Dock="Right" Margin="10" VerticalAlignment="Top" Name="chbShowOnStartUp" 
+                          IsChecked="{Binding XPath=ShowStartup}"/>
                 <TextBlock DockPanel.Dock="Right" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10" Text="Показывать при старте"/>
             </DockPanel>
             <DockPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Width="Auto" LastChildFill="True" Margin="5" Visibility="Hidden">
@@ -48,9 +52,11 @@
             </DockPanel>
             <TextBlock Grid.Row="2" Grid.Column="0" Text="Включить" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="10"/>
             <TextBlock Grid.Row="2" Grid.Column="1" Text="Автообновление" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="9"/>
-            <CheckBox Grid.Row="3" Grid.Column="0" Name="chbIncludeLayerWorks" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="LayerWorks"
+            <CheckBox Grid.Row="3" Grid.Column="0" Name="chbIncludeLayerWorks" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                      IsChecked="{Binding XPath=/LayerWorksConfiguration/Enabled}" Tag="{Binding XPath=/LayerWorksConfiguration/@Module}"
                       Checked="IncludeCheckChanged"/>
-            <CheckBox Grid.Row="3" Grid.Column="1" Name="chbAutoUpdateLayerWorks" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="LayerWorks"
+            <CheckBox Grid.Row="3" Grid.Column="1" Name="chbAutoUpdateLayerWorks" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                      IsChecked="{Binding XPath=/LayerWorksConfiguration/UpdateEnabled}" Tag="{Binding XPath=/LayerWorksConfiguration/@Module}"
                       Checked="AutoUpdateCheckChanged"/>
             <Button Grid.Row ="3" Grid.Column="2" Name="bUpdateLayerWorks" Margin="20 5 20 5" Content="Обновить" FontSize="14" Tag="LayerWorks" Click="UpdateButtonClick" IsEnabled="False"/>
             <DockPanel Grid.Row="3" Grid.Column="3">

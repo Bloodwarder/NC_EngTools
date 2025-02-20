@@ -50,32 +50,7 @@ namespace LoaderCore.UI
         {
             var patchNotesPath = Path.Combine(new FileInfo(_xmlConfigPath).DirectoryName!, "ExtensionLibraries", "LoaderCore", "Список изменений.md");
             var stylesPath = Path.Combine(new FileInfo(_xmlConfigPath).DirectoryName!, "ExtensionLibraries", "LoaderCore", "Styles.css");
-            string? markdownText;
-            string? styles;
-            using (StreamReader reader = new(patchNotesPath))
-            {
-                markdownText = reader.ReadToEnd();
-            }
-            using (StreamReader stylesReader = new(stylesPath))
-            {
-                styles = stylesReader.ReadToEnd();
-            }
-            var pipeline = new MarkdownPipelineBuilder().Build();
-
-            var content = Markdown.ToHtml(markdownText, pipeline);
-
-            string htmlContent = $@"<!DOCTYPE html>
-                                    <html lang='en'>
-                                    <head>
-                                    <meta charset='utf-8'>
-                                    <style>
-                                    {styles}
-                                    </style>
-                                    </head>
-                                    <body>
-                                    {content}
-                                    </body>
-                                    </html>";
+            string htmlContent = MdToHtmlConverter.Convert(patchNotesPath, stylesPath);
             wbUpdates.NavigateToString(htmlContent);
         }
 
@@ -129,8 +104,6 @@ namespace LoaderCore.UI
             _xmlConfig.Root.Element("GeoModConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeGeoMod.IsChecked);
             _xmlConfig.Root.Element("GeoModConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateGeoMod.IsChecked);
 
-            _xmlConfig.Save(_xmlConfigPath);
-
             //DirectoryInfo checkdir = new DirectoryInfo(tbSourcePath.Text);
             //if (checkdir.Exists)
             //    _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value = tbSourcePath.Text;
@@ -153,8 +126,12 @@ namespace LoaderCore.UI
 
         private void CommandHelpClick(object sender, RoutedEventArgs e)
         {
-            string path = new DirectoryInfo(NcetCore.RootLocalDirectory).GetFiles("Команды.txt").Single().FullName;
-            System.Diagnostics.Process.Start("notepad.exe", path);
+            string mdPath = Directory.GetFiles(NcetCore.RootLocalDirectory,"Команды.md",SearchOption.AllDirectories).Single();
+            string stylesPath = Directory.GetFiles(NcetCore.RootLocalDirectory, "Styles.css", SearchOption.AllDirectories).Single();
+            var html = MdToHtmlConverter.Convert(mdPath, stylesPath);
+            var window = new InfoDisplayWindow(html, "Список команд");
+            window.Owner = this;
+            window.ShowDialog();
         }
         private void LaunchEditorClick(object sender, RoutedEventArgs e)
         {
@@ -163,8 +140,12 @@ namespace LoaderCore.UI
         }
         private void KnownIssuesClick(object sender, RoutedEventArgs e)
         {
-            string path = new DirectoryInfo(NcetCore.RootLocalDirectory).GetFiles("Известные проблемы.txt").Single().FullName;
-            System.Diagnostics.Process.Start("notepad.exe", path);
+            string mdPath = Directory.GetFiles(NcetCore.RootLocalDirectory, "Известные проблемы.md", SearchOption.AllDirectories).Single();
+            string stylesPath = Directory.GetFiles(NcetCore.RootLocalDirectory, "Styles.css", SearchOption.AllDirectories).Single();
+            var html = MdToHtmlConverter.Convert(mdPath, stylesPath);
+            var window = new InfoDisplayWindow(html, "Список команд");
+            window.Owner = this;
+            window.ShowDialog();
         }
 
         private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
