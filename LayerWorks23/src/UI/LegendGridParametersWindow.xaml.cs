@@ -10,6 +10,7 @@ namespace LayerWorks.UI
         public LegendGridParametersWindow()
         {
             InitializeComponent();
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
         }
     }
 }

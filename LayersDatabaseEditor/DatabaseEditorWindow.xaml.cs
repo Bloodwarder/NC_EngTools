@@ -24,8 +24,8 @@ namespace LayersDatabaseEditor
     /// </summary>
     public partial class DatabaseEditorWindow : Window
     {
-        public static readonly DependencyProperty EditorViewModelProperty =
-            DependencyProperty.Register("EditorViewModel", typeof(MainWindowVm), typeof(DatabaseEditorWindow), new PropertyMetadata());
+        public static readonly DependencyProperty ViewModelProperty =
+            DependencyProperty.Register(nameof(ViewModel), typeof(MainWindowVm), typeof(DatabaseEditorWindow), new PropertyMetadata());
 
         readonly ILogger? _logger;
         readonly IFilePathProvider _pathProvider;
@@ -35,11 +35,12 @@ namespace LayersDatabaseEditor
             InitializeComponent();
 #if !DEBUG
             miTestRun.Visibility = Visibility.Collapsed;
+            miTestRun.IsEnabled = false;
             miDevSqliteConnect.Visibility = Visibility.Collapsed;
-            bSpecialZoneEditor.IsEnabled = false;
+            miDevSqliteConnect.IsEnabled = false;
             inputPrefix.IsEnabled = false;
-            //inputMainName.IsEnabled = false;
 #endif
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             // TODO: перестроить на constructor injection
             _logger = NcetCore.ServiceProvider.GetService<ILogger>();
             if (_logger is EditorWindowLogger ewLogger)
@@ -48,34 +49,29 @@ namespace LayersDatabaseEditor
             _pathProvider = NcetCore.ServiceProvider.GetRequiredService<IFilePathProvider>();
 
             PreInitializeSimpleLogger.Log += LogWrite;
-            EditorViewModel = NcetCore.ServiceProvider.GetRequiredService<MainWindowVm>();
-            EditorViewModel.LayerGroupNames.CollectionChanged += (s, e) => UpdateTreeView(s, e);
+            ViewModel = NcetCore.ServiceProvider.GetRequiredService<MainWindowVm>();
+            ViewModel.LayerGroupNames.CollectionChanged += (s, e) => UpdateTreeView(s, e);
 
-            cmUpdate.DataContext = EditorViewModel;
-            cmReset.DataContext = EditorViewModel;
+            cmUpdate.DataContext = ViewModel;
+            cmReset.DataContext = ViewModel;
         }
 
 
-        public MainWindowVm EditorViewModel
+        public MainWindowVm ViewModel
         {
-            get { return (MainWindowVm)GetValue(EditorViewModelProperty); }
-            set { SetValue(EditorViewModelProperty, value); }
+            get { return (MainWindowVm)GetValue(ViewModelProperty); }
+            set { SetValue(ViewModelProperty, value); }
         }
 
+#pragma warning disable IDE1006 // Стили именования
         private void miTestRun_Click(object sender, RoutedEventArgs e)
         {
-            _logger?.LogInformation("Запущена тестовая команда");
-            var foo = EditorViewModel.SelectedGroup;
-            var bar = bullshitMenuItem;
-            //Task<string> task = TestMethod1Async();
-            //await LogWriteAsync(task);
-
-        }
-
-        private static async Task<string> TestMethod1Async()
-        {
-            await Task.Delay(3000);
-            return "Test1 completed";
+            _logger?.LogTrace("Test Trace Message");
+            _logger?.LogDebug("Test Debug Message");
+            _logger?.LogInformation("Test Normal Message");
+            _logger?.LogWarning("Test Warning Message");
+            _logger?.LogError("Test Error Message");
+            _logger?.LogCritical("Test Critical Message");
         }
 
         private void expLog_Collapsed(object sender, RoutedEventArgs e)
@@ -90,14 +86,7 @@ namespace LayersDatabaseEditor
             this.Height += 175d;
         }
 
-        private async Task LogWriteAsync(Task<string> task)
-        {
-            Run run = new();
-            fdLog.Blocks.Add(new Paragraph(run) { Margin = new(0d) });
-            await LogBuffer.Instance.Message(run, task);
 
-            //await Task.Run(() => fdLog.Blocks.Add(new Paragraph(new Run(message))));
-        }
         private void LogWrite(string message)
         {
             fdLog.Blocks.Add(new Paragraph(new Run(message)) { Margin = new(0d) });
@@ -107,16 +96,13 @@ namespace LayersDatabaseEditor
         {
             fdLog.Blocks.Clear();
         }
-#pragma warning disable IDE1006 // Стили именования
 
-        private async void miExportLayersFromExcel_Click(object sender, RoutedEventArgs e)
+        private void miExportLayersFromExcel_Click(object sender, RoutedEventArgs e)
         {
             throw new InvalidOperationException("Метод не переработан. Может нарушить целостность данных");
             LogWrite("Запущен импорт слоёв из Excel");
             var reader = new ExcelLayerReader();
             Task<string> task = reader.ReadWorkbookAsync(_pathProvider.GetPath("Layer_Props.xlsm"));
-            await LogWriteAsync(task);
-            //ExcelLayerReader.ReadWorkbook(PathProvider.GetPath("Layer_Props.xlsm"));
         }
 
 
@@ -134,7 +120,7 @@ namespace LayersDatabaseEditor
         private void miTestRun3_Click(object sender, RoutedEventArgs e)
         {
             var color1 = caBaseColor.Color;
-            Color color2 = EditorViewModel.SelectedLayer?.LayerProperties.Color ?? Color.FromRgb(127, 127, 127);
+            Color color2 = ViewModel.SelectedLayer?.LayerProperties.Color ?? Color.FromRgb(127, 127, 127);
             var color3 = brajInnerHatchShift.BaseColor;
             string message = $"\nЦвет caBaseColor.Color:\t\t\t{color1.R}-{color1.G}-{color1.B}\nЦвет ViewModel:\t\t\t\t{color2.R}-{color2.G}-{color2.B}\nЦвет brajInnerHatchShift.BaseColor:\t\t{color3.R}-{color3.G}-{color3.B}";
             LogWrite(message);
@@ -245,16 +231,16 @@ namespace LayersDatabaseEditor
             if (result == true)
             {
                 string fileName = ofd.FileName;
-                EditorViewModel.ConnectCommand.Execute(fileName);
+                ViewModel.ConnectCommand.Execute(fileName);
             }
         }
 
         private void twLayerGroups_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             var item = (TreeViewItem)e.NewValue;
-            if (EditorViewModel.ChangeSelectedGroupCommand.CanExecute(item))
+            if (ViewModel.ChangeSelectedGroupCommand.CanExecute(item))
             {
-                EditorViewModel.ChangeSelectedGroupCommand.Execute(item?.Tag);
+                ViewModel.ChangeSelectedGroupCommand.Execute(item?.Tag);
             }
             else
             {
@@ -265,7 +251,7 @@ namespace LayersDatabaseEditor
         private void lvLayers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Костыль
-            if (EditorViewModel.SelectedLayer != null)
+            if (ViewModel.SelectedLayer != null)
             {
                 caBaseColor.UpdateRgbControls(); // BUG: Надо апдейтить где-то внутри контрола, чтобы он был самодостаточным. Пока работает только с этим
             }
@@ -274,9 +260,8 @@ namespace LayersDatabaseEditor
         private void tcProperties_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             TabControl tc = (TabControl)sender;
-            var context = tc.DataContext as LayerDataVm;
 
-            if (context != null)
+            if (tc.DataContext is LayerDataVm context)
             {
                 var drw = context.LayerDrawTemplate.DrawTemplate ?? DrawTemplate.Undefined;
                 CheckTemplateSectionsVisibility(drw);
@@ -307,7 +292,7 @@ namespace LayersDatabaseEditor
                                               DrawTemplate.FencedRectangle |
                                               DrawTemplate.HatchedFencedRectangle)) != 0 ?
                 Visibility.Visible : Visibility.Collapsed;
-            spHatch.Visibility = EditorViewModel.SelectedGroup?.Name.Contains("_п_") ?? false ?
+            spHatch.Visibility = ViewModel.SelectedGroup?.Name.Contains("_п_") ?? false ?
                 Visibility.Visible : Visibility.Collapsed;
         }
 
@@ -322,13 +307,12 @@ namespace LayersDatabaseEditor
 
         private void databaseEditorWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            EditorViewModel.Database?.Dispose();
+            ViewModel.Database?.Dispose();
         }
 
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
-            var scrollViewer = sender as ScrollViewer;
-            if (scrollViewer != null)
+            if (sender is ScrollViewer scrollViewer)
             {
                 scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta);
                 e.Handled = true;

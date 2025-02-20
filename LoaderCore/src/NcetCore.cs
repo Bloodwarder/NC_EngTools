@@ -61,6 +61,7 @@ namespace LoaderCore
 
             CheckConfigurationXml(configurationXml);
             UpdateInfoFiles();
+            UpdateExternalUpdater();
 
             DisplayAutorunConfigurationWindow(configurationXml);
             // Заново читаем конфиг (мог измениться)
@@ -168,6 +169,14 @@ namespace LoaderCore
         /// Обновление файлов со списком команд, списком обновлений и известными проблемами
         /// </summary>
         private static void UpdateInfoFiles() => UpdateDirectory(RootLocalDirectory, RootUpdateDirectory, SearchOption.AllDirectories, "*.txt", "*.md");
+        private static void UpdateExternalUpdater() => 
+            UpdateDirectory(RootLocalDirectory,
+                            RootUpdateDirectory,
+                            SearchOption.AllDirectories,
+                            "NcetExternalUpdater.deps.json",
+                            "NcetExternalUpdater.dll",
+                            "NcetExternalUpdater.runtimeconfig.json",
+                            "NcetExternalUpdater.exe");
 
         private static void UpdateDataFolder()
         {

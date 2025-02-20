@@ -17,6 +17,7 @@ namespace LayersDatabaseEditor.UI
         public OrderingWindow(OrderingWindowViewModel viewModel)
         {
             InitializeComponent();
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             ViewModel = viewModel;
         }
 

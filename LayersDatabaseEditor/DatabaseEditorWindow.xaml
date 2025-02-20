@@ -12,7 +12,7 @@
         mc:Ignorable="d"
         x:Name="databaseEditorWindow"
         Title="Редактор слоёв" Height="500" Width="1000"
-        DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel}" Closing="databaseEditorWindow_Closing">
+        DataContext="{Binding ElementName=databaseEditorWindow, Path=ViewModel}" Closing="databaseEditorWindow_Closing">
     <Window.Resources>
         <u:EnumToItemsSourceConverter x:Key="EnumToItemsSourceConverter"/>
         <ObjectDataProvider x:Key="HatchPatternEnumDataSource" ObjectType="{x:Type sys:Enum}"
@@ -148,7 +148,7 @@
                             <ui:UserNumericInput LabelText="Вес линий" InputValue="{Binding Path=LineWeight, Mode=TwoWay}"/>
                             <ui:UserNumericInput LabelText="Z-индекс порядка отрисовки" InputValue="{Binding Path=DrawOrderIndex, Mode=TwoWay}"/>
                             <Button Name="bDrawOrderWindowShow" Content="Порядок прорисовки слоёв" Margin="10 5 25 5"
-                                    DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel}"
+                                    DataContext="{Binding ElementName=databaseEditorWindow, Path=ViewModel}"
                                     Command="{Binding Path=OpenOrderingWindowCommand}"
                                     CommandParameter="{Binding Path=SelectedLayer}"/>
                         </StackPanel>
@@ -161,7 +161,7 @@
                                     DataContext="{Binding Path=SelectedGroup.LayerLegend}">
                             <ui:UserNumericInput LabelText="Положение в таблице" InputValue="{Binding Path=Rank, Mode=TwoWay}"/>
                             <Button Name="bLegendRankWindowShow" Content="Порядок отображения легенды" Margin="10 5 25 5"
-                                    DataContext="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel}"
+                                    DataContext="{Binding ElementName=databaseEditorWindow, Path=ViewModel}"
                                     Command="{Binding Path=OpenOrderingWindowCommand}"
                                     CommandParameter="{Binding Path=SelectedGroup}"/>
                             <ui:UserStringInput LabelText="Заголовок для однотипных объектов" Height="100" InputValue="{Binding Path=SubLabel, Mode=TwoWay}"/>
@@ -172,7 +172,7 @@
                 </TabItem>
                 <TabItem Header="Отрисовка" Width="100"
                          IsEnabled="{Binding Path=IsLayerSelected}">
-                    <ScrollViewer IsEnabled="{Binding ElementName=databaseEditorWindow, Path=EditorViewModel.IsLayerSelected}"
+                    <ScrollViewer IsEnabled="{Binding ElementName=databaseEditorWindow, Path=ViewModel.IsLayerSelected}"
                                   DataContext="{Binding Path=SelectedLayer.LayerDrawTemplate}">
                         <StackPanel Margin="5 15 5 5">
                             <ui:UserComboBoxInput x:Name="cbDrawTemplate" LabelText="Тип шаблона" 
@@ -252,13 +252,13 @@
                           Content="Применить" Click="ButtonWithContextMenu_Click">
                 <Button.ContextMenu>
                     <ContextMenu Name="cmUpdate">
-                        <MenuItem Header="Изменения текущего слоя"
+                        <MenuItem Name="miCommitCurrentLayer" Header="Изменения текущего слоя"
                                   Command="{Binding UpdateDatabaseCommand}"
                                   CommandParameter="{Binding SelectedLayer}"/>
-                        <MenuItem Header="Изменения текущей группы"
+                        <MenuItem Name="miCommitCurrentGroup" Header="Изменения текущей группы"
                                   Command="{Binding UpdateDatabaseCommand}"
                                   CommandParameter="{Binding SelectedGroup}"/>
-                        <MenuItem Header="Все изменения в базе"
+                        <MenuItem Name="miCommitAll" Header="Все изменения в базе"
                                   Command="{Binding UpdateDatabaseCommand}"
                                   CommandParameter="{Binding}"/>
                     </ContextMenu>
@@ -268,13 +268,13 @@
                     Content="Откатить" Click="ButtonWithContextMenu_Click">
                 <Button.ContextMenu>
                     <ContextMenu Name="cmReset">
-                        <MenuItem Name="bullshitMenuItem" Header="Изменения текущего слоя"
+                        <MenuItem Name="miResetCurrentLayer" Header="Изменения текущего слоя"
                                   Command="{Binding ResetDatabaseCommand}"
                                   CommandParameter="{Binding SelectedLayer}"/>
-                        <MenuItem Header="Изменения текущей группы"
+                        <MenuItem Name="miResetCurrentGroup" Header="Изменения текущей группы"
                                   Command="{Binding ResetDatabaseCommand}"
                                   CommandParameter="{Binding SelectedGroup}"/>
-                        <MenuItem Header="Все изменения в базе"
+                        <MenuItem Name="miResetAll" Header="Все изменения в базе"
                                   Command="{Binding ResetDatabaseCommand}"
                                   CommandParameter="{Binding}"/>
                     </ContextMenu>

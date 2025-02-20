@@ -26,6 +26,8 @@ namespace LayersDatabaseEditor.UI
 
         public ZoneEditorWindow(ZoneEditorVm viewModel)
         {
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
             ViewModel = viewModel;
 
             InitializeComponent();

@@ -1,0 +1,21 @@
+﻿<Window x:Class="NcetExternalUpdater.ManualUpdateWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NcetExternalUpdater"
+        mc:Ignorable="d"
+        Title="Обновление NCEngTools" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <ProgressBar Name="pbUpdateBar" Grid.Row="0" Margin="5"/>
+        <FlowDocumentScrollViewer Name="fdsvUpdateLog" Grid.Row="1" Grid.ColumnSpan="2" Margin="5" BorderBrush="#FF4A4A4A" Foreground="Black">
+            <FlowDocument x:Name="fdUpdateLog" FontSize="12" FontFamily="SegoeUI" Foreground="#00007f" Background="WhiteSmoke" LineHeight="12" LineStackingStrategy="MaxHeight"/>
+        </FlowDocumentScrollViewer>
+        <Button Name="bOk" Grid.Row="2" Width="150" Height="30" Content="OK" Click="bOk_Click"/>
+    </Grid>
+</Window>

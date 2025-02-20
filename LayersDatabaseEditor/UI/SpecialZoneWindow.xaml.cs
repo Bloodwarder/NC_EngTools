@@ -1,19 +1,6 @@
-﻿using LayersDatabaseEditor.ViewModel.Ordering;
-using LayersDatabaseEditor.ViewModel.Zones;
-using System;
-using System.Collections.Generic;
+﻿using LayersDatabaseEditor.ViewModel.Zones;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace LayersDatabaseEditor.UI
 {
@@ -31,6 +18,7 @@ namespace LayersDatabaseEditor.UI
 #if !DEBUG
             miTestButton.Visibility = Visibility.Collapsed;
 #endif
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             ViewModel = viewModel;
         }
 
