@@ -31,10 +31,10 @@ namespace LoaderCore.UI
 
             // TODO: заменить на XmlDataProvider и привязки
 #nullable disable warnings
-            chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("ShowStartup").Value);
+            //chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("ShowStartup").Value);
 
-            chbIncludeLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value);
-            chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value);
+            //chbIncludeLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value);
+            //chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value);
             chbIncludeUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("UtilitiesConfiguration").Element("Enabled").Value);
             chbAutoUpdateUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("UtilitiesConfiguration").Element("UpdateEnabled").Value);
             chbIncludeGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("GeoModConfiguration").Element("Enabled").Value);
@@ -95,10 +95,10 @@ namespace LoaderCore.UI
         private void StartUpWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
 #nullable disable warnings
-            _xmlConfig.Root.Element("ShowStartup").Value = XmlConvert.ToString((bool)chbShowOnStartUp.IsChecked);
+            //_xmlConfig.Root.Element("ShowStartup").Value = XmlConvert.ToString((bool)chbShowOnStartUp.IsChecked);
 
-            _xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeLayerWorks.IsChecked);
-            _xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateLayerWorks.IsChecked);
+            //_xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeLayerWorks.IsChecked);
+            //_xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateLayerWorks.IsChecked);
             _xmlConfig.Root.Element("UtilitiesConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeUtilities.IsChecked);
             _xmlConfig.Root.Element("UtilitiesConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateUtilities.IsChecked);
             _xmlConfig.Root.Element("GeoModConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeGeoMod.IsChecked);
@@ -129,8 +129,10 @@ namespace LoaderCore.UI
             string mdPath = Directory.GetFiles(NcetCore.RootLocalDirectory,"Команды.md",SearchOption.AllDirectories).Single();
             string stylesPath = Directory.GetFiles(NcetCore.RootLocalDirectory, "Styles.css", SearchOption.AllDirectories).Single();
             var html = MdToHtmlConverter.Convert(mdPath, stylesPath);
-            var window = new InfoDisplayWindow(html, "Список команд");
-            window.Owner = this;
+            InfoDisplayWindow window = new(html, "Список команд")
+            {
+                Owner = this
+            };
             window.ShowDialog();
         }
         private void LaunchEditorClick(object sender, RoutedEventArgs e)
@@ -143,8 +145,10 @@ namespace LoaderCore.UI
             string mdPath = Directory.GetFiles(NcetCore.RootLocalDirectory, "Известные проблемы.md", SearchOption.AllDirectories).Single();
             string stylesPath = Directory.GetFiles(NcetCore.RootLocalDirectory, "Styles.css", SearchOption.AllDirectories).Single();
             var html = MdToHtmlConverter.Convert(mdPath, stylesPath);
-            var window = new InfoDisplayWindow(html, "Список команд");
-            window.Owner = this;
+            InfoDisplayWindow window = new(html, "Список команд")
+            {
+                Owner = this
+            };
             window.ShowDialog();
         }
 

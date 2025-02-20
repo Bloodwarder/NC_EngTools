@@ -195,7 +195,7 @@ namespace LoaderCore.Integrity
                 }
                 catch (Exception ex)
                 {
-                    // TODO: Log this
+                    PreInitializeSimpleLogger.Log?.Invoke($"Ошибка загрузки зависимостей: {ex.Message}") ;
                     continue;
                 }
             }
