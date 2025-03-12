@@ -62,7 +62,7 @@ namespace GeoMod.Commands
                     Workstation.Logger?.LogInformation("Не обработано {UnprocessedNumber} объектов, не являющихся полилиниями", entitiesIds.Length - polylines.Length);
 
                 // Провести валидацию геометрии и уменьшить точность координат, при этом сохраняя связь с исходными полилиниями
-                Dictionary<Geometry, Polyline> geometries = polylines.Select(p => (p, p.ToNTSGeometry(geometryFactory)))
+                Dictionary<Geometry, Polyline> geometries = polylines.Select(p => (p, p.ToNtsGeometry(geometryFactory)))
                                                                       .Select(t => (t.p, t.Item2.IsValid ? t.Item2 : GeometryFixer.Fix(t.Item2)))
                                                                       .Select(t => (t.p, _reducer.Reduce(t.Item2)))
                                                                       .ToDictionary(t => t.Item2, t => t.p);

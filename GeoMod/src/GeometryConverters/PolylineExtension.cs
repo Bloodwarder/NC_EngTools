@@ -11,7 +11,7 @@ namespace GeoMod.GeometryConverters
 
     internal static class PolylineExtension
     {
-        internal static Geometry ToNTSGeometry(this Polyline polyline, GeometryFactory geometryFactory)
+        internal static Geometry ToNtsGeometry(this Polyline polyline, GeometryFactory geometryFactory)
         {
             Coordinate[] coordinates = new Coordinate[polyline.NumberOfVertices];
             for (int i = 0; i < polyline.NumberOfVertices; i++)

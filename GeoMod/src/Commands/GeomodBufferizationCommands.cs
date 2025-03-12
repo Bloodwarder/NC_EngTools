@@ -212,7 +212,7 @@ namespace GeoMod.Commands
                 Geometry endBuffer2 = endPoint.Buffer(endBufferDistance, _defaultBufferParameters);
                 Geometry linearBuffer = lineString!.Buffer(linearBufferDistance, _defaultBufferParameters);
 
-                Geometry union = geometryFactory.CreateGeometryCollection(new[] {endBuffer1, endBuffer2, linearBuffer}).Union();
+                Geometry union = geometryFactory.CreateGeometryCollection(new[] { endBuffer1, endBuffer2, linearBuffer }).Union();
 
                 // Поместить в модель
                 BlockTableRecord modelSpace = Workstation.ModelSpace;
@@ -244,38 +244,43 @@ namespace GeoMod.Commands
                 string[] layerNames = entities.Select(e => e!.Layer).Distinct().ToArray();
 
                 // Получить ввод пользователя - размер буферной зоны для каждого слоя, и сохранить в словаре
-                Dictionary<string, double> bufferSizes = new();
-                foreach (string layer in layerNames)
-                {
-                    PromptDoubleOptions pdo = new($"Введите размер буферной зоны для слоя {layer} [Параметры]", "Параметры")
-                    {
-                        AllowNegative = false,
-                        AllowZero = true,
-                        AllowNone = false,
-                        AppendKeywordsToMessage = true
-                    };
-                    PromptDoubleResult result = Workstation.Editor.GetDouble(pdo);
-                    if (result.Status == PromptStatus.Cancel)
-                        return;
-                    while (result.Status == PromptStatus.Keyword)
-                    {
-                        if (result.StringResult == "Параметры")
-                        {
-                            BufferParametersWindow window = new(ref _defaultBufferParameters);
-                            Application.ShowModalWindow(window);
-                        }
-                        result = Workstation.Editor.GetDouble(pdo);
-                    }
-                    if (result.Status != PromptStatus.OK || result.Value == 0)
-                        continue;
-                    bufferSizes[layer] = result.Value;
-                }
+                var window = new ZoneDiffValuesWindow(layerNames);
+                Application.ShowModalWindow(window);
+                Dictionary<string, double> bufferSizes = window.Zones.ToDictionary(z => z.Layer, z => z.Value);
+                //Dictionary<string, double> bufferSizes = new();
+                //foreach (string layer in layerNames)
+                //{
+                //    PromptDoubleOptions pdo = new($"Введите размер буферной зоны для слоя {layer} [Параметры]", "Параметры")
+                //    {
+                //        AllowNegative = false,
+                //        AllowZero = true,
+                //        AllowNone = false,
+                //        AppendKeywordsToMessage = true
+                //    };
+                //    PromptDoubleResult result = Workstation.Editor.GetDouble(pdo);
+                //    if (result.Status == PromptStatus.Cancel)
+                //        return;
+                //    while (result.Status == PromptStatus.Keyword)
+                //    {
+                //        if (result.StringResult == "Параметры")
+                //        {
+                //            BufferParametersWindow window = new(ref _defaultBufferParameters);
+                //            Application.ShowModalWindow(window);
+                //        }
+                //        result = Workstation.Editor.GetDouble(pdo);
+                //    }
+                //    if (result.Status != PromptStatus.OK || result.Value == 0)
+                //        continue;
+                //    bufferSizes[layer] = result.Value;
+                //}
 
                 // Создать геометрию буферных зон и объединить
                 var buffers = (from Entity entity in entities
-                               where entity is Polyline
+                               where entity is Polyline pl
                                let pl = entity as Polyline
-                               let buffer = pl.ToNTSGeometry(geometryFactory).Buffer(bufferSizes[pl.Layer], _defaultBufferParameters) as Polygon
+                               let size = bufferSizes[pl.Layer]
+                               where size > 0
+                               let buffer = pl.ToNtsGeometry(geometryFactory).Buffer(size, _defaultBufferParameters) as Polygon
                                select buffer).ToArray();
                 if (buffers.Length == 0)
                     return;
@@ -319,7 +324,7 @@ namespace GeoMod.Commands
                     Workstation.Editor.WriteMessage($"Не обработано {entitiesIds.Length - closedPolylines.Length} объектов, не являющихся замкнутыми полилиниями");
 
                 // Провести валидацию геометрии
-                Polygon?[] polygons = closedPolylines.Select(pl => pl.ToNTSGeometry(geometryFactory) as Polygon).ToArray();
+                Polygon?[] polygons = closedPolylines.Select(pl => pl.ToNtsGeometry(geometryFactory) as Polygon).ToArray();
                 Geometry?[] fixedPolygons = polygons.Select(g => g!.IsValid ? g : GeometryFixer.Fix(g)).ToArray();
 
                 // Удалить исходные полилинии

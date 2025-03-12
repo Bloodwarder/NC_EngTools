@@ -21,7 +21,7 @@ namespace LayerWorks.DataRepositories
         public TData Get(TKey key)
         {
             bool success = _dictionary.TryGetValue(key, out var props);
-            return success ? props! : throw new ArgumentException("Нет данных с указанным ключом");
+            return success ? props! : throw new ArgumentException($"Нет данных с указанным ключом (\"{key}\")");
         }
 
         public IEnumerable<TData> GetAll()

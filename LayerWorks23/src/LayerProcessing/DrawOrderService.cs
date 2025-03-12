@@ -28,7 +28,7 @@ namespace LayerWorks.LayerProcessing
         public void ArrangeDrawOrder(IEnumerable<EntityLayerWrapper> wrappers)
         {
             DrawOrderTable dot = (DrawOrderTable)Workstation.TransactionManager.TopTransaction.GetObject(Workstation.ModelSpace.DrawOrderTableId, OpenMode.ForWrite);
-            var orderedWrappers = wrappers.OrderBy(w => _repository.Get(w.LayerInfo.TrueName).DrawOrderIndex);
+            var orderedWrappers = wrappers.OrderBy(w => _repository.TryGet(w.LayerInfo.TrueName, out var props) ? props!.DrawOrderIndex : 0);
 
             foreach (var wrapper in orderedWrappers)
             {
@@ -37,6 +37,7 @@ namespace LayerWorks.LayerProcessing
                 Hatch[] hatches = wrapper.BoundEntities.Where(e => e is Hatch)
                                                        .Cast<Hatch>()
                                                        .ToArray();
+                // Сплошные перекрашенные
                 ObjectId[] solidColoredHatches = hatches.Where(h => h.PatternName == "SOLID" && h.Color != byLayerColor)
                                                         .OrderByDescending(h => h.Color.Red + h.Color.Green + h.Color.Blue) // те что светлее - ниже
                                                         .Select(h => h.Id)
@@ -46,11 +47,15 @@ namespace LayerWorks.LayerProcessing
                     foreach (var id in solidColoredHatches)
                         dot.MoveToTop(new(new[] { id }));
                 }
+
+                // Сплошные с цветом - по слою
                 ObjectId[] solidByLayerHatches = hatches.Where(h => h.PatternName == "SOLID" && h.Color == byLayerColor)
                                                         .Select(h => h.Id)
                                                         .ToArray();
                 if (solidByLayerHatches.Any())
                     dot.MoveToTop(new(solidByLayerHatches));
+
+                // Не сплошные
                 var patternHatches = hatches.Where(h => h.PatternName != "SOLID").Select(h => h.Id).ToArray();
                 if (patternHatches.Any())
                     dot.MoveToTop(new(patternHatches));

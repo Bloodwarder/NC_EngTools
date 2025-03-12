@@ -26,7 +26,7 @@ namespace GeoMod.GeometryConverters
                     case Polyline pl:
                         if (pl.HasBulges)
                             warningShow = true;
-                        geometries.Add(pl.ToNTSGeometry(geometryFactory));
+                        geometries.Add(pl.ToNtsGeometry(geometryFactory));
                         break;
                     case BlockReference bref:
                         geometries.Add(bref.ToNTSGeometry(geometryFactory));
@@ -53,7 +53,7 @@ namespace GeoMod.GeometryConverters
         {
             return entity switch
             {
-                Polyline pl => pl.ToNTSGeometry(geometryFactory),
+                Polyline pl => pl.ToNtsGeometry(geometryFactory),
                 BlockReference bref => bref.ToNTSGeometry(geometryFactory),
                 Circle circle => circle.ToNTSGeometry(geometryFactory),
                 _ => null,

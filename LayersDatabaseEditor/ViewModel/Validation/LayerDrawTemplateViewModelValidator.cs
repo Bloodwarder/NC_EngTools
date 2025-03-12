@@ -40,7 +40,7 @@ namespace LayersDatabaseEditor.ViewModel.Validation
 
             Func<LayerDrawTemplateVm, bool> dbPredicate =
                 l => string.IsNullOrEmpty(l.FenceLayer) || l.Database.Layers.Any(lyr => l.FenceLayer.StartsWith(lyr.Prefix) && l.FenceLayer.EndsWith(lyr.MainName));
-            RuleFor(l => l).Must(dbPredicate);
+            //RuleFor(l => l).Must(dbPredicate);
         }
     }
 }

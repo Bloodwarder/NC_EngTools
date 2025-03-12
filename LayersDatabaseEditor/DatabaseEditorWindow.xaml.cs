@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Windows.Media;
 using LayersIO.DataTransfer;
 using LayersDatabaseEditor.Utilities;
+using NameClassifiers;
 
 namespace LayersDatabaseEditor
 {
@@ -140,8 +141,9 @@ namespace LayersDatabaseEditor
                     {
                         if (string.IsNullOrEmpty(str))
                             continue;
-
-                        string[] decomp = str.Split("_"); // UNDONE: сепаратор в хардкоде
+                        var prefix = NameParser.GetPrefix(str) ?? string.Empty;
+                        _ = NameParser.LoadedParsers.TryGetValue(prefix, out NameParser? parser);
+                        string[] decomp = str.Split(parser?.Separator ?? "_");
                         TreeView treeView = twLayerGroups;
                         var items = treeView.Items;
                         for (int i = 0; i < decomp.Length; i++)

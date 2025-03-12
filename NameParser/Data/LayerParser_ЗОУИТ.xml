@@ -16,6 +16,7 @@
 			<Chapter Value="Сервитут" Description="Сервитуты"/>
 			<Chapter Value="Придорожные" Description="Придорожные полосы"/>
 			<Chapter Value="СЗЗ" Description="Санитарно-защитные зоны"/>
+			<Chapter Value="ЗСО" Description="Зоны санитарной охраны"/>
 		</PrimaryClassifier>
 		<AuxilaryClassifier Name ="Geometry" Description="Тип геометрии">
 			<Classifier Value ="л" Description="Линейный"/>
@@ -221,6 +222,7 @@
 			</ClassifierGroup>
 			<ClassifierGroup>
 				<ChapterReference Value="Водн.объекты"/>
+				<ChapterReference Value="ЗСО"/>
 				<DefaultValue>
 					<String>None</String>
 				</DefaultValue>

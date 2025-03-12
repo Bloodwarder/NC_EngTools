@@ -7,9 +7,9 @@
         mc:Ignorable="d"
         Title="Автозапуск NC EngTools" Height="600" MinHeight="550" Width="700" MaxWidth="700" Closing="StartUpWindowClosing" KeyDown="Window_KeyDown" Loaded="Window_Loaded">
     <Window.Resources>
-        <XmlDataProvider x:Key="configurationProvider" Source="Configuration.xml" XPath="configuration"/>
+        <XmlDataProvider x:Key="configurationProvider" Source="..\Configuration.xml" XPath="/configuration"/>
     </Window.Resources>
-    <Grid>
+    <Grid DataContext="{StaticResource configurationProvider}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>

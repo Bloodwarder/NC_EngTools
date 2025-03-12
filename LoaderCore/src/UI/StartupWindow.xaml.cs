@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Documents;
 using System.Xml;
 using System.Xml.Linq;
@@ -26,7 +27,11 @@ namespace LoaderCore.UI
             _xmlConfig = XDocument.Load(xmlConfigPath);
 
             InitializeComponent();
-
+            var provider = this.Resources["configurationProvider"] as XmlDataProvider;
+            XmlDocument doc = new();
+            doc.Load(xmlConfigPath);
+            provider.Source = new(xmlConfigPath, System.UriKind.Absolute);
+            provider.Document = doc;
             PreInitializeSimpleLogger.Log += LogWindow;
 
             // TODO: заменить на XmlDataProvider и привязки
