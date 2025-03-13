@@ -4,6 +4,7 @@ using LoaderCore.SharedData;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,22 +13,25 @@ using System.Windows.Input;
 namespace GeoMod.UI
 {
     /// <summary>
-    /// Логика взаимодействия для ZonesChoiceWindow.xaml
+    /// Логика взаимодействия для ListParametersWindow.xaml
     /// </summary>
-    public partial class ZoneDiffValuesWindow : Window
+    public partial class ListParametersWindow : Window, INotifyPropertyChanged
     {
         //IRepository<string, ZoneInfo>? _repository;
-        public ZoneDiffValuesWindow(IEnumerable<string> zoneLayerNames)
+        public ListParametersWindow(IEnumerable<string> parameterNames)
         {
             //_repository = NcetCore.ServiceProvider.GetService<IRepository<string, ZoneInfo>>();
             InitializeComponent();
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            var zones = zoneLayerNames.OrderBy(x => x).Select(s => new ZoneValue(s));
-            Zones = new(zones);
+            var parameters = parameterNames.OrderBy(x => x).Select(s => new ParameterObject(s));
+            Parameters = new(parameters);
+            PropertyChanged?.Invoke(this, new(nameof(Parameters)));
             DataContext = this;
         }
 
-        public ObservableCollection<ZoneValue> Zones { get; }
+        public ObservableCollection<ParameterObject> Parameters { get; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         //private void chbIsActivated_Click(object sender, RoutedEventArgs e)
         //{
@@ -42,12 +46,13 @@ namespace GeoMod.UI
         //    }
         //}
 
+#pragma warning disable IDE1006 // Стили именования
         private void bOk_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
 
-        private void zoneDiffValuesWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void listParametersWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             var focusedElement = FocusManager.GetFocusedElement(this);
             bool isNullOrMainFocused = focusedElement == this || focusedElement == null;
@@ -58,7 +63,7 @@ namespace GeoMod.UI
             }
         }
 
-        private void svZoneDiffValues_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        private void svParameters_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             var scrollViewer = sender as ScrollViewer;
             if (scrollViewer != null)
@@ -68,21 +73,22 @@ namespace GeoMod.UI
             }
         }
 
-        private void zoneDiffValuesWindow_Loaded(object sender, RoutedEventArgs e)
+        private void listParametersWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            this.PreviewKeyDown += zoneDiffValuesWindow_PreviewKeyDown;
+            this.PreviewKeyDown += listParametersWindow_PreviewKeyDown;
         }
 
-        public class ZoneValue
+        public class ParameterObject
         {
-            public ZoneValue(string layerName)
+            public ParameterObject(string parameterName, double value = 0)
             {
-                Layer = layerName;
-                Value = 0; // Переделать на значение по умолчанию. Парсер в другой сборке - решить проблему
+                Parameter = parameterName;
+                Value = value; // Переделать на значение по умолчанию. Парсер в другой сборке - решить проблему
             }
-            public string Layer { get; }
-            public double Value { get; }
+            public string Parameter { get; set; }
+            public double Value { get; set; }
 
         }
+#pragma warning restore IDE1006 // Стили именования
     }
 }

@@ -56,13 +56,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="src\UI\ZoneDiffValuesWindow.xaml.cs">
+	  <Compile Update="src\UI\ListParametersWindow.xaml.cs">
 	    <SubType>Code</SubType>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Page Update="src\UI\ZoneDiffValuesWindow.xaml">
+	  <Page Update="src\UI\ListParametersWindow.xaml">
 	    <SubType>Designer</SubType>
 	  </Page>
 	</ItemGroup>

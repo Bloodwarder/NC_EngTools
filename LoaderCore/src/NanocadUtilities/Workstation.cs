@@ -28,14 +28,10 @@ namespace LoaderCore.NanocadUtilities
         public static Teigha.DatabaseServices.TransactionManager TransactionManager => _transactionManager;
         public static Editor Editor => _editor;
         public static BlockTable BlockTable => (BlockTable)_transactionManager.TopTransaction.GetObject(Database.BlockTableId, OpenMode.ForWrite);
-        public static BlockTableRecord ModelSpace
-        {
-            get
-            {
-                var blockTable = (BlockTable)_transactionManager.TopTransaction.GetObject(Database.BlockTableId, OpenMode.ForWrite);
-                return (BlockTableRecord)_transactionManager.TopTransaction.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite);
-            }
-        }
+        public static BlockTableRecord ModelSpace =>
+            (BlockTableRecord)_transactionManager.TopTransaction.GetObject(BlockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite);
+
+
 
         public static ILogger? Logger { get; internal set; } = NcetCore.Logger;
 

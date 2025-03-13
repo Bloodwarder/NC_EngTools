@@ -9,7 +9,7 @@ using System.Globalization;
 using System.Text;
 using Teigha.Colors;
 using Teigha.DatabaseServices;
-
+using Teigha.Geometry;
 using static Utilities.EntitySelector;
 
 namespace Utilities
@@ -44,6 +44,8 @@ namespace Utilities
         private static string SlopeBlockName { get; set; }
 
         private static double LastHorStep { get; set; } = 0.2d;
+        private static double LastWidthSlope { get; set; } = 20;
+        private static double LastHalfWidth { get; set; } = 3.0d;
 
         public static void SlopeCalc()
         {
@@ -166,6 +168,7 @@ namespace Utilities
             {
                 try
                 {
+                    // Получаем объекты чертежа для участка
                     if (!TryGetEntity("Выберите блок первой отметки", out BlockReference? mark1, ElevationMarkBlockName))
                     { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
                     if (!TryGetEntity("Выберите блок второй отметки", out BlockReference? mark2, ElevationMarkBlockName))
@@ -173,21 +176,53 @@ namespace Utilities
                     if (!TryGetEntity("Выберите ось", out Polyline? axis))
                     { Workstation.Editor.WriteMessage(WrongEntityErrorString); return; }
 
+                    // Получаем параметры участка
                     PromptDoubleOptions pdo = new($"Укажите шаг горизонталей ")
                     {
                         UseDefaultValue = true,
                         DefaultValue = LastHorStep
                     };
-                    PromptDoubleResult result2 = Workstation.Editor.GetDouble(pdo);
+                    PromptDoubleResult result = Workstation.Editor.GetDouble(pdo);
+                    if (result.Status != PromptStatus.OK)
+                    {
+                        Workstation.Editor.WriteMessage("Неверный ввод");
+                        return;
+                    }
+                    PromptDoubleOptions pdo2 = new($"Укажите поперечный уклон в промилле ")
+                    {
+                        UseDefaultValue = true,
+                        DefaultValue = LastWidthSlope
+                    };
+                    PromptDoubleResult result2 = Workstation.Editor.GetDouble(pdo2);
                     if (result2.Status != PromptStatus.OK)
                     {
                         Workstation.Editor.WriteMessage("Неверный ввод");
                         return;
                     }
-                    double horStep = Math.Min(Math.Max(result2.Value, 0.1d), 5d);
+                    double widthSlope = result2.Value/1000;
+                    LastWidthSlope = result2.Value;
+
+                    PromptDistanceOptions pDistOpts = new("Укажите полуширину проезжей части")
+                    {
+                        DefaultValue = LastHalfWidth,
+                        AllowNegative = false,
+                        AllowNone = false,
+                        Only2d = true,
+                        UseDashedLine = true,
+                    };
+                    PromptDoubleResult result3 = Workstation.Editor.GetDistance(pDistOpts);
+                    if (result3.Status != PromptStatus.OK)
+                    {
+                        Workstation.Editor.WriteMessage("Неверный ввод");
+                        return;
+                    }
+                    double halfWidth = result3.Value;
+                    LastHalfWidth = halfWidth;
+
+                    double horStep = Math.Clamp(result.Value, 0.1d, 5d);
                     LastHorStep = horStep;
 
-                    // Получить значения для расчёта
+                    // Получить значения для расчёта из объектов чертежа
                     double red1 = double.Parse(GetBlockAttribute(mark1!, RedMarkTag), CultureInfo.InvariantCulture);
                     double red2 = double.Parse(GetBlockAttribute(mark2!, RedMarkTag), CultureInfo.InvariantCulture);
                     double l1 = axis!.Length;
@@ -211,8 +246,25 @@ namespace Utilities
 
                     Workstation.Editor.WriteMessage(textContent);
 
-                    BlockTable? blockTable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead) as BlockTable;
-                    BlockTableRecord? modelSpace = transaction.GetObject(blockTable![BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+                    BlockTableRecord modelSpace = Workstation.ModelSpace;
+
+                    var closestPoint = axis.GetClosestPointTo(mark1!.Position, false);
+                    var roundedParameter = Math.Round(axis.GetParameterAtPoint(closestPoint), 0);
+                    if (roundedParameter != 0)
+                        axis.ReverseCurve();
+                    for (double dist = axisDisplacement; dist < axis.Length; dist += axisStep)
+                    {
+                        var point = axis.GetPointAtDist(dist).Convert2d(new Plane());
+                        double displacement = halfWidth * widthSlope / slope;
+                        int segmentNumber = (int)Math.Floor(axis.GetParameterAtDistance(dist));
+                        double angle = axis.GetLineSegment2dAt(segmentNumber).Direction.Angle;
+                        // TODO: проверить дугу
+                        var pl = CreateIsoline(point, halfWidth, displacement, angle, upwards);
+                        pl.LayerId = Workstation.Database.Clayer;
+                        modelSpace.AppendEntity(pl);
+                    }
+
+
                     double vx = mark1!.Position.X - mark2!.Position.X;
                     double vy = mark1.Position.Y - mark2.Position.Y;
                     MText mText = new()
@@ -220,12 +272,13 @@ namespace Utilities
                         BackgroundFill = false,
                         Attachment = vx > 0 ? AttachmentPoint.TopRight : AttachmentPoint.TopLeft,
                         Color = Color.FromRgb(0, 0, 255),
-                        TextHeight = 3.5d,
+                        TextHeight = 2d,
                         Location = mark1.Position,
                         Rotation = Math.Atan(vy / vx),
                         Contents = textContent,
+                        LayerId = Workstation.Database.Clayer
                     };
-                    modelSpace!.AppendEntity(mText);
+                    modelSpace.AppendEntity(mText);
                 }
                 finally
                 {
@@ -233,8 +286,9 @@ namespace Utilities
                 }
                 transaction.Commit();
             }
-
         }
+
+
 
         public static void RedBlackEqual()
         {
@@ -253,13 +307,32 @@ namespace Utilities
                 foreach (Entity entity in entities)
                 {
                     double elevation = double.Parse(GetBlockAttribute((BlockReference)entity, BlackMarkTag), CultureInfo.InvariantCulture);
-                    SetBlockAttribute((BlockReference)entity, RedMarkTag, elevation.ToString());
+                    SetBlockAttribute((BlockReference)entity, RedMarkTag, elevation.ToString("0.00"));
                 }
                 transaction.Commit();
             }
         }
 
         // Служебные приватные методы
+        private static Polyline CreateIsoline(Point2d pointOnAxis, double halfWidth, double displacement, double angle, bool isUpwardsDirected)
+        {
+            double sign = isUpwardsDirected ? 1 : -1;
+            double x1 = pointOnAxis.X - halfWidth * Math.Sin(angle) + sign * displacement * Math.Cos(angle);
+            double y1 = pointOnAxis.Y + halfWidth * Math.Cos(angle) + sign * displacement * Math.Sin(angle);
+            Point2d p1 = new(x1, y1);
+
+            double x2 = pointOnAxis.X + halfWidth * Math.Sin(angle) + sign * displacement * Math.Cos(angle);
+            double y2 = pointOnAxis.Y - halfWidth * Math.Cos(angle) + sign * displacement * Math.Sin(angle);
+            Point2d p2 = new(x2, y2);
+
+
+            Polyline polyline = new();
+            polyline.AddVertexAt(0, p1, 0, 0, 0);
+            polyline.AddVertexAt(1, pointOnAxis, 0, 0, 0);
+            polyline.AddVertexAt(2, p2, 0, 0, 0);
+
+            return polyline;
+        }
         private static string GetBlockAttribute(BlockReference bref, string tag)
         {
             AttributeCollection atrs = bref.AttributeCollection;
@@ -269,7 +342,6 @@ namespace Utilities
                           select rfr).FirstOrDefault();
             if (atrref != null)
             {
-                //return atrref.TextString.Replace(".", ",") ?? "";
                 return atrref.TextString ?? "";
             }
             else
