@@ -238,49 +238,23 @@ namespace GeoMod.Commands
                 PromptSelectionResult psr = Workstation.Editor.GetSelection();
                 if (psr.Status != PromptStatus.OK)
                     return;
-                Entity?[] entities = psr.Value.GetObjectIds().Select(id => transaction.GetObject(id, OpenMode.ForRead) as Entity).ToArray();
+                Entity?[] entities = psr.Value.GetObjectIds().Select(id => id.GetObject<Entity>(OpenMode.ForRead, transaction)).ToArray();
 
                 // Получить слои выбранных объектов
                 string[] layerNames = entities.Select(e => e!.Layer).Distinct().ToArray();
 
                 // Получить ввод пользователя - размер буферной зоны для каждого слоя, и сохранить в словаре
-                var window = new ZoneDiffValuesWindow(layerNames);
+                var window = new ListParametersWindow(layerNames);
                 Application.ShowModalWindow(window);
-                Dictionary<string, double> bufferSizes = window.Zones.ToDictionary(z => z.Layer, z => z.Value);
-                //Dictionary<string, double> bufferSizes = new();
-                //foreach (string layer in layerNames)
-                //{
-                //    PromptDoubleOptions pdo = new($"Введите размер буферной зоны для слоя {layer} [Параметры]", "Параметры")
-                //    {
-                //        AllowNegative = false,
-                //        AllowZero = true,
-                //        AllowNone = false,
-                //        AppendKeywordsToMessage = true
-                //    };
-                //    PromptDoubleResult result = Workstation.Editor.GetDouble(pdo);
-                //    if (result.Status == PromptStatus.Cancel)
-                //        return;
-                //    while (result.Status == PromptStatus.Keyword)
-                //    {
-                //        if (result.StringResult == "Параметры")
-                //        {
-                //            BufferParametersWindow window = new(ref _defaultBufferParameters);
-                //            Application.ShowModalWindow(window);
-                //        }
-                //        result = Workstation.Editor.GetDouble(pdo);
-                //    }
-                //    if (result.Status != PromptStatus.OK || result.Value == 0)
-                //        continue;
-                //    bufferSizes[layer] = result.Value;
-                //}
+                Dictionary<string, double> bufferSizes = window.Parameters.ToDictionary(z => z.Parameter, z => z.Value);
+
 
                 // Создать геометрию буферных зон и объединить
                 var buffers = (from Entity entity in entities
-                               where entity is Polyline pl
-                               let pl = entity as Polyline
-                               let size = bufferSizes[pl.Layer]
+                               let size = bufferSizes[entity.Layer]
                                where size > 0
-                               let buffer = pl.ToNtsGeometry(geometryFactory).Buffer(size, _defaultBufferParameters) as Polygon
+                               let buffer = EntityToGeometryConverter.TransferGeometry(entity, geometryFactory)?.Buffer(size, _defaultBufferParameters) as Polygon
+                               where buffer != null
                                select buffer).ToArray();
                 if (buffers.Length == 0)
                     return;
