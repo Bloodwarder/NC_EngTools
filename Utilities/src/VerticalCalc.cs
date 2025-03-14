@@ -24,7 +24,7 @@ namespace Utilities
         static VerticalCalc()
         {
             var configSection = NcetCore.ServiceProvider.GetRequiredService<IConfiguration>().GetSection("UtilitiesConfiguration:Vertical");
-            Vertical parameters = new Vertical();
+            Vertical parameters = new();
             configSection.Bind(parameters);
 
             BlackMarkTag = parameters.BlackMarkTag ?? "СУЩ_ОТМ";

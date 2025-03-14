@@ -28,7 +28,7 @@ namespace Utilities
         [CommandMethod("ПЛТОРИЕНТ", CommandFlags.UsePickSet)]
         public static void TextOrientByPolilineSegmentCommand()
         {
-            NcetCommand.ExecuteCommand(TextOrientByPolilineSegment);
+            NcetCommand.ExecuteCommand(TextOrientByPolylineSegment);
         }
 
         [CommandMethod("СМТ", CommandFlags.Redraw)]

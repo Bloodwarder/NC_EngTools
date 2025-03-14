@@ -189,7 +189,7 @@ namespace Utilities
             }
         }
 
-        public static void TextOrientByPolilineSegment()
+        public static void TextOrientByPolylineSegment()
         {
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
@@ -210,7 +210,8 @@ namespace Utilities
                         Workstation.Logger?.LogWarning("Ошибка выбора");
                         return;
                     }
-                    Polyline polyline = (Polyline)transaction.GetObject(result.ObjectId, OpenMode.ForRead);
+
+                    Polyline polyline = result.ObjectId.GetObject<Polyline>(OpenMode.ForRead, transaction);
                     LineSegment2d segment = GetPolylineSegment(polyline, result.PickedPoint);
                     double rotation = CalculateTextOrient(segment.Direction);
                     if (textEntity is MText mText)
@@ -227,6 +228,7 @@ namespace Utilities
 
         }
 
+        [Obsolete]
         private static bool SegmentCheck(Point2d point, LineSegment2d entity)
         {
             Point2d p1 = entity.StartPoint;
@@ -247,7 +249,6 @@ namespace Utilities
                 maxy += 5;
                 miny -= 5;
             }
-            //bool b1 = (point.X>minx & point.X<maxx) & (point.Y>miny & point.Y<maxy);
             return (point.X > minx & point.X < maxx) & (point.Y > miny & point.Y < maxy);
         }
 
@@ -258,17 +259,19 @@ namespace Utilities
 
         private static LineSegment2d GetPolylineSegment(Polyline polyline, Point3d point)
         {
-            Point3d pointonline = polyline.GetClosestPointTo(point, false);
-
-            //проверяем, какому сегменту принадлежит точка и вычисляем его направление
-            LineSegment2d ls = new();
-            for (int i = 0; i < polyline.NumberOfVertices - 1; i++)
-            {
-                ls = polyline.GetLineSegment2dAt(i);
-                if (SegmentCheck(pointonline.Convert2d(new Plane(new Point3d(0, 0, 0), new Vector3d(0, 0, 1))), ls))
-                    break;
-            }
-            return ls;
+            Point3d pointOnLine = polyline.GetClosestPointTo(point, false);
+            int segmentNumber = (int)Math.Floor(polyline.GetParameterAtPoint(pointOnLine));
+            LineSegment2d segment = polyline.GetLineSegment2dAt(segmentNumber);
+            return segment;
+            ////проверяем, какому сегменту принадлежит точка и вычисляем его направление
+            //LineSegment2d ls = new();
+            //for (int i = 0; i < polyline.NumberOfVertices - 1; i++)
+            //{
+            //    ls = polyline.GetLineSegment2dAt(i);
+            //    if (SegmentCheck(pointOnLine.Convert2d(new Plane(new Point3d(0, 0, 0), new Vector3d(0, 0, 1))), ls))
+            //        break;
+            //}
+            //return ls;
         }
     }
 
