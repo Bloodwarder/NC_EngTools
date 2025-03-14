@@ -65,14 +65,14 @@ namespace LayerWorks.EntityFormatters
                     polyline.ConstantWidth = props?.ConstantWidth ?? polyline.ConstantWidth;
                     break;
                 case Hatch hatch:
-                    FormatHatch(hatch);
+                    FormatHatch(hatch, key);
                     break;
             }
         }
 
-        private void FormatHatch(Hatch hatch)
+        private void FormatHatch(Hatch hatch, string key)
         {
-            bool success = _drawRepository.TryGet(hatch.Layer, out var drawTemplate);
+            bool success = _drawRepository.TryGet(key, out LegendDrawTemplate? drawTemplate);
             if (!success)
                 return;
             if (string.IsNullOrEmpty(drawTemplate!.InnerHatchPattern) || drawTemplate!.InnerHatchPattern == NoneHatchPatternString)
