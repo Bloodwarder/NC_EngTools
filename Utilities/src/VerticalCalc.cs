@@ -262,6 +262,7 @@ namespace Utilities
                         var pl = CreateIsoline(point, halfWidth, displacement, angle, upwards);
                         pl.LayerId = Workstation.Database.Clayer;
                         modelSpace.AppendEntity(pl);
+                        transaction.AddNewlyCreatedDBObject(pl, true);
                     }
 
 
@@ -279,6 +280,7 @@ namespace Utilities
                         LayerId = Workstation.Database.Clayer
                     };
                     modelSpace.AppendEntity(mText);
+                    transaction.AddNewlyCreatedDBObject(mText, true);
                 }
                 finally
                 {
