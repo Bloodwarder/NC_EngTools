@@ -40,9 +40,7 @@ namespace GeoMod
                              .AddTransient<GeomodPrecisionCommands>()
                              .AddTransient<GeomodWktCommands>()
                              .AddTransient<GeomodBufferizationCommands>()
-                             .AddTransient<GeomodAutoBufferizationCommand>()
                              .AddSingleton<IEntityPropertyRecognizer<Entity, string?>, GeomodLabelRecognizer>();
-            ;
         }
 
         public void Terminate()

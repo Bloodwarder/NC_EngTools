@@ -19,7 +19,7 @@ namespace Utilities
         {
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                PromptSelectionOptions pso = new PromptSelectionOptions()
+                PromptSelectionOptions pso = new()
                 { };
                 PromptSelectionResult result = Workstation.Editor.GetSelection(pso);
                 if (result.Status != PromptStatus.OK)
@@ -29,16 +29,13 @@ namespace Utilities
                             where entity is MText
                             select entity as MText;
                 // если текст заключен в шаблон для форматирования ({/ ... ; ТЕКСТ }), оставить только чистый текст (ТЕКСТ)
-                Regex regex = new Regex(@"(?<=(^{(\\.*;)+\b)).+(?=(\b}$))");
+                Regex regex = new(@"(?<=(^{(\\.*;)+\b)).+(?=(\b}$))");
                 foreach (var text in texts)
                 {
-                    var matches = regex.Matches(text.Contents);
-                    if (matches.Count > 0)
+                    var matches = regex.Matches(text.Contents).Cast<Match>();
+                    foreach (Match match in matches)
                     {
-                        foreach (Match match in matches)
-                        {
-                            match.Result(match.Value);
-                        }
+                        match.Result(match.Value);
                     }
                 }
                 transaction.Commit();
@@ -53,7 +50,7 @@ namespace Utilities
         {
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
-                PromptSelectionOptions pso = new PromptSelectionOptions()
+                PromptSelectionOptions pso = new()
                 { };
                 PromptSelectionResult result = Workstation.Editor.GetSelection(pso);
                 if (result.Status != PromptStatus.OK)
@@ -65,6 +62,7 @@ namespace Utilities
                 foreach (var text in texts)
                 {
                     text.Width = 0d;
+                    text.Height = 0d;
                 }
                 transaction.Commit();
             }

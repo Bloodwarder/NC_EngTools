@@ -17,8 +17,13 @@ namespace Utilities
         public static void ExcelCoordinatesToPolyline()
         {
             string? clipboardText = Clipboard.GetText();
-            string? clipboardModified = clipboardText.Replace(",", ".");
-            var matches = Regex.Matches(clipboardModified, @"(\d*\.\d{1,4})\t(\d*\.\d{1,4})"); // ищет пары координат, разделённые табуляцией
+            //string? clipboardModified = clipboardText.Replace(",", ".");
+            var matches = Regex.Matches(clipboardText, @"(\d*[\.,]\d{1,4})\W*(\d*[\.,]\d{1,4})\W*\n?").Cast<Match>(); // ищет пары координат
+            if (!matches.Any())
+            {
+                Workstation.Logger?.LogInformation("Текст в буфере обмена не содержит координатного описания объекта");
+                return;
+            }
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
                 Polyline polyline = new()
@@ -31,14 +36,20 @@ namespace Utilities
                 {
                     try
                     {
-                        var point = new Point2d(double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture), double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture));
+                        double x = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                        double y = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+                        Point2d point = new(x, y);
                         polyline.AddVertexAt(polyline.NumberOfVertices, point, 0, 0d, 0d);
                     }
-                    catch (System.Exception ex)
+                    catch (FormatException ex)
                     {
-                        Workstation.Logger?.LogWarning(ex, "Ошибка построения полилинии по координатам: {Message}", ex.Message);
-                        transaction.Abort();
-                        return;
+                        Workstation.Logger?.LogWarning(ex, "Ошибка интерпретации координат \"{Text}\" Сообщение: \"{Message}\". Пропуск вершины", match.Value, ex.Message);
+                        continue;
+                    }
+                    catch (ArgumentNullException ex)
+                    {
+                        Workstation.Logger?.LogWarning(ex, "Отстутсвует одна из координат \"{Text}\". Пропуск вершины", match.Value);
+                        continue;
                     }
                 }
                 if (polyline.GetPoint2dAt(0) == polyline.GetPoint2dAt(polyline.NumberOfVertices - 1))
@@ -46,9 +57,7 @@ namespace Utilities
                     polyline.RemoveVertexAt(polyline.NumberOfVertices - 1);
                     polyline.Closed = true;
                 }
-                BlockTable? blocktable = transaction.GetObject(Workstation.Database.BlockTableId, OpenMode.ForRead, false) as BlockTable;
-                BlockTableRecord? modelspace = transaction.GetObject(blocktable![BlockTableRecord.ModelSpace], OpenMode.ForWrite, false) as BlockTableRecord;
-                modelspace!.AppendEntity(polyline);
+                Workstation.ModelSpace.AppendEntity(polyline);
                 transaction.Commit();
             }
         }

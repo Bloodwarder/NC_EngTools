@@ -434,23 +434,26 @@ namespace LayerWorks.Commands
                 {
                     SelectionHandler.UpdateActiveLayerWrappers();
                     var wrappers = LayerWrapper.ActiveWrappers.Where(w => w is EntityLayerWrapper)
-                                                              .Select(w => (EntityLayerWrapper)w)
-                                                              .Where(w => w.BoundEntities.All(e => e is Polyline pl && pl.Closed))
-                                                              .GroupBy(w => w.BoundEntities.First().Layer);
+                                                              .Select(w => (EntityLayerWrapper)w);
                     var modelSpace = Workstation.ModelSpace;
                     var drawOrderTable = modelSpace.DrawOrderTableId.GetObject<DrawOrderTable>(OpenMode.ForWrite, transaction);
-                    foreach (var group in wrappers)
+                    foreach (var wrapper in wrappers)
                     {
-                        group.ToList().ForEach(w => w.Push());
-                        var polylines = group.SelectMany(w => w.BoundEntities).Select(e => (Polyline)e);
-                        var polylineIds = polylines.Select(pl => pl.ObjectId).ToArray();
-                        var plIdCollection = new ObjectIdCollection(polylineIds);
+                        wrapper.Push();
+                        var polylines = wrapper.BoundEntities.Where(e => e is Polyline pl && pl.Closed).Select(e => (Polyline)e);
+                        ObjectId[] polylineIds = polylines.Select(pl => pl.ObjectId).ToArray();
+                        if (polylineIds.Length == 0)
+                        {
+                            Workstation.Logger?.LogInformation("В наборе отсутствуют замкнутые полилинии слоя \"{Layer}\". Пропуск объектов слоя", wrapper.LayerInfo.Name);
+                            continue;
+                        }
+                        ObjectIdCollection plIdCollection = new(polylineIds);
                         Hatch hatch = new()
                         {
-                            Layer = group.Key,
+                            Layer = wrapper.LayerInfo.Name,
                             HatchStyle = HatchStyle.Normal
                         };
-                        _formatter.FormatEntity(hatch, group.First().LayerInfo.TrueName);
+                        _formatter.FormatEntity(hatch, wrapper.LayerInfo.TrueName);
 
                         hatch.AssingnLoop(polylines);
 
@@ -465,7 +468,7 @@ namespace LayerWorks.Commands
                         }
                         else
                         {
-                            Workstation.Logger?.LogDebug("{ProcessingObject}: Нет стандарта штриховки для слоя {Layer}", nameof(StandartLayerHatch), group.Key);
+                            Workstation.Logger?.LogDebug("{ProcessingObject}: Нет стандарта штриховки для слоя {Layer}", nameof(StandartLayerHatch), wrapper.LayerInfo.Name);
                         }
                     }
                     transaction.Commit();
