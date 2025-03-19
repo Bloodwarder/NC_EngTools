@@ -45,29 +45,34 @@
                           IsChecked="{Binding XPath=ShowStartup}"/>
                 <TextBlock DockPanel.Dock="Right" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10" Text="Показывать при старте"/>
             </DockPanel>
-            <DockPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Width="Auto" LastChildFill="True" Margin="5" Visibility="Hidden">
+            <DockPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Width="Auto" LastChildFill="True" Margin="5" Visibility="Visible">
                 <TextBlock DockPanel.Dock="Left" Text="Путь к файлам обновлений:" VerticalAlignment="Center"/>
-                <Button Name="bSetUpdatePath" DockPanel.Dock="Right" Height="30" Width="30" Click="SetUpdatePathButtonClick"/>
-                <TextBox Name="tbSourcePath" Height="30" Width="Auto" VerticalAlignment="Center" Margin="5" IsEnabled="False"/>
+                <Button Name="bSetUpdatePath" DockPanel.Dock="Right" Height="30" Width="30" Click="SetUpdatePathButtonClick" Content="..."/>
+                <TextBox Name="tbSourcePath" Height="30" Width="Auto" VerticalAlignment="Center" Margin="5" IsReadOnly="True" VerticalContentAlignment="Center"/>
             </DockPanel>
-            <TextBlock Grid.Row="2" Grid.Column="0" Text="Включить" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="10"/>
-            <TextBlock Grid.Row="2" Grid.Column="1" Text="Автообновление" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="9"/>
-            <CheckBox Grid.Row="3" Grid.Column="0" Name="chbIncludeLayerWorks" VerticalAlignment="Center" HorizontalAlignment="Center" 
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Включить" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="10" Visibility="Hidden"/>
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="Автообновление" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="9" Visibility="Hidden"/>
+            
+            <!--кнопки обновлений и галочки не функциональны - пока прячем-->
+            <!--<Rectangle Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Grid.RowSpan="4" Panel.ZIndex="2" Fill="AliceBlue" Stroke="Navy"/>-->
+            <Image Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="0" Grid.RowSpan="6" Stretch="UniformToFill" Panel.ZIndex="-1" VerticalAlignment="Top"
+                   Source="pack://application:,,,/LoaderCore;component/Images/town_image.png" Opacity="0.4"/>
+            <CheckBox Grid.Row="3" Grid.Column="0" Name="chbIncludeLayerWorks" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Hidden"
                       IsChecked="{Binding XPath=LayerWorksConfiguration/Enabled}" Tag="{Binding XPath=LayerWorksConfiguration/@Module}"
                       Checked="IncludeCheckChanged"/>
-            <CheckBox Grid.Row="3" Grid.Column="1" Name="chbAutoUpdateLayerWorks" VerticalAlignment="Center" HorizontalAlignment="Center" 
+            <CheckBox Grid.Row="3" Grid.Column="1" Name="chbAutoUpdateLayerWorks" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Hidden"
                       IsChecked="{Binding XPath=/LayerWorksConfiguration/UpdateEnabled}" Tag="{Binding XPath=LayerWorksConfiguration/@Module}"
                       Checked="AutoUpdateCheckChanged"/>
-            <Button Grid.Row ="3" Grid.Column="2" Name="bUpdateLayerWorks" Margin="20 5 20 5" Content="Обновить" FontSize="14" Tag="LayerWorks" Click="UpdateButtonClick" IsEnabled="False"/>
+            <Button Grid.Row ="3" Grid.Column="2" Name="bUpdateLayerWorks" Margin="20 5 20 5" Content="Обновить" FontSize="14" Tag="LayerWorks" Click="UpdateButtonClick" IsEnabled="False" Visibility="Hidden"/>
             <DockPanel Grid.Row="3" Grid.Column="3">
-                <TextBlock DockPanel.Dock="Left" Text="LayerWorks" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
+                <TextBlock DockPanel.Dock="Left" Text="LayerWorks" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0" Visibility="Hidden"/>
                 <Button x:Name="bCommandHelp" DockPanel.Dock="Right" Width="130" Margin="20 5 20 5" HorizontalAlignment="Right" Content="Список команд" Click="CommandHelpClick"/>
             </DockPanel>
-            <CheckBox Grid.Row="4" Grid.Column="0" Name="chbIncludeUtilities" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="Utilities"
+            <CheckBox Grid.Row="4" Grid.Column="0" Name="chbIncludeUtilities" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="Utilities" Visibility="Hidden"
                       Checked="IncludeCheckChanged"/>
-            <CheckBox Grid.Row="4" Grid.Column="1" Name="chbAutoUpdateUtilities" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="Utilities"
+            <CheckBox Grid.Row="4" Grid.Column="1" Name="chbAutoUpdateUtilities" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="Utilities" Visibility="Hidden"
                       Checked="AutoUpdateCheckChanged"/>
-            <Button Grid.Row ="4" Grid.Column="2" 
+            <Button Grid.Row ="4" Grid.Column="2" Visibility="Hidden"
                     Name="bUpdateUtilities" 
                     Margin="20 5 20 5" 
                     Content="Обновить" 
@@ -75,16 +80,16 @@
                     Tag="Utilities" 
                     Click="UpdateButtonClick" IsEnabled="False"/>
             <DockPanel Grid.Row="4" Grid.Column="3">
-                <TextBlock Text="Utilities" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
+                <TextBlock Text="Utilities" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0" Visibility="Hidden"/>
                 <Button x:Name="bLaunchEditor" DockPanel.Dock="Right" Width="130" Margin="20 5 20 5" HorizontalAlignment="Right" Content="Редактор слоёв" Click="LaunchEditorClick"/>
             </DockPanel>
 
 
-            <CheckBox Grid.Row="5" Grid.Column="0" Name="chbIncludeGeoMod" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="GeoMod"
+            <CheckBox Grid.Row="5" Grid.Column="0" Name="chbIncludeGeoMod" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="GeoMod" Visibility="Hidden"
                       Checked="IncludeCheckChanged"/>
-            <CheckBox Grid.Row="5" Grid.Column="1" Name="chbAutoUpdateGeoMod" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="GeoMod"
+            <CheckBox Grid.Row="5" Grid.Column="1" Name="chbAutoUpdateGeoMod" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="True" Tag="GeoMod" Visibility="Hidden"
                       Checked="AutoUpdateCheckChanged"/>
-            <Button Grid.Row ="5" Grid.Column="2" 
+            <Button Grid.Row ="5" Grid.Column="2" Visibility="Hidden"
                     Name="bUpdateGeoMod" 
                     Margin="20 5 20 5" 
                     Content="Обновить" 
@@ -92,15 +97,10 @@
                     Tag="GeoMod" 
                     Click="UpdateButtonClick" IsEnabled="False"/>
             <DockPanel Grid.Row="5" Grid.Column="3">
-                <TextBlock Text="GeoMod" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0"/>
+                <TextBlock Text="GeoMod" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="20,0,0,0" Visibility="Hidden"/>
                 <Button x:Name="bKnownIssues" DockPanel.Dock="Right" Width="130" Margin="20 5 20 5" HorizontalAlignment="Right" Content="Известные проблемы" Click="KnownIssuesClick"/>
             </DockPanel>
         </Grid>
-        <!--<FlowDocumentScrollViewer Grid.Row="1" Margin="3,5,3,3" BorderBrush="#FF4A4A4A" Foreground="Black">
-            <FlowDocument x:Name="fdLog" FontSize="14" Foreground="Navy" Background="WhiteSmoke" TextAlignment="Left" FontFamily="Corbel" ColumnWidth="650" LineHeight="5">
-            </FlowDocument>
-            --><!--<TextBlock x:Name="tbLog" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="12" Foreground="Blue" TextWrapping="Wrap"/>--><!--
-        </FlowDocumentScrollViewer>-->
         <WebBrowser x:Name="wbUpdates" Grid.Row="1" Margin="10"/>
     </Grid>
 </Window>

@@ -1,6 +1,9 @@
 ﻿using LoaderCore.Integrity;
 using LoaderCore.Utilities;
 using Markdig;
+using Ookii.Dialogs.Wpf;
+using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -32,14 +35,13 @@ namespace LoaderCore.UI
             doc.Load(xmlConfigPath);
             provider.Source = new(xmlConfigPath, System.UriKind.Absolute);
             provider.Document = doc;
-            PreInitializeSimpleLogger.Log += LogWindow;
 
             // TODO: заменить на XmlDataProvider и привязки
 #nullable disable warnings
-            //chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("ShowStartup").Value);
+            chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("ShowStartup").Value);
 
-            //chbIncludeLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value);
-            //chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value);
+            chbIncludeLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value);
+            chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value);
             chbIncludeUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("UtilitiesConfiguration").Element("Enabled").Value);
             chbAutoUpdateUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("UtilitiesConfiguration").Element("UpdateEnabled").Value);
             chbIncludeGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("GeoModConfiguration").Element("Enabled").Value);
@@ -81,40 +83,47 @@ namespace LoaderCore.UI
 
         private void SetUpdatePathButtonClick(object sender, RoutedEventArgs e)
         {
-            //    VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog()
-            //    {
-            //        Multiselect = false,
-            //        ShowNewFolderButton = false,
-            //        RootFolder = Environment.SpecialFolder.NetworkShortcuts
-            //    };
-            //    dialog.ShowDialog();
-            //    DirectoryInfo dir = new DirectoryInfo(dialog.SelectedPath);
-            //    if (dir.Exists)
-            //    {
-            //        tbSourcePath.Text = dialog.SelectedPath;
-            //    }
-            //    e.Handled = true;
+            VistaFolderBrowserDialog dialog = new()
+            {
+                Multiselect = false,
+                ShowNewFolderButton = false
+            };
+            dialog.ShowDialog();
+            DirectoryInfo dir = new(dialog.SelectedPath);
+            string startupPath = Path.Combine(dir.FullName, "NC_EngTools_StartUp.dll");
+            string loaderCorePath = Path.Combine(dir.FullName, "ExtensionLibraries", "LoaderCore", "LoaderCore.dll");
+            bool dirExists = dir.Exists;
+            bool startupExists = File.Exists(startupPath);
+            bool loaderCoreExists = File.Exists(loaderCorePath);
+            if (dirExists && startupExists && loaderCoreExists)
+            {
+                tbSourcePath.Text = dialog.SelectedPath;
+            }
+            else
+            {
+                MessageBox.Show("Указанная директория не содержит файлов для обновления программы", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            e.Handled = true;
         }
 
 
-        private void StartUpWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void StartUpWindowClosing(object sender, CancelEventArgs e)
         {
 #nullable disable warnings
-            //_xmlConfig.Root.Element("ShowStartup").Value = XmlConvert.ToString((bool)chbShowOnStartUp.IsChecked);
+            _xmlConfig.Root.Element("ShowStartup").Value = XmlConvert.ToString((bool)chbShowOnStartUp.IsChecked);
 
-            //_xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeLayerWorks.IsChecked);
-            //_xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateLayerWorks.IsChecked);
+            _xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeLayerWorks.IsChecked);
+            _xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateLayerWorks.IsChecked);
             _xmlConfig.Root.Element("UtilitiesConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeUtilities.IsChecked);
             _xmlConfig.Root.Element("UtilitiesConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateUtilities.IsChecked);
             _xmlConfig.Root.Element("GeoModConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeGeoMod.IsChecked);
             _xmlConfig.Root.Element("GeoModConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateGeoMod.IsChecked);
 
-            //DirectoryInfo checkdir = new DirectoryInfo(tbSourcePath.Text);
-            //if (checkdir.Exists)
-            //    _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value = tbSourcePath.Text;
+            DirectoryInfo checkdir = new(tbSourcePath.Text);
+            if (checkdir.Exists)
+                _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value = tbSourcePath.Text;
             _xmlConfig.Save(_xmlConfigPath);
 #nullable restore
-            PreInitializeSimpleLogger.Log -= LogWindow;
         }
 
         private void UpdateButtonClick(object sender, RoutedEventArgs e)
@@ -123,15 +132,10 @@ namespace LoaderCore.UI
             NcetCore.Modules.Where(m => m.Name == button.Tag.ToString()).Single().Update();
         }
 
-        private void LogWindow(string message)
-        {
-            //fdLog.Blocks.Add(new Paragraph(new Run($"{message}")));
-            //tbLog.Text += $"\n{message}";
-        }
 
         private void CommandHelpClick(object sender, RoutedEventArgs e)
         {
-            string mdPath = Directory.GetFiles(NcetCore.RootLocalDirectory,"Команды.md",SearchOption.AllDirectories).Single();
+            string mdPath = Directory.GetFiles(NcetCore.RootLocalDirectory, "Команды.md", SearchOption.AllDirectories).Single();
             string stylesPath = Directory.GetFiles(NcetCore.RootLocalDirectory, "Styles.css", SearchOption.AllDirectories).Single();
             var html = MdToHtmlConverter.Convert(mdPath, stylesPath);
             InfoDisplayWindow window = new(html, "Список команд")
@@ -159,7 +163,7 @@ namespace LoaderCore.UI
 
         private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if(e.Key == System.Windows.Input.Key.Escape)
+            if (e.Key == System.Windows.Input.Key.Escape)
             {
                 e.Handled = true;
                 this.Close();

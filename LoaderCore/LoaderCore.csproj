@@ -33,6 +33,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="town_image.png" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Reference Include="hostdbmgd">
 			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostdbmgd.dll</HintPath>
 			<Private>False</Private>
@@ -70,9 +74,15 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.0" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Resource Include="Images\town_image.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Resource>
 	</ItemGroup>
 	<ItemGroup>
 	  <Compile Update="src\Controls\BrightnessAdjuster.xaml.cs">
