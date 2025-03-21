@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<LayerParser xmlns:xs ="https://www.w3.org/2001/XMLSchema"
+			 xmlns:xdt ="https://www.w3.org/2003/05/xpath-datatypes"
+			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Title>Территории</Title>
+	<Separator Value="_"/>
+	<Classifiers>
+		<Prefix Value="АРХ"/>
+		<PrimaryClassifier>
+			<Chapter Value="ФЗ" Description="Функциональные зоны"/>
+		</PrimaryClassifier>
+		<AuxilaryClassifier Name ="Geometry" Description="Тип геометрии">
+			<Classifier Value ="л" Description="Линейный"/>
+			<Classifier Value ="п" Description="Площадной"/>
+			<Classifier Value ="т" Description="Точечный"/>
+		</AuxilaryClassifier>
+		<AuxilaryData Name="FzIndex" Brackets="[]" Description="Индекс зоны">
+			<Validation>
+				<ValidSet>
+					<ChapterReference Value="ФЗ"/>
+				</ValidSet>
+			</Validation>
+		</AuxilaryData>
+		<SecondaryClassifiers/>
+		<StatusClassifier>
+			<Status Value="сущ" Description="Существующая"/>
+			<Status Value="план" Description="Планируемая"/>
+		</StatusClassifier>
+	</Classifiers>
+	<LegendFilters DefaultLabel="Территории">
+		<FilterSection>
+			<Filter Name="Общий">
+				<Grid Label="*"/>
+			</Filter>
+			<Filter Name="Существующие">
+				<Grid>
+					<StatusReference Value="сущ"/>
+				</Grid>
+			</Filter>
+		</FilterSection>
+	</LegendFilters>
+	<HighlightMode>
+		<Filter Name="Переустройство">
+			<!--<Highlight>
+				<BoolReference Name="Reconstruction" Value="True"/>
+				<Property Name="Color">
+					<Assign>
+						<StatusReference Value="пр"/>
+						<Value>
+							<Color>
+								<Red>0</Red>
+								<Green>255</Green>
+								<Blue>255</Blue>
+							</Color>
+						</Value>
+					</Assign>
+					<Assign>
+						<StatusReference Value="неутв"/>
+						<Value>
+							<Color>
+								<Red>0</Red>
+								<Green>153</Green>
+								<Blue>153</Blue>
+							</Color>
+						</Value>
+					</Assign>
+				</Property>
+			</Highlight>
+			<Enable>
+				<ChapterReference/>
+			</Enable>-->
+		</Filter>
+	</HighlightMode>
+	<SharedProperties>
+		<Property Name="ConstantWidth">
+			<ClassifierGroup>
+				<ChapterReference Value="ФЗ"/>
+				<DefaultValue>
+					<Double>0.2</Double>
+				</DefaultValue>
+			</ClassifierGroup>
+		</Property>
+		<DrawProperty Name="DrawTemplate">
+			<ClassifierGroup>
+				<ChapterReference Value="ФЗ"/>
+				<DefaultValue>
+					<String>HatchedRectangle</String>
+				</DefaultValue>
+			</ClassifierGroup>
+		</DrawProperty>
+		<DrawProperty Name="InnerHatchPattern">
+			<ClassifierGroup>
+				<ChapterReference Value="ФЗ"/>
+				<StatusReference Value="план"/>
+				<DefaultValue>
+					<String>ANSI31</String>
+				</DefaultValue>
+			</ClassifierGroup>
+			<ClassifierGroup>
+				<ChapterReference Value="ФЗ"/>
+				<DefaultValue>
+					<String>SOLID</String>
+				</DefaultValue>
+			</ClassifierGroup>
+		</DrawProperty>
+		<DrawProperty Name="InnerBorderBrightness">
+			<ClassifierGroup>
+				<ChapterReference Value="ФЗ"/>
+			</ClassifierGroup>
+			<DefaultValue>
+				<Double>-0.5</Double>
+			</DefaultValue>
+		</DrawProperty>
+		<DrawProperty Name="InnerHatchScale">
+			<ClassifierGroup>
+				<ChapterReference Value="ФЗ"/>
+				<StatusReference Value="план"/>
+				<DefaultValue>
+					<Double>1</Double>
+				</DefaultValue>
+			</ClassifierGroup>
+		</DrawProperty>
+	</SharedProperties>
+</LayerParser>

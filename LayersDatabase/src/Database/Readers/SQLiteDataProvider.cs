@@ -1,22 +1,22 @@
-﻿using LoaderCore;
+﻿using LayersIO.Connection;
+using LoaderCore;
 using LoaderCore.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LayersIO.Database.Readers
 {
     public abstract class SQLiteDataProvider<TKey, TValue> : ILayerDataProvider<TKey, TValue> where TKey : notnull
     {
-        private protected readonly string _path;
-        private protected readonly static SQLiteLayerDataContextFactory _contextFactory;
+        private protected readonly IDbContextFactory<LayersDatabaseContextSqlite> _contextFactory;
 
         static SQLiteDataProvider()
         {
-            _contextFactory = NcetCore.ServiceProvider.GetRequiredService<SQLiteLayerDataContextFactory>();
-            // TODO: заменить на инъекцию, и FallbackPath
+
         }
-        public SQLiteDataProvider(string path) 
+        public SQLiteDataProvider(IDbContextFactory<LayersDatabaseContextSqlite> factory) 
         {
-            _path = path; 
+            _contextFactory = factory;
         }
         public abstract Dictionary<TKey, TValue> GetData();
         public abstract TValue? GetItem(TKey key);

@@ -9,20 +9,24 @@ namespace LayersIO.Database
 {
     public class SQLiteLayerDataContextFactory : IDbContextFactory<LayersDatabaseContextSqlite>
     {
+        private const string DatabaseFileName = "LayerData.db";
         readonly ILogger _logger;
         readonly string? _localPath;
         readonly string? _sharedPath;
-        static SQLiteLayerDataContextFactory()
-        {
-            TinyMapperConfigurer.Configure();
-        }
+        static SQLiteLayerDataContextFactory() { }
         public SQLiteLayerDataContextFactory(ILogger logger, IConfiguration configuration)
         {
             _logger = logger;
             var paths = configuration.GetRequiredSection("LayerWorksConfiguration:LayerStandardPaths:LayerWorksPath")
                                      .Get<LayerWorksPath[]>()!;
-            _localPath = paths.FirstOrDefault(p => p.Type == PathRoute.Local)?.Path;
-            _sharedPath = paths.FirstOrDefault(p => p.Type == PathRoute.Shared)?.Path;
+
+            var localPath = paths.FirstOrDefault(p => p.Type == PathRoute.Local)?.Path;
+            if (localPath != null)
+                _localPath = Path.Combine(localPath, DatabaseFileName);
+
+            var sharedPath = paths.FirstOrDefault(p => p.Type == PathRoute.Shared)?.Path;
+            if (sharedPath != null)
+                _sharedPath = Path.Combine(sharedPath, DatabaseFileName);
         }
         public LayersDatabaseContextSqlite CreateDbContext(string path)
         {

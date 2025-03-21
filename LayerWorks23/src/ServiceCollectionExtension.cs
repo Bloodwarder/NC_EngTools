@@ -23,7 +23,7 @@ namespace LayerWorks
             //[SourceType.InMemory] = s => AddInMemoryDataWriters(s),
             [SourceType.Xml] = s => AddXmlDataWriters(s),
             //[SourceType.Excel] = s => AddExcelDataWriters(s),
-            //[SourceType.SQLite] = s => AddSQLiteDataWriters(s)
+            [SourceType.SQLite] = s => AddSQLiteDataWriters(s)
 
         };
         private static readonly Dictionary<SourceType, Action<IServiceCollection>> _dataProviderFactoryDictionary = new()
@@ -54,11 +54,12 @@ namespace LayerWorks
 
         private static void AddInMemoryRepositories(IServiceCollection services)
         {
-            services.AddSingleton<IRepository<string, LayerProps>, InMemoryRepository<string, LayerProps>>()
-                    .AddSingleton<IRepository<string, LegendData>, InMemoryRepository<string, LegendData>>()
-                    .AddSingleton<IRepository<string, LegendDrawTemplate>, InMemoryRepository<string, LegendDrawTemplate>>()
-                    .AddSingleton<IRepository<string, string>, InMemoryRepository<string, string>>()
-                    .AddSingleton<IRepository<string, ZoneInfo[]>, InMemoryRepository<string, ZoneInfo[]>>();
+            //services.AddSingleton<IRepository<string, LayerProps>, InMemoryRepository<string, LayerProps>>()
+            //        .AddSingleton<IRepository<string, LegendData>, InMemoryRepository<string, LegendData>>()
+            //        .AddSingleton<IRepository<string, LegendDrawTemplate>, InMemoryRepository<string, LegendDrawTemplate>>()
+            //        .AddSingleton<IRepository<string, string>, InMemoryRepository<string, string>>()
+            //        .AddSingleton<IRepository<string, ZoneInfo[]>, InMemoryRepository<string, ZoneInfo[]>>();
+            services.AddSingleton(typeof(IRepository<,>), typeof(InMemoryRepository<,>));
         }
 
         private static void AddXmlDataWriters(IServiceCollection services)
@@ -70,20 +71,35 @@ namespace LayerWorks
             services.AddTransient<IDataWriterFactory<string, ZoneInfo[]>, XmlDataWriterFactory<string, ZoneInfo[]>>();
         }
 
+        private static void AddSQLiteDataWriters(IServiceCollection services)
+        {
+            services.AddTransient<IDataWriterFactory<string, LayerProps>, SQLiteDataWriterFactory<string, LayerProps>>();
+            services.AddTransient<IDataWriterFactory<string, LegendData>, SQLiteDataWriterFactory<string, LegendData>>();
+            services.AddTransient<IDataWriterFactory<string, LegendDrawTemplate>, SQLiteDataWriterFactory<string, LegendDrawTemplate>>();
+            services.AddTransient<IDataWriterFactory<string, string>, SQLiteDataWriterFactory<string, string>>();
+            services.AddTransient<IDataWriterFactory<string, ZoneInfo[]>, SQLiteDataWriterFactory<string, ZoneInfo[]>>();
+        }
+
         private static void AddSQLiteDataProviders(IServiceCollection services)
         {
             // используются внутри фабрики (регистрируется в следующих строках)
-            services.AddTransient<Func<string, ILayerDataProvider<string, LayerProps>>>(p => new(path => new SQLiteLayerPropsProvider(path)));
-            services.AddTransient<Func<string, ILayerDataProvider<string, LegendData>>>(p => new(path => new SQLiteLayerLegendDataProvider(path)));
-            services.AddTransient<Func<string, ILayerDataProvider<string, LegendDrawTemplate>>>(p => new(path => new SQLiteLegendDrawTemplateProvider(path)));
-            services.AddTransient<Func<string, ILayerDataProvider<string, string?>>>(p => new(path => new SQLiteAlterLayersProvider(path)));
-            services.AddTransient<Func<string, ILayerDataProvider<string, ZoneInfo[]>>>(p => new(path => new SQLiteZoneInfoProvider(path)));
+            //services.AddTransient<Func<string, ILayerDataProvider<string, LayerProps>>>(p => new(path => new SQLiteLayerPropsProvider(path)));
+            //services.AddTransient<Func<string, ILayerDataProvider<string, LegendData>>>(p => new(path => new SQLiteLayerLegendDataProvider(path)));
+            //services.AddTransient<Func<string, ILayerDataProvider<string, LegendDrawTemplate>>>(p => new(path => new SQLiteLegendDrawTemplateProvider(path)));
+            //services.AddTransient<Func<string, ILayerDataProvider<string, string?>>>(p => new(path => new SQLiteAlterLayersProvider(path)));
+            //services.AddTransient<Func<string, ILayerDataProvider<string, ZoneInfo[]>>>(p => new(path => new SQLiteZoneInfoProvider(path)));
+            services.AddTransient<ILayerDataProvider<string,LayerProps>, SQLiteLayerPropsProvider>()
+                    .AddTransient<ILayerDataProvider<string, LegendData>, SQLiteLayerLegendDataProvider>()
+                    .AddTransient<ILayerDataProvider<string, LegendDrawTemplate>, SQLiteLegendDrawTemplateProvider>()
+                    .AddTransient<ILayerDataProvider<string, string?>, SQLiteAlterLayersProvider>()
+                    .AddTransient<ILayerDataProvider<string, ZoneInfo[]>, SQLiteZoneInfoProvider>();
 
-            services.AddTransient<IDataProviderFactory<string, LayerProps>, SQLiteDataProviderFactory<string, LayerProps>>();
-            services.AddTransient<IDataProviderFactory<string, LegendData>, SQLiteDataProviderFactory<string, LegendData>>();
-            services.AddTransient<IDataProviderFactory<string, LegendDrawTemplate>, SQLiteDataProviderFactory<string, LegendDrawTemplate>>();
-            services.AddTransient<IDataProviderFactory<string, string>, SQLiteDataProviderFactory<string, string>>();
-            services.AddTransient<IDataProviderFactory<string, ZoneInfo[]>, SQLiteDataProviderFactory<string, ZoneInfo[]>>();
+
+            services.AddTransient<IDataProviderFactory<string, LayerProps>, SQLiteDataProviderFactory<string, LayerProps>>()
+                    .AddTransient<IDataProviderFactory<string, LegendData>, SQLiteDataProviderFactory<string, LegendData>>()
+                    .AddTransient<IDataProviderFactory<string, LegendDrawTemplate>, SQLiteDataProviderFactory<string, LegendDrawTemplate>>()
+                    .AddTransient<IDataProviderFactory<string, string>, SQLiteDataProviderFactory<string, string>>()
+                    .AddTransient<IDataProviderFactory<string, ZoneInfo[]>, SQLiteDataProviderFactory<string, ZoneInfo[]>>();
         }
 
     }

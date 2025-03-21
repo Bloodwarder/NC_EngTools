@@ -1,4 +1,6 @@
-﻿using LayersIO.DataTransfer;
+﻿using LayersIO.Connection;
+using LayersIO.DataTransfer;
+using LayersIO.Model;
 using LoaderCore.SharedData;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,11 +8,11 @@ namespace LayersIO.Database.Readers
 {
     public class SQLiteZoneInfoProvider : SQLiteDataProvider<string, ZoneInfo[]>
     {
-        public SQLiteZoneInfoProvider(string path) : base(path) { }
+        public SQLiteZoneInfoProvider(IDbContextFactory<LayersDatabaseContextSqlite> factory) : base(factory) { }
 
         public override Dictionary<string, ZoneInfo[]> GetData()
         {
-            using (var db = _contextFactory.CreateDbContext(_path))
+            using (var db = _contextFactory.CreateDbContext())
             {
 
                 try
@@ -39,13 +41,13 @@ namespace LayersIO.Database.Readers
 
         public override ZoneInfo[]? GetItem(string key)
         {
-            using (var db = _contextFactory.CreateDbContext(_path))
+            using (var db = _contextFactory.CreateDbContext())
             {
-                var layer = db.Layers.AsNoTracking()
-                                     .Where(l => l.Name == key && l.Zones.Any())
-                                     .Include(l => l.Zones)
-                                     .ThenInclude(z => z.ZoneLayer)
-                                     .SingleOrDefault();
+                var layer = db.Set<LayerData>().AsNoTracking()
+                                               .Where(l => l.Name == key && l.Zones.Any())
+                                               .Include(l => l.Zones)
+                                               .ThenInclude(z => z.ZoneLayer)
+                                               .SingleOrDefault();
                 var zones = layer?.Zones.Select(z => z.ToZoneInfo()).ToArray();
                 return zones;
             }

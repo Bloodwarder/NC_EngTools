@@ -6,15 +6,12 @@ namespace LayerWorks.DataRepositories
 {
     public class InMemoryRepository<TKey, TData> : IRepository<TKey, TData> where TKey : notnull, IEquatable<TKey>
     {
-        private const string DatabaseFileName = "LayerData.db";
-
         private Dictionary<TKey, TData> _dictionary;
         private readonly ILayerDataProvider<TKey, TData> _dataProvider;
 
-        public InMemoryRepository(IDataProviderFactory<TKey, TData> factory, IFilePathProvider pathProvider)
+        public InMemoryRepository(ILayerDataProvider<TKey, TData> provider)
         {
-            var path = pathProvider.GetPath(DatabaseFileName); // TODO : вставить универсальную конструкцию
-            _dataProvider = factory.CreateProvider(path);
+            _dataProvider = provider;
             _dictionary = _dataProvider.GetData();
         }
 

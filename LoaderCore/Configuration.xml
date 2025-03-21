@@ -15,6 +15,7 @@
 		<DefaultParsers>
 			<Parser>ИС</Parser>
 			<Parser>ЗОУИТ</Parser>
+			<Parser>АРХ</Parser>
 		</DefaultParsers>
 		<NameParserPaths>
 			<LayerWorksPath>

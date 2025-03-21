@@ -25,6 +25,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Update="Data\LayerParser_АРХ.xml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="Data\LayerParser_ЗОУИТ.xml">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

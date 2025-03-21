@@ -9,6 +9,7 @@ namespace LoaderCore.Utilities
         readonly TParameter[] _parameters;
         readonly Func<TParameter, TResult> _creationMethod;
         readonly Action<TParameter, Exception>? _errorCallback;
+        readonly Action<TParameter>? _successCallback;
 
         public Fallback(IEnumerable<TParameter> parameters, Func<TParameter, TResult> creationMethod)
         {
@@ -16,9 +17,19 @@ namespace LoaderCore.Utilities
             _creationMethod = creationMethod;
         }
 
-        public Fallback(IEnumerable<TParameter> parameters, Func<TParameter, TResult> creationMethod, Action<TParameter, Exception> errorCallback) : this(parameters, creationMethod)
+        public Fallback(IEnumerable<TParameter> parameters,
+                        Func<TParameter, TResult> creationMethod,
+                        Action<TParameter, Exception> errorCallback) : this(parameters, creationMethod)
         {
             _errorCallback = errorCallback;
+        }
+
+        public Fallback(IEnumerable<TParameter> parameters,
+                        Func<TParameter, TResult> creationMethod,
+                        Action<TParameter, Exception> errorCallback,
+                        Action<TParameter> successCallback) : this(parameters, creationMethod, errorCallback)
+        {
+            _successCallback = successCallback;
         }
 
         public TResult GetResult()
@@ -29,6 +40,7 @@ namespace LoaderCore.Utilities
                 try
                 {
                     result = _creationMethod(parameter);
+                    _successCallback?.Invoke(parameter);
                     return result;
                 }
                 catch (Exception ex)
@@ -47,6 +59,7 @@ namespace LoaderCore.Utilities
                 try
                 {
                     result = _creationMethod(parameter);
+                    _successCallback?.Invoke(parameter);
                     return true;
                 }
                 catch (Exception ex)

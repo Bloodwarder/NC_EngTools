@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<FeatureRecognition>
+	<Attempt Description="Кадастры">
+		<MustHaveAny>
+			<Field Name="cadnum" ExtractValue="true"/>
+			<Field Name="cad_num" ExtractValue="true"/>
+		</MustHaveAny>
+		<TargetLayer>АРХ_Кадастр</TargetLayer>
+	</Attempt>
+	<Attempt Description="Пример">
+		<MustHaveAll>
+			<Field RegexMatch="\w*\d{1,3}" ExtractValue="false"/>
+			<Field Contains="namePart"/>
+			<Field Name="SomeProperty">
+				<Value GreaterThan="6" LowerThan="10"/>
+			</Field>
+		</MustHaveAll>
+		<MayHave>
+			<Field Name="AnotherProperty">
+				<Value Equals="5"/>
+			</Field>
+			<Field Name="OneMoreProperty">
+				<Value Equals="6"/>
+			</Field>
+		</MayHave>
+		<MustNotHave>
+			<Field Name="Property6">
+				<Value ExactMatch="ForbiddenValue"/>
+			</Field>
+		</MustNotHave>
+		<TargetLayer>SomeLayer</TargetLayer>
+	</Attempt>
+</FeatureRecognition>

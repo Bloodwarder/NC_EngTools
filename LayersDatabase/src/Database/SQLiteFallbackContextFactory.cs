@@ -9,6 +9,8 @@ namespace LayersIO.Database
 {
     public class SQLiteFallbackContextFactory : IDbContextFactory<LayersDatabaseContextSqlite>
     {
+        private const string DatabaseFileName = "LayerData.db";
+
         readonly ILogger _logger;
         readonly Fallback<LayersDatabaseContextSqlite, string> _fallback;
 
@@ -19,8 +21,11 @@ namespace LayersIO.Database
                                      .Get<LayerWorksPath[]>()!;
             if (!paths.Any())
                 throw new IOException("В файле конфигурации нет путей к файлам БД");
-            var sortedPaths = paths.OrderBy(p => p.Type).Select(p => p.Path ?? string.Empty).Where(s => !string.IsNullOrEmpty(s));
-            _fallback = new(sortedPaths, p => new(p, _logger), ErrorCallback);
+            var sortedPaths = paths.OrderBy(p => p.Type)
+                                   .Select(p => p.Path)
+                                   .Where(s => !string.IsNullOrEmpty(s))
+                                   .Select(s => Path.Combine(s, DatabaseFileName));
+            _fallback = new(sortedPaths, p => new(p, _logger), ErrorCallback, SuccessCallback);
         }
 
         ///<inheritdoc/>
@@ -29,7 +34,9 @@ namespace LayersIO.Database
             return _fallback.GetResult();
         }
 
-        private void ErrorCallback(string path, Exception ex) => 
+        private void ErrorCallback(string path, Exception ex) =>
             _logger.LogWarning(ex, "Не удалось подключиться к БД по пути \"{Path}\". Ошибка:\t{Error}", path, ex.Message);
+        private void SuccessCallback(string path) =>
+            _logger.LogInformation("Соединение с БД по пути \"{Path}\" установлено", path);
     }
 }

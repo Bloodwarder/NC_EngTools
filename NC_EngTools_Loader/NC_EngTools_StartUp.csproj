@@ -27,22 +27,7 @@
 		<OutputPath>$(RootOutputPath)</OutputPath>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <Compile Remove="UserData\**" />
-	  <EmbeddedResource Remove="UserData\**" />
-	  <None Remove="UserData\**" />
-	</ItemGroup>
 
-	<ItemGroup>
-		<None Update="Известные проблемы.txt">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
-		<None Update="Команды.txt">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
 	<ItemGroup>
 		<Reference Include="hostdbmgd">
 			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostdbmgd.dll</HintPath>

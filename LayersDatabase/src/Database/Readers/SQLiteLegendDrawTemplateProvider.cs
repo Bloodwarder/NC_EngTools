@@ -1,4 +1,5 @@
-﻿using LayersIO.DataTransfer;
+﻿using LayersIO.Connection;
+using LayersIO.DataTransfer;
 using LayersIO.Model;
 using Microsoft.EntityFrameworkCore;
 using Nelibur.ObjectMapper;
@@ -7,13 +8,13 @@ namespace LayersIO.Database.Readers
 {
     public class SQLiteLegendDrawTemplateProvider : SQLiteDataProvider<string, LegendDrawTemplate>
     {
-        public SQLiteLegendDrawTemplateProvider(string path) : base(path) { }
+        public SQLiteLegendDrawTemplateProvider(IDbContextFactory<LayersDatabaseContextSqlite> factory) : base(factory) { }
 
         public override Dictionary<string, LegendDrawTemplate> GetData()
         {
-            using (var db = _contextFactory.CreateDbContext(_path))
+            using (var db = _contextFactory.CreateDbContext())
             {
-                var layers = db.Layers.Include(l => l.LayerDrawTemplateData).Include(l => l.LayerGroup);
+                var layers = db.Set<LayerData>().Include(l => l.LayerDrawTemplateData).Include(l => l.LayerGroup);
                 if (layers.Any())
                 {
                     var kvpCollection = layers.AsNoTracking()
@@ -39,7 +40,7 @@ namespace LayersIO.Database.Readers
 
         public override LegendDrawTemplate? GetItem(string key)
         {
-            using (var db = _contextFactory.CreateDbContext(_path))
+            using (var db = _contextFactory.CreateDbContext())
             {
                 var layers = db.Layers.Include(l => l.LayerDrawTemplateData);
                 var result = layers.AsNoTracking()

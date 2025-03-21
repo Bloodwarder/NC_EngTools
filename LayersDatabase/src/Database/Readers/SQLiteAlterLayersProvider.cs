@@ -1,16 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LayersIO.Connection;
+using LayersIO.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace LayersIO.Database.Readers
 {
     public class SQLiteAlterLayersProvider : SQLiteDataProvider<string, string?>
     {
-        public SQLiteAlterLayersProvider(string path) : base(path) { }
+        public SQLiteAlterLayersProvider(IDbContextFactory<LayersDatabaseContextSqlite> factory) : base(factory) { }
 
         public override Dictionary<string, string?> GetData()
         {
-            using (var db = _contextFactory.CreateDbContext(_path))
+            using (var db = _contextFactory.CreateDbContext())
             {
-                var layers = db.LayerGroups;
+                var layers = db.Set<LayerGroupData>();
                 if (layers.Any())
                 {
                     var kvpCollection = layers.AsNoTracking()
@@ -26,7 +28,7 @@ namespace LayersIO.Database.Readers
 
         public override string? GetItem(string key)
         {
-            using (var db = _contextFactory.CreateDbContext(_path))
+            using (var db = _contextFactory.CreateDbContext())
             {
                 var layers = db.LayerGroups;
                 return layers.AsNoTracking()

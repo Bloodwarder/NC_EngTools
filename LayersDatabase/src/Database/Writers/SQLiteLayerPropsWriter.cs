@@ -8,15 +8,15 @@ namespace LayersIO.Database.Writers
 {
     public class SQLiteLayerPropsWriter : SQLiteDataWriter<string, LayerProps>
     {
-        public SQLiteLayerPropsWriter(string path) : base(path) { }
+        public SQLiteLayerPropsWriter(IDbContextFactory<LayersDatabaseContextSqlite> factory) : base(factory) { }
 
 
 
         public override void OverwriteSource(Dictionary<string, LayerProps> dictionary)
         {
-            using (var db = _contextFactory.CreateDbContext(_path))
+            using (var db = _contextFactory.CreateDbContext())
             {
-                var query = db.Layers.Where(l => dictionary.ContainsKey(l.Name)).AsQueryable();
+                var query = db.Set<LayerData>().Where(l => dictionary.ContainsKey(l.Name)).AsQueryable();
                 foreach (var kvp in dictionary)
                     OverwriteItemInContext(kvp.Key, kvp.Value, db, query);
                 db.SaveChanges();
@@ -24,7 +24,7 @@ namespace LayersIO.Database.Writers
         }
         public override void OverwriteItem(string key, LayerProps item)
         {
-            using (var db = _contextFactory.CreateDbContext(_path))
+            using (var db = _contextFactory.CreateDbContext())
             {
                 OverwriteItemInContext(key, item, db);
                 db.SaveChanges();
@@ -32,7 +32,7 @@ namespace LayersIO.Database.Writers
         }
         protected override void OverwriteItemInContext(string key, LayerProps item, LayersDatabaseContextSqlite db)
         {
-            var query = db.Layers.Include(l => l.LayerPropertiesData).AsQueryable();
+            var query = db.Set<LayerData>().Include(l => l.LayerPropertiesData).AsQueryable();
             OverwriteItemInContext(key, item, db, query);
         }
 

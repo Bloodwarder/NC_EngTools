@@ -13,6 +13,8 @@ using LayerWorks.Commands;
 using LayerWorks.EntityFormatters;
 using System.ComponentModel;
 using Microsoft.Extensions.Logging;
+using LayersIO.Connection;
+using Microsoft.EntityFrameworkCore;
 
 namespace LayerWorks
 {
@@ -23,6 +25,7 @@ namespace LayerWorks
         {
             RegisterServices();
             TypeDescriptor.AddAttributes(typeof(System.Windows.Media.Color), new TypeConverterAttribute(typeof(WindowsColorTypeConverter)));
+            TinyMapperConfigurer.Configure();
         }
         public void PostInitialize()
         {
@@ -37,7 +40,8 @@ namespace LayerWorks
 
             NcetCore.Services.AddRepositories(SourceType.InMemory)
                              .AddDataProviderFactories(SourceType.SQLite)
-                             .AddDataWriterFactories(SourceType.Xml)
+                             .AddDataWriterFactories(SourceType.SQLite)
+                             .AddSingleton<IDbContextFactory<LayersDatabaseContextSqlite>, SQLiteFallbackContextFactory>()
                              .AddSingleton<SQLiteLayerDataContextFactory>()
                              .AddTransient(typeof(IReportWriterFactory<>), typeof(ExcelSimpleReportWriterFactory<>));
         }

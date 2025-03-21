@@ -1,16 +1,17 @@
 ﻿using LayersIO.Connection;
 using LayersIO.Model;
+using Microsoft.EntityFrameworkCore;
 using Nelibur.ObjectMapper;
 
 namespace LayersIO.Database.Writers
 {
     public class SQLiteAlterLayerWriter : SQLiteDataWriter<string, string>
     {
-        public SQLiteAlterLayerWriter(string path) : base(path) { }
+        public SQLiteAlterLayerWriter(IDbContextFactory<LayersDatabaseContextSqlite> factory) : base(factory) { }
 
         public override void OverwriteItem(string key, string item)
         {
-            using (var db = _contextFactory.CreateDbContext(_path))
+            using (var db = _contextFactory.CreateDbContext())
             {
                 OverwriteItemInContext(key, item, db);
                 db.SaveChanges();
@@ -19,9 +20,9 @@ namespace LayersIO.Database.Writers
 
         public override void OverwriteSource(Dictionary<string, string> dictionary)
         {
-            using (var db = _contextFactory.CreateDbContext(_path))
+            using (var db = _contextFactory.CreateDbContext())
             {
-                var query = db.LayerGroups.Where(l => dictionary.ContainsKey(l.MainName)).AsQueryable();
+                var query = db.Set<LayerGroupData>().Where(l => dictionary.ContainsKey(l.MainName)).AsQueryable();
                 foreach (var kvp in dictionary)
                     OverwriteItemInContext(kvp.Key, kvp.Value, db, query);
                 db.SaveChanges();
@@ -30,7 +31,7 @@ namespace LayersIO.Database.Writers
 
         protected override void OverwriteItemInContext(string key, string item, LayersDatabaseContextSqlite db)
         {
-            LayerGroupData? layer = db.LayerGroups.SingleOrDefault(l => l.MainName == key);
+            LayerGroupData? layer = db.Set<LayerGroupData>().SingleOrDefault(l => l.MainName == key);
             if (layer != null && db.LayerGroups.Any(l => l.MainName == item))
                 layer.AlternateLayer = item;
         }

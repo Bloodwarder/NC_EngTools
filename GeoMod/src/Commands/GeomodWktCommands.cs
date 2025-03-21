@@ -111,6 +111,27 @@ namespace GeoMod.Commands
                 transaction.Commit();
                 Workstation.Logger?.LogInformation("{Number} полилиний добавлено в чертёж", polylines.Count);
             }
+
+        }
+
+        public void FeatureFromClipboard()
+        {
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Начало команды ФИЧИМПОРТ", nameof(GeomodWktCommands));
+            var geometryFactory = _geometryServices.CreateGeometryFactory();
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Получение текста из буфера обмена", nameof(GeomodWktCommands));
+            string fromClipboard = System.Windows.Clipboard.GetText();
+            Workstation.Logger?.LogDebug("{ProcessingObject}: Текст в буфере обмена:\n{ClipboardText}", nameof(GeomodWktCommands), fromClipboard);
+
+            Match headerMatch = Regex.Match(fromClipboard, @"^(\w+\t?)+");
+            if (!headerMatch.Success) 
+            {
+                Workstation.Logger?.LogWarning("Текст в буфере обмена не содержит заголовков для определения типа объекта");
+                return;
+            }
+            string[] headers = headerMatch.Groups.Values.Select(v => v.Value).ToArray();
+            IEnumerable<Dictionary<string, string>> featuresData = fromClipboard.Split("\n")
+                                                                                .Skip(1)
+                                                                                .Select(str => str.Split("\t").ToDictionary(sub => headers[str.IndexOf(sub)], sub => sub));
         }
 
     }

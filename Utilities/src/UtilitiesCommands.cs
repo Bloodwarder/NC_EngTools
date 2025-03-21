@@ -8,6 +8,7 @@ using static Utilities.TextProcessor;
 using static Utilities.MultilineConverter;
 using static Utilities.VerticalCalc;
 using static Utilities.PolylineUnderlayer;
+using static Utilities.BrightnessShifter;
 
 namespace Utilities
 {
@@ -95,6 +96,12 @@ namespace Utilities
         public static void CreateUnderlayingPolylineCommand()
         {
             NcetCommand.ExecuteCommand(CreateUnderlayingPolyline);
+        }
+
+        [CommandMethod("СДВЯРКОСТЬ", CommandFlags.Redraw)]
+        public static void BrightnessShiftCommand()
+        {
+            NcetCommand.ExecuteCommand(BrightnessShift);
         }
     }
 

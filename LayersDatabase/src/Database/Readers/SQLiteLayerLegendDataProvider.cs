@@ -1,4 +1,6 @@
-﻿using LayersIO.DataTransfer;
+﻿using LayersIO.Connection;
+using LayersIO.DataTransfer;
+using LayersIO.Model;
 using Microsoft.EntityFrameworkCore;
 using Nelibur.ObjectMapper;
 
@@ -6,13 +8,13 @@ namespace LayersIO.Database.Readers
 {
     public class SQLiteLayerLegendDataProvider : SQLiteDataProvider<string, LegendData>
     {
-        public SQLiteLayerLegendDataProvider(string path) : base(path) { }
+        public SQLiteLayerLegendDataProvider(IDbContextFactory<LayersDatabaseContextSqlite> factory) : base(factory) { }
         public override Dictionary<string, LegendData> GetData()
         {
-            using (var db = _contextFactory.CreateDbContext(_path))
+            using (var db = _contextFactory.CreateDbContext())
             {
 
-                var layers = db.LayerGroups.Include(l => l.LayerLegendData);
+                var layers = db.Set<LayerGroupData>().Include(l => l.LayerLegendData);
                 if (layers.Any())
                 {
                     var kvpCollection = layers.AsNoTracking()
@@ -29,7 +31,7 @@ namespace LayersIO.Database.Readers
 
         public override LegendData? GetItem(string key)
         {
-            using (var db = _contextFactory.CreateDbContext(_path))
+            using (var db = _contextFactory.CreateDbContext())
             {
                 var layers = db.LayerGroups.AsNoTracking().Include(l => l.LayerLegendData);
                 return layers.Where(l => l.MainName == key).Select(l => TinyMapper.Map<LegendData>(l.LayerLegendData)).FirstOrDefault();

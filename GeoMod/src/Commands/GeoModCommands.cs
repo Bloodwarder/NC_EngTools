@@ -30,6 +30,12 @@ namespace GeoMod.Commands
             NcetCommand.ExecuteCommand(_wktCommands.GeometryFromClipboardWkt);
         }
 
+        [CommandMethod("ФИЧИМПОРТ")]
+        public static void FeatureFromClipboardCommand()
+        {
+            NcetCommand.ExecuteCommand(_wktCommands.FeatureFromClipboard);
+        }
+
         [CommandMethod("ЗОНА", CommandFlags.UsePickSet)]
         public static void SimpleZoneCommand()
         {

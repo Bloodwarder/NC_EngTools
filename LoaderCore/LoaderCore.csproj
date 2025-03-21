@@ -11,7 +11,7 @@
 		<ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-		<VersionPrefix>2.1.4</VersionPrefix>
+		<VersionPrefix>2.1.5</VersionPrefix>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -33,7 +33,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Configuration.xml" />
 	  <None Remove="town_image.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Configuration.xml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -47,9 +54,6 @@
 		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-		<None Update="Configuration.xml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 		<None Update="ConfigurationSchema.xsd">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
@@ -77,7 +81,7 @@
 		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.0" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Resource Include="Images\town_image.png">

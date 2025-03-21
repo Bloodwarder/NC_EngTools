@@ -23,6 +23,7 @@ namespace LoaderCore.UI
     {
         private readonly XDocument _xmlConfig;
         private readonly string _xmlConfigPath;
+        //XmlDataProvider _xmlDataProvider;
 
         public StartUpWindow(string xmlConfigPath)
         {
@@ -30,22 +31,26 @@ namespace LoaderCore.UI
             _xmlConfig = XDocument.Load(xmlConfigPath);
 
             InitializeComponent();
-            var provider = this.Resources["configurationProvider"] as XmlDataProvider;
-            XmlDocument doc = new();
-            doc.Load(xmlConfigPath);
-            provider.Source = new(xmlConfigPath, System.UriKind.Absolute);
-            provider.Document = doc;
+            //_xmlDataProvider = (XmlDataProvider)this.Resources["configurationProvider"];
+            //_xmlDataProvider.Document = new XmlDocument();
+            //_xmlDataProvider.Document.Load(xmlConfigPath);
+            //_xmlDataProvider.Refresh();
+            //XmlDataProvider provider = new()
+            //{
+            //    Source = new Uri(xmlConfigPath),
+            //    XPath = "configuration"
+            //};
 
             // TODO: заменить на XmlDataProvider и привязки
 #nullable disable warnings
             chbShowOnStartUp.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("ShowStartup").Value);
 
-            chbIncludeLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value);
-            chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value);
-            chbIncludeUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("UtilitiesConfiguration").Element("Enabled").Value);
-            chbAutoUpdateUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("UtilitiesConfiguration").Element("UpdateEnabled").Value);
-            chbIncludeGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("GeoModConfiguration").Element("Enabled").Value);
-            chbAutoUpdateGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("GeoModConfiguration").Element("UpdateEnabled").Value);
+            //chbIncludeLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value);
+            //chbAutoUpdateLayerWorks.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value);
+            //chbIncludeUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("UtilitiesConfiguration").Element("Enabled").Value);
+            //chbAutoUpdateUtilities.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("UtilitiesConfiguration").Element("UpdateEnabled").Value);
+            //chbIncludeGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("GeoModConfiguration").Element("Enabled").Value);
+            //chbAutoUpdateGeoMod.IsChecked = XmlConvert.ToBoolean(_xmlConfig.Root.Element("GeoModConfiguration").Element("UpdateEnabled").Value);
 
             tbSourcePath.Text = _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value;
 #nullable restore
@@ -112,16 +117,19 @@ namespace LoaderCore.UI
 #nullable disable warnings
             _xmlConfig.Root.Element("ShowStartup").Value = XmlConvert.ToString((bool)chbShowOnStartUp.IsChecked);
 
-            _xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeLayerWorks.IsChecked);
-            _xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateLayerWorks.IsChecked);
-            _xmlConfig.Root.Element("UtilitiesConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeUtilities.IsChecked);
-            _xmlConfig.Root.Element("UtilitiesConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateUtilities.IsChecked);
-            _xmlConfig.Root.Element("GeoModConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeGeoMod.IsChecked);
-            _xmlConfig.Root.Element("GeoModConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateGeoMod.IsChecked);
+            //_xmlConfig.Root.Element("LayerWorksConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeLayerWorks.IsChecked);
+            //_xmlConfig.Root.Element("LayerWorksConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateLayerWorks.IsChecked);
+            //_xmlConfig.Root.Element("UtilitiesConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeUtilities.IsChecked);
+            //_xmlConfig.Root.Element("UtilitiesConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateUtilities.IsChecked);
+            //_xmlConfig.Root.Element("GeoModConfiguration").Element("Enabled").Value = XmlConvert.ToString((bool)chbIncludeGeoMod.IsChecked);
+            //_xmlConfig.Root.Element("GeoModConfiguration").Element("UpdateEnabled").Value = XmlConvert.ToString((bool)chbAutoUpdateGeoMod.IsChecked);
 
             DirectoryInfo checkdir = new(tbSourcePath.Text);
             if (checkdir.Exists)
                 _xmlConfig.Root.Element("Directories").Element("UpdateDirectory").Value = tbSourcePath.Text;
+
+            //var binding = gridMain.GetBindingExpression(DataContextProperty);
+            //binding.UpdateSource();
             _xmlConfig.Save(_xmlConfigPath);
 #nullable restore
         }

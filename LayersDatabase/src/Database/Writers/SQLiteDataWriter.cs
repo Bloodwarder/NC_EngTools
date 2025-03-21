@@ -1,22 +1,19 @@
 ﻿using LayersIO.Connection;
 using LoaderCore;
 using LoaderCore.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LayersIO.Database.Writers
 {
     public abstract class SQLiteDataWriter<TKey, TValue> : ILayerDataWriter<TKey, TValue> where TKey : notnull
     {
-        private protected readonly string _path;
-        private protected readonly static SQLiteLayerDataContextFactory _contextFactory;
+        private protected readonly IDbContextFactory<LayersDatabaseContextSqlite> _contextFactory;
 
-        static SQLiteDataWriter()
+        static SQLiteDataWriter() { }
+        public SQLiteDataWriter(IDbContextFactory<LayersDatabaseContextSqlite> factory)
         {
-            _contextFactory = NcetCore.ServiceProvider.GetRequiredService<SQLiteLayerDataContextFactory>();
-        }
-        public SQLiteDataWriter(string path)
-        {
-            _path = path;
+            _contextFactory = factory;
         }
 
         public abstract void OverwriteSource(Dictionary<TKey, TValue> dictionary);
