@@ -131,7 +131,7 @@
                 <TabItem Header="Общие" Width="100" IsEnabled="{Binding Path=IsGroupSelected}">
                     <StackPanel IsEnabled="{Binding Path=IsGroupSelected}">
                         <ui:UserStringInput x:Name="inputPrefix" IsEnabled="False" LabelText="Префикс" InputValue="{Binding Path=SelectedGroup.Prefix, Mode=TwoWay}"/>
-                        <ui:UserStringInput x:Name="inputMainName" LabelText="Основное имя" InputValue="{Binding Path=SelectedGroup.MainName, Mode=TwoWay}"/>
+                        <ui:UserStringInput x:Name="inputMainName" LabelText="Основное имя" InputValue="{Binding Path=SelectedGroup.MainName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
                         <ui:UserStringInput x:Name="inputStatus" IsEnabled="False" LabelText="Статус" InputValue="{Binding Path=SelectedLayer.StatusName, Mode=TwoWay}"/>
                     </StackPanel>
                 </TabItem>
