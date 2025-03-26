@@ -83,7 +83,7 @@ namespace Utilities
         [CommandMethod("ГОРИЗ_РАСЧ")]
         public static void HorizontalCalcCommand()
         {
-            NcetCommand.ExecuteCommand(HorizontalCalc);
+            NcetCommand.ExecuteCommand(IsolinesCalc);
         }
 
         [CommandMethod("КРАСН_ЧЕРН_УРАВН", CommandFlags.Redraw)]

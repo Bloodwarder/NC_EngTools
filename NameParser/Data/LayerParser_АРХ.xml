@@ -103,12 +103,12 @@
 				</DefaultValue>
 			</ClassifierGroup>
 		</DrawProperty>
-		<DrawProperty Name="InnerBorderBrightness">
+		<DrawProperty Name="InnerHatchBrightness">
 			<ClassifierGroup>
 				<ChapterReference Value="ФЗ"/>
 			</ClassifierGroup>
 			<DefaultValue>
-				<Double>-0.5</Double>
+				<Double>0.6</Double>
 			</DefaultValue>
 		</DrawProperty>
 		<DrawProperty Name="InnerHatchScale">

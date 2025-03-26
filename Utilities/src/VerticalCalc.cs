@@ -162,7 +162,7 @@ namespace Utilities
             }
         }
 
-        public static void HorizontalCalc()
+        public static void IsolinesCalc()
         {
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
             {
@@ -199,7 +199,7 @@ namespace Utilities
                         Workstation.Editor.WriteMessage("Неверный ввод");
                         return;
                     }
-                    double widthSlope = result2.Value/1000;
+                    double widthSlope = result2.Value / 1000d;
                     LastWidthSlope = result2.Value;
 
                     PromptDistanceOptions pDistOpts = new("Укажите полуширину проезжей части")
@@ -231,12 +231,13 @@ namespace Utilities
                     double slope = Math.Abs((red2 - red1) / l1);
                     double axisStep = horStep / slope;
 
-                    double scaleDifference = Math.Round(red1 % 1, 2) * 100;
-                    double horStep100 = horStep * 100;
+                    double scaleDifference = Math.Round(red1 % 1d, 2) * 100d;
+                    double horStep100 = horStep * 100d;
                     scaleDifference %= horStep100;
 
-                    double levelDisplacement = upwards ? horStep100 - scaleDifference : scaleDifference;
-                    double axisDisplacement = levelDisplacement * 0.01d / slope;
+                    double levelDisplacementInt = upwards ? horStep100 - scaleDifference : scaleDifference;
+                    double levelDisplacement = levelDisplacementInt / 100d;
+                    double axisDisplacement = levelDisplacement / slope;
 
                     StringBuilder sb = new();
                     sb.Append($"\nУклон: {slope * 1000d:0}");
@@ -251,7 +252,12 @@ namespace Utilities
                     var closestPoint = axis.GetClosestPointTo(mark1!.Position, false);
                     var roundedParameter = Math.Round(axis.GetParameterAtPoint(closestPoint), 0);
                     if (roundedParameter != 0)
+                    {
+                        //upwards = !upwards;
                         axis.ReverseCurve();
+                    }
+
+                    double currentHeight = Math.Round(red1 + (upwards ? 1d : -1d) * levelDisplacement, 2);
                     for (double dist = axisDisplacement; dist < axis.Length; dist += axisStep)
                     {
                         var point = axis.GetPointAtDist(dist).Convert2d(new Plane());
@@ -261,10 +267,15 @@ namespace Utilities
                         // TODO: проверить дугу
                         var pl = CreateIsoline(point, halfWidth, displacement, angle, upwards);
                         pl.LayerId = Workstation.Database.Clayer;
+                        Entity[] dashAndLabel = CreateLabelAndDash(pl, currentHeight, upwards);
+                        currentHeight = upwards ? currentHeight + horStep : currentHeight - horStep;
                         modelSpace.AppendEntity(pl);
+                        modelSpace.AppendEntity(dashAndLabel[0]);
+                        modelSpace.AppendEntity(dashAndLabel[1]);
                         transaction.AddNewlyCreatedDBObject(pl, true);
+                        transaction.AddNewlyCreatedDBObject(dashAndLabel[0], true);
+                        transaction.AddNewlyCreatedDBObject(dashAndLabel[1], true);
                     }
-
 
                     double vx = mark1!.Position.X - mark2!.Position.X;
                     double vy = mark1.Position.Y - mark2.Position.Y;
@@ -318,7 +329,7 @@ namespace Utilities
         // Служебные приватные методы
         private static Polyline CreateIsoline(Point2d pointOnAxis, double halfWidth, double displacement, double angle, bool isUpwardsDirected)
         {
-            double sign = isUpwardsDirected ? 1 : -1;
+            double sign = isUpwardsDirected ? 1d : -1d;
             double x1 = pointOnAxis.X - halfWidth * Math.Sin(angle) + sign * displacement * Math.Cos(angle);
             double y1 = pointOnAxis.Y + halfWidth * Math.Cos(angle) + sign * displacement * Math.Sin(angle);
             Point2d p1 = new(x1, y1);
@@ -335,13 +346,57 @@ namespace Utilities
 
             return polyline;
         }
+
+        private static Entity[] CreateLabelAndDash(Polyline polyline, double labelValue, bool upwards)
+        {
+            labelValue = Math.Round(labelValue, 2);
+            Point3d point = polyline.GetPointAtParameter(1.6d);
+            Vector3d direction = polyline.GetLineSegmentAt(1).Direction;
+            double angle = direction.Convert2d(new Plane()).Angle;
+            double labelOffset = Labeler.LabelTextHeight * 0.1d;
+
+            double m = upwards ? -1d : 1d;
+
+            double xLabel = point.X + m * Math.Sin(angle) * labelOffset;
+            double yLabel = point.Y - m * Math.Cos(angle) * labelOffset;
+            double xDash = point.X - m * Math.Sin(angle) * 1d;
+            double yDash = point.Y + m * Math.Cos(angle) * 1d;
+
+            Point2d dashPoint = new(xDash, yDash);
+            Point3d labelPoint = new(xLabel, yLabel, 0d);
+
+            bool boldIsoline = labelValue % 1d == 0d;
+
+            MText label = new()
+            {
+                Attachment = AttachmentPoint.BottomCenter,
+                Rotation = angle + (upwards ? 0d : 1d) * Math.PI,
+                LayerId = Workstation.Database.Clayer,
+                Contents = boldIsoline ? labelValue.ToString("0.00", CultureInfo.InvariantCulture) : Math.Round(labelValue % 1d * 100d, 0).ToString("0", CultureInfo.InvariantCulture),
+                Location = labelPoint,
+                TextHeight = Labeler.LabelTextHeight * 0.9d
+            };
+
+
+            Polyline dash = new()
+            {
+                LayerId = Workstation.Database.Clayer,
+            };
+            dash.AddVertexAt(0, point.Convert2d(new Plane()), 0, 0, 0);
+            dash.AddVertexAt(1, dashPoint, 0, 0, 0);
+
+            return new Entity[] { label, dash };
+        }
         private static string GetBlockAttribute(BlockReference bref, string tag)
         {
             AttributeCollection atrs = bref.AttributeCollection;
-            var atrref = (from ObjectId objid in atrs
-                          let rfr = Workstation.TransactionManager.TopTransaction.GetObject(objid, OpenMode.ForRead) as AttributeReference
-                          where rfr.Tag == tag
-                          select rfr).FirstOrDefault();
+            var atrref = atrs.Cast<ObjectId>()
+                             .Select(id => id.GetObject<AttributeReference>(OpenMode.ForRead))
+                             .FirstOrDefault(r => r.Tag == tag);
+            //var atrref = (from ObjectId objid in atrs
+            //              let rfr = Workstation.TransactionManager.TopTransaction.GetObject(objid, OpenMode.ForRead) as AttributeReference
+            //              where rfr.Tag == tag
+            //              select rfr).FirstOrDefault();
             if (atrref != null)
             {
                 return atrref.TextString ?? "";

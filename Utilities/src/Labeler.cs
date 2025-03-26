@@ -29,7 +29,7 @@ namespace Utilities
             LabelBackgroundScaleFactor = backgroundScaleFactor ?? DefaultLabelBackgroundScaleFactor;
         }
 
-        private static double LabelTextHeight { get; set; }
+        internal static double LabelTextHeight { get; set; }
         private static double LabelBackgroundScaleFactor { get; set; }
         private static string PrevText { get; set; } = "";
         /// <summary>
