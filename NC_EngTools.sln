@@ -4,21 +4,21 @@ VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoaderCore", "LoaderCore\LoaderCore.csproj", "{422E95A1-FD27-4248-B8A9-73783681C5B4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NC_EngTools_StartUp", "NC_EngTools_Loader\NC_EngTools_StartUp.csproj", "{AE5B4650-D8D9-4B12-AA8D-3334834D1EE4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NC_EngTools_StartUp", "NC_EngTools_StartUp\NC_EngTools_StartUp.csproj", "{AE5B4650-D8D9-4B12-AA8D-3334834D1EE4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utilities", "Utilities\Utilities.csproj", "{BC37020E-E998-40FE-952F-133E841045B7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{422E95A1-FD27-4248-B8A9-73783681C5B4} = {422E95A1-FD27-4248-B8A9-73783681C5B4}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayerWorks", "LayerWorks23\LayerWorks.csproj", "{034CF531-F41E-4C83-B823-7F4A365FCC9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayerWorks", "LayerWorks\LayerWorks.csproj", "{034CF531-F41E-4C83-B823-7F4A365FCC9A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeoMod", "GeoMod\GeoMod.csproj", "{AFCD98C8-3AA4-4393-83D7-7EDFB9C1407A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{422E95A1-FD27-4248-B8A9-73783681C5B4} = {422E95A1-FD27-4248-B8A9-73783681C5B4}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayersIO", "LayersDatabase\LayersIO.csproj", "{7DBC9A8B-8A60-456C-8F2D-1C08041F1007}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayersIO", "LayersIO\LayersIO.csproj", "{7DBC9A8B-8A60-456C-8F2D-1C08041F1007}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayersDatabaseEditor", "LayersDatabaseEditor\LayersDatabaseEditor.csproj", "{CF17117F-D8E6-494A-8F3A-397879C882AF}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -37,7 +37,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Service", "Service", "{0D31
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayerDbMigrations", "LayerDbMigrations\LayerDbMigrations.csproj", "{709E5BCF-67F0-4873-8D3F-42EAB482A791}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NcetExternalUpdater", "NcetExternalUpdater\NcetExternalUpdater.csproj", "{1996DC9E-AAE9-4EAF-A6E0-E645C682A498}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NcetExternalUpdater", "NcetExternalUpdater\NcetExternalUpdater.csproj", "{1996DC9E-AAE9-4EAF-A6E0-E645C682A498}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
