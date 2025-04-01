@@ -264,9 +264,17 @@ namespace LayerWorks.Commands
                     }
                     foreach (LayerWrapper wrapper in workWrappers)
                     {
-                        bool success = repository.TryGet(wrapper.LayerInfo.MainName, out string? newMainName);
+                        string initialMainName = wrapper.LayerInfo.MainName;
+                        bool success = repository.TryGet(initialMainName, out string? newMainName);
                         if (success)
-                            wrapper.LayerInfo.AlterSecondaryClassifier(newMainName!);
+                        {
+                            wrapper.LayerInfo.AlterMainName(newMainName!);
+                            Workstation.Logger?.LogDebug("{ProcessingObject}:\tДля слоя \"{Layer}\" найден альтернативный слой \"{NewLayer}\"", nameof(LayerAlter), initialMainName, newMainName);
+                        }
+                        else
+                        {
+                            Workstation.Logger?.LogDebug("{ProcessingObject}:\tНе найден альтернативный слой для слоя \"{Layer}\"", nameof(LayerAlter), initialMainName);
+                        }
                     }
                     workWrappers.ForEach(w => w.Push());
                     transaction.Commit();

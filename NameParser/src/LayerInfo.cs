@@ -88,13 +88,20 @@ namespace NameClassifiers
             AuxilaryData[key] = value;
         }
 
-        public void AlterSecondaryClassifier(string newMainName)
+        public void AlterMainName(string newMainName)
         {
             var alterResult = ParentParser.GetLayerInfo($"{ParentParser.Prefix}{ParentParser.Separator}{newMainName}");
-            if (alterResult.Status != LayerInfoParseStatus.Failure && alterResult.Value.SecondaryClassifiers != null)
+            if (alterResult.Status != LayerInfoParseStatus.Failure && alterResult.Value!.SecondaryClassifiers != null)
+            {
                 SecondaryClassifiers = alterResult.Value.SecondaryClassifiers;
+                foreach (var auxKey in alterResult.Value.AuxilaryClassifiers.Keys)
+                    AuxilaryClassifiers[auxKey] = alterResult.Value.AuxilaryClassifiers[auxKey];
+                PrimaryClassifier = alterResult.Value.PrimaryClassifier;
+            }
             else
+            {
                 throw new WrongLayerException("Неверное основное имя для замены");
+            }
         }
 
         public void SwitchSuffix(string key, bool value)
