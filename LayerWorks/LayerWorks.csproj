@@ -28,10 +28,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\LayersDatabase\LayersIO.csproj">
-			<IncludeAssets>compile</IncludeAssets>
-			<Private>False</Private>
-		</ProjectReference>
+	  <ProjectReference Include="..\LayersIO\LayersIO.csproj" />
 	  <ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
 		  <IncludeAssets>compile</IncludeAssets>
 		  <Private>False</Private>

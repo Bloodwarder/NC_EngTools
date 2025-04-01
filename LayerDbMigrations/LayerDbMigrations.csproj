@@ -38,11 +38,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\LayersDatabase\LayersIO.csproj" />
+	  <Folder Include="Data\" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Data\" />
+	  <ProjectReference Include="..\LayersIO\LayersIO.csproj" />
 	</ItemGroup>
 
 </Project>
