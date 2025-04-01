@@ -12,22 +12,16 @@ namespace LayersIO.Database.Writers
 
         public override void OverwriteItem(string key, LegendDrawTemplate item)
         {
-            using (var db = _contextFactory.CreateDbContext())
-            {
-                OverwriteItemInContext(key, item, db);
-                db.SaveChanges();
-            }
+                OverwriteItemInContext(key, item, _context!);
+                _context!.SaveChanges();
         }
 
         public override void OverwriteSource(Dictionary<string, LegendDrawTemplate> dictionary)
         {
-            using (var db = _contextFactory.CreateDbContext())
-            {
-                var query = db.Set<LayerData>().Include(l => l.LayerDrawTemplateData).Where(l => dictionary.ContainsKey(l.Name)).AsQueryable();
+                var query = _context!.Set<LayerData>().Include(l => l.LayerDrawTemplateData).Where(l => dictionary.ContainsKey(l.Name)).AsQueryable();
                 foreach (var kvp in dictionary)
-                    OverwriteItemInContext(kvp.Key, kvp.Value, db, query);
-                db.SaveChanges();
-            }
+                    OverwriteItemInContext(kvp.Key, kvp.Value, _context, query);
+                _context.SaveChanges();
         }
 
         protected override void OverwriteItemInContext(string key, LegendDrawTemplate item, LayersDatabaseContextSqlite db)

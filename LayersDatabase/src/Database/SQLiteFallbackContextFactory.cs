@@ -7,12 +7,13 @@ using Microsoft.Extensions.Logging;
 
 namespace LayersIO.Database
 {
-    public class SQLiteFallbackContextFactory : IDbContextFactory<LayersDatabaseContextSqlite>
+    public class SQLiteFallbackContextFactory : IDbContextFactory<LayersDatabaseContextSqlite>, IDisposable
     {
         private const string DatabaseFileName = "LayerData.db";
 
         readonly ILogger _logger;
         readonly Fallback<LayersDatabaseContextSqlite, string> _fallback;
+        LayersDatabaseContextSqlite? _context;
 
         public SQLiteFallbackContextFactory(ILogger logger, IConfiguration configuration)
         {
@@ -24,14 +25,22 @@ namespace LayersIO.Database
             var sortedPaths = paths.OrderBy(p => p.Type)
                                    .Select(p => p.Path)
                                    .Where(s => !string.IsNullOrEmpty(s))
-                                   .Select(s => Path.Combine(s, DatabaseFileName));
+                                   .Select(s => Path.Combine(s!, DatabaseFileName));
             _fallback = new(sortedPaths, p => new(p, _logger), ErrorCallback, SuccessCallback);
         }
 
         ///<inheritdoc/>
         public LayersDatabaseContextSqlite CreateDbContext()
         {
-            return _fallback.GetResult();
+            _context ??= _fallback.GetResult();
+            return _context;
+        }
+
+        public void Dispose()
+        {
+            _context?.Dispose();
+            _context = null;
+            GC.SuppressFinalize(this);
         }
 
         private void ErrorCallback(string path, Exception ex) =>

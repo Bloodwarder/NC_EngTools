@@ -7,6 +7,8 @@ using LayersIO.DataTransfer;
 using LoaderCore.Interfaces;
 using LoaderCore.SharedData;
 using LayerWorks.DataRepositories;
+using Microsoft.EntityFrameworkCore;
+using LayersIO.Connection;
 
 namespace LayerWorks.Commands
 {
@@ -117,21 +119,27 @@ namespace LayerWorks.Commands
         {
             NcetCommand.ExecuteCommand(() =>
             {
-                var prov1 = NcetCore.ServiceProvider.GetService<IRepository<string, LayerProps>>();
-                var prov2 = NcetCore.ServiceProvider.GetService<IRepository<string, LegendData>>();
-                var prov3 = NcetCore.ServiceProvider.GetService<IRepository<string, LegendDrawTemplate>>();
-                var prov4 = NcetCore.ServiceProvider.GetService<IRepository<string, string>>();
-                var prov5 = NcetCore.ServiceProvider.GetService<IRepository<string, ZoneInfo[]>>();
-                if (prov1 is InMemoryRepository<string, LayerProps> imp1)
-                    imp1.Reload();
-                if (prov2 is InMemoryRepository<string, LegendData> imp2)
-                    imp2.Reload();
-                if (prov3 is InMemoryRepository<string, LegendDrawTemplate> imp3)
-                    imp3.Reload();
-                if (prov4 is InMemoryRepository<string, string> imp4)
-                    imp4.Reload();
-                if (prov5 is InMemoryRepository<string, ZoneInfo[]> imp5)
-                    imp5.Reload();
+                using (var scope = NcetCore.ServiceProvider.CreateScope())
+                {
+                    var prov1 = NcetCore.ServiceProvider.GetService<IRepository<string, LayerProps>>();
+                    var prov2 = NcetCore.ServiceProvider.GetService<IRepository<string, LegendData>>();
+                    var prov3 = NcetCore.ServiceProvider.GetService<IRepository<string, LegendDrawTemplate>>();
+                    var prov4 = NcetCore.ServiceProvider.GetService<IRepository<string, string>>();
+                    var prov5 = NcetCore.ServiceProvider.GetService<IRepository<string, ZoneInfo[]>>();
+                    if (prov1 is InMemoryRepository<string, LayerProps> imp1)
+                        imp1.Reload();
+                    if (prov2 is InMemoryRepository<string, LegendData> imp2)
+                        imp2.Reload();
+                    if (prov3 is InMemoryRepository<string, LegendDrawTemplate> imp3)
+                        imp3.Reload();
+                    if (prov4 is InMemoryRepository<string, string> imp4)
+                        imp4.Reload();
+                    if (prov5 is InMemoryRepository<string, ZoneInfo[]> imp5)
+                        imp5.Reload();
+                    var factory = NcetCore.ServiceProvider.GetService<IDbContextFactory<LayersDatabaseContextSqlite>>();
+                    if (factory is IDisposable disposable)
+                        disposable.Dispose();
+                }
             });
         }
 

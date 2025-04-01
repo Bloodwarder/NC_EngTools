@@ -11,10 +11,10 @@ namespace LayersIO.Database.Readers
         public SQLiteLayerLegendDataProvider(IDbContextFactory<LayersDatabaseContextSqlite> factory) : base(factory) { }
         public override Dictionary<string, LegendData> GetData()
         {
-            using (var db = _contextFactory.CreateDbContext())
-            {
+            //using (var db = _contextFactory.CreateDbContext())
+            //{
 
-                var layers = db.Set<LayerGroupData>().Include(l => l.LayerLegendData);
+                var layers = _context.Set<LayerGroupData>().Include(l => l.LayerLegendData);
                 if (layers.Any())
                 {
                     var kvpCollection = layers.AsNoTracking()
@@ -26,16 +26,16 @@ namespace LayersIO.Database.Readers
                 {
                     return new Dictionary<string, LegendData>();
                 }
-            }
+            //}
         }
 
         public override LegendData? GetItem(string key)
         {
-            using (var db = _contextFactory.CreateDbContext())
-            {
-                var layers = db.LayerGroups.AsNoTracking().Include(l => l.LayerLegendData);
+            //using (var db = _contextFactory.CreateDbContext())
+            //{
+                var layers = _context.LayerGroups.AsNoTracking().Include(l => l.LayerLegendData);
                 return layers.Where(l => l.MainName == key).Select(l => TinyMapper.Map<LegendData>(l.LayerLegendData)).FirstOrDefault();
-            }
+            //}
         }
     }
 }

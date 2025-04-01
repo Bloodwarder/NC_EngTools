@@ -6,6 +6,8 @@ using Teigha.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using LayerWorks.LayerProcessing;
 using LayerWorks.Commands;
+using Microsoft.EntityFrameworkCore;
+using LayersIO.Connection;
 
 namespace LayerWorks
 {
@@ -31,6 +33,9 @@ namespace LayerWorks
 
         public void Terminate()
         {
+            //var contextFactory = NcetCore.ServiceProvider.GetService<IDbContextFactory<LayersDatabaseContextSqlite>>();
+            //if (contextFactory is IDisposable disposable)
+            //    disposable.Dispose();
 
         }
     }

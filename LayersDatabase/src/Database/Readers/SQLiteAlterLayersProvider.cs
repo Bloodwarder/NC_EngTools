@@ -10,32 +10,32 @@ namespace LayersIO.Database.Readers
 
         public override Dictionary<string, string?> GetData()
         {
-            using (var db = _contextFactory.CreateDbContext())
+            //using (var db = _contextFactory.CreateDbContext())
+            //{
+            var layers = _context.Set<LayerGroupData>();
+            if (layers.Any())
             {
-                var layers = db.Set<LayerGroupData>();
-                if (layers.Any())
-                {
-                    var kvpCollection = layers.AsNoTracking()
-                                              .Select(l => new KeyValuePair<string, string?>(l.MainName, l.AlternateLayer));
-                    return new Dictionary<string, string?>(kvpCollection!);
-                }
-                else
-                {
-                    return new Dictionary<string, string?>();
-                }
+                var kvpCollection = layers.AsNoTracking()
+                                          .Select(l => new KeyValuePair<string, string?>(l.MainName, l.AlternateLayer));
+                return new Dictionary<string, string?>(kvpCollection!);
             }
+            else
+            {
+                return new Dictionary<string, string?>();
+            }
+            //}
         }
 
         public override string? GetItem(string key)
         {
-            using (var db = _contextFactory.CreateDbContext())
-            {
-                var layers = db.LayerGroups;
-                return layers.AsNoTracking()
-                             .Where(l => l.MainName == key)
-                             .Select(l => l.AlternateLayer)
-                             .FirstOrDefault();
-            }
+            //using (var db = _contextFactory.CreateDbContext())
+            //{
+            var layers = _context.LayerGroups;
+            return layers.AsNoTracking()
+                         .Where(l => l.MainName == key)
+                         .Select(l => l.AlternateLayer)
+                         .FirstOrDefault();
+            //}
         }
     }
 }

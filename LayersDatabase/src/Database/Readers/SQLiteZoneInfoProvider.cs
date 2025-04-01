@@ -12,45 +12,44 @@ namespace LayersIO.Database.Readers
 
         public override Dictionary<string, ZoneInfo[]> GetData()
         {
-            using (var db = _contextFactory.CreateDbContext())
+            //using (var db = _contextFactory.CreateDbContext())
+            //{
+            try
             {
+                var layers = _context.Layers.AsNoTracking()
+                                            .Where(l => l.Zones != null && l.Zones.Any())
+                                            .Where(l => l.LayerGroup != null && !string.IsNullOrEmpty(l.StatusName))
+                                            .Include(l => l.Zones)
+                                            .ThenInclude(z => z.ZoneLayer)
+                                            .ThenInclude(zl => zl.LayerGroup)
+                                            .Include(l => l.LayerGroup)
+                                            .AsEnumerable();
 
-                try
-                {
-                    var layers = db.Layers.AsNoTracking()
-                                  .Where(l => l.Zones != null && l.Zones.Any())
-                                  .Where(l => l.LayerGroup != null && !string.IsNullOrEmpty(l.StatusName))
-                                  .Include(l => l.Zones)
-                                  .ThenInclude(z => z.ZoneLayer)
-                                  .ThenInclude(zl => zl.LayerGroup)
-                                  .Include(l => l.LayerGroup)
-                                  .AsEnumerable();
+                var kvpCollection = layers.Select(l => new KeyValuePair<string, ZoneInfo[]>
+                                                (l.Name, l.Zones.Select(z => z.ToZoneInfo()).ToArray()));
+                return new Dictionary<string, ZoneInfo[]>(kvpCollection!);
 
-                    var kvpCollection = layers.Select(l => new KeyValuePair<string, ZoneInfo[]>
-                                                    (l.Name, l.Zones.Select(z => z.ToZoneInfo()).ToArray()));
-                    return new Dictionary<string, ZoneInfo[]>(kvpCollection!);
-
-                }
-                catch (Exception)
-                {
-                    // TODO: Log
-                    throw;
-                }
             }
+            catch (Exception)
+            {
+                // TODO: Log
+                throw;
+            }
+            //}
         }
 
         public override ZoneInfo[]? GetItem(string key)
         {
-            using (var db = _contextFactory.CreateDbContext())
-            {
-                var layer = db.Set<LayerData>().AsNoTracking()
-                                               .Where(l => l.Name == key && l.Zones.Any())
-                                               .Include(l => l.Zones)
-                                               .ThenInclude(z => z.ZoneLayer)
-                                               .SingleOrDefault();
-                var zones = layer?.Zones.Select(z => z.ToZoneInfo()).ToArray();
-                return zones;
-            }
+            //using (var db = _contextFactory.CreateDbContext())
+            //{
+            var layer = _context.Set<LayerData>().AsNoTracking()
+                                           .Where(l => l.Name == key && l.Zones.Any())
+                                           .Include(l => l.Zones)
+                                           .ThenInclude(z => z.ZoneLayer)
+                                           .SingleOrDefault();
+            var zones = layer?.Zones.Select(z => z.ToZoneInfo()).ToArray();
+            return zones;
+            //}
         }
     }
 }

@@ -38,10 +38,10 @@ namespace LayerWorks
             // Зарегистрировать сервисы, не зависящие от нанокада
             // Зависящие регистрируются в LayerWorksExtension
 
-            NcetCore.Services.AddRepositories(SourceType.InMemory)
+            _ = NcetCore.Services.AddRepositories(SourceType.InMemory)
                              .AddDataProviderFactories(SourceType.SQLite)
                              .AddDataWriterFactories(SourceType.SQLite)
-                             .AddSingleton<IDbContextFactory<LayersDatabaseContextSqlite>, SQLiteFallbackContextFactory>()
+                             .AddScoped<IDbContextFactory<LayersDatabaseContextSqlite>, SQLiteFallbackContextFactory>()
                              .AddSingleton<SQLiteLayerDataContextFactory>()
                              .AddTransient(typeof(IReportWriterFactory<>), typeof(ExcelSimpleReportWriterFactory<>));
         }
@@ -80,11 +80,18 @@ namespace LayerWorks
         private static void InitializeRepositories()
         {
             // Заранее инициализировать репозитории, чтобы не было задержки при первом выполнении команды, запрашивающей данные из репозитория
-            _ = NcetCore.ServiceProvider.GetService<IRepository<string, LayerProps>>();
-            _ = NcetCore.ServiceProvider.GetService<IRepository<string, LegendData>>();
-            _ = NcetCore.ServiceProvider.GetService<IRepository<string, LegendDrawTemplate>>();
-            _ = NcetCore.ServiceProvider.GetService<IRepository<string, string>>();
-            _ = NcetCore.ServiceProvider.GetService<IRepository<string, ZoneInfo[]>>();
+            using (IServiceScope scope = NcetCore.ServiceProvider.CreateScope())
+            {
+                _ = NcetCore.ServiceProvider.GetService<IRepository<string, LayerProps>>();
+                _ = NcetCore.ServiceProvider.GetService<IRepository<string, LegendData>>();
+                _ = NcetCore.ServiceProvider.GetService<IRepository<string, LegendDrawTemplate>>();
+                _ = NcetCore.ServiceProvider.GetService<IRepository<string, string>>();
+                _ = NcetCore.ServiceProvider.GetService<IRepository<string, ZoneInfo[]>>();
+
+                var factory = NcetCore.ServiceProvider.GetService<IDbContextFactory<LayersDatabaseContextSqlite>>();
+                if (factory is IDisposable disposable)
+                    disposable.Dispose();
+            }
         }
 
         private static async Task InitializeRepositoriesAsync()

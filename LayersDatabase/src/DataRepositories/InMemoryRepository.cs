@@ -1,5 +1,8 @@
-﻿using LoaderCore.Interfaces;
+﻿using LoaderCore;
+using LoaderCore.Interfaces;
 using LoaderCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics.CodeAnalysis;
 
 namespace LayerWorks.DataRepositories
@@ -7,12 +10,14 @@ namespace LayerWorks.DataRepositories
     public class InMemoryRepository<TKey, TData> : IRepository<TKey, TData> where TKey : notnull, IEquatable<TKey>
     {
         private Dictionary<TKey, TData> _dictionary;
-        private readonly ILayerDataProvider<TKey, TData> _dataProvider;
+        private readonly ILogger? _logger;
+        //private readonly ILayerDataProvider<TKey, TData> _dataProvider;
 
-        public InMemoryRepository(ILayerDataProvider<TKey, TData> provider)
+        public InMemoryRepository(ILayerDataProvider<TKey, TData> provider, ILogger? logger)
         {
-            _dataProvider = provider;
-            _dictionary = _dataProvider.GetData();
+            //_dataProvider = provider;
+            _logger = logger;
+            _dictionary = provider.GetData();
         }
 
         public TData Get(TKey key)
@@ -49,7 +54,16 @@ namespace LayerWorks.DataRepositories
 
         public void Reload()
         {
-            _dictionary = _dataProvider.GetData();
+            var provider = NcetCore.ServiceProvider.GetService<ILayerDataProvider<TKey, TData>>();
+            if (provider != null) 
+            {
+                _dictionary = provider.GetData();
+            }
+            else
+            {
+                _logger?.LogWarning("Не удалось соединиться с источником данных для перезагрузки");
+            }
+            
         }
     }
 

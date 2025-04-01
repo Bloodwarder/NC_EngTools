@@ -14,21 +14,15 @@ namespace LayersIO.Database.Writers
 
         public override void OverwriteSource(Dictionary<string, ZoneInfo[]> dictionary)
         {
-            using (var db = _contextFactory.CreateDbContext())
-            {
-                var query = db.Set<LayerData>().Where(l => dictionary.ContainsKey(l.Name)).AsQueryable();
+                var query = _context!.Set<LayerData>().Where(l => dictionary.ContainsKey(l.Name)).AsQueryable();
                 foreach (var kvp in dictionary)
-                    OverwriteItemInContext(kvp.Key, kvp.Value, db, query);
-                db.SaveChanges();
-            }
+                    OverwriteItemInContext(kvp.Key, kvp.Value, _context!, query);
+                _context!.SaveChanges();
         }
         public override void OverwriteItem(string key, ZoneInfo[] item)
         {
-            using (var db = _contextFactory.CreateDbContext())
-            {
-                OverwriteItemInContext(key, item, db);
-                db.SaveChanges();
-            }
+                OverwriteItemInContext(key, item, _context!);
+                _context!.SaveChanges();
         }
         protected override void OverwriteItemInContext(string key, ZoneInfo[] item, LayersDatabaseContextSqlite db)
         {
