@@ -54,11 +54,6 @@ namespace LayerWorks
 
         private static void AddInMemoryRepositories(IServiceCollection services)
         {
-            //services.AddSingleton<IRepository<string, LayerProps>, InMemoryRepository<string, LayerProps>>()
-            //        .AddSingleton<IRepository<string, LegendData>, InMemoryRepository<string, LegendData>>()
-            //        .AddSingleton<IRepository<string, LegendDrawTemplate>, InMemoryRepository<string, LegendDrawTemplate>>()
-            //        .AddSingleton<IRepository<string, string>, InMemoryRepository<string, string>>()
-            //        .AddSingleton<IRepository<string, ZoneInfo[]>, InMemoryRepository<string, ZoneInfo[]>>();
             services.AddSingleton(typeof(IRepository<,>), typeof(InMemoryRepository<,>));
         }
 
@@ -82,24 +77,12 @@ namespace LayerWorks
 
         private static void AddSQLiteDataProviders(IServiceCollection services)
         {
-            // используются внутри фабрики (регистрируется в следующих строках)
-            //services.AddTransient<Func<string, ILayerDataProvider<string, LayerProps>>>(p => new(path => new SQLiteLayerPropsProvider(path)));
-            //services.AddTransient<Func<string, ILayerDataProvider<string, LegendData>>>(p => new(path => new SQLiteLayerLegendDataProvider(path)));
-            //services.AddTransient<Func<string, ILayerDataProvider<string, LegendDrawTemplate>>>(p => new(path => new SQLiteLegendDrawTemplateProvider(path)));
-            //services.AddTransient<Func<string, ILayerDataProvider<string, string?>>>(p => new(path => new SQLiteAlterLayersProvider(path)));
-            //services.AddTransient<Func<string, ILayerDataProvider<string, ZoneInfo[]>>>(p => new(path => new SQLiteZoneInfoProvider(path)));
+            // Регистрируем как Transient, так как сохранять в полях смысла нет - фабрика контекстов Scoped, контекст диспозится вместе с ней
             services.AddTransient<ILayerDataProvider<string,LayerProps>, SQLiteLayerPropsProvider>()
                     .AddTransient<ILayerDataProvider<string, LegendData>, SQLiteLayerLegendDataProvider>()
                     .AddTransient<ILayerDataProvider<string, LegendDrawTemplate>, SQLiteLegendDrawTemplateProvider>()
                     .AddTransient<ILayerDataProvider<string, string?>, SQLiteAlterLayersProvider>()
                     .AddTransient<ILayerDataProvider<string, ZoneInfo[]>, SQLiteZoneInfoProvider>();
-
-
-            services.AddTransient<IDataProviderFactory<string, LayerProps>, SQLiteDataProviderFactory<string, LayerProps>>()
-                    .AddTransient<IDataProviderFactory<string, LegendData>, SQLiteDataProviderFactory<string, LegendData>>()
-                    .AddTransient<IDataProviderFactory<string, LegendDrawTemplate>, SQLiteDataProviderFactory<string, LegendDrawTemplate>>()
-                    .AddTransient<IDataProviderFactory<string, string>, SQLiteDataProviderFactory<string, string>>()
-                    .AddTransient<IDataProviderFactory<string, ZoneInfo[]>, SQLiteDataProviderFactory<string, ZoneInfo[]>>();
         }
 
     }
