@@ -227,6 +227,7 @@ namespace Utilities
                     double red2 = double.Parse(GetBlockAttribute(mark2!, RedMarkTag), CultureInfo.InvariantCulture);
                     double l1 = axis!.Length;
 
+                    
                     bool upwards = red2 > red1;
                     double slope = Math.Abs((red2 - red1) / l1);
                     double axisStep = horStep / slope;
@@ -235,36 +236,72 @@ namespace Utilities
                     double horStep100 = horStep * 100d;
                     scaleDifference %= horStep100;
 
+                    double scaleDifferenceFarMark = Math.Round(red2 % 1d, 2) * 100d;
+                    scaleDifferenceFarMark %= horStep100;
+
                     double levelDisplacementInt = upwards ? horStep100 - scaleDifference : scaleDifference;
                     double levelDisplacement = levelDisplacementInt / 100d;
                     double axisDisplacement = levelDisplacement / slope;
+
+                    double levelDisplacementIntFarMark = upwards ? scaleDifferenceFarMark : horStep100 - scaleDifferenceFarMark;
+                    double levelDisplacementFarMark = levelDisplacementIntFarMark / 100d;
+                    double axisDisplacementFarMark = levelDisplacementFarMark / slope;
+
 
                     StringBuilder sb = new();
                     sb.Append($"\nУклон: {slope * 1000d:0}");
                     sb.Append($"\nШаг на оси: {axisStep:0.0}");
                     sb.Append($"\nСмещение на оси от первой отметки: {axisDisplacement:0.0}");
+                    sb.Append($"\nСмещение на оси от второй отметки: {axisDisplacementFarMark:0.0}");
                     string textContent = sb.ToString();
 
                     Workstation.Editor.WriteMessage(textContent);
 
                     BlockTableRecord modelSpace = Workstation.ModelSpace;
 
+                    // Оп
                     var closestPoint = axis.GetClosestPointTo(mark1!.Position, false);
                     var roundedParameter = Math.Round(axis.GetParameterAtPoint(closestPoint), 0);
-                    if (roundedParameter != 0)
+
+                    double workMark;
+                    double workDisplacement;
+                    double workVerticalDisplacement;
+                    if (roundedParameter == 0)
                     {
-                        //upwards = !upwards;
-                        axis.ReverseCurve();
+                        workMark = red1;
+                        workDisplacement = axisDisplacement;
+                        workVerticalDisplacement = levelDisplacement;
+                    }
+                    else
+                    {
+                        workMark = red2;
+                        workDisplacement = axisDisplacementFarMark;
+                        workVerticalDisplacement = levelDisplacementFarMark;
+                        upwards = !upwards;
                     }
 
-                    double currentHeight = Math.Round(red1 + (upwards ? 1d : -1d) * levelDisplacement, 2);
-                    for (double dist = axisDisplacement; dist < axis.Length; dist += axisStep)
+                    double currentHeight = Math.Round(workMark + (upwards ? 1d : -1d) * workVerticalDisplacement, 2);
+                    for (double dist = workDisplacement; dist < axis.Length; dist += axisStep)
                     {
                         var point = axis.GetPointAtDist(dist).Convert2d(new Plane());
                         double displacement = halfWidth * widthSlope / slope;
-                        int segmentNumber = (int)Math.Floor(axis.GetParameterAtDistance(dist));
-                        double angle = axis.GetLineSegment2dAt(segmentNumber).Direction.Angle;
-                        // TODO: проверить дугу
+                        double parameter = axis.GetParameterAtDistance(dist);
+                        int segmentNumber = (int)Math.Floor(parameter);
+                        double angle;
+                        if (axis.GetBulgeAt(segmentNumber) == 0d)
+                        {
+                            angle = axis.GetLineSegment2dAt(segmentNumber).Direction.Angle;
+                        }
+                        else
+                        {
+                            // p1 на оси между вершиной и "хвостами" горизонталей (0.5155 найдено эмпирически - тестировать с разнами уклонами)
+                            // p2 чуть-чуть сзади неё (или спереди при нисходящей оси)
+                            var p1 = axis.GetPointAtDist(Math.Clamp(dist + (upwards ? 1 : -1) * displacement * 0.5155d, 0d, axis.Length));
+                            var p2 = axis.GetPointAtDist(Math.Clamp(dist - (upwards ? 1 : -1) * 0.001d, 0d, axis.Length));
+                            Vector2d vectorBacktrack = new(p1.X - p2.X, p1.Y - p2.Y);
+                            angle = vectorBacktrack.Angle;
+                        }
+
                         var pl = CreateIsoline(point, halfWidth, displacement, angle, upwards);
                         pl.LayerId = Workstation.Database.Clayer;
                         Entity[] dashAndLabel = CreateLabelAndDash(pl, currentHeight, upwards);

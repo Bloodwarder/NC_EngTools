@@ -36,8 +36,8 @@ namespace Utilities
                 {
                     try
                     {
-                        double x = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-                        double y = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+                        double x = double.Parse(match.Groups[1].Value.Replace(",", "."), CultureInfo.InvariantCulture);
+                        double y = double.Parse(match.Groups[2].Value.Replace(",", "."), CultureInfo.InvariantCulture);
                         Point2d point = new(x, y);
                         polyline.AddVertexAt(polyline.NumberOfVertices, point, 0, 0d, 0d);
                     }
