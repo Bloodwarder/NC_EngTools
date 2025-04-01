@@ -12,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using HostMgd.ApplicationServices;
-using Teigha.Runtime;
 
 using LoaderCore.Integrity;
 using LoaderCore.UI;
@@ -278,7 +277,7 @@ namespace LoaderCore
 
             Services.AddSingleton(config)
                     .AddSingleton<IFilePathProvider, PathProvider>();
-
+            
             ServiceProvider = Services.BuildServiceProvider();
             _serviceProviderBuilt = true;
 
@@ -320,7 +319,7 @@ namespace LoaderCore
             var updateDir = new DirectoryInfo(sourcePath);
             var localDir = new DirectoryInfo(localPath);
 
-            static Dictionary<string, FileInfo> GetDirectoryTextFiles(DirectoryInfo dir, SearchOption searchOption, string[] filters)
+            static Dictionary<string, FileInfo> GetDirectoryFiles(DirectoryInfo dir, SearchOption searchOption, string[] filters)
             {
                 if (filters == null || !filters.Any())
                 {
@@ -335,8 +334,8 @@ namespace LoaderCore
                 }
             }
 
-            var updateDict = GetDirectoryTextFiles(updateDir, searchOption, filters);
-            var localDict = GetDirectoryTextFiles(localDir, searchOption, filters);
+            var updateDict = GetDirectoryFiles(updateDir, searchOption, filters);
+            var localDict = GetDirectoryFiles(localDir, searchOption, filters);
 
             foreach (string file in updateDict.Keys)
             {
@@ -382,9 +381,9 @@ namespace LoaderCore
         {
             var pathProvider = ServiceProvider.GetRequiredService<IFilePathProvider>();
             StartUpWindow window = new(pathProvider.GetPath(ConfigurationXmlFileName));
-            window.bUpdateLayerWorks.IsEnabled = false;
-            window.bUpdateUtilities.IsEnabled = false;
-            window.bUpdateGeoMod.IsEnabled = false;
+            //window.bUpdateLayerWorks.IsEnabled = false;
+            //window.bUpdateUtilities.IsEnabled = false;
+            //window.bUpdateGeoMod.IsEnabled = false;
             Application.ShowModalWindow(window);
         }
     }

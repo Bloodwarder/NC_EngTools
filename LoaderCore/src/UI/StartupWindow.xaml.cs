@@ -29,8 +29,10 @@ namespace LoaderCore.UI
         {
             _xmlConfigPath = xmlConfigPath;
             _xmlConfig = XDocument.Load(xmlConfigPath);
-
             InitializeComponent();
+#if DEBUG
+            this.Title = $"{this.Title} (отладочная сборка)";
+#endif
             //_xmlDataProvider = (XmlDataProvider)this.Resources["configurationProvider"];
             //_xmlDataProvider.Document = new XmlDocument();
             //_xmlDataProvider.Document.Load(xmlConfigPath);
