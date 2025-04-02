@@ -1,4 +1,5 @@
 ﻿using LayersIO.Model;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -16,11 +17,17 @@ namespace LayersIO.Connection
         public DbSet<OldLayerReference> OldLayers { get; set; } = null!;
         public DbSet<DrawOrderGroup> DrawOrderGroups { get; set; } = null!;
 
-        internal protected readonly string _dataSource;
+        internal protected readonly string _connectionString;
         public LayersDatabaseContextSqlite(string dataSource, ILogger? logger) : base()
         {
             _logger = logger;
-            _dataSource = dataSource;
+            _connectionString = new SqliteConnectionStringBuilder()
+            {
+                DataSource = dataSource,
+                Mode = SqliteOpenMode.ReadWriteCreate,
+                Pooling = false
+            }.ToString();
+
             _logger?.LogDebug("Подключение к {DataSource}", dataSource);
         }
 
@@ -32,7 +39,7 @@ namespace LayersIO.Connection
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite($"Data Source={_dataSource}", b => b.MigrationsAssembly(MigrationsAssemblyName));
+            optionsBuilder.UseSqlite(_connectionString, b => b.MigrationsAssembly(MigrationsAssemblyName));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
