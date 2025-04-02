@@ -30,26 +30,27 @@
 		<Deterministic>True</Deterministic>
 		<OutputPath>$(RootOutputPath)\ExtensionLibraries\LoaderCore</OutputPath>
 		<SignAssembly>False</SignAssembly>
+		<NanocadVersion>23.0</NanocadVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Configuration.xml" />
-	  <None Remove="town_image.png" />
+		<None Remove="Configuration.xml" />
+		<None Remove="town_image.png" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="Configuration.xml">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
+		<Content Include="Configuration.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>
 		<Reference Include="hostdbmgd">
-			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostdbmgd.dll</HintPath>
+			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 $(NanocadVersion)\bin\hostdbmgd.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="hostmgd">
-			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 23.0\bin\hostmgd.dll</HintPath>
+			<HintPath>..\..\..\..\..\..\..\Program Files\Nanosoft\nanoCAD x64 $(NanocadVersion)\bin\hostmgd.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
@@ -61,10 +62,10 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<None Update="Известные проблемы.md">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<None Update="Команды.md">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<None Update="Список изменений.md">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -81,46 +82,44 @@
 		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.0" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Resource Include="Images\town_image.png">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	  </Resource>
+		<Resource Include="Images\town_image.png">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Resource>
 	</ItemGroup>
 	<ItemGroup>
-	  <Compile Update="src\Controls\BrightnessAdjuster.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="src\Controls\ColorAdjuster.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="src\Controls\UserBoolInput.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="src\Controls\UserComboBoxInput.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="src\Controls\UserFilePathInput.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="src\Controls\UserIndicator.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="src\Controls\UserNumericInput.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="src\Controls\UserPseudoNumericInput.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	  <Compile Update="src\Controls\UserStringInput.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	</ItemGroup>
-	<ItemGroup>
-	  <Page Update="src\Controls\UserStringInput.xaml">
-	    <SubType>Designer</SubType>
-	  </Page>
+		<Compile Update="src\Controls\BrightnessAdjuster.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="src\Controls\ColorAdjuster.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="src\Controls\UserBoolInput.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="src\Controls\UserComboBoxInput.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="src\Controls\UserFilePathInput.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="src\Controls\UserIndicator.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="src\Controls\UserNumericInput.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="src\Controls\UserPseudoNumericInput.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="src\Controls\UserStringInput.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Page Update="src\Controls\UserStringInput.xaml">
+			<SubType>Designer</SubType>
+		</Page>
 	</ItemGroup>
 
 	<Target Name="MoveConfigurationFile" AfterTargets="Build">
