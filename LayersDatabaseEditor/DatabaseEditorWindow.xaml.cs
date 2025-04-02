@@ -339,6 +339,7 @@ namespace LayersDatabaseEditor
             throw new InvalidOperationException("Доступно только в версии разработки");
 #endif
         }
+
     }
 #pragma warning restore IDE1006 // Стили именования
 }

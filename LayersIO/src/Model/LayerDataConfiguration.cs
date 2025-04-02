@@ -17,6 +17,7 @@ namespace LayersIO.Model
             builder.Property(ld => ld.Id).ValueGeneratedOnAdd();
 
             builder.HasOne(ld => ld.LayerGroup).WithMany(lg => lg.Layers).HasForeignKey(l => l.LayerGroupId).OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(ld => ld.DrawOrderGroup).WithMany(d => d.Layers).HasForeignKey(l => l.DrawOrderGroupId).OnDelete(DeleteBehavior.SetNull);
 
             builder.OwnsOne(ld => ld.LayerPropertiesData);
             builder.OwnsOne(ld => ld.LayerDrawTemplateData);

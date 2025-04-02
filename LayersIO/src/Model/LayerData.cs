@@ -28,6 +28,8 @@
 
         public int LayerGroupId { get; set; }
         public LayerGroupData LayerGroup { get; set; }
+        public int? DrawOrderGroupId { get; set; }
+        public DrawOrderGroup? DrawOrderGroup { get; set; }
         public string Name => string.Join(Separator, Prefix, MainName, StatusName);
 
         public LayerPropertiesData LayerPropertiesData { get; set; } = new();

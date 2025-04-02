@@ -14,6 +14,7 @@ namespace LayersIO.Connection
         public DbSet<ZoneInfoData> Zones { get; set; } = null!;
         public DbSet<ZoneMapping> ZoneMappings { get; set; } = null!;
         public DbSet<OldLayerReference> OldLayers { get; set; } = null!;
+        public DbSet<DrawOrderGroup> DrawOrderGroups { get; set; } = null!;
 
         internal protected readonly string _dataSource;
         public LayersDatabaseContextSqlite(string dataSource, ILogger? logger) : base()
@@ -40,7 +41,8 @@ namespace LayersIO.Connection
                         .ApplyConfiguration(new LayerGroupDataConfiguration())
                         .ApplyConfiguration(new ZoneInfoDataConfiguration())
                         .ApplyConfiguration(new ZoneMappingConfiguration())
-                        .ApplyConfiguration(new OldLayerReferenceConfiguration());
+                        .ApplyConfiguration(new OldLayerReferenceConfiguration())
+                        .ApplyConfiguration(new DrawOrderGroupConfiguration());
             //modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
