@@ -67,6 +67,7 @@
                 <Separator/>
                 <MenuItem Header="Подключиться к PostgreSQL" IsEnabled="False" Visibility="Collapsed"/>
                 <Separator/>
+                <MenuItem Name="miCopySharedToDev" Header="Копировать общую БД для разработки" Click="miCopySharedToDev_Click"/>
                 <MenuItem Header="Отключиться от базы данных"
                           Command="{Binding Path=DisconnectCommand}"/>
             </MenuItem>

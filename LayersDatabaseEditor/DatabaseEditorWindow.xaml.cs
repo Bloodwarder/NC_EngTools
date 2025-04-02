@@ -40,6 +40,8 @@ namespace LayersDatabaseEditor
             miDevSqliteConnect.Visibility = Visibility.Collapsed;
             miDevSqliteConnect.IsEnabled = false;
             inputPrefix.IsEnabled = false;
+            miCopySharedToDev.IsEnabled = false;
+            miCopySharedToDev.Visibility = Visibility.Collapsed;
 #endif
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             // TODO: перестроить на constructor injection
@@ -151,14 +153,19 @@ namespace LayersDatabaseEditor
                             var item = items.Cast<object>()
                                             .Where(i => i is TreeViewItem)
                                             .Select(item => (TreeViewItem)item)
-                                            .Where(twi => twi.Header.ToString() == decomp[i])
-                                            .FirstOrDefault();
+                                            .FirstOrDefault(twi => twi.Header.ToString() == decomp[i]);
                             if (item == null)
                             {
                                 item = new TreeViewItem()
                                 {
                                     Header = decomp[i],
                                     Tag = string.Join("_", decomp.Take(i + 1).ToArray())
+                                };
+                                // В случае, когда элемент раскрыт, а в нём содержится всего один элемент, раскрыть и этот элемент тоже
+                                item.Expanded += (s, e) =>
+                                {
+                                    if (item.Items.Count == 1 && item.Items.Cast<FrameworkElement>().First() is TreeViewItem child)
+                                        child.IsExpanded = true;
                                 };
                                 items.Add(item);
                             }
@@ -319,6 +326,18 @@ namespace LayersDatabaseEditor
                 scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta);
                 e.Handled = true;
             }
+        }
+
+        private void miCopySharedToDev_Click(object sender, RoutedEventArgs e)
+        {
+#if DEBUG
+            if (File.Exists(ViewModel.SharedDatabasePath) && File.Exists(ViewModel.DevDatabasePath)) 
+            {
+                File.Copy(ViewModel.SharedDatabasePath, ViewModel.DevDatabasePath, true);
+            }
+#else
+            throw new InvalidOperationException("Доступно только в версии разработки");
+#endif
         }
     }
 #pragma warning restore IDE1006 // Стили именования
