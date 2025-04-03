@@ -1,4 +1,6 @@
-﻿using LoaderCore.NanocadUtilities;
+﻿using HostMgd.ApplicationServices;
+using LoaderCore.NanocadUtilities;
+using LoaderCore.UI;
 using LoaderCore.Utilities;
 using System.Diagnostics;
 using System.IO;
@@ -24,8 +26,11 @@ namespace LoaderCore
         [CommandMethod("КОМАНДЫ_NCET")]
         public static void ShowCommandsListCommand()
         {
-            string path = new DirectoryInfo(NcetCore.RootLocalDirectory).GetFiles("Команды.txt").Single().FullName;
-            Process.Start("notepad.exe", path);
+            string mdPath = Directory.GetFiles(NcetCore.RootLocalDirectory, "Команды.md", SearchOption.AllDirectories).Single();
+            string stylesPath = Directory.GetFiles(NcetCore.RootLocalDirectory, "Styles.css", SearchOption.AllDirectories).Single();
+            var html = MdToHtmlConverter.Convert(mdPath, stylesPath);
+            InfoDisplayWindow window = new(html, "Список команд");
+            Application.ShowModalWindow(window);
         }
 
     }
