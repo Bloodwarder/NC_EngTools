@@ -23,6 +23,9 @@ namespace LayersIO.Database
             if (!paths.Any())
                 throw new IOException("В файле конфигурации нет путей к файлам БД");
             var sortedPaths = paths.OrderBy(p => p.Type)
+#if DEBUG
+                                   .Where(p => p.Type != PathRoute.Shared) // чтобы коннектился к локальной базе с последними миграциями, а не общей
+#endif
                                    .Select(p => p.Path)
                                    .Where(s => !string.IsNullOrEmpty(s))
                                    .Select(s => Path.Combine(s!, DatabaseFileName));
