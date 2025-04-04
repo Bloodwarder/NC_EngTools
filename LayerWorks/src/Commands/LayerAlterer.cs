@@ -28,7 +28,8 @@ namespace LayerWorks.Commands
     /// </summary>
     public class LayerAlterer
     {
-        internal string PrevStatus = "";
+        private readonly Dictionary<string, string[]> _presentAuxData = new();
+        private readonly object _syncObject = new();
         private readonly ILayerChecker _checker;
         private readonly IEntityFormatter _formatter;
         static LayerAlterer() { }
@@ -37,8 +38,13 @@ namespace LayerWorks.Commands
         {
             _checker = checker;
             _formatter = formatter;
+            UpdatePresentAuxData();
+            Workstation.Redefined += (s, e) => UpdatePresentAuxData();
         }
+
+        internal string PrevStatus { get; set; } = "";
         internal static Dictionary<string, string> PreviousAssignedData { get; } = new();
+
         /// <summary>
         /// Переключение кальки, при необходимости добавление её в чертёж
         /// </summary>
@@ -353,13 +359,18 @@ namespace LayerWorks.Commands
                         PreviousAssignedData[dataKey] = "";
                     }
                     string previousAssignedData = PreviousAssignedData[dataKey];
-                    PromptKeywordOptions pko = new($"Введите значение [{previousAssignedData}/Сброс]: <{previousAssignedData}>", $"{previousAssignedData} Сброс")
+                    // пробелы дают сбои, поэтому сопоставляем исходные с заменёнными выбираем заменённые и в работу через словарь передаём исходные
+                    Dictionary<string, string> presentData = GetPresentAuxData(dataKey).Append("Сброс")
+                                                                                       .ToDictionary(s => s.Replace(" ", "_"), s => s);
+
+                    PromptKeywordOptions pko = new($"Введите значение [{string.Join(@"/", presentData.Keys)}]: <{previousAssignedData}>", $"{string.Join(@" ", presentData.Keys)}")
                     {
                         AllowArbitraryInput = true,
                         AllowNone = true,
                         AppendKeywordsToMessage = true
                     };
                     PromptResult result = Workstation.Editor.GetKeywords(pko);
+
 
                     string? newData;
                     if (result.Status == PromptStatus.None)
@@ -382,7 +393,7 @@ namespace LayerWorks.Commands
                         }
                         else
                         {
-                            newData = result.StringResult;
+                            newData = presentData[result.StringResult];
                             PreviousAssignedData[dataKey] = newData;
                         }
                     }
@@ -393,6 +404,14 @@ namespace LayerWorks.Commands
 
                     workWrappers.ForEach(w => w.LayerInfo.ChangeAuxilaryData(dataKey, newData));
                     workWrappers.ForEach(w => w.Push());
+
+                    var layerNames = Workstation.Database.LayerTableId.GetObject<LayerTable>(OpenMode.ForRead, transaction)
+                                                                      .Cast<ObjectId>()
+                                                                      .Select(id => id.GetObject<LayerTableRecord>(OpenMode.ForRead, transaction))
+                                                                      .Select(ltr => ltr.Name)
+                                                                      .ToArray();
+                    _ = Task.Run(() => UpdatePresentAuxData(dataKey, layerNames));
+
                     transaction.Commit();
                 }
                 catch (WrongLayerException ex)
@@ -543,6 +562,56 @@ namespace LayerWorks.Commands
             var loadingParser = parserXmlFiles.Where(f => f.Name == parser).Single();
             NameParser.Load(loadingParser.FullName);
             Workstation.Logger?.LogInformation("Парсер {Parser} загружен", loadingParser.Name);
+        }
+
+        private string[] GetPresentAuxData(string key)
+        {
+            lock (_syncObject)
+            {
+                bool success = _presentAuxData.TryGetValue(key, out string[]? data);
+                if (success)
+                    return data!;
+                else
+                    return Array.Empty<string>();
+            }
+        }
+
+        private void UpdatePresentAuxData(string key, IEnumerable<string> layerNames)
+        {
+            string[] names = layerNames.Select(n => NameParser.ParseLayerName(n))
+                                       .Where(r => r.Status == LayerInfoParseStatus.Success)
+                                       .Select(r => r.Value!.AuxilaryData[key])
+                                       .Where(s => !string.IsNullOrEmpty(s))
+                                       .Select(s => s!)
+                                       .Distinct()
+                                       .OrderBy(s => s)
+                                       .ToArray();
+            lock (_syncObject)
+            {
+                _presentAuxData[key] = names;
+            }
+        }
+
+        private void UpdatePresentAuxData()
+        {
+            using (var transaction = Workstation.TransactionManager.StartTransaction())
+            {
+                var keys = NameParser.Current.AuxilaryDataKeys.Keys;
+                if (!keys.Any())
+                {
+                    transaction.Abort();
+                    return;
+                }
+                string[] layerNames = Workstation.Database.LayerTableId.GetObject<LayerTable>(OpenMode.ForRead, transaction)
+                                                                       .Cast<ObjectId>()
+                                                                       .Select(id => id.GetObject<LayerTableRecord>(OpenMode.ForRead, transaction))
+                                                                       .Select(ltr => ltr.Name)
+                                                                       .ToArray();
+                foreach (var key in keys)
+                {
+                    UpdatePresentAuxData(key, layerNames);
+                }
+            }
         }
     }
 

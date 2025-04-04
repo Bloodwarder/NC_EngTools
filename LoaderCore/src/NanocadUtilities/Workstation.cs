@@ -3,6 +3,7 @@
 using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
 using Microsoft.Extensions.Logging;
+using System;
 using Teigha.DatabaseServices;
 
 
@@ -36,18 +37,27 @@ namespace LoaderCore.NanocadUtilities
         public static ILogger? Logger { get; internal set; } = NcetCore.Logger;
 
 
-        internal static bool IsCommandLoggingEnabled = false;
+        internal static bool IsCommandLoggingEnabled { get; set; } = false;
 
-
+        public static event EventHandler? BeginRedefine;
+        public static event EventHandler? Redefined;
         /// <summary>
         /// Определяет основные элементы управления для открытого активного чертежа
         /// </summary>
         public static void Define()
         {
-            _document = Application.DocumentManager.MdiActiveDocument;
+            BeginRedefine?.Invoke(_document, EventArgs.Empty);
+
+            var document = Application.DocumentManager.MdiActiveDocument;
+            bool redefined = document != _document;
+
+            _document = document;
             _database = HostApplicationServices.WorkingDatabase;
             _transactionManager = Database.TransactionManager;
             _editor = Document.Editor;
+
+            if (redefined)
+                Redefined?.Invoke(_document, EventArgs.Empty);
         }
 
         internal static void SetLogger(ILogger logger)
