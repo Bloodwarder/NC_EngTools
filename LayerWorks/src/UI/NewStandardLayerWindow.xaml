@@ -1,0 +1,96 @@
+﻿<Window x:Class="LayerWorks.UI.NewStandardLayerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LayerWorks.UI"
+        mc:Ignorable="d"
+        Title="NewStandardLayerWindow" Height="450" Width="400"
+        DataContext="{Binding RelativeSource={RelativeSource Self}, Path=ViewModel}">
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding Path=NextNodeCommand}" 
+                    CommandParameter="{Binding ElementName=lvNodes, Path=SelectedItem}"
+                    Key="Right"/>
+        <KeyBinding Command="{Binding Path=PreviousNodeCommand}"
+                    Key="Left"/>
+        <KeyBinding Command="{Binding Path=IncludeNodeCommand}"
+                    CommandParameter="{Binding ElementName=lvNodes, Path=SelectedItem}"
+                    Gesture="Shift+Right"/>
+        <KeyBinding Command="{Binding Path=ExcludeNodeCommand}"
+                    CommandParameter="{Binding ElementName=lvNodes, Path=SelectedItem}"
+                    Gesture="Shift+Left"/>
+    </Window.InputBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition/>
+            <RowDefinition Height="100"/>
+        </Grid.RowDefinitions>
+        <TextBox Grid.Row="0" Margin="5" IsReadOnly="True"/>
+        <ListView Name="lvNodes" Grid.Row="1" Margin="5" 
+                  ItemsSource="{Binding Path=CurrentNode.Children}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListViewItem">
+                                <Border Name="Border"
+                                        Background="{TemplateBinding Background}"
+                                        Padding="4">
+                                    <ContentPresenter/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Path=IsChildrenIncluded}" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="#FFD3FF"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=IsIncluded}" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="#D8F3DC"/>
+                                    </DataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsIncluded}" Value="True"/>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected}" Value="True"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter TargetName="Border" Property="Background" Value="#40916C"/>
+                                        <Setter TargetName="Border" Property="BorderBrush" Value="#2D6A4F"/>
+                                    </MultiDataTrigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" Margin="4">
+                        <TextBlock.InputBindings>
+                            <MouseBinding MouseAction="LeftClick"
+                                          Command="{Binding DataContext.NextNodeCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                          CommandParameter="{Binding}"/>
+                            <MouseBinding Command="{Binding DataContext.NextNodeCommand, 
+                                          RelativeSource={RelativeSource AncestorType=ListView}}"
+                                          CommandParameter="{Binding}"
+                                          Gesture="Shift+LeftClick"/>
+                        </TextBlock.InputBindings>
+                    </TextBlock>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Grid Grid.Row="2" Width="150" Height="100">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Row="1"  Grid.Column="0" Name="bLeft" Margin="5" Content="&#9664;"/>
+            <Button Grid.Row="1"  Grid.Column="2" Name="bRight" Margin="5" Content="&#9654;"/>
+            <Button Grid.Row="0"  Grid.Column="1" Name="bUp" Margin="5" Content="&#9650;"/>
+            <Button Grid.Row="1"  Grid.Column="1" Name="bDown" Margin="5" Content="&#9660;"/>
+        </Grid>
+    </Grid>
+</Window>

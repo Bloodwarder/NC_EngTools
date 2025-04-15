@@ -25,13 +25,14 @@ namespace NameClassifiers
             [Classifier.BooleanSuffix] = (x, p) => new BooleanSection(x, p)
         };
 
-        private readonly string _xmlPath;
+        private static Regex? _prefixRegex;
         private static NameParser? _currentParser;
+        private readonly string _xmlPath;
+        private readonly List<ParserSection> _sections;
         private GlobalFilters? _globalFilters;
         private SharedPropertiesCollection? _sharedPropertiesCollection;
         private Visualizers? _highliters;
 
-        private readonly List<ParserSection> _sections;
 
         private NameParser(string xmlPath)
         {
@@ -201,7 +202,8 @@ namespace NameClassifiers
 
         public static string? GetPrefix(string layerName)
         {
-            var match = Regex.Match(layerName, @"^[^_\s-\.]+(?=[_\s-\.])");
+            _prefixRegex ??= new Regex(@"^[^_\s-\.]+(?=[_\s-\.])");
+            var match = _prefixRegex.Match(layerName);
             if (match.Success)
                 return match.Value;
             else

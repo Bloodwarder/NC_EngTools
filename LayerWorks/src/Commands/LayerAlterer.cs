@@ -20,6 +20,8 @@ using static LoaderCore.NanocadUtilities.EditorHelper;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using LayerWorks.UI;
+using HostMgd.ApplicationServices;
 
 namespace LayerWorks.Commands
 {
@@ -205,6 +207,39 @@ namespace LayerWorks.Commands
 
         public void NewStandardLayer()
         {
+            IRepository<string, LayerProps> repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
+
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            {
+                //var layers = GetLayersFromEditorInput(repository);
+                var layers = GetLayersFromWindowInput(repository);
+                foreach (var layerName in layers)
+                {
+                    try
+                    {
+                        ObjectId layerId = _checker.Check(layerName);
+                        Workstation.Database.Clayer = layerId;
+                        CurrentLayerWrapper.DirectPush();
+                    }
+                    catch (WrongLayerException ex)
+                    {
+                        Workstation.Logger?.LogInformation(ex, "Текущий слой не принадлежит к списку обрабатываемых слоёв ({Exception})", ex.Message);
+                        continue;
+                    }
+                    catch (System.Exception ex)
+                    {
+                        // TODO: отловить возможные ошибки по типам
+                        Workstation.Logger?.LogError(ex, "{ProcessingObject}: Ошибка - {Exception}", nameof(LayerAlterer), ex.Message);
+                        continue;
+                    }
+                }
+                transaction.Commit();
+            }
+
+        }
+
+        private static IEnumerable<string> GetLayersFromEditorInput(IRepository<string, LayerProps> repository)
+        {
             // Выбрать парсер для загрузки слоёв
             string[] parserIds = NameParser.LoadedParsers.Keys.ToArray();
             string prefix = GetStringKeyword(parserIds, "Выберите глобальный классификатор");
@@ -213,7 +248,7 @@ namespace LayerWorks.Commands
             workParser.ExtractSectionInfo<PrimaryClassifierSection>(out string[] primaries, out Func<string, string> descriptions);
             string newLayerPrimary = GetStringKeyword(primaries, primaries.Select(p => descriptions(p)).ToArray(), "Выберите основной классификатор");
             // Выбрать ключи из репозитория, отфильтровать по выбранному классификатору и представить как массивы разделённых строк
-            IRepository<string, LayerProps> repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
+            repository = NcetCore.ServiceProvider.GetRequiredService<IRepository<string, LayerProps>>();
             string[][] keysArray = repository.GetKeys()
                                            .Where(s => s.StartsWith($"{prefix}{workParser.Separator}{newLayerPrimary}{workParser.Separator}"))
                                            .Select(s => s.Split(workParser.Separator))
@@ -229,25 +264,23 @@ namespace LayerWorks.Commands
             }
 
             string layerName = $"{string.Join(workParser.Separator, keysArray.First())}";
-            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
-            {
-                try
-                {
-                    ObjectId layerId = _checker.Check(layerName);
-                    Workstation.Database.Clayer = layerId;
-                    CurrentLayerWrapper.DirectPush();
-                    transaction.Commit();
-                }
-                catch (WrongLayerException ex)
-                {
-                    Workstation.Logger?.LogInformation(ex, "Текущий слой не принадлежит к списку обрабатываемых слоёв ({Exception})", ex.Message);
-                }
-                catch (System.Exception ex)
-                {
-                    Workstation.Logger?.LogError(ex, "{ProcessingObject}: Ошибка - {Exception}", nameof(LayerAlterer), ex.Message);
-                }
-            }
+            yield return layerName;
+        }
 
+        private static IEnumerable<string> GetLayersFromWindowInput(IRepository<string, LayerProps> repository)
+        {
+            var layers = repository.GetKeys();
+            try
+            {
+                NewStandardLayerWindow window = new(layers);
+                Application.ShowModalWindow(window);
+                return window.GetResultLayers();
+            }
+            catch (Exception ex)
+            {
+                Workstation.Logger?.LogError(ex, "{ProcessingObject}: Ошибка - {Exception}", nameof(LayerAlterer), ex.Message);
+                return Enumerable.Empty<string>();
+            }
         }
 
         /// <summary>

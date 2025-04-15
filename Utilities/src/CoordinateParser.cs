@@ -17,7 +17,6 @@ namespace Utilities
         public static void ExcelCoordinatesToPolyline()
         {
             string? clipboardText = Clipboard.GetText();
-            //string? clipboardModified = clipboardText.Replace(",", ".");
             var matches = Regex.Matches(clipboardText, @"(\d*[\.,]\d{1,4})\W*(\d*[\.,]\d{1,4})\W*\n?").Cast<Match>(); // ищет пары координат
             if (!matches.Any())
             {
@@ -48,7 +47,7 @@ namespace Utilities
                     }
                     catch (ArgumentNullException ex)
                     {
-                        Workstation.Logger?.LogWarning(ex, "Отстутсвует одна из координат \"{Text}\". Пропуск вершины", match.Value);
+                        Workstation.Logger?.LogWarning(ex, "Отсутствует одна из координат \"{Text}\". Пропуск вершины", match.Value);
                         continue;
                     }
                 }
