@@ -31,6 +31,18 @@ namespace LayerWorks.UI
             InitializeComponent();
             ViewModel = new(layers);
             ViewModel.InputCompleted += (s, e) => this.Close();
+            lvNodes.SelectedIndex = 0;
+            Dispatcher.Invoke(() => lvNodes.Focus());
+            ViewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(NewStandardLayerWindowVm.SelectedNode) && ViewModel.SelectedNode != null)
+                {
+                    lvNodes.ScrollIntoView(ViewModel.SelectedNode);
+                    var container = lvNodes.ItemContainerGenerator.ContainerFromItem(ViewModel.SelectedNode) as ListViewItem;
+                    container?.Focus();
+                }
+            };
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         }
         public NewStandardLayerWindowVm ViewModel
         {
@@ -45,6 +57,7 @@ namespace LayerWorks.UI
     public class NewStandardLayerWindowVm : INotifyPropertyChanged
     {
         private LayerTreeNode? _currentNode;
+        private LayerTreeNode? _selectedNode;
 
         public NewStandardLayerWindowVm(IEnumerable<string> layers)
         {
@@ -62,6 +75,7 @@ namespace LayerWorks.UI
             IncludeNodeCommand = new(IncludeNode, CanExecuteChangeNodeIncludeState);
             ExcludeNodeCommand = new(ExcludeNode, CanExecuteChangeNodeIncludeState);
             ChangeNodeIncludeStateCommand = new(ChangeNodeIncludeState, CanExecuteChangeNodeIncludeState);
+            IncludeAndCloseCommand = new(IncludeAndClose, o => true);
         }
 
         public LayerTreeNode? CurrentNode
@@ -74,6 +88,16 @@ namespace LayerWorks.UI
             }
         }
 
+        public LayerTreeNode? SelectedNode
+        {
+            get => _selectedNode;
+            set
+            {
+                _selectedNode = value;
+                OnPropertyChanged();
+            }
+        }
+
         public LayerTreeNode RootNode { get; }
 
         public RelayCommand NextNodeCommand { get; }
@@ -81,6 +105,8 @@ namespace LayerWorks.UI
         public RelayCommand IncludeNodeCommand { get; }
         public RelayCommand ExcludeNodeCommand { get; }
         public RelayCommand ChangeNodeIncludeStateCommand { get; }
+        public RelayCommand IncludeAndCloseCommand { get; }
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
         internal event EventHandler? InputCompleted;
@@ -102,12 +128,18 @@ namespace LayerWorks.UI
             else
             {
                 CurrentNode = node;
+                SelectedNode = node.Children.FirstOrDefault();
             }
         }
 
         private static bool CanExecutePreviousNode(object? obj) => obj is LayerTreeNode node && node.ParentNode != null;
 
-        private void PreviousNode(object? obj) => CurrentNode = CurrentNode!.ParentNode;
+        private void PreviousNode(object? obj)
+        {
+            var node = (LayerTreeNode)obj!;
+            CurrentNode = CurrentNode!.ParentNode;
+            SelectedNode = node;
+        }
 
         private static bool CanExecuteChangeNodeIncludeState(object? obj) => obj is LayerTreeNode;
 
@@ -118,6 +150,14 @@ namespace LayerWorks.UI
         {
             var node = (LayerTreeNode)obj!;
             node.IsIncluded = !node.IsIncluded;
+        }
+
+        private void IncludeAndClose(object? obj)
+        {
+            LayerTreeNode? node = obj as LayerTreeNode;
+            if (node != null)
+                node.IsIncluded = true;
+            InputCompleted?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -130,14 +170,22 @@ namespace LayerWorks.UI
         {
             ParentNode = parentNode;
             Name = name;
-            if (decompLayers.Any())
+            if (decompLayers.Any(d => d.Any()))
             {
                 var newNodes = decompLayers.GroupBy(d => d[0])
-                                           .Select(g => new LayerTreeNode(this, g.Key, g.Skip(1)));
+                                           .Select(g => new LayerTreeNode(this, g.Key, g.Select(s => s.Skip(1).ToArray())));
                 foreach (var newNode in newNodes)
                 {
                     Children.Add(newNode);
-                    newNode.PropertyChanged += (s, e) => OnPropertyChanged(nameof(IsChildrenIncluded));
+                    newNode.PropertyChanged += (s, e) =>
+                    {
+                        if (e.PropertyName == nameof(IsIncluded))
+                        {
+                            OnPropertyChanged(nameof(IsChildrenIncluded));
+                            _isIncluded = Children.All(c => c.IsIncluded);
+                            OnPropertyChanged(nameof(IsIncluded));
+                        }
+                    };
                 }
             }
         }
@@ -157,8 +205,6 @@ namespace LayerWorks.UI
                     OnPropertyChanged();
                     foreach (LayerTreeNode node in Children)
                         node.IsIncluded = value;
-                    if (ParentNode != null)
-                        ParentNode.IsIncluded = ParentNode.Children.All(d => d.IsIncluded);
                 }
             }
         }

@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<PlatformTarget>x64</PlatformTarget>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+		<UseWPF>true</UseWPF>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+		<SignAssembly>False</SignAssembly>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<RootOutputPath>..\NC_EngTools\bin\$(Configuration)</RootOutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Deterministic>True</Deterministic>
+		<OutputPath>$(RootOutputPath)\ExtensionLibraries\TestWindowsTest</OutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\LoaderCore\LoaderCore.csproj">
+			<IncludeAssets>compile</IncludeAssets>
+			<Private>False</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\LayersIO\LayersIO.csproj">
+			<IncludeAssets>compile</IncludeAssets>
+			<Private>False</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\LayerWorks\LayerWorks.csproj" >
+			<IncludeAssets>compile</IncludeAssets>
+			<Private>False</Private>
+		</ProjectReference>
+	</ItemGroup>
+
+</Project>

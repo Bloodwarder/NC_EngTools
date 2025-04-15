@@ -281,7 +281,7 @@ namespace LoaderCore
             ServiceProvider = Services.BuildServiceProvider();
             _serviceProviderBuilt = true;
 
-            Logger = ServiceProvider.GetRequiredService<ILogger>();
+            Logger = ServiceProvider.GetService<ILogger>();
         }
 
         private static void PostInitializeModules()

@@ -10,11 +10,11 @@ namespace LayersIO.Database
     public class SQLiteLayerDataContextFactory : IDbContextFactory<LayersDatabaseContextSqlite>
     {
         private const string DatabaseFileName = "LayerData.db";
-        readonly ILogger _logger;
+        readonly ILogger? _logger;
         readonly string? _localPath;
         readonly string? _sharedPath;
         static SQLiteLayerDataContextFactory() { }
-        public SQLiteLayerDataContextFactory(ILogger logger, IConfiguration configuration)
+        public SQLiteLayerDataContextFactory(ILogger? logger, IConfiguration configuration)
         {
             _logger = logger;
             var paths = configuration.GetRequiredSection("LayerWorksConfiguration:LayerStandardPaths:LayerWorksPath")
@@ -48,7 +48,7 @@ namespace LayersIO.Database
             if (path == null || !File.Exists(path))
             {
                 Exception ex = new FileNotFoundException($"Файл базы данных по пути \"{pathRoute}\" не найден");
-                _logger.LogError(ex, "{Message}", ex.Message);
+                _logger?.LogError(ex, "{Message}", ex.Message);
                 throw ex;
             }
             return new(path, _logger);
@@ -59,7 +59,7 @@ namespace LayersIO.Database
             if (_localPath == null || !File.Exists(_localPath))
             {
                 Exception ex = new FileNotFoundException($"Файл базы данных по пути \"{PathRoute.Local}\" не найден");
-                _logger.LogError(ex, "{Message}", ex.Message);
+                _logger?.LogError(ex, "{Message}", ex.Message);
                 throw ex;
             }
             return new(_localPath, _logger);

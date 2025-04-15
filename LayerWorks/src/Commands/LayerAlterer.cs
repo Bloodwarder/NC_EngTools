@@ -463,7 +463,7 @@ namespace LayerWorks.Commands
         /// </summary>
         public void StandartLayerValues()
         {
-            TransactionManager tm = Workstation.TransactionManager;
+            Teigha.DatabaseServices.TransactionManager tm = Workstation.TransactionManager;
             Editor editor = Workstation.Editor;
 
             using (Transaction transaction = tm.StartTransaction())

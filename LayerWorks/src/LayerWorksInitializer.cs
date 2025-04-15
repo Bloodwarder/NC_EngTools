@@ -64,14 +64,14 @@ namespace LayerWorks
 
             for (int i = parserXmlFiles.Length - 1; i >= 0; i--)
             {
-                var logger = NcetCore.ServiceProvider.GetRequiredService<ILogger>();
+                var logger = NcetCore.ServiceProvider.GetService<ILogger>();
                 try
                 {
                     NameParser.Load(parserXmlFiles[i]);
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "{Message}", ex.Message);
+                    logger?.LogError(ex, "{Message}", ex.Message);
                     continue;
                 }
             }

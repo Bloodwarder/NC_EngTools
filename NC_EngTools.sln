@@ -39,6 +39,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayerDbMigrations", "LayerD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NcetExternalUpdater", "NcetExternalUpdater\NcetExternalUpdater.csproj", "{1996DC9E-AAE9-4EAF-A6E0-E645C682A498}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowTestLauncher", "WindowTestLauncher\WindowTestLauncher.csproj", "{9E974D43-0FFF-4A5C-B46A-40B1BEEF776B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,9 @@ Global
 		{1996DC9E-AAE9-4EAF-A6E0-E645C682A498}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1996DC9E-AAE9-4EAF-A6E0-E645C682A498}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1996DC9E-AAE9-4EAF-A6E0-E645C682A498}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E974D43-0FFF-4A5C-B46A-40B1BEEF776B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E974D43-0FFF-4A5C-B46A-40B1BEEF776B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E974D43-0FFF-4A5C-B46A-40B1BEEF776B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,6 +108,7 @@ Global
 		{D4C0070D-254E-4493-AD16-5ADCC860603D} = {AA1C6103-37FA-4CD6-A057-0102BAD2FF6F}
 		{709E5BCF-67F0-4873-8D3F-42EAB482A791} = {0D3161E7-1263-41E0-A344-CE24239B7A0F}
 		{1996DC9E-AAE9-4EAF-A6E0-E645C682A498} = {9C756B09-1F25-4B78-8613-DA901DC80AC7}
+		{9E974D43-0FFF-4A5C-B46A-40B1BEEF776B} = {0D3161E7-1263-41E0-A344-CE24239B7A0F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6D243E8F-70BB-4A0D-9231-F7131BF1825E}

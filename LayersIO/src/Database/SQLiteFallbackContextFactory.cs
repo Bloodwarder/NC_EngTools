@@ -11,13 +11,12 @@ namespace LayersIO.Database
     {
         private const string DatabaseFileName = "LayerData.db";
 
-        readonly ILogger _logger;
+        readonly ILogger? _logger;
         readonly Fallback<LayersDatabaseContextSqlite, string> _fallback;
         LayersDatabaseContextSqlite? _context;
 
-        public SQLiteFallbackContextFactory(ILogger logger, IConfiguration configuration)
+        public SQLiteFallbackContextFactory(IConfiguration configuration)
         {
-            _logger = logger;
             var paths = configuration.GetRequiredSection("LayerWorksConfiguration:LayerStandardPaths:LayerWorksPath")
                                      .Get<LayerWorksPath[]>()!;
             if (!paths.Any())
@@ -30,6 +29,11 @@ namespace LayersIO.Database
                                    .Where(s => !string.IsNullOrEmpty(s))
                                    .Select(s => Path.Combine(s!, DatabaseFileName));
             _fallback = new(sortedPaths, p => new(p, _logger), ErrorCallback, SuccessCallback);
+        }
+
+        public SQLiteFallbackContextFactory(ILogger? logger, IConfiguration configuration) : this(configuration)
+        {
+            _logger = logger;
         }
 
         ///<inheritdoc/>
@@ -47,8 +51,8 @@ namespace LayersIO.Database
         }
 
         private void ErrorCallback(string path, Exception ex) =>
-            _logger.LogWarning(ex, "Не удалось подключиться к БД по пути \"{Path}\". Ошибка:\t{Error}", path, ex.Message);
+            _logger?.LogWarning(ex, "Не удалось подключиться к БД по пути \"{Path}\". Ошибка:\t{Error}", path, ex.Message);
         private void SuccessCallback(string path) =>
-            _logger.LogInformation("Соединение с БД по пути \"{Path}\" установлено", path);
+            _logger?.LogInformation("Соединение с БД по пути \"{Path}\" установлено", path);
     }
 }
