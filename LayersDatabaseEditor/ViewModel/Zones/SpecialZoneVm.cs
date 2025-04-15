@@ -2,6 +2,7 @@
 using LayersIO.Connection;
 using LayersIO.Model;
 using LoaderCore.SharedData;
+using LoaderCore.UI;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;

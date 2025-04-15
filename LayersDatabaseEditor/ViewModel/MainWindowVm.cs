@@ -7,6 +7,7 @@ using LayersIO.Database;
 using LayersIO.Model;
 using LoaderCore.Configuration;
 using LoaderCore.Interfaces;
+using LoaderCore.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -42,7 +43,8 @@ namespace LayersDatabaseEditor.ViewModel
         private RelayCommand? _resetDatabaseCommand;
         private RelayCommand? _saveDbAsCommand;
         private RelayCommand? _openZoneEditorCommand;
-        private RelayCommand? _openOrderingWindow;
+        private RelayCommand? _openLegendOrderingWindow;
+        private RelayCommand? _openLayerDrawOrderingWindow;
         private RelayCommand? _openSpecialZoneEditor;
 
         private HashSet<int> _selectedIndexes = new();
@@ -160,10 +162,15 @@ namespace LayersDatabaseEditor.ViewModel
             set => _openZoneEditorCommand = value;
         }
 
-        public RelayCommand OpenOrderingWindowCommand
+        public RelayCommand OpenLegendOrderingWindowCommand
         {
-            get => _openOrderingWindow ??= new(obj => OpenOrderingWindow(obj), obj => IsConnected);
-            set => _openOrderingWindow = value;
+            get => _openLegendOrderingWindow ??= new(obj => OpenLegendOrderingWindow(obj), obj => IsConnected && SelectedGroup != null);
+            set => _openLegendOrderingWindow = value;
+        }
+        public RelayCommand OpenLayerDrawOrderingWindowCommand
+        {
+            get => _openLayerDrawOrderingWindow ??= new(obj => OpenLayerDrawOrderingWindow(), obj => IsConnected);
+            set => _openLayerDrawOrderingWindow = value;
         }
 
         public RelayCommand OpenSpecialZoneEditorCommand
@@ -691,27 +698,36 @@ namespace LayersDatabaseEditor.ViewModel
             }
         }
 
-        private void OpenOrderingWindow(object? obj)
+        private void OpenLegendOrderingWindow(object? obj)
         {
             try
             {
-                OrderingWindow window;
+                Window window;
                 if (obj is LayerGroupVm)
                 {
                     var groups = Database!.LayerGroups.Where(lg => lg.Prefix == SelectedGroup!.Prefix).AsEnumerable();
                     OrderingWindowViewModel viewModel = new(groups, Database);
-                    window = new(viewModel);
-                }
-                else if (obj is LayerDataVm)
-                {
-                    var layers = Database!.Layers.Include(l => l.LayerGroup).AsEnumerable();
-                    OrderingWindowViewModel viewModel = new(layers, Database, false);
-                    window = new(viewModel);
+                    window = new OrderingWindow(viewModel);
                 }
                 else
                 {
                     return;
                 }
+                window.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Во время работы редактора порядковых номеров возникла ошибка: {Message}", ex.Message);
+                MessageBox.Show($"Во время работы редактора порядковых номеров возникла ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void OpenLayerDrawOrderingWindow()
+        {
+            try
+            {
+                GroupOrderingWindowVm viewModel = new(Database!);
+                Window window = new GroupOrderingWindow(viewModel);
                 window.ShowDialog();
             }
             catch (Exception ex)

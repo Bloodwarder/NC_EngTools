@@ -1,5 +1,6 @@
 ﻿using LayersIO.Connection;
 using LayersIO.Model;
+using LoaderCore.UI;
 using NameClassifiers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -40,7 +41,7 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
         {
             foreach (var layer in layers.OrderBy(lg => lg.LayerPropertiesData.DrawOrderIndex).AsEnumerable())
             {
-                _items.Add(new LayerDataDrawOrderViewModel(layer));
+                _items.Add(new LayerOrderedVm(layer));
                 _itemsCount++;
             }
         }

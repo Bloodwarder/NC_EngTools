@@ -19,7 +19,7 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
 
     public class OrderedItemViewModel<T> : OrderedItemViewModel
     {
-        private readonly T _item;
+        private protected readonly T _item;
         private readonly Func<T, string> _nameGetter;
         private readonly Func<T, int> _indexGetter;
         private readonly Action<T, int> _indexSetter;
@@ -62,7 +62,7 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
 
         public override event PropertyChangedEventHandler? PropertyChanged;
 
-        private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        private protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new(propertyName));
         }

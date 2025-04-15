@@ -83,10 +83,9 @@
                           CommandParameter="{Binding Path=SelectedGroup}"/>
                 <Separator/>
                 <MenuItem Name="miDrawOrderWindowShow" Header="Порядок прорисовки слоёв"
-                          Command="{Binding Path=OpenOrderingWindowCommand}"
-                          CommandParameter="{Binding Path=SelectedLayer}"/>
+                          Command="{Binding Path=OpenLayerDrawOrderingWindowCommand}"/>
                 <MenuItem Name="miLegendRankWindowShow" Header="Порядок отображения легенды"
-                          Command="{Binding Path=OpenOrderingWindowCommand}"
+                          Command="{Binding Path=OpenLegendOrderingWindowCommand}"
                           CommandParameter="{Binding Path=SelectedGroup}"/>
             </MenuItem>
             <MenuItem Header="Слои" Visibility="Collapsed">
