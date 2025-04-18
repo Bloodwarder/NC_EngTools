@@ -1,21 +1,8 @@
-﻿using LoaderCore.UI;
-using NameClassifiers;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
+﻿using NameClassifiers;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace LayerWorks.UI
 {
@@ -24,6 +11,7 @@ namespace LayerWorks.UI
     /// </summary>
     public partial class NewStandardLayerWindow : Window
     {
+        private const string NoFilterString = "Без фильтра";
         public static readonly DependencyProperty ViewModelProperty =
             DependencyProperty.Register("ViewModel", typeof(NewStandardLayerWindowVm), typeof(NewStandardLayerWindow), new PropertyMetadata());
         public NewStandardLayerWindow(IEnumerable<string> layers)
@@ -50,202 +38,115 @@ namespace LayerWorks.UI
             set => SetValue(ViewModelProperty, value);
         }
 
-        public IEnumerable<string> GetResultLayers() => ViewModel.RootNode.GetResultLayers();
+        public IEnumerable<string> GetResultLayers() => ViewModel.GetResultLayers();
 
-    }
-
-    public class NewStandardLayerWindowVm : INotifyPropertyChanged
-    {
-        private LayerTreeNode? _currentNode;
-        private LayerTreeNode? _selectedNode;
-
-        public NewStandardLayerWindowVm(IEnumerable<string> layers)
+        private void HandleGlobalTextInput(object sender, TextCompositionEventArgs e)
         {
-            Dictionary<string, string> separators = layers.Select(l => NameParser.GetPrefix(l))
-                                                          .Where(p => !string.IsNullOrEmpty(p))
-                                                          .Distinct()
-                                                          .ToDictionary(p => p!, p => NameParser.LoadedParsers[p].Separator);
-            var decomps = layers.Select(s => s.Split("_")); // TODO: убрать сепаратор в хардкоде
-            LayerTreeNode rootNode = new(null, "RootNode", decomps);
-            CurrentNode = rootNode;
-            RootNode = rootNode;
-
-            NextNodeCommand = new(NextNode, CanExecuteNextNode);
-            PreviousNodeCommand = new(PreviousNode, CanExecutePreviousNode);
-            IncludeNodeCommand = new(IncludeNode, CanExecuteChangeNodeIncludeState);
-            ExcludeNodeCommand = new(ExcludeNode, CanExecuteChangeNodeIncludeState);
-            ChangeNodeIncludeStateCommand = new(ChangeNodeIncludeState, CanExecuteChangeNodeIncludeState);
-            IncludeAndCloseCommand = new(IncludeAndClose, o => true);
-        }
-
-        public LayerTreeNode? CurrentNode
-        {
-            get => _currentNode;
-            set
+            if (e.Text.Length == 1)
             {
-                _currentNode = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public LayerTreeNode? SelectedNode
-        {
-            get => _selectedNode;
-            set
-            {
-                _selectedNode = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public LayerTreeNode RootNode { get; }
-
-        public RelayCommand NextNodeCommand { get; }
-        public RelayCommand PreviousNodeCommand { get; }
-        public RelayCommand IncludeNodeCommand { get; }
-        public RelayCommand ExcludeNodeCommand { get; }
-        public RelayCommand ChangeNodeIncludeStateCommand { get; }
-        public RelayCommand IncludeAndCloseCommand { get; }
-
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        internal event EventHandler? InputCompleted;
-        private protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new(propertyName));
-        }
-
-        private bool CanExecuteNextNode(object? obj) => obj is LayerTreeNode;
-
-        private void NextNode(object? obj)
-        {
-            LayerTreeNode node = (LayerTreeNode)obj!;
-            if (node!.IsEndpointNode)
-            {
-                node.IsIncluded = true;
-                InputCompleted?.Invoke(this, EventArgs.Empty);
-            }
-            else
-            {
-                CurrentNode = node;
-                SelectedNode = node.Children.FirstOrDefault();
-            }
-        }
-
-        private static bool CanExecutePreviousNode(object? obj) => obj is LayerTreeNode node && node.ParentNode != null;
-
-        private void PreviousNode(object? obj)
-        {
-            var node = (LayerTreeNode)obj!;
-            CurrentNode = CurrentNode!.ParentNode;
-            SelectedNode = node;
-        }
-
-        private static bool CanExecuteChangeNodeIncludeState(object? obj) => obj is LayerTreeNode;
-
-        private static void ExcludeNode(object? obj) => ((LayerTreeNode)obj!).IsIncluded = false;
-
-        private void IncludeNode(object? obj) => ((LayerTreeNode)obj!).IsIncluded = true;
-        private void ChangeNodeIncludeState(object? obj)
-        {
-            var node = (LayerTreeNode)obj!;
-            node.IsIncluded = !node.IsIncluded;
-        }
-
-        private void IncludeAndClose(object? obj)
-        {
-            LayerTreeNode? node = obj as LayerTreeNode;
-            if (node != null)
-                node.IsIncluded = true;
-            InputCompleted?.Invoke(this, EventArgs.Empty);
-        }
-    }
-
-
-    public class LayerTreeNode : INotifyPropertyChanged
-    {
-        private bool _isIncluded = false;
-
-        public LayerTreeNode(LayerTreeNode? parentNode, string name, IEnumerable<string[]> decompLayers)
-        {
-            ParentNode = parentNode;
-            Name = name;
-            if (decompLayers.Any(d => d.Any()))
-            {
-                var newNodes = decompLayers.GroupBy(d => d[0])
-                                           .Select(g => new LayerTreeNode(this, g.Key, g.Select(s => s.Skip(1).ToArray())));
-                foreach (var newNode in newNodes)
+                char inputChar = e.Text[0];
+                if (IsValidUnicodeLetter(inputChar))
                 {
-                    Children.Add(newNode);
-                    newNode.PropertyChanged += (s, e) =>
-                    {
-                        if (e.PropertyName == nameof(IsIncluded))
-                        {
-                            OnPropertyChanged(nameof(IsChildrenIncluded));
-                            _isIncluded = Children.All(c => c.IsIncluded);
-                            OnPropertyChanged(nameof(IsIncluded));
-                        }
-                    };
+                    ViewModel.AppendSearch(e.Text);
                 }
             }
         }
 
-        public LayerTreeNode? ParentNode { get; }
-        public ObservableCollection<LayerTreeNode> Children { get; } = new();
-
-        public string Name { get; }
-        public bool IsIncluded
+        private void HandleSpecialCases(object sender, KeyEventArgs e)
         {
-            get => _isIncluded;
-            set
+            // Handle keyboard combinations that might not trigger TextInput
+            if (e.Key == Key.Space && Keyboard.Modifiers == ModifierKeys.None)
             {
-                if (_isIncluded != value)
-                {
-                    _isIncluded = value;
-                    OnPropertyChanged();
-                    foreach (LayerTreeNode node in Children)
-                        node.IsIncluded = value;
-                }
+                ViewModel.AppendSearch(" ");
             }
         }
 
-        public bool IsChildrenIncluded => Children.Any(c => c.IsIncluded || c.IsChildrenIncluded);
-
-        public bool IsEndpointNode => !Children.Any();
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        internal IEnumerable<string> GetResultLayers()
+        private bool IsValidUnicodeLetter(char c)
         {
-            if (IsEndpointNode)
-            {
-                if (IsIncluded)
-                    yield return GetLayerName();
-                yield break;
-            }
-            foreach (var child in Children)
-            {
-                foreach (var result in child.GetResultLayers())
-                    yield return result;
-            }
-        }
-        private string GetLayerName()
-        {
-            LayerTreeNode node = this;
-            List<string> sections = new();
-            while (node.ParentNode != null)
-            {
-                sections.Add(node.Name);
-                node = node.ParentNode;
-            }
-            sections.Reverse();
-            var result = string.Join("_", sections); // TODO: ещё один разделитель в хардкоде
-            return result;
+            // Check if character is a letter from any alphabet (including Cyrillic)
+            return char.IsLetter(c) ||
+                   (c >= '\u0400' && c <= '\u04FF'); // Explicit Cyrillic range check
         }
 
-        private protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        private void UpdateButtonState(Key key, bool isPressed)
         {
-            PropertyChanged?.Invoke(this, new(propertyName));
+            switch (key)
+            {
+                case Key.Up:
+                    bUp.Tag = isPressed ? "Pressed" : null;
+                    break;
+                case Key.Down:
+                    bDown.Tag = isPressed ? "Pressed" : null;
+                    break;
+                case Key.Left:
+                    bLeft.Tag = isPressed ? "Pressed" : null;
+                    break;
+                case Key.Right:
+                    bRight.Tag = isPressed ? "Pressed" : null;
+                    break;
+            }
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Up || e.Key == Key.Down ||
+                e.Key == Key.Left || e.Key == Key.Right)
+            {
+                UpdateButtonState(e.Key, true);
+            }
+            if (e.Key == Key.Up || e.Key == Key.Down ||
+                e.Key == Key.Left || e.Key == Key.Right)
+            {
+                if (Keyboard.Modifiers != ModifierKeys.Shift)
+                    ReturnFocusToNodes();
+            }
+            if ((e.Key == Key.Up || e.Key == Key.Down) &&
+                Keyboard.Modifiers == ModifierKeys.Shift && expFilter.IsExpanded == false)
+            {
+                    expFilter.IsExpanded = true;
+            }
+        }
+
+        private void Window_PreviewKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Up || e.Key == Key.Down ||
+                e.Key == Key.Left || e.Key == Key.Right)
+            {
+                UpdateButtonState(e.Key, false);
+            }
+        }
+
+        private void Border_MouseEnter(object sender, MouseEventArgs e)
+        {
+            var border = (Border)sender;
+            var tp = border.TemplatedParent;
+        }
+
+        private void expFilter_Expanded(object sender, RoutedEventArgs e)
+        {
+            var expander = (Expander)sender;
+            expander.Height += 50;
+            this.Height += 50;
+
+        }
+
+        private void expFilter_Collapsed(object sender, RoutedEventArgs e)
+        {
+            var expander = (Expander)sender;
+            expander.Height -= 50;
+            this.Height -= 50;
+        }
+
+        private void cbFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ReturnFocusToNodes();
+        }
+
+        private void ReturnFocusToNodes()
+        {
+            var selected = lvNodes.SelectedItem ?? lvNodes.Items.Cast<object>().First();
+            var container = lvNodes.ItemContainerGenerator.ContainerFromItem(selected) as ListViewItem;
+            container?.Focus();
         }
     }
 }

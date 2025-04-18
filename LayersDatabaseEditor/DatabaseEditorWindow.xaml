@@ -149,7 +149,7 @@
                             <ui:UserNumericInput LabelText="Z-индекс порядка отрисовки" InputValue="{Binding Path=DrawOrderIndex, Mode=TwoWay}"/>
                             <Button Name="bDrawOrderWindowShow" Content="Порядок прорисовки слоёв" Margin="10 5 25 5"
                                     DataContext="{Binding ElementName=databaseEditorWindow, Path=ViewModel}"
-                                    Command="{Binding Path=OpenOrderingWindowCommand}"
+                                    Command="{Binding Path=OpenLayerDrawOrderingWindowCommand}"
                                     CommandParameter="{Binding Path=SelectedLayer}"/>
                         </StackPanel>
                     </ScrollViewer>
@@ -162,7 +162,7 @@
                             <ui:UserNumericInput LabelText="Положение в таблице" InputValue="{Binding Path=Rank, Mode=TwoWay}"/>
                             <Button Name="bLegendRankWindowShow" Content="Порядок отображения легенды" Margin="10 5 25 5"
                                     DataContext="{Binding ElementName=databaseEditorWindow, Path=ViewModel}"
-                                    Command="{Binding Path=OpenOrderingWindowCommand}"
+                                    Command="{Binding Path=OpenLegendOrderingWindowCommand}"
                                     CommandParameter="{Binding Path=SelectedGroup}"/>
                             <ui:UserStringInput LabelText="Заголовок для однотипных объектов" Height="100" InputValue="{Binding Path=SubLabel, Mode=TwoWay}"/>
                             <ui:UserStringInput LabelText="Заголовок" Height="100" InputValue="{Binding Path=Label, Mode=TwoWay}"/>

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -31,6 +32,10 @@ namespace WindowTestLauncher
                 Assembly.LoadFrom(path);
                 context.LoadFromAssemblyPath(diLibPath);
                 InitializeLoaderCore();
+
+                PresentationTraceSources.Refresh();
+                PresentationTraceSources.DataBindingSource.Listeners.Add(new ConsoleTraceListener());
+                PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Warning | SourceLevels.Error | SourceLevels.Critical;
             }
             catch (Exception ex)
             {

@@ -4,9 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LayerWorks.UI"
+        xmlns:u="clr-namespace:LoaderCore.Controls.Utilities;assembly=LoaderCore"
         mc:Ignorable="d"
-        Title="NewStandardLayerWindow" Height="450" Width="400"
-        DataContext="{Binding RelativeSource={RelativeSource Self}, Path=ViewModel}">
+        Title="Добавление стандартного слоя" Height="450" Width="400"
+        Name="newStandardLayerWindow"
+        DataContext="{Binding RelativeSource={RelativeSource Self}, Path=ViewModel}"
+        PreviewKeyDown="Window_PreviewKeyDown" PreviewKeyUp="Window_PreviewKeyUp"
+        PreviewTextInput="HandleGlobalTextInput">
     <Window.InputBindings>
         <KeyBinding Command="{Binding Path=NextNodeCommand}" 
                     CommandParameter="{Binding ElementName=lvNodes, Path=SelectedItem}"
@@ -14,6 +18,9 @@
         <KeyBinding Command="{Binding Path=PreviousNodeCommand}"
                     CommandParameter="{Binding Path=CurrentNode}"
                     Key="Left"/>
+        <MouseBinding Command="{Binding Path=PreviousNodeCommand}"                                          
+                      CommandParameter="{Binding Path=CurrentNode}"
+                      MouseAction="RightClick"/>
         <KeyBinding Command="{Binding Path=IncludeNodeCommand}"
                     CommandParameter="{Binding ElementName=lvNodes, Path=SelectedItem}"
                     Gesture="Shift+Right"/>
@@ -25,15 +32,38 @@
                     Key="Enter"/>
         <KeyBinding Command="{Binding Path=IncludeAndCloseCommand}"
                     Key="Esc"/>
+        <KeyBinding Command="{Binding Path=RollFilterDownCommand}"
+                    CommandParameter="{Binding Path=SelectedStatusFilter}"
+                    Gesture="Shift+Down"/>
+        <KeyBinding Command="{Binding Path=RollFilterUpCommand}"
+                    CommandParameter="{Binding Path=SelectedStatusFilter}"
+                    Gesture="Shift+Up"/>
     </Window.InputBindings>
+    <Window.Resources>
+        <u:DebugConverter x:Key="debugConverter"/>
+        <Style x:Key="ArrowButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#F0F0F0"/>
+            <Setter Property="BorderBrush" Value="#808080"/>
+            <Style.Triggers>
+                <Trigger Property="Tag" Value="Pressed">
+                    <Setter Property="Background" Value="#1199F4"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="BorderBrush" Value="#005499"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition/>
+            <RowDefinition MinHeight="25" Height="{Binding ElementName=expFilter, Path=ActualHeight}"/>
             <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
-        <TextBox Grid.Row="0" Margin="5" IsReadOnly="True"/>
-        <ListView Name="lvNodes" Grid.Row="1" Margin="5" 
+        <TextBox Grid.Row="0" Margin="5" IsReadOnly="True" VerticalContentAlignment="Center"
+                 Text="{Binding Path=FullSearchString, Mode=OneWay}"/>
+        <ListView Name="lvNodes" Grid.Row="1" Margin="5"
+                  SelectionMode="Single"
                   ItemsSource="{Binding Path=CurrentNode.Children}"
                   SelectedItem="{Binding Path=SelectedNode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             <ListView.Resources>
@@ -44,12 +74,14 @@
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="OverridesDefaultStyle" Value="True"/>
+                    <Setter Property="SnapsToDevicePixels" Value="True"/>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="ListViewItem">
                                 <Border Name="Border"
                                         Background="{TemplateBinding Background}"
-                                        Padding="4">
+                                        Padding="4" MouseEnter="Border_MouseEnter">
                                     <ContentPresenter/>
                                 </Border>
                                 <ControlTemplate.Triggers>
@@ -65,9 +97,12 @@
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
                                             <Condition Binding="{Binding IsIncluded}" Value="True"/>
-                                            <Condition Binding="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=IsSelected}" Value="True"/>
+                                            <Condition Binding="{Binding IsSelected, Converter={StaticResource debugConverter}, RelativeSource={RelativeSource TemplatedParent}}" Value="True"/>
+                                            <!--<Condition Binding="{Binding Path=IsSelected, Source={RelativeSource AncestorType=ListViewItem}, Converter={StaticResource debugConverter}}" Value="True"/>-->
                                         </MultiDataTrigger.Conditions>
-                                        <Setter TargetName="Border" Property="Background" Value="{StaticResource ResourceKey=SelectedHighlightBrush}"/>
+                                        <!--<Setter TargetName="Border" Property="Background" Value="{StaticResource ResourceKey=SelectedHighlightBrush}"/>-->
+                                        <Setter TargetName="Border" Property="Tag" Value="TriggerFired"/>
+                                        <Setter TargetName="Border" Property="Background" Value="Red"/>
                                         <Setter TargetName="Border" Property="BorderBrush" Value="#2D6A4F"/>
                                     </MultiDataTrigger>
                                 </ControlTemplate.Triggers>
@@ -83,16 +118,37 @@
                             <MouseBinding MouseAction="LeftClick"
                                           Command="{Binding DataContext.NextNodeCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                           CommandParameter="{Binding}"/>
-                            <MouseBinding Command="{Binding DataContext.NextNodeCommand, 
-                                          RelativeSource={RelativeSource AncestorType=ListView}}"
+                            <MouseBinding MouseAction="RightClick"
+                                          Command="{Binding DataContext.PreviousNodeCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                          CommandParameter="{Binding ParentNode}"/>
+                            <MouseBinding Command="{Binding DataContext.ChangeNodeIncludeStateCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                           CommandParameter="{Binding}"
                                           Gesture="Shift+LeftClick"/>
                         </TextBlock.InputBindings>
                     </TextBlock>
                 </DataTemplate>
             </ListView.ItemTemplate>
+            <ListView.InputBindings>
+                <KeyBinding Command="{Binding Path=RollFilterDownCommand}"
+                                        CommandParameter="{Binding Path=SelectedStatusFilter}"
+                                        Gesture="Shift+Down"/>
+                <KeyBinding Command="{Binding Path=RollFilterUpCommand}"
+                                        CommandParameter="{Binding Path=SelectedStatusFilter}"
+                                        Gesture="Shift+Up"/>
+            </ListView.InputBindings>
         </ListView>
-        <Grid Grid.Row="2" Width="150" Height="100">
+        <Expander Name="expFilter" Grid.Row="2" Height="25" VerticalAlignment="Top"
+                  VerticalContentAlignment="Center"
+                  IsExpanded="False" Expanded="expFilter_Expanded" Collapsed="expFilter_Collapsed">
+            <DockPanel LastChildFill="True" VerticalAlignment="Center">
+                <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Margin="10 0 0 0" Text="Фильтр по статусу"/>
+                <ComboBox Name="cbFilter" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Margin="5"
+                          ItemsSource="{Binding Path=AvailableStatusFilters}"
+                          SelectedItem="{Binding Path=SelectedStatusFilter}" 
+                          SelectionChanged="cbFilter_SelectionChanged"/>
+            </DockPanel>
+        </Expander>
+        <Grid Grid.Row="3" Width="150" Height="100">
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition/>
@@ -102,10 +158,14 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Row="1"  Grid.Column="0" Name="bLeft" Margin="5" Content="&#9664;"/>
-            <Button Grid.Row="1"  Grid.Column="2" Name="bRight" Margin="5" Content="&#9654;"/>
-            <Button Grid.Row="0"  Grid.Column="1" Name="bUp" Margin="5" Content="&#9650;"/>
-            <Button Grid.Row="1"  Grid.Column="1" Name="bDown" Margin="5" Content="&#9660;"/>
+            <Button Grid.Row="1"  Grid.Column="0" Name="bLeft" Margin="5" Content="&#9664;"
+                    Style="{StaticResource ArrowButtonStyle}"/>
+            <Button Grid.Row="1"  Grid.Column="2" Name="bRight" Margin="5" Content="&#9654;"
+                    Style="{StaticResource ArrowButtonStyle}"/>
+            <Button Grid.Row="0"  Grid.Column="1" Name="bUp" Margin="5" Content="&#9650;"
+                    Style="{StaticResource ArrowButtonStyle}"/>
+            <Button Grid.Row="1"  Grid.Column="1" Name="bDown" Margin="5" Content="&#9660;"
+                    Style="{StaticResource ArrowButtonStyle}"/>
         </Grid>
     </Grid>
 </Window>
