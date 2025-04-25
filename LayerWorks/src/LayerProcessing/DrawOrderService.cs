@@ -13,7 +13,7 @@ namespace LayerWorks.LayerProcessing
 {
     internal class DrawOrderService
     {
-        IRepository<string, LayerProps> _repository;
+        private readonly IRepository<string, LayerProps> _repository;
         public DrawOrderService(IRepository<string, LayerProps> repository)
         {
             _repository = repository;
@@ -33,12 +33,12 @@ namespace LayerWorks.LayerProcessing
             foreach (var wrapper in orderedWrappers)
             {
                 // Обработать штриховки
-                Color byLayerColor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
+                //Color byLayerColor = Color.FromColorIndex(ColorMethod.ByLayer, 256);
                 Hatch[] hatches = wrapper.BoundEntities.Where(e => e is Hatch)
                                                        .Cast<Hatch>()
                                                        .ToArray();
                 // Сплошные перекрашенные
-                ObjectId[] solidColoredHatches = hatches.Where(h => h.PatternName == "SOLID" && h.Color != byLayerColor)
+                ObjectId[] solidColoredHatches = hatches.Where(h => h.PatternName == "SOLID" && !h.Color.IsByLayer)
                                                         .OrderByDescending(h => h.Color.Red + h.Color.Green + h.Color.Blue) // те что светлее - ниже
                                                         .Select(h => h.Id)
                                                         .ToArray();
@@ -49,7 +49,7 @@ namespace LayerWorks.LayerProcessing
                 }
 
                 // Сплошные с цветом - по слою
-                ObjectId[] solidByLayerHatches = hatches.Where(h => h.PatternName == "SOLID" && h.Color == byLayerColor)
+                ObjectId[] solidByLayerHatches = hatches.Where(h => h.PatternName == "SOLID" && h.Color.IsByLayer)
                                                         .Select(h => h.Id)
                                                         .ToArray();
                 if (solidByLayerHatches.Any())
