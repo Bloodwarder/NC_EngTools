@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace LayerWorks.UI
 {
@@ -26,6 +27,7 @@ namespace LayerWorks.UI
             LayerTreeNode rootNode = new(null, "RootNode", decomps);
             RootNode = rootNode;
             CurrentNode = rootNode;
+            SelectedNode = CurrentNode.Children.FirstOrDefault();
             ResetFilter(clear: true);
 
             NextNodeCommand = new(NextNode, CanExecuteNextNode);
@@ -248,9 +250,15 @@ namespace LayerWorks.UI
         internal IEnumerable<string> GetResultLayers()
         {
             if (SelectedStatusFilter != NoFilterString)
-                return RootNode.GetResultLayers().Where(l => l.Contains(SelectedStatusFilter));
+            {
+                Regex regex = new(@$"[^a-zA-Zа-яА-Я]{SelectedStatusFilter}($|[^a-zA-Zа-яА-Я])");
+                //return RootNode.GetResultLayers().Where(l => l.Contains(SelectedStatusFilter)); 
+                return RootNode.GetResultLayers().Where(l => regex.IsMatch(l));
+            }
             else
+            {
                 return RootNode.GetResultLayers();
+            }
         }
     }
 }
