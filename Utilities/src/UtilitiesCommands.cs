@@ -32,6 +32,12 @@ namespace Utilities
             NcetCommand.ExecuteCommand(TextOrientByPolylineSegment);
         }
 
+        [CommandMethod("ТЕКСТВВЫНОСКУ")]
+        public static void ReplaceMTextWithMLeaderCommand()
+        {
+            NcetCommand.ExecuteCommand(ReplaceMTextWithMLeader);
+        }
+
         [CommandMethod("СМТ", CommandFlags.Redraw)]
         public static void StripMTextCommand()
         {

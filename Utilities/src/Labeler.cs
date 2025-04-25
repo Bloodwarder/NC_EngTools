@@ -228,6 +228,63 @@ namespace Utilities
 
         }
 
+        public static void ReplaceMTextWithMLeader()
+        {
+            PromptEntityOptions peo = new("Выберите Текст или МТекст")
+            {
+                AllowNone = false,
+            };
+            peo.AddAllowedClass(typeof(MText), true);
+            peo.AddAllowedClass(typeof(DBText), true);
+            PromptPointOptions ppo = new("Выберите местоположение выноски");
+            using (var transaction = Workstation.TransactionManager.StartTransaction())
+            {
+                PromptEntityResult entityResult = Workstation.Editor.GetEntity(peo);
+                PromptPointResult pointResult = Workstation.Editor.GetPoint(ppo);
+                if (entityResult.Status != PromptStatus.OK || pointResult.Status != PromptStatus.OK)
+                {
+                    Workstation.Logger?.LogWarning("Ошибка выбора");
+                    return;
+                }
+                Entity entity = entityResult.ObjectId.GetObject<Entity>(OpenMode.ForWrite, transaction);
+                Point3d point = pointResult.Value;
+                MText newMtext;
+                MLeader mLeader = new();
+                Point3d textLocation;
+                if (entity is MText mText)
+                {
+                    newMtext = (MText)mText.Clone();
+                    textLocation = mText.Location;
+                }
+                else if (entity is DBText text)
+                {
+                    newMtext = new();
+                    newMtext.SetDatabaseDefaults();
+                    newMtext.Contents = text.TextString;
+                    newMtext.Height = text.Height;
+                    newMtext.TextHeight = text.Height;
+                    textLocation = text.Position;
+                    newMtext.Location = textLocation;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Ошибка. Неверный тип объекта");
+                }
+                mLeader.ContentType = ContentType.MTextContent;
+                mLeader.SetDatabaseDefaults();
+                mLeader.MText = newMtext;
+                mLeader.TextLocation = point;
+                mLeader.LayerId = entity.LayerId;
+
+                mLeader.AddLeaderLine(textLocation);
+
+                Workstation.ModelSpace.AppendEntity(mLeader);
+                transaction.AddNewlyCreatedDBObject(mLeader, true);
+                entity.Erase();
+                transaction.Commit();
+            }
+        }
+
         [Obsolete]
         private static bool SegmentCheck(Point2d point, LineSegment2d entity)
         {
@@ -263,15 +320,6 @@ namespace Utilities
             int segmentNumber = (int)Math.Floor(polyline.GetParameterAtPoint(pointOnLine));
             LineSegment2d segment = polyline.GetLineSegment2dAt(segmentNumber);
             return segment;
-            ////проверяем, какому сегменту принадлежит точка и вычисляем его направление
-            //LineSegment2d ls = new();
-            //for (int i = 0; i < polyline.NumberOfVertices - 1; i++)
-            //{
-            //    ls = polyline.GetLineSegment2dAt(i);
-            //    if (SegmentCheck(pointOnLine.Convert2d(new Plane(new Point3d(0, 0, 0), new Vector3d(0, 0, 1))), ls))
-            //        break;
-            //}
-            //return ls;
         }
     }
 
