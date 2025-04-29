@@ -27,7 +27,7 @@ namespace GeoMod.Commands
         [CommandMethod("ВКТМУЛЬТИЭКСПОРТ", CommandFlags.UsePickSet)]
         public static void WktMultigeomToClipboardCommand()
         {
-            NcetCommand.ExecuteCommand(_wktCommands.WktMultigeomToClipboard);
+            NcetCommand.ExecuteCommand(_wktCommands.WktMultiGeometryToClipboard);
         }
 
         [CommandMethod("ВКТИМПОРТ")]

@@ -115,7 +115,7 @@ namespace GeoMod.Commands
 
         }
 
-        public void WktMultigeomToClipboard()
+        public void WktMultiGeometryToClipboard()
         {
             var geometryFactory = _geometryServices.CreateGeometryFactory();
             using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
@@ -127,10 +127,42 @@ namespace GeoMod.Commands
                 Entity[] entities = psr.Value.GetObjectIds().Select(id => id.GetObject<Entity>(OpenMode.ForRead, transaction)).ToArray();
 
                 if (entities.Select(e => e.LayerId).Distinct().Count() > 1)
-                    Workstation.Logger?.LogWarning("Внимание. В выборке объекты из разных слоёв! Возможно непреднамеренный выбор");
+                    Workstation.Logger?.LogWarning("Внимание. В выборке объекты из разных слоёв! Возможно, непреднамеренный выбор");
 
                 Geometry[] geometries = EntityToGeometryConverter.TransferGeometry(entities, geometryFactory).ToArray();
-                // TODO: создать проверку на внутренние полигоны
+
+                // Проверить внутренние кольца
+                if (geometries.All(g => g is Polygon))
+                {
+                    List<Geometry> newPolygons = new();
+                    var orderedSet = geometries.OrderByDescending(p => p.Area).ToHashSet();
+                    // пройтись по всем полигонам, начиная с самого большого.
+                    foreach (var polygon in orderedSet)
+                    {
+                        // найти все внутренние кольца
+                        //var innerRings = orderedSet.Where(g => g != polygon && g.Within(polygon));
+                        var innerRings = orderedSet.Where(g => !g.Equals(polygon) && g.Within(polygon)).ToArray();
+                        Geometry newPolygon;
+                        if (innerRings.Any())
+                        {
+                            var unionRing = innerRings.Aggregate((p1, p2) => p1.Union(p2));
+                            newPolygon = polygon.Difference(unionRing);
+                            // исключить все найденные внутренние кольца
+                            foreach (var geom in innerRings)
+                                orderedSet.Remove(geom);
+                        }
+                        else
+                        {
+                            newPolygon = polygon;
+                        }
+                        // исключить сам полигон - так как в текущей итерации он самый большой, внутренним он быть уже не может
+                        orderedSet.Remove(polygon);
+                        newPolygons.Add(newPolygon);
+                    }
+                    geometries = newPolygons.ToArray();
+                }
+
+                // создать составную геометрию и исправить наложения
                 Geometry newGeometry = GeometryFixer.Fix(geometryFactory.BuildGeometry(geometries), true);
 
                 if (newGeometry is GeometryCollection collection && !collection.IsHomogeneous)

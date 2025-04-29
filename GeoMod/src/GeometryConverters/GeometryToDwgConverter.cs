@@ -13,7 +13,8 @@ namespace GeoMod.GeometryConverters
 {
     internal static class GeometryToDwgConverter
     {
-        private static readonly IEntityFormatter? _formatter = NcetCore.ServiceProvider.GetService<IEntityFormatter>();
+        private static readonly IEntityFormatter? _formatter = NcetCore.ServiceProvider.GetService<IEntityFormatter>(); 
+        // TODO: Сделать нормальную инъекцию по месту использования, а не форматировать всё без разбора
 
         internal static IEnumerable<Polyline> ToDWGPolylines(Geometry geometry)
         {
@@ -44,14 +45,6 @@ namespace GeoMod.GeometryConverters
             return polyline.CheckClosedPolyline();
         }
 
-        //internal static IEnumerable<Polyline> ToDWGPolylines(MultiLineString mLinestring)
-        //{
-        //    foreach (LineString? linestring in mLinestring.Geometries.Select(g => (LineString)g))
-        //    {
-        //        yield return ToDWGPolyline(linestring).CheckClosedPolyline();
-        //    }
-        //}
-
         internal static IEnumerable<Polyline> ToDWGPolylines(Polygon polygon)
         {
             LinearRing? exteriorRing = (LinearRing)polygon.ExteriorRing;
@@ -63,17 +56,6 @@ namespace GeoMod.GeometryConverters
                 yield return pl;
             }
         }
-
-        //internal static IEnumerable<Polyline> ToDWGPolylines(MultiPolygon mPolygon)
-        //{
-        //    List<Polyline> polylines = new();
-
-        //    foreach (Polygon? polygon in mPolygon.Geometries.Select(g => (Polygon)g))
-        //    {
-        //        polylines.AddRange(ToDWGPolylines(polygon));
-        //    }
-        //    return polylines;
-        //}
 
         internal static Polyline CheckClosedPolyline(this Polyline polyline)
         {
