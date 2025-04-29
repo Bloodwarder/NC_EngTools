@@ -15,6 +15,7 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using GeoMod.NtsServices;
+using NetTopologySuite.Geometries.Utilities;
 
 namespace GeoMod.Commands
 {
@@ -114,6 +115,38 @@ namespace GeoMod.Commands
 
         }
 
+        public void WktMultigeomToClipboard()
+        {
+            var geometryFactory = _geometryServices.CreateGeometryFactory();
+            using (Transaction transaction = Workstation.TransactionManager.StartTransaction())
+            {
+                // получить геометрию dwg и преобразовать её в nts
+                PromptSelectionResult psr = Workstation.Editor.GetSelection();
+                if (psr.Status != PromptStatus.OK)
+                    return;
+                Entity[] entities = psr.Value.GetObjectIds().Select(id => id.GetObject<Entity>(OpenMode.ForRead, transaction)).ToArray();
+
+                if (entities.Select(e => e.LayerId).Distinct().Count() > 1)
+                    Workstation.Logger?.LogWarning("Внимание. В выборке объекты из разных слоёв! Возможно непреднамеренный выбор");
+
+                Geometry[] geometries = EntityToGeometryConverter.TransferGeometry(entities, geometryFactory).ToArray();
+                // TODO: создать проверку на внутренние полигоны
+                Geometry newGeometry = GeometryFixer.Fix(geometryFactory.BuildGeometry(geometries), true);
+
+                if (newGeometry is GeometryCollection collection && !collection.IsHomogeneous)
+                    Workstation.Logger?.LogWarning("Внимание. Создан объект GeometryCollection. Если предполагались MultiPolygon или MultiLineString - проверьте замкнутость полилиний");
+
+                // создать райтер, преобразовать геометрию в вкт текст, поместить в буфер
+                WKTWriter writer = new()
+                {
+                    OutputOrdinates = Ordinates.XY
+                };
+                string outputWkt = writer.Write(newGeometry);
+                System.Windows.Clipboard.SetText(outputWkt);
+                transaction.Commit();
+            }
+        }
+
         public void FeatureFromClipboard()
         {
             Workstation.Logger?.LogDebug("{ProcessingObject}: Начало команды ФИЧИМПОРТ", nameof(GeomodWktCommands));
@@ -123,7 +156,7 @@ namespace GeoMod.Commands
             Workstation.Logger?.LogDebug("{ProcessingObject}: Текст в буфере обмена:\n{ClipboardText}", nameof(GeomodWktCommands), fromClipboard);
 
             Match headerMatch = Regex.Match(fromClipboard, @"^(\w+\t?)+");
-            if (!headerMatch.Success) 
+            if (!headerMatch.Success)
             {
                 Workstation.Logger?.LogWarning("Текст в буфере обмена не содержит заголовков для определения типа объекта");
                 return;
