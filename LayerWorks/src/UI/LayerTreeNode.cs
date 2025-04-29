@@ -1,48 +1,42 @@
 ﻿using NameClassifiers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace LayerWorks.UI
 {
     public class LayerTreeNode : INotifyPropertyChanged
     {
+        private const string RootNodeName = "RootNode";
         private readonly string? _separator;
         private bool _isIncluded = false;
 
-        public LayerTreeNode(LayerTreeNode? parentNode, string name, IEnumerable<string[]> decompLayers, string? separator = null)
+        public LayerTreeNode(IEnumerable<string[]> decompLayers) : this(decompLayers, RootNodeName, null, null) { }
+
+        private LayerTreeNode(IEnumerable<string[]> decompLayers, string name, LayerTreeNode? parentNode, string? separator = null)
         {
-            if (separator == null)
+            if (separator == null && name != RootNodeName)
             {
+                // для узлов-префиксов ищется разделитель, затем передаётся вглубь
                 bool success = NameParser.LoadedParsers.TryGetValue(name, out var parser);
+                if (!success)
+                    throw new ArgumentException($"Не удалось найти парсер для узла-префикса. Имя - \"{name}\". Загруженные парсеры: {string.Join(",", NameParser.LoadedParsers.Keys)}");
                 _separator = parser?.Separator;
             }
             else
             {
-                _separator = separator!;
+                // для корневого узла остаётся пустым
+                _separator = separator;
             }
+
             ParentNode = parentNode;
             Name = name;
-            if (decompLayers.Any(d => d.Any()))
-            {
-                var newNodes = decompLayers.GroupBy(d => d[0])
-                                           .Select(g => new LayerTreeNode(this, g.Key, g.Select(s => s.Skip(1).ToArray()), _separator));
-                foreach (var newNode in newNodes)
-                {
-                    Children.Add(newNode);
-                    newNode.PropertyChanged += (s, e) =>
-                    {
-                        if (e.PropertyName == nameof(IsIncluded))
-                        {
-                            OnPropertyChanged(nameof(IsChildrenIncluded));
-                            _isIncluded = Children.All(c => c.IsIncluded);
-                            OnPropertyChanged(nameof(IsIncluded));
-                        }
-                    };
-                }
-            }
-            _separator = separator;
+
+            CreateChildren(decompLayers);
         }
+
+
 
         public LayerTreeNode? ParentNode { get; }
         public ObservableCollection<LayerTreeNode> Children { get; } = new();
@@ -85,6 +79,7 @@ namespace LayerWorks.UI
                     yield return result;
             }
         }
+
         internal string GetLayerName()
         {
             LayerTreeNode node = this;
@@ -97,6 +92,32 @@ namespace LayerWorks.UI
             sections.Reverse();
             var result = string.Join(_separator, sections);
             return result;
+        }
+
+        private void CreateChildren(IEnumerable<string[]> decompLayers)
+        {
+            if (decompLayers.Any(d => d.Any()))
+            {
+                Func<string[], string> nodeNameFunc = d => d[0]; // первый элемент - ключ для группировки и имя нового узла
+                Func<string[], string[]> childDecompFunc = d => d.Skip(1).ToArray(); // оставшиеся элементы без имени узла (рекурсивно обработаются внутри создаваемого узла)
+
+                var newNodes = decompLayers.GroupBy(nodeNameFunc)
+                                           .Select(g => new LayerTreeNode(g.Select(childDecompFunc), g.Key, this, _separator));
+                foreach (var newNode in newNodes)
+                {
+                    Children.Add(newNode);
+                    newNode.PropertyChanged += (s, e) =>
+                    {
+                        // Обновить статус включён/выключен при обновлении в дочерних узлах
+                        if (e.PropertyName == nameof(IsIncluded))
+                        {
+                            OnPropertyChanged(nameof(IsChildrenIncluded));
+                            _isIncluded = Children.All(c => c.IsIncluded);
+                            OnPropertyChanged(nameof(IsIncluded));
+                        }
+                    };
+                }
+            }
         }
 
         private protected void OnPropertyChanged([CallerMemberName] string propertyName = "")

@@ -24,7 +24,7 @@ namespace LayerWorks.UI
                           let prefix = NameParser.GetPrefix(layer)
                           let separator = NameParser.LoadedParsers[prefix].Separator
                           select layer.Split(separator);
-            LayerTreeNode rootNode = new(null, "RootNode", decomps);
+            LayerTreeNode rootNode = new(decomps);
             RootNode = rootNode;
             CurrentNode = rootNode;
             SelectedNode = CurrentNode.Children.FirstOrDefault();
@@ -40,6 +40,9 @@ namespace LayerWorks.UI
             RollFilterDownCommand = new(RollFilterDown, CanRollFilterDown);
         }
 
+        /// <summary>
+        /// Текущий рабочий узел, для которого отображается список дочерних узлов
+        /// </summary>
         public LayerTreeNode? CurrentNode
         {
             get => _currentNode;
@@ -50,6 +53,9 @@ namespace LayerWorks.UI
             }
         }
 
+        /// <summary>
+        /// Выбранный дочерний узел
+        /// </summary>
         public LayerTreeNode? SelectedNode
         {
             get => _selectedNode;
@@ -62,6 +68,9 @@ namespace LayerWorks.UI
 
         public LayerTreeNode RootNode { get; }
 
+        /// <summary>
+        /// Часть строки поиска, содержащая имя, составленная из текущего узла и всех родительских
+        /// </summary>
         public string FixedSearchString
         {
             get => _fixedSearchString;
@@ -73,6 +82,9 @@ namespace LayerWorks.UI
             }
         }
 
+        /// <summary>
+        /// Часть строки поиска, содержащая ввод пользователя для поиска среди дочерних слоёв
+        /// </summary>
         public string CurrentSearchString
         {
             get => _currentSearchString;
@@ -84,6 +96,9 @@ namespace LayerWorks.UI
             }
         }
 
+        /// <summary>
+        /// Полная строка поиска для отображения в UI
+        /// </summary>
         public string FullSearchString
         {
             get
@@ -95,6 +110,9 @@ namespace LayerWorks.UI
             }
         }
 
+        /// <summary>
+        /// Доступные фильтры по статусу для текущего узла
+        /// </summary>
         public List<string> AvailableStatusFilters
         {
             get => _availableStatusFilters;
@@ -105,6 +123,9 @@ namespace LayerWorks.UI
             }
         }
 
+        /// <summary>
+        /// Выбранный фильтр, в соответствии с которым будет осуществляться фильтрация при завершении работы окна
+        /// </summary>
         public string SelectedStatusFilter
         {
             get => _selectedStatusFilter;
@@ -114,7 +135,7 @@ namespace LayerWorks.UI
                 OnPropertyChanged();
             }
         }
-
+        
         public RelayCommand NextNodeCommand { get; }
         public RelayCommand PreviousNodeCommand { get; }
         public RelayCommand IncludeNodeCommand { get; }
@@ -126,13 +147,25 @@ namespace LayerWorks.UI
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        /// <summary>
+        /// Событие, вызываемое при нормальном завершении работы окна (при выборе конечного узла, при досрочном завершении с выбором (Enter) и без (Esc)
+        /// </summary>
         internal event EventHandler? InputCompleted;
 
+        /// <summary>
+        /// Добавить строку к строке поиска и найти подходящий дочерний узел. 
+        /// При наличии одного - сразу сделает текущим. 
+        /// При наличии нескольких - выберет первый. 
+        /// При отсутствии сбросит строку поиска
+        /// </summary>
+        /// <param name="str">Строка для добавления (как правило из одного символа)</param>
+        /// <exception cref="InvalidOperationException">Поиск возможен только при непустом текущем узле</exception>
         public void AppendSearch(string str)
         {
             CurrentSearchString += str;
             var search = CurrentNode?.Children.Where(c => c.Name.StartsWith(CurrentSearchString, StringComparison.OrdinalIgnoreCase)) ??
-                throw new InvalidOperationException("Поиск возможен только при непустом выбранном узле");
+                throw new InvalidOperationException("Поиск возможен только при непустом текущем узле");
             if (!search.Any())
             {
                 CurrentSearchString = string.Empty;
@@ -156,6 +189,10 @@ namespace LayerWorks.UI
 
         private bool CanExecuteNextNode(object? obj) => obj is LayerTreeNode;
 
+        /// <summary>
+        /// Сделать узел текущим. При выборе концевого узла включает его и завершает работу окна.
+        /// </summary>
+        /// <param name="obj" cref="LayerTreeNode">Узел, который следует сделать текущим (как правило - выбранный)</param>
         private void NextNode(object? obj)
         {
             LayerTreeNode node = (LayerTreeNode)obj!;
@@ -171,19 +208,26 @@ namespace LayerWorks.UI
                 FixedSearchString = node.GetLayerName();
                 CurrentSearchString = string.Empty;
             }
+            // В узлах дочерних корневому содержатся префиксы, по которым следует обновить список доступных фильтров 
+            // (так как, когда текщущий узел соответствует корневом, список содержит одно значение по умолчанию)
             if (CurrentNode?.ParentNode == RootNode)
                 ResetFilter();
         }
 
         private static bool CanExecutePreviousNode(object? obj) => obj is LayerTreeNode node && node.ParentNode != null;
 
+        /// <summary>
+        /// Сделать текущим родительский узел узла, переданного как параметр. Сам переданный узел становится выбранным.
+        /// </summary>
+        /// <param name="obj" cref="LayerTreeNode">Узел, родительский узел которого следует сделать текущим (как правило - текущий)</param>
         private void PreviousNode(object? obj)
         {
             var node = (LayerTreeNode)obj!;
-            CurrentNode = CurrentNode!.ParentNode;
+            CurrentNode = node.ParentNode;
             SelectedNode = node;
             FixedSearchString = CurrentNode!.GetLayerName();
             CurrentSearchString = string.Empty;
+            // При выборе корневого узла фильтры необходимо сбросить
             if (CurrentNode == RootNode)
                 ResetFilter(clear: true);
         }
@@ -199,10 +243,13 @@ namespace LayerWorks.UI
             node.IsIncluded = !node.IsIncluded;
         }
 
+        /// <summary>
+        /// Включить узел, переданный как параметр, и завершить работу окна. При отсутствии узла или неверном типе параметра - просто завершить работу окна.
+        /// </summary>
+        /// <param name="obj" cref="LayerTreeNode?">Узел для включения</param>
         private void IncludeAndClose(object? obj)
         {
-            LayerTreeNode? node = obj as LayerTreeNode;
-            if (node != null)
+            if (obj is LayerTreeNode node)
                 node.IsIncluded = true;
             InputCompleted?.Invoke(this, EventArgs.Empty);
         }
@@ -237,6 +284,10 @@ namespace LayerWorks.UI
             SelectedStatusFilter = AvailableStatusFilters.ElementAt(index + 1);
         }
 
+        /// <summary>
+        /// Обновить список фильтров по имени текущего узла. Для корректной работы имя узла должно быть префиксом, что корректно для дочерних узлов 1 уровня корневого узла
+        /// </summary>
+        /// <param name="clear">Очистить ли список фильтров до состояния по умолчанию (с одним значением "Без фильтра")</param>
         private void ResetFilter(bool clear = false)
         {
             List<string> filters = new() { NoFilterString };
@@ -247,12 +298,15 @@ namespace LayerWorks.UI
             SelectedStatusFilter = NoFilterString;
         }
 
+        /// <summary>
+        /// Найти все включенные концевые узлы, собрать их имена, и отфильтровать по выбранному фильтру
+        /// </summary>
+        /// <returns>Имена всех выбранных и отфильтрованных слоёв</returns>
         internal IEnumerable<string> GetResultLayers()
         {
             if (SelectedStatusFilter != NoFilterString)
             {
                 Regex regex = new(@$"[^a-zA-Zа-яА-Я]{SelectedStatusFilter}($|[^a-zA-Zа-яА-Я])");
-                //return RootNode.GetResultLayers().Where(l => l.Contains(SelectedStatusFilter)); 
                 return RootNode.GetResultLayers().Where(l => regex.IsMatch(l));
             }
             else

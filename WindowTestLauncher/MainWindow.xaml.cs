@@ -31,6 +31,7 @@ namespace WindowTestLauncher
             InitializeComponent();
         }
 
+#pragma warning disable IDE1006 // Стили именования
         private void bNewStandLayerTest_Click(object sender, RoutedEventArgs e)
         {
             var factory = NcetCore.ServiceProvider.GetService<IDbContextFactory<LayersDatabaseContextSqlite>>();
@@ -43,5 +44,6 @@ namespace WindowTestLauncher
             window.ShowDialog();
             var result = window.GetResultLayers();
         }
+#pragma warning restore IDE1006 // Стили именования
     }
 }

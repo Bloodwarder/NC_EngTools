@@ -11,7 +11,6 @@ namespace LayerWorks.UI
     /// </summary>
     public partial class NewStandardLayerWindow : Window
     {
-        private const string NoFilterString = "Без фильтра";
         public static readonly DependencyProperty ViewModelProperty =
             DependencyProperty.Register("ViewModel", typeof(NewStandardLayerWindowVm), typeof(NewStandardLayerWindow), new PropertyMetadata());
         public NewStandardLayerWindow(IEnumerable<string> layers)
@@ -87,6 +86,9 @@ namespace LayerWorks.UI
             }
         }
 
+
+
+#pragma warning disable IDE1006 // Стили именования
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Up || e.Key == Key.Down ||
@@ -103,7 +105,7 @@ namespace LayerWorks.UI
             if ((e.Key == Key.Up || e.Key == Key.Down) &&
                 Keyboard.Modifiers == ModifierKeys.Shift && expFilter.IsExpanded == false)
             {
-                    expFilter.IsExpanded = true;
+                expFilter.IsExpanded = true;
             }
         }
 
@@ -141,6 +143,7 @@ namespace LayerWorks.UI
         {
             ReturnFocusToNodes();
         }
+#pragma warning restore IDE1006 // Стили именования
 
         private void ReturnFocusToNodes()
         {

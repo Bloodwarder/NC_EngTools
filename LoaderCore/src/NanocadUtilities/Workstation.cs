@@ -60,6 +60,12 @@ namespace LoaderCore.NanocadUtilities
                 Redefined?.Invoke(_document, EventArgs.Empty);
         }
 
+        public static void AppendEntity(Entity entity, Transaction transaction)
+        {
+            ModelSpace.AppendEntity(entity);
+            transaction.AddNewlyCreatedDBObject(entity, true);
+        }
+
         internal static void SetLogger(ILogger logger)
         {
             Logger = logger;
