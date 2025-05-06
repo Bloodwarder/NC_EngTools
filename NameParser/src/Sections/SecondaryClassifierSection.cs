@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System.Xml;
+using System.Xml.Linq;
 using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
@@ -9,8 +10,11 @@ namespace NameClassifiers.Sections
     /// </summary>
     public class SecondaryClassifierSection : ParserSection
     {
+        private readonly bool _isRequired;
         public SecondaryClassifierSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
+            bool isRequired = XmlConvert.ToBoolean(xElement.Attribute("Required")?.Value ?? "true");
+            _isRequired = isRequired;
         }
 
         internal override void Process(string[] str, LayerInfoResult layerInfoResult, ref int pointer)
@@ -27,9 +31,14 @@ namespace NameClassifiers.Sections
                         break;
                 }
             }
-            string secondary = elementsCounter > 0 ? string.Join(ParentParser.Separator, str.Skip(pointer).Take(elementsCounter).ToArray()) : string.Empty;
+            string? secondary = elementsCounter > 0 ? string.Join(ParentParser.Separator, str.Skip(pointer).Take(elementsCounter).ToArray()) : null; // string.Empty;
             pointer += elementsCounter;
-            layerInfoResult.Value.SecondaryClassifiers = secondary;
+            if (_isRequired && secondary == null)
+            {
+                layerInfoResult.Exceptions.Add(new WrongLayerException("Вторичный классификатор, указанный как обязательный, отсутствует"));
+                layerInfoResult.Status = LayerInfoParseStatus.PartialFailure;
+            }    
+            layerInfoResult.Value!.SecondaryClassifiers = secondary;
             NextSection?.Process(str, layerInfoResult, ref pointer);
         }
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)

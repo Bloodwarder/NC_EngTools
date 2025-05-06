@@ -13,7 +13,7 @@ namespace NameClassifiers
         public NameParser ParentParser { get; }
         public string? Prefix { get; internal set; }
         public string? PrimaryClassifier { get; internal set; }
-        public Dictionary<string, string> AuxilaryClassifiers { get; } = new();
+        public Dictionary<string, string?> AuxilaryClassifiers { get; } = new();
         public Dictionary<string, string?> AuxilaryData { get; } = new();
         public string? SecondaryClassifiers { get; internal set; }
         public string? Status { get; internal set; }

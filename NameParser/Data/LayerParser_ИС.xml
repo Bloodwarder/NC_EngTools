@@ -13,24 +13,26 @@
 					<StatusReference Value="ндем"/>
 					<StatusReference Value="неутв"/>
 					<StatusReference Value="нреорг"/>
+					<StatusReference Value ="пр"/>
+					<StatusReference Value ="дем"/>
 					<Transformations>
 						<Transformation>
 							<Source>
 								<StatusReference Value ="сущ"/>
-								<StatusReference Value ="пр"/>
+								<!--<StatusReference Value ="пр"/>-->
 							</Source>
 							<Output>
 								<StatusReference Value="неутв"/>
 							</Output>
 						</Transformation>
-						<Transformation>
+						<!--<Transformation>
 							<Source>
 								<StatusReference Value ="дем"/>
 							</Source>
 							<Output>
 								<StatusReference Value="ндем"/>
 							</Output>
-						</Transformation>
+						</Transformation>-->
 					</Transformations>
 				</ValidSet>
 			</Validation>
@@ -46,8 +48,8 @@
 			<Chapter Value="ЭС" Description="Электроснабжение"/>
 			<Chapter Value="ЖД" Description="Инфраструктура железнодорожного транспорта"/>
 		</PrimaryClassifier>
-		<AuxilaryData Name="Diameter" Brackets="{}" Description="Диаметр">
-			<!--Неправомерные основные и дополнительные классификаторы запрещают записывать дополнительную информацию с указанным ключом-->
+		<!--<AuxilaryData Name="Diameter" Brackets="{}" Description="Диаметр">
+			--><!--Неправомерные основные и дополнительные классификаторы запрещают записывать дополнительную информацию с указанным ключом--><!--
 			<Validation>
 				<ValidSet>
 					<ChapterReference Value="ВО"/>
@@ -57,18 +59,16 @@
 					<ChapterReference Value="ТС"/>
 					<ChapterReference Value="ТТ"/>
 					<ChapterReference Value="ЖД"/>
-				</ValidSet>
-				<ValidSet>
 					<ClassifierReference Name ="Geometry" Value="л"/>
 				</ValidSet>
 			</Validation>
-		</AuxilaryData>
+		</AuxilaryData>-->
 		<AuxilaryClassifier Name ="Geometry" Description="Тип геометрии">
 			<Classifier Value ="л" Description="Линейный"/>
 			<Classifier Value ="п" Description="Площадной"/>
 			<Classifier Value ="т" Description="Точечный"/>
 		</AuxilaryClassifier>
-		<SecondaryClassifiers/>
+		<SecondaryClassifiers Required="true"/>
 		<StatusClassifier>
 			<Status Value="сущ" Description="Существующий"/>
 			<Status Value="дем" Description="Демонтируемый"/>

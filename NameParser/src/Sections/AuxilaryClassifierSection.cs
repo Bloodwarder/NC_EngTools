@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System.Xml;
+using System.Xml.Linq;
 using static NameClassifiers.LayerInfo;
 
 namespace NameClassifiers.Sections
@@ -9,11 +10,15 @@ namespace NameClassifiers.Sections
     public class AuxilaryClassifierSection : NamedParserSection
     {
         private readonly Dictionary<string, string> _descriptionDict = new();
+        private readonly bool _isRequired;
         internal string Description { get; init; }
         public AuxilaryClassifierSection(XElement xElement, NameParser parentParser) : base(xElement, parentParser)
         {
             XAttribute classifierDescriptionAttr = xElement.Attribute("Description") ?? throw new NameParserInitializeException("Отсутcтвует описание дополнительного классификатора");
             Description = classifierDescriptionAttr.Value;
+
+            bool isRequired = XmlConvert.ToBoolean(xElement.Attribute("Required")?.Value ?? "true");
+            _isRequired = isRequired;
 
             foreach (XElement classifier in xElement.Elements("Classifier"))
             {
@@ -34,20 +39,25 @@ namespace NameClassifiers.Sections
             // Если нет - проверяем добавляем null и проверяем следующий словарь
             if (_descriptionDict.ContainsKey(str[pointer]))
             {
-                layerInfoResult.Value.AuxilaryClassifiers.Add(Name, str[pointer]);
+                layerInfoResult.Value!.AuxilaryClassifiers.Add(Name, str[pointer]);
                 pointer++;
             }
-            else
+            else if (_isRequired)
             {
                 layerInfoResult.Exceptions.Add(new WrongLayerException($"Классификатор \"{str[pointer]}\" отсутствует в списке допустимых"));
                 layerInfoResult.Status = LayerInfoParseStatus.PartialFailure;
+            }
+            else
+            {
+                layerInfoResult.Value!.AuxilaryClassifiers.Add(Name, null);
             }
             NextSection?.Process(str, layerInfoResult, ref pointer);
         }
         internal override void ComposeName(List<string> inputList, LayerInfo layerInfo, NameType nameType)
         {
-
-            inputList.Add(layerInfo.AuxilaryClassifiers[Name]);
+            string? classifier = layerInfo.AuxilaryClassifiers[Name];
+            if (classifier != null)
+                inputList.Add(classifier);
             NextSection?.ComposeName(inputList, layerInfo, nameType);
         }
         internal override bool ValidateString(string str)

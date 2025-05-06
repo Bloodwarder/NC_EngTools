@@ -86,15 +86,15 @@ namespace NameClassifiers
             _currentParser ??= this;
         }
 
-        public static NameParser Current 
-        { 
-            get 
-            { 
+        public static NameParser Current
+        {
+            get
+            {
                 if (_currentParser != null)
                 {
                     return _currentParser;
                 }
-                else if(LoadedParsers.Any())
+                else if (LoadedParsers.Any())
                 {
                     _currentParser = LoadedParsers.Values.First();
                     return _currentParser;
@@ -103,8 +103,8 @@ namespace NameClassifiers
                 {
                     throw new Exception("Не загружены парсеры");
                 }
-            } 
-            private set => _currentParser = value; 
+            }
+            private set => _currentParser = value;
         }
 
         /// <summary>
@@ -316,8 +316,10 @@ namespace NameClassifiers
             var prefixSections = sections.Where(s => s is PrefixSection);
             bool prefixInitialized = prefixSections.Count() == 1 && sections.IndexOf(prefixSections.First()) == 0;
             bool primaryInitialized = sections.Where(s => s is PrimaryClassifierSection).Count() == 1;
-            bool secondaryInitialized = sections.Any(s => s is SecondaryClassifierSection);
-            bool statusInitialized = sections.Where(s => s is StatusSection).Count() == 1;
+            //bool secondaryInitialized = sections.Any(s => s is SecondaryClassifierSection); // TODO: пересмотреть необходимость вторичных классификаторов и статуса
+            //bool statusInitialized = sections.Where(s => s is StatusSection).Count() == 1;            
+            bool secondaryInitialized = sections.Where(s => s is SecondaryClassifierSection).Count() < 2;
+            bool statusInitialized = sections.Where(s => s is StatusSection).Count() < 2;
             return prefixInitialized && primaryInitialized && secondaryInitialized && statusInitialized;
         }
 
