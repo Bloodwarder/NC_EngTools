@@ -16,16 +16,19 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using GeoMod.NtsServices;
 using NetTopologySuite.Geometries.Utilities;
+using LoaderCore.Interfaces;
 
 namespace GeoMod.Commands
 {
     public class GeomodWktCommands
     {
         private readonly NtsGeometryServices _geometryServices;
+        private readonly IEntityFormatter? _formatter;
 
-        public GeomodWktCommands(INtsGeometryServicesFactory geometryServicesFactory)
+        public GeomodWktCommands(INtsGeometryServicesFactory geometryServicesFactory, IEntityFormatter? formatter)
         {
             _geometryServices = geometryServicesFactory.Create();
+            _formatter = formatter;
         }
         /// <summary>
         /// Создание WKT текста из выбранных геометрий dwg и помещение его в буфер обмена
@@ -102,6 +105,7 @@ namespace GeoMod.Commands
                     Workstation.Logger?.LogDebug("{ProcessingObject}: Добавление {Number} полилиний в чертёж", nameof(GeomodWktCommands), polylines.Count);
                     foreach (Polyline polyline in polylines)
                     {
+                        _formatter?.FormatEntity(polyline);
                         modelSpace.AppendEntity(polyline);
                     }
                 }

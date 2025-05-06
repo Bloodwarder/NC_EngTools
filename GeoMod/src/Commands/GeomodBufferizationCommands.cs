@@ -21,6 +21,7 @@ using NtsBufferOps = NetTopologySuite.Operation.Buffer;
 using GeoMod.NtsServices;
 using System;
 using Teigha.Geometry;
+using LoaderCore.Interfaces;
 
 namespace GeoMod.Commands
 {
@@ -30,8 +31,9 @@ namespace GeoMod.Commands
         private const double DefaultReductionMultiplier = 2d;
         private BufferParameters _defaultBufferParameters;
         private readonly NtsGeometryServices _geometryServices;
+        private readonly IEntityFormatter? _formatter;
 
-        public GeomodBufferizationCommands(IConfiguration configuration, INtsGeometryServicesFactory geometryServicesFactory)
+        public GeomodBufferizationCommands(IConfiguration configuration, INtsGeometryServicesFactory geometryServicesFactory, IEntityFormatter? formatter)
         {
             var section = configuration.GetRequiredSection(RelatedConfigurationSection);
             _defaultBufferParameters = section.GetValue<BufferParameters>("BufferParameters") ?? new()
@@ -43,6 +45,7 @@ namespace GeoMod.Commands
                 IsSingleSided = false
             };
             _geometryServices = geometryServicesFactory.Create();
+            _formatter = formatter;
         }
 
         private static double DefaultBufferDistance { get; set; } = 1d;
@@ -97,6 +100,7 @@ namespace GeoMod.Commands
                 IEnumerable<Polyline> polylines = GeometryToDwgConverter.ToDWGPolylines(union);
                 foreach (Polyline pl in polylines)
                 {
+                    _formatter?.FormatEntity(pl);
                     modelSpace.AppendEntity(pl);
                 }
                 transaction.Commit();
@@ -140,6 +144,7 @@ namespace GeoMod.Commands
                 IEnumerable<Polyline> polylines = GeometryToDwgConverter.ToDWGPolylines(buffer);
                 foreach (Polyline pl in polylines)
                 {
+                    _formatter?.FormatEntity(pl);
                     modelSpace.AppendEntity(pl);
                 }
                 transaction.Commit();
@@ -219,6 +224,7 @@ namespace GeoMod.Commands
                 IEnumerable<Polyline> polylines = GeometryToDwgConverter.ToDWGPolylines(union);
                 foreach (Polyline pl in polylines)
                 {
+                    _formatter?.FormatEntity(pl);
                     modelSpace.AppendEntity(pl);
                 }
                 transaction.Commit();
@@ -266,6 +272,7 @@ namespace GeoMod.Commands
 
                 foreach (Polyline pl in GeometryToDwgConverter.ToDWGPolylines(union))
                 {
+                    _formatter?.FormatEntity(pl);
                     modelSpace!.AppendEntity(pl);
                 }
                 transaction.Commit();
@@ -313,6 +320,7 @@ namespace GeoMod.Commands
 
                 foreach (Polyline pl in GeometryToDwgConverter.ToDWGPolylines(union))
                 {
+                    _formatter?.FormatEntity(pl);
                     modelSpace!.AppendEntity(pl);
                 }
 

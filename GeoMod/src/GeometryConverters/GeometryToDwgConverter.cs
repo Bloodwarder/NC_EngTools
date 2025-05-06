@@ -13,9 +13,6 @@ namespace GeoMod.GeometryConverters
 {
     internal static class GeometryToDwgConverter
     {
-        private static readonly IEntityFormatter? _formatter = NcetCore.ServiceProvider.GetService<IEntityFormatter>(); 
-        // TODO: Сделать нормальную инъекцию по месту использования, а не форматировать всё без разбора
-
         internal static IEnumerable<Polyline> ToDWGPolylines(Geometry geometry)
         {
             List<Polyline> result = new();
@@ -41,7 +38,6 @@ namespace GeoMod.GeometryConverters
                 polyline.AddVertexAt(i, new Point2d(coordinates[i].X, coordinates[i].Y), 0, 0, 0);
             }
 
-            _formatter?.FormatEntity(polyline);
             return polyline.CheckClosedPolyline();
         }
 
