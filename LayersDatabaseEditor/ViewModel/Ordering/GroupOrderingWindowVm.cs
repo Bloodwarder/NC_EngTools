@@ -2,6 +2,7 @@
 using LayersIO.Model;
 using LoaderCore.UI;
 using Microsoft.EntityFrameworkCore;
+using Npoi.Mapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,16 +22,9 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
         private DisplayedLayers _displayedLayersState;
         private string? _layerFilterString;
         private DrawOrderGroupVm? _selectedGroup;
-        //private IList<LayerDrawOrderGroupViewModel> _selectedLayers;
         private readonly Func<LayerGroupedVm, bool> _textPredicate;
         private readonly Func<LayerGroupedVm, bool> _groupedPredicate;
         private readonly Func<LayerGroupedVm, bool> _ungroupedPredicate;
-
-        //private RelayCommand? _moveUpCommand;
-        //private RelayCommand? _moveDownCommand;
-        //private RelayCommand? _addGroupCommand;
-        //private RelayCommand? _removeGroupCommand;
-
 
         public GroupOrderingWindowVm(LayersDatabaseContextSqlite context)
         {
@@ -109,16 +103,6 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
                 OnPropertyChanged();
             }
         }
-
-        //public IList<LayerDrawOrderGroupViewModel> SelectedLayers
-        //{
-        //    get => _selectedLayers;
-        //    set
-        //    {
-        //        _selectedLayers = value;
-        //        OnPropertyChanged();
-        //    }
-        //}
 
         public ListCollectionView LayersView { get; }
         public ListCollectionView GroupsView { get; }
@@ -247,14 +231,13 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
             int counter = 0;
             foreach (var groupedLayer in layers)
             {
-                counter++;
                 DrawOrderGroupVm? group;
                 if (groupedLayer.Key != 0)
                 {
-
+                    counter++;
                     group = CreateGroupVm();
                     group.Name = $"Новая группа {counter}";
-                    group.Index = counter;
+                    group.SetIndexDeferRecalc(counter);
 
                     Groups.Add(group);
                 }
@@ -272,6 +255,7 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
                     Layers.Add(layerVm);
                 }
             }
+            Dispatcher.CurrentDispatcher.Invoke(() => GroupsView.Refresh(), DispatcherPriority.Background);
         }
 
         private bool CanMoveDown()
@@ -348,30 +332,47 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
         {
             if (e is not DrawOrderGroupVm.IndexChangedEventArgs args)
                 return;
-            int count = Groups.Count;
-            var groups = Groups.Where(g => g.Index != 0 && g != sender);
-            int diff = Math.Abs(args.NewIndex - args.OldIndex);
-            int skip = Math.Clamp(Math.Min(args.OldIndex, args.NewIndex), 0, int.MaxValue);
-            if (count < diff)
-                return;
-            var reindexedGroups = groups.Skip(skip).Take(diff).ToList();
-            if (args.OldIndex < args.NewIndex)
-            {
-                reindexedGroups.ForEach(g => g.SetIndexDeferRecalc(g.Index + 1));
-            }
-            else
-            {
-                reindexedGroups.ForEach(g => g.SetIndexDeferRecalc(g.Index - 1));
-            }
 
-            //if (args.NewIndex < count + 1)
+            int increment = args.NewIndex - args.OldIndex;
+            //using (var defer = GroupsView.DeferRefresh())
             //{
-            //    var groupsToReduce = Groups.Where(g => g != sender && g.Index > args.OldIndex && g.Index <= args.NewIndex);
-            //    foreach (var g in groupsToReduce)
-            //        g.Index--;
+                if (args.NewIndex == 0) // старый не может быть 0 - событие не вызовется
+                {
+                    var groupsToReduce = Groups.Where(g => g.Index > args.OldIndex).ToList();
+                    groupsToReduce.ForEach(g => g.SetIndexDeferRecalc(g.Index - 1));
+                }
+                else if (args.OldIndex == 0)
+                {
+                    var groupsToIncrease = Groups.Where(g => g.Index >= args.NewIndex).ToList();
+                    groupsToIncrease.ForEach(g => g.SetIndexDeferRecalc(g.Index + 1));
+                }
+                else if (increment > 0)
+                {
+                    var groupsToReduce = Groups.Where(g => g != sender && g.Index > args.OldIndex && g.Index <= args.NewIndex);
+                    groupsToReduce.ForEach(g => g.SetIndexDeferRecalc(g.Index - 1));
+
+                }
+                else if (increment < 0)
+                {
+                    var groupsToIncrease = Groups.Where(g => g != sender && g.Index >= args.NewIndex && g.Index < args.OldIndex).ToList();
+                    groupsToIncrease.ForEach(g => g.SetIndexDeferRecalc(g.Index + 1));
+                }
             //}
-            DrawOrderGroupVm group = (DrawOrderGroupVm)sender!;
-            group.Index = Math.Clamp(group.Index, 1, count + 1);
+            //Dispatcher.CurrentDispatcher.Invoke(() => GroupsView.Refresh(), DispatcherPriority.Background);
+        }
+
+        private void IndexFix()
+        {
+            var groups = Groups.Where(g => g.Index != 0).OrderBy(g => g.Index);
+            int i = 1;
+            using (var defer = GroupsView.DeferRefresh())
+            {
+                foreach (var group in groups)
+                {
+                    group.SetIndexDeferRecalc(i++);
+                }
+            }
+            Dispatcher.CurrentDispatcher.Invoke(() => GroupsView.Refresh(), DispatcherPriority.Background);
         }
 
     }
