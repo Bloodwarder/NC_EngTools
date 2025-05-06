@@ -27,9 +27,12 @@
         <KeyBinding Command="{Binding Path=ExcludeNodeCommand}"
                     CommandParameter="{Binding ElementName=lvNodes, Path=SelectedItem}"
                     Gesture="Shift+Left"/>
-        <KeyBinding Command="{Binding Path=IncludeAndCloseCommand}"
+        <KeyBinding Command="{Binding Path=NextNodeCommand}"
                     CommandParameter="{Binding ElementName=lvNodes, Path=SelectedItem}"
                     Key="Enter"/>
+        <KeyBinding Command="{Binding Path=IncludeAndCloseCommand}"
+                    CommandParameter="{Binding ElementName=lvNodes, Path=SelectedItem}"
+                    Gesture="Shift+Enter"/>
         <KeyBinding Command="{Binding Path=IncludeAndCloseCommand}"
                     Key="Esc"/>
         <KeyBinding Command="{Binding Path=RollFilterDownCommand}"
@@ -81,12 +84,15 @@
                             <ControlTemplate TargetType="ListViewItem">
                                 <Border Name="Border"
                                         Background="{TemplateBinding Background}"
-                                        Padding="4" MouseEnter="Border_MouseEnter">
+                                        Padding="4" MouseEnter="Border_MouseEnter" Margin="0.5">
                                     <ContentPresenter/>
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsSelected" Value="True">
                                         <Setter TargetName="Border" Property="Background" Value="#CFDFFF"/>
+                                        <Setter TargetName="Border" Property="BorderBrush" Value="RoyalBlue"/>
+                                        <Setter TargetName="Border" Property="BorderThickness" Value="1"/>
+                                        <Setter TargetName="Border" Property="CornerRadius" Value="4"/>
                                     </Trigger>
                                     <DataTrigger Binding="{Binding Path=IsChildrenIncluded}" Value="True">
                                         <Setter TargetName="Border" Property="Background" Value="#FFD3FF"/>
@@ -94,17 +100,17 @@
                                     <DataTrigger Binding="{Binding Path=IsIncluded}" Value="True">
                                         <Setter TargetName="Border" Property="Background" Value="#D8F3DC"/>
                                     </DataTrigger>
-                                    <MultiDataTrigger>
+                                    <!--<MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
                                             <Condition Binding="{Binding IsIncluded}" Value="True"/>
-                                            <Condition Binding="{Binding IsSelected, Converter={StaticResource debugConverter}, RelativeSource={RelativeSource TemplatedParent}}" Value="True"/>
-                                            <!--<Condition Binding="{Binding Path=IsSelected, Source={RelativeSource AncestorType=ListViewItem}, Converter={StaticResource debugConverter}}" Value="True"/>-->
+                                            --><!--<Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource TemplatedParent}}" Value="True"/>-->
+                                            <!--<Condition Binding="{Binding Path=IsSelected, Source={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Converter={StaticResource debugConverter}}" Value="True"/>--><!--
                                         </MultiDataTrigger.Conditions>
-                                        <!--<Setter TargetName="Border" Property="Background" Value="{StaticResource ResourceKey=SelectedHighlightBrush}"/>-->
+                                        <Setter TargetName="Border" Property="Background" Value="{StaticResource ResourceKey=SelectedHighlightBrush}"/>
                                         <Setter TargetName="Border" Property="Tag" Value="TriggerFired"/>
                                         <Setter TargetName="Border" Property="Background" Value="Red"/>
                                         <Setter TargetName="Border" Property="BorderBrush" Value="#2D6A4F"/>
-                                    </MultiDataTrigger>
+                                    </MultiDataTrigger>-->
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Setter.Value>

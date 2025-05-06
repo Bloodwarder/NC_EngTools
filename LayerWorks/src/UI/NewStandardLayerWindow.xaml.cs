@@ -29,7 +29,7 @@ namespace LayerWorks.UI
                     container?.Focus();
                 }
             };
-            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
         }
         public NewStandardLayerWindowVm ViewModel
         {
