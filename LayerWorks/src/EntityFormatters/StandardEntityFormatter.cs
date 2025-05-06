@@ -4,6 +4,7 @@ using LoaderCore.NanocadUtilities;
 using Microsoft.Extensions.Logging;
 using NameClassifiers;
 using System.Text.RegularExpressions;
+using Teigha.Colors;
 using Teigha.DatabaseServices;
 
 namespace LayerWorks.EntityFormatters
@@ -77,42 +78,53 @@ namespace LayerWorks.EntityFormatters
                 return;
             if (string.IsNullOrEmpty(drawTemplate!.InnerHatchPattern) || drawTemplate!.InnerHatchPattern == NoneHatchPatternString)
                 return;
-            Action<Hatch>? delayedBackgroundSetAction = null;
-            if (drawTemplate.InnerHatchPattern != null && drawTemplate.InnerHatchPattern != "SOLID")
-            {
-                hatch.PatternAngle = drawTemplate.InnerHatchAngle * Math.PI / 180;
-                hatch.PatternScale = drawTemplate.InnerHatchScale;
-                if (drawTemplate.InnerHatchBrightness != 0)
-                {
-                    var color = hatch.LayerId.GetObject<LayerTableRecord>(OpenMode.ForRead).Color;
 
-                    if (hatch.PatternName != "SOLID")
-                        hatch.BackgroundColor = color.BrightnessShift(drawTemplate.InnerHatchBrightness);
-                    else
-                        // если исходный образец штриховки - SOLID - отложить назначение фонового цвета до изменения образца
-                        delayedBackgroundSetAction = h => h.BackgroundColor = color.BrightnessShift(drawTemplate.InnerHatchBrightness);
+            SetHatchPattern(hatch, drawTemplate.InnerHatchPattern!);
+
+            try
+            {
+                if (drawTemplate.InnerHatchPattern != null && drawTemplate.InnerHatchPattern != "SOLID")
+                {
+                    hatch.PatternAngle = drawTemplate.InnerHatchAngle * Math.PI / 180;
+                    hatch.PatternScale = drawTemplate.InnerHatchScale;
+                    if (drawTemplate.InnerHatchBrightness != 0)
+                    {
+                        var color = hatch.LayerId.GetObject<LayerTableRecord>(OpenMode.ForRead).Color;
+
+                        if (hatch.PatternName != "SOLID")
+                        {
+                            hatch.BackgroundColor = color.BrightnessShift(drawTemplate.InnerHatchBrightness);
+                        }
+                    }
+                }
+                else
+                {
+                    hatch.BackgroundColor = Color.FromColorIndex(ColorMethod.None, 257);
+                    var color = hatch.LayerId.GetObject<LayerTableRecord>(OpenMode.ForRead).Color;
+                    hatch.Color = color.BrightnessShift(drawTemplate.InnerHatchBrightness);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                var color = hatch.LayerId.GetObject<LayerTableRecord>(OpenMode.ForRead).Color;
-                hatch.Color = color.BrightnessShift(drawTemplate.InnerHatchBrightness);
+                Workstation.Logger?.LogWarning(ex, "Не удалось форматировать штриховку {Pattern} в слое {Layer}", hatch.PatternName, key);
             }
+        }
 
+        private static void SetHatchPattern(Hatch hatch, string patternName)
+        {
             //ДИКИЙ БЛОК, ПЫТАЮЩИЙСЯ ОБРАБОТАТЬ ОШИБКИ ДЛЯ НЕПОНЯТНЫХ ШТРИХОВОК
             // BUG: Не назначает штриховку SOLID при более чем одном объекте в Loop
             try
             {
-                hatch.SetHatchPattern(HatchPatternType.PreDefined, drawTemplate.InnerHatchPattern);
+                hatch.SetHatchPattern(HatchPatternType.PreDefined, patternName);
             }
             catch
             {
-
                 for (int i = 2; i > -1; i--)
                 {
                     try
                     {
-                        hatch.SetHatchPattern((HatchPatternType)i, drawTemplate.InnerHatchPattern);
+                        hatch.SetHatchPattern((HatchPatternType)i, patternName);
                         break;
                     }
                     catch
@@ -121,7 +133,6 @@ namespace LayerWorks.EntityFormatters
                     }
                 }
             }
-            delayedBackgroundSetAction?.Invoke(hatch);
         }
     }
 
