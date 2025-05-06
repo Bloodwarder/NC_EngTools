@@ -9,6 +9,8 @@ using LoaderCore.SharedData;
 using LayerWorks.DataRepositories;
 using Microsoft.EntityFrameworkCore;
 using LayersIO.Connection;
+using LoaderCore.NanocadUtilities;
+using Microsoft.Extensions.Logging;
 
 namespace LayerWorks.Commands
 {
@@ -16,12 +18,20 @@ namespace LayerWorks.Commands
     {
         static LayerWorksCommands()
         {
-            LayerAlterer = NcetCore.ServiceProvider.GetRequiredService<LayerAlterer>();
-            ChapterVisualizer = NcetCore.ServiceProvider.GetRequiredService<ChapterVisualizer>();
-            LegendAssembler = NcetCore.ServiceProvider.GetRequiredService<LegendAssembler>();
-            LayerEntitiesReportWriter = NcetCore.ServiceProvider.GetRequiredService<LayerEntitiesReportWriter>();
-            AutoZoner = NcetCore.ServiceProvider.GetRequiredService<AutoZoner>();
-            DrawOrderProcessor = NcetCore.ServiceProvider.GetRequiredService<DrawOrderProcessor>();
+            try
+            {
+                LayerAlterer = NcetCore.ServiceProvider.GetRequiredService<LayerAlterer>();
+                ChapterVisualizer = NcetCore.ServiceProvider.GetRequiredService<ChapterVisualizer>();
+                LegendAssembler = NcetCore.ServiceProvider.GetRequiredService<LegendAssembler>();
+                LayerEntitiesReportWriter = NcetCore.ServiceProvider.GetRequiredService<LayerEntitiesReportWriter>();
+                AutoZoner = NcetCore.ServiceProvider.GetRequiredService<AutoZoner>();
+                DrawOrderProcessor = NcetCore.ServiceProvider.GetRequiredService<DrawOrderProcessor>();
+            }
+            catch (System.Exception ex)
+            {
+                Workstation.Logger?.LogCritical(ex, "Ошибка инициализации {Name}:\t{Message}", nameof(LayerWorksCommands),ex.Message);
+                throw;
+            }
         }
         private static LayerAlterer LayerAlterer { get; }
         internal static ChapterVisualizer ChapterVisualizer { get; }

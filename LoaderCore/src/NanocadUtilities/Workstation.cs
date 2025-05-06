@@ -40,7 +40,7 @@ namespace LoaderCore.NanocadUtilities
         internal static bool IsCommandLoggingEnabled { get; set; } = false;
 
         public static event EventHandler? BeginRedefine;
-        public static event EventHandler? Redefined;
+        public static event WorkstationRedefinedEventHandler? Redefined;
         /// <summary>
         /// Определяет основные элементы управления для открытого активного чертежа
         /// </summary>
@@ -49,15 +49,20 @@ namespace LoaderCore.NanocadUtilities
             BeginRedefine?.Invoke(_document, EventArgs.Empty);
 
             var document = Application.DocumentManager.MdiActiveDocument;
-            bool redefined = document != _document;
+            var args = new WorkstationRedefinedEventArgs(_document, document);
 
             _document = document;
             _database = HostApplicationServices.WorkingDatabase;
             _transactionManager = Database.TransactionManager;
             _editor = Document.Editor;
-
-            if (redefined)
-                Redefined?.Invoke(_document, EventArgs.Empty);
+            try
+            {
+                Redefined?.Invoke(_document, args);
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogError(ex, "Ошибка обработки перезагрузки рабочей станции. Программа попытается продолжить работу.\nСообщение:\t{Message}", ex.Message);
+            }
         }
 
         public static void AppendEntity(Entity entity, Transaction transaction)
@@ -72,4 +77,19 @@ namespace LoaderCore.NanocadUtilities
         }
     }
 
+    public class WorkstationRedefinedEventArgs : EventArgs
+    {
+        public WorkstationRedefinedEventArgs(Document oldDocument, Document newDocument)
+        {
+            OldDocument = oldDocument;
+            NewDocument = newDocument;
+            DocumentChanged = oldDocument != newDocument;
+        }
+
+        public Document OldDocument { get; }
+        public Document NewDocument { get; }
+        public bool DocumentChanged { get; }
+    }
+
+    public delegate void WorkstationRedefinedEventHandler(object sender, WorkstationRedefinedEventArgs e);
 }

@@ -3,7 +3,7 @@ using LoaderCore.NanocadUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Configuration;
+using System.Diagnostics;
 
 namespace LoaderCore.Utilities
 {
@@ -37,6 +37,12 @@ namespace LoaderCore.Utilities
                 catch (AccessViolationException ex)
                 {
                     string str = ex.Message;
+                }
+                catch (Exception ex) 
+                {
+#if DEBUG
+                    Debug.Write($"Ошибка логгирования:\t{ex.Message}");
+#endif
                 }
             }
         }

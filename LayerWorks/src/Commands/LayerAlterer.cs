@@ -1,27 +1,27 @@
 ﻿//System
+using System.Globalization;
+using System.IO;
+using System.Reflection;
 //nanoCAD
 using HostMgd.EditorInput;
 using Teigha.Colors;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
+using HostMgd.ApplicationServices;
 //Microsoft
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 //internal modules
-using LayersIO.DataTransfer;
-using LayerWorks.LayerProcessing;
 using LoaderCore;
 using LoaderCore.Interfaces;
+using LoaderCore.NanocadUtilities;
+using LayersIO.DataTransfer;
+using LayerWorks.LayerProcessing;
+using LayerWorks.UI;
 using NameClassifiers;
 using NameClassifiers.Sections;
-using LoaderCore.NanocadUtilities;
 
 using static LoaderCore.NanocadUtilities.EditorHelper;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using LayerWorks.UI;
-using HostMgd.ApplicationServices;
 
 namespace LayerWorks.Commands
 {
@@ -40,8 +40,7 @@ namespace LayerWorks.Commands
         {
             _checker = checker;
             _formatter = formatter;
-            UpdatePresentAuxData();
-            Workstation.Redefined += (s, e) => UpdatePresentAuxData();
+            Workstation.Redefined += (s, e) => { if (e.DocumentChanged) UpdatePresentAuxData(); };
         }
 
         internal string PrevStatus { get; set; } = "";
@@ -426,7 +425,8 @@ namespace LayerWorks.Commands
                         }
                         else
                         {
-                            newData = presentData[result.StringResult];
+                            _ = presentData.TryGetValue(result.StringResult, out newData);
+                            newData ??= result.StringResult;
                             PreviousAssignedData[dataKey] = newData;
                         }
                     }
@@ -611,9 +611,15 @@ namespace LayerWorks.Commands
 
         private void UpdatePresentAuxData(string key, IEnumerable<string> layerNames)
         {
+            Func<LayerInfoResult, string?> extractData = r =>
+            {
+                _ = r.Value!.AuxilaryData.TryGetValue(key, out var data);
+                return data;
+            };
+
             string[] names = layerNames.Select(n => NameParser.ParseLayerName(n))
                                        .Where(r => r.Status == LayerInfoParseStatus.Success)
-                                       .Select(r => r.Value!.AuxilaryData[key])
+                                       .Select(extractData)
                                        .Where(s => !string.IsNullOrEmpty(s))
                                        .Select(s => s!)
                                        .Distinct()
@@ -632,7 +638,7 @@ namespace LayerWorks.Commands
                 var keys = NameParser.Current.AuxilaryDataKeys.Keys;
                 if (!keys.Any())
                 {
-                    transaction.Abort();
+                    transaction.Commit();
                     return;
                 }
                 string[] layerNames = Workstation.Database.LayerTableId.GetObject<LayerTable>(OpenMode.ForRead, transaction)
