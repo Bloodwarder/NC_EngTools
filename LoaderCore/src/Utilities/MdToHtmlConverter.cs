@@ -29,7 +29,7 @@ namespace LoaderCore.Utilities
             {
                 styles = stylesReader.ReadToEnd();
             }
-            var pipeline = new MarkdownPipelineBuilder().Build();
+            var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
 
             var content = Markdown.ToHtml(markdownText, pipeline);
 
