@@ -11,11 +11,9 @@ namespace LayerWorks.DataRepositories
     {
         private Dictionary<TKey, TData> _dictionary;
         private readonly ILogger? _logger;
-        //private readonly ILayerDataProvider<TKey, TData> _dataProvider;
 
         public InMemoryRepository(ILayerDataProvider<TKey, TData> provider, ILogger? logger)
         {
-            //_dataProvider = provider;
             _logger = logger;
             _dictionary = provider.GetData();
         }

@@ -14,7 +14,6 @@ namespace LayersDatabaseEditor.UI
     {
         private const int DebounceMillisecondsTimeout = 400;
         public static readonly DependencyProperty ViewModelProperty;
-        private string _lastSearch = string.Empty;
         private Task? _debounceTimeoutTask;
         private CancellationTokenSource _cts = null!;
         private readonly Func<ZoneGroupInfoVm, string, bool> _filterPredicate;
@@ -56,7 +55,6 @@ namespace LayersDatabaseEditor.UI
                     Dispatcher.Invoke(() =>
                     {
                         CollectionViewSource.View.Refresh();
-                        _lastSearch = inputFilter.InputValue;
                     }
                     , DispatcherPriority.Background);
                 }, _cts.Token);

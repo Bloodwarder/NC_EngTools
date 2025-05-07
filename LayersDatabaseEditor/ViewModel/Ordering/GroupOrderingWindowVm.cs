@@ -38,7 +38,7 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
 
             LayersView = new(Layers);
 
-            _textPredicate = l => string.IsNullOrEmpty(LayerFilterString) || l.Name.Contains(LayerFilterString);
+            _textPredicate = l => string.IsNullOrEmpty(LayerFilterString) || l.Name.Contains(LayerFilterString, StringComparison.CurrentCultureIgnoreCase);
             _groupedPredicate = l => l.Group == SelectedGroup;//l => SelectedGroup?.Layers.Contains(l.Name) ?? false;
             _ungroupedPredicate = l => l.Group == null;
 
@@ -316,7 +316,7 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
 
             var groupsToRecalcIndex = Groups.Where(g => g.Index > group!.Index);
             foreach (var g in groupsToRecalcIndex)
-                g.Index--;
+                g.SetIndexDeferRecalc(g.Index-1);
 
             var layersToSetNullGroup = Layers.Where(l => l.Group == group);
             foreach (var layer in layersToSetNullGroup)
@@ -334,8 +334,6 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
                 return;
 
             int increment = args.NewIndex - args.OldIndex;
-            //using (var defer = GroupsView.DeferRefresh())
-            //{
                 if (args.NewIndex == 0) // старый не может быть 0 - событие не вызовется
                 {
                     var groupsToReduce = Groups.Where(g => g.Index > args.OldIndex).ToList();
@@ -343,7 +341,7 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
                 }
                 else if (args.OldIndex == 0)
                 {
-                    var groupsToIncrease = Groups.Where(g => g.Index >= args.NewIndex).ToList();
+                    var groupsToIncrease = Groups.Where(g => g != sender && g.Index >= args.NewIndex).ToList();
                     groupsToIncrease.ForEach(g => g.SetIndexDeferRecalc(g.Index + 1));
                 }
                 else if (increment > 0)
@@ -357,8 +355,6 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
                     var groupsToIncrease = Groups.Where(g => g != sender && g.Index >= args.NewIndex && g.Index < args.OldIndex).ToList();
                     groupsToIncrease.ForEach(g => g.SetIndexDeferRecalc(g.Index + 1));
                 }
-            //}
-            //Dispatcher.CurrentDispatcher.Invoke(() => GroupsView.Refresh(), DispatcherPriority.Background);
         }
 
         private void IndexFix()

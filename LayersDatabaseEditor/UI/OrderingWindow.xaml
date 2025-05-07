@@ -48,10 +48,10 @@
             </DataGrid>
             <DockPanel Grid.Column="1" LastChildFill="False">
                 <Button DockPanel.Dock="Bottom" Height="37" Width="37" Margin="2 5 5 10" VerticalAlignment="Bottom"
-                    Content="&#9650;"
-                    Command="{Binding Path=MoveUpCommand}"/>
+                        Content="&#9650;"
+                        Command="{Binding Path=MoveUpCommand}"/>
                 <Ellipse x:Name="dbIndicatorEllipse" DockPanel.Dock="Top" Width="25" Height="25" Margin="7 10 7 5"
-                     Style="{StaticResource ellipseIndicatorStyle}"/>
+                         Style="{StaticResource ellipseIndicatorStyle}"/>
             </DockPanel>
             <Button Grid.Row="1" Grid.Column="1" Height="37" Width="37" Margin="2 10 5 5" VerticalAlignment="Top"
                     Content="&#9660;"

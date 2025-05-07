@@ -12,7 +12,7 @@
             <RowDefinition/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <ProgressBar Name="pbUpdateBar" Grid.Row="0" Margin="5"/>
+        <ProgressBar x:Name="pbUpdateBar" Grid.Row="0" Margin="5"/>
         <FlowDocumentScrollViewer Name="fdsvUpdateLog" Grid.Row="1" Grid.ColumnSpan="2" Margin="5" BorderBrush="#FF4A4A4A" Foreground="Black">
             <FlowDocument x:Name="fdUpdateLog" FontSize="12" FontFamily="SegoeUI" Foreground="#00007f" Background="WhiteSmoke" LineHeight="12" LineStackingStrategy="MaxHeight"/>
         </FlowDocumentScrollViewer>

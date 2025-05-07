@@ -27,6 +27,8 @@ namespace LayerWorks.LayerProcessing
 
         public static event EventHandler? LayerAddedEvent;
 
+        // TODO: добавить обработку нескольких слоёв без открытия отдельной транзакции для каждого
+
         /// <summary>
         /// Ищет в таблице слоёв слой с именем, пропущенным через NameParser, и при его отсутствии добавляет его, 
         /// используя репозиторий с данными стандартных слоёв
@@ -91,7 +93,7 @@ namespace LayerWorks.LayerProcessing
                 var layerInfoResult = parser!.GetLayerInfo(layerName);
                 if (layerInfoResult.Status == LayerInfoParseStatus.Success)
                 {
-                    return Check(layerInfoResult.Value);
+                    return Check(layerInfoResult.Value!);
                 }
                 else
                 {

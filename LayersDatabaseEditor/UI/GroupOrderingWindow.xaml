@@ -50,9 +50,9 @@
                   ItemsSource="{Binding Path=GroupsView}"
                   SelectedItem="{Binding Path=SelectedGroup}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Наименование" Width="293"
+                <DataGridTextColumn Header="Наименование" Width="260" MaxWidth="260"
                                     Binding="{Binding Path=Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                <DataGridTextColumn Header="Ранг" 
+                <DataGridTextColumn Header="Ранг" MinWidth="50"
                                     Binding="{Binding Path=Index, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
             </DataGrid.Columns>
         </DataGrid>

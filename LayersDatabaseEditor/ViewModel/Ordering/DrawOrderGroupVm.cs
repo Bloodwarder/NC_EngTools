@@ -54,9 +54,6 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
                     PropertyChanged?.Invoke(this, new IndexChangedEventArgs(oldValue, value));
                     OnPropertyChanged(nameof(IsValid));
                     OnPropertyChanged(nameof(IsUpdated));
-
-                    //if (Math.Abs(oldValue - value) > 1)
-                    //    OnIndexLeap?.Invoke(this, new(oldValue, value));
                 }
             }
         }
@@ -68,13 +65,12 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
         internal DrawOrderGroup DrawOrderGroup => _drawOrderGroup;
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        //internal event IndexLeapEventHandler? OnIndexLeap;
 
         public void ResetValues()
         {
             if (Name != null && NameMap.ContainsKey(Name))
                 NameMap.Remove(Name);
-            _isMapped = NameMap.TryAdd(_drawOrderGroup.Name, this);
+            //_isMapped = NameMap.TryAdd(_drawOrderGroup.Name, this);
 
             Name = _drawOrderGroup.Name;
             Index = _drawOrderGroup.Index;
@@ -110,8 +106,5 @@ namespace LayersDatabaseEditor.ViewModel.Ordering
             public int OldIndex { get; }
             public int NewIndex { get; }
         }
-
-        //public delegate void IndexLeapEventHandler(object sender, IndexLeapEventArgs e);
-
     }
 }
